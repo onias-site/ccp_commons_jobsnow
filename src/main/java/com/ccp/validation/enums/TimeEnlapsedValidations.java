@@ -4,7 +4,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.decorators.CcpTimeDecorator;
 
-public interface TimeEnlapsedValidations extends BoundValidations {
+interface TimeEnlapsedValidations extends CcpBoundValidations {
 	default Double getDifference(CcpJsonRepresentation json, String field) {
 		Double value = json.getAsDoubleNumber(field);
 		CcpTimeDecorator ctd = new CcpTimeDecorator();

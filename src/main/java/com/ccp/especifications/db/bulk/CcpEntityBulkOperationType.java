@@ -6,7 +6,7 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.db.utils.CcpEntityRecordNotFound;
+import com.ccp.exceptions.db.utils.CcpErrorBulkEntityRecordNotFound;
 
 public enum CcpEntityBulkOperationType {
 
@@ -14,7 +14,7 @@ public enum CcpEntityBulkOperationType {
 	update(CcpOtherConstants.EMPTY_JSON.put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
 	delete(CcpOtherConstants.EMPTY_JSON.put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
-		throw new CcpEntityRecordNotFound(x.entity, x.json);
+		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	}))
 	;
 	

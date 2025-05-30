@@ -9,27 +9,27 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface CcpJsonFieldsValidation {
 
-	SimpleObject[] simpleObject() default {};
+	CcpSimpleObject[] simpleObject() default {};
 
-	SimpleArray[] simpleArray() default {};
+	CcpSimpleArray[] simpleArray() default {};
 
-	AllowedValues[] allowedValues() default {};
+	CcpAllowedValues[] allowedValues() default {};
 
-	ObjectNumbers[] objectNumbers() default {};
+	CcpObjectNumbers[] objectNumbers() default {};
 
-	ArrayNumbers[] arrayNumbers() default {};
+	CcpArrayNumbers[] arrayNumbers() default {};
 
-	ObjectTextSize[] objectTextSize() default {};
+	CcpObjectTextSize[] objectTextSize() default {};
 
-	ArrayTextSize[] arrayTextSize() default {};
+	CcpArrayTextSize[] arrayTextSize() default {};
 
-	ArraySize[] arraySize() default {};
+	CcpArraySize[] arraySize() default {};
 	
-	Year[] year() default {};
+	CcpYear[] year() default {};
 
-	Day[] day() default {};
+	CcpDay[] day() default {};
 	
-	Regex[] regex() default {};
+	CcpRegex[] regex() default {};
 	
 	Class<?> rulesClass() default Dumb.class;
 	

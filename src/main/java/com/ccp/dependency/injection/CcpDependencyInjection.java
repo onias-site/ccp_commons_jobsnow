@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ccp.exceptions.dependency.injection.CcpDependencyInjectionMissing;
+import com.ccp.exceptions.dependency.injection.CcpErrorDependencyInjectionMissing;
 
 public class CcpDependencyInjection {
 
@@ -30,7 +30,7 @@ public class CcpDependencyInjection {
 	public static <T> T getDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
 		if(implementation == null) {
-			throw new CcpDependencyInjectionMissing(interfaceClass);
+			throw new CcpErrorDependencyInjectionMissing(interfaceClass);
 		}
 		return (T) implementation;
 	}

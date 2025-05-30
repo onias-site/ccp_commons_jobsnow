@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
-import com.ccp.exceptions.hash.CcpHashAlgorithmNotFound;
+import com.ccp.exceptions.hash.CcpErrorHashAlgorithmNotFound;
 
 public enum CcpHashAlgorithm {
 	MD5("MD5"),
@@ -27,7 +27,7 @@ public enum CcpHashAlgorithm {
 			try {
 				instance = MessageDigest.getInstance(this.algorithm);
 			} catch (NoSuchAlgorithmException e) {
-				throw new CcpHashAlgorithmNotFound(this.algorithm);
+				throw new CcpErrorHashAlgorithmNotFound(this.algorithm);
 			}
 			messageDigests.put(this, instance);
 			return instance;

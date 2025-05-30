@@ -4,20 +4,20 @@ import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.validation.annotations.AllowedValues;
-import com.ccp.validation.annotations.ArrayNumbers;
-import com.ccp.validation.annotations.ArraySize;
-import com.ccp.validation.annotations.ArrayTextSize;
-import com.ccp.validation.annotations.Day;
-import com.ccp.validation.annotations.ObjectNumbers;
-import com.ccp.validation.annotations.ObjectTextSize;
-import com.ccp.validation.annotations.Regex;
-import com.ccp.validation.annotations.SimpleObject;
+import com.ccp.validation.annotations.CcpAllowedValues;
+import com.ccp.validation.annotations.CcpArrayNumbers;
+import com.ccp.validation.annotations.CcpArraySize;
+import com.ccp.validation.annotations.CcpArrayTextSize;
+import com.ccp.validation.annotations.CcpDay;
+import com.ccp.validation.annotations.CcpObjectNumbers;
+import com.ccp.validation.annotations.CcpObjectTextSize;
+import com.ccp.validation.annotations.CcpRegex;
+import com.ccp.validation.annotations.CcpSimpleObject;
 import com.ccp.validation.annotations.CcpJsonFieldsValidation;
-import com.ccp.validation.annotations.Year;
-import com.ccp.validation.enums.AllowedValuesValidations;
-import com.ccp.validation.enums.BoundValidations;
-import com.ccp.validation.enums.SimpleObjectValidations;
+import com.ccp.validation.annotations.CcpYear;
+import com.ccp.validation.enums.CcpAllowedValuesValidations;
+import com.ccp.validation.enums.CcpBoundValidations;
+import com.ccp.validation.enums.CcpSimpleObjectValidations;
 
 public class CcpJsonFieldsValidations {
 	// Valida o conteúdo das informações do JSON com os campos da tabela que receberá os dados
@@ -62,7 +62,7 @@ public class CcpJsonFieldsValidations {
 		// Incrementa a variável de evidência com a especificação
 		CcpJsonRepresentation result = evidences.put("specification", specification).put("json", json);
 		// Se der algum erro, será redirecionado à classe CcpJsonInvalid()
-		throw new CcpJsonInvalid(result);
+		throw new CcpErrorJsonInvalid(result);
 	}
 
 	private static CcpJsonRepresentation simpleValidation(
@@ -70,11 +70,11 @@ public class CcpJsonFieldsValidations {
 			CcpJsonRepresentation json,
 			CcpJsonRepresentation result
 			) {
-		SimpleObject[] simples = rules.simpleObject();
+		CcpSimpleObject[] simples = rules.simpleObject();
 
-		for (SimpleObject validation : simples) {
+		for (CcpSimpleObject validation : simples) {
 			
-			SimpleObjectValidations rule = validation.rule();
+			CcpSimpleObjectValidations rule = validation.rule();
 			result = rule.validate(json, result, validation);
 		}
 
@@ -85,120 +85,120 @@ public class CcpJsonFieldsValidations {
 
 		CcpJsonRepresentation specification = CcpOtherConstants.EMPTY_JSON;
 		
-		AllowedValues[] allowedValues = rules.allowedValues();
+		CcpAllowedValues[] allowedValues = rules.allowedValues();
 		
 		specification = specification.put("featureName", featureName);
-		for (AllowedValues dumb : allowedValues) {
+		for (CcpAllowedValues dumb : allowedValues) {
 
 			String[] restrictedValues = dumb.allowedValues();
-			AllowedValuesValidations rule = dumb.rule();
+			CcpAllowedValuesValidations rule = dumb.rule();
 			String[] fields = dumb.fields();
 			
-			String completeRuleName = getCompleteRuleName(AllowedValues.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpAllowedValues.class, rule);
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 			specification = specification.addToItem(completeRuleName, "restrictedValues", restrictedValues);
 		}
 		
-		ArrayNumbers[] arrayNumbers = rules.arrayNumbers();
+		CcpArrayNumbers[] arrayNumbers = rules.arrayNumbers();
 		
-		for (ArrayNumbers dumb : arrayNumbers) {
-			BoundValidations rule = dumb.rule();
+		for (CcpArrayNumbers dumb : arrayNumbers) {
+			CcpBoundValidations rule = dumb.rule();
 			String[] fields = dumb.fields();
 			double bound = dumb.bound();
 			
-			String completeRuleName = getCompleteRuleName(ArrayNumbers.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpArrayNumbers.class, rule);
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 			specification = specification.addToItem(completeRuleName, "bound", bound);
 		}
 		
-		ArraySize[] arraySize = rules.arraySize();
+		CcpArraySize[] arraySize = rules.arraySize();
 		
-		for (ArraySize dumb : arraySize) {
+		for (CcpArraySize dumb : arraySize) {
 			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
+			CcpBoundValidations rule = dumb.rule();
 			String[] fields = dumb.fields();
 			
-			String completeRuleName = getCompleteRuleName(ArraySize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
-
-		}
-		ArrayTextSize[] arrayTextSize = rules.arrayTextSize();
-		
-		for (ArrayTextSize dumb : arrayTextSize) {
-			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
-			String[] fields = dumb.fields();
-			
-			String completeRuleName = getCompleteRuleName(ArrayTextSize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
-		}
-		
-		Day[] day = rules.day();
-		
-		for (Day dumb : day) {
-			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
-			String[] fields = dumb.fields();
-			
-			String completeRuleName = getCompleteRuleName(Day.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpArraySize.class, rule);
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 			specification = specification.addToItem(completeRuleName, "bound", bound);
 
 		}
-		ObjectNumbers[] objectNumbers = rules.objectNumbers();
-		for (ObjectNumbers dumb : objectNumbers) {
-			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
-			String[] fields = dumb.fields();
-			
-			String completeRuleName = getCompleteRuleName(ObjectNumbers.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
-
-		}
-		ObjectTextSize[] objectTextSize = rules.objectTextSize();
-		for (ObjectTextSize dumb : objectTextSize) {
-			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
-			String[] fields = dumb.fields();
-			
-			String completeRuleName = getCompleteRuleName(ObjectTextSize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
-
-		}
-		Regex[] regex = rules.regex();
+		CcpArrayTextSize[] arrayTextSize = rules.arrayTextSize();
 		
-		for (Regex dumb : regex) {
+		for (CcpArrayTextSize dumb : arrayTextSize) {
+			double bound = dumb.bound();
+			CcpBoundValidations rule = dumb.rule();
+			String[] fields = dumb.fields();
+			
+			String completeRuleName = getCompleteRuleName(CcpArrayTextSize.class, rule);
+			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
+			specification = specification.addToItem(completeRuleName, "bound", bound);
+		}
+		
+		CcpDay[] day = rules.day();
+		
+		for (CcpDay dumb : day) {
+			double bound = dumb.bound();
+			CcpBoundValidations rule = dumb.rule();
+			String[] fields = dumb.fields();
+			
+			String completeRuleName = getCompleteRuleName(CcpDay.class, rule);
+			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
+			specification = specification.addToItem(completeRuleName, "bound", bound);
+
+		}
+		CcpObjectNumbers[] objectNumbers = rules.objectNumbers();
+		for (CcpObjectNumbers dumb : objectNumbers) {
+			double bound = dumb.bound();
+			CcpBoundValidations rule = dumb.rule();
+			String[] fields = dumb.fields();
+			
+			String completeRuleName = getCompleteRuleName(CcpObjectNumbers.class, rule);
+			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
+			specification = specification.addToItem(completeRuleName, "bound", bound);
+
+		}
+		CcpObjectTextSize[] objectTextSize = rules.objectTextSize();
+		for (CcpObjectTextSize dumb : objectTextSize) {
+			double bound = dumb.bound();
+			CcpBoundValidations rule = dumb.rule();
+			String[] fields = dumb.fields();
+			
+			String completeRuleName = getCompleteRuleName(CcpObjectTextSize.class, rule);
+			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
+			specification = specification.addToItem(completeRuleName, "bound", bound);
+
+		}
+		CcpRegex[] regex = rules.regex();
+		
+		for (CcpRegex dumb : regex) {
 			String value = dumb.value().value;
 			String[] fields = dumb.fields();
 			
-			String completeRuleName = Regex.class.getSimpleName();
+			String completeRuleName = CcpRegex.class.getSimpleName();
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 			specification = specification.addToItem(completeRuleName, "value", value);
 
 		}
 		
-		SimpleObject[] simpleObject = rules.simpleObject();
+		CcpSimpleObject[] simpleObject = rules.simpleObject();
 		
-		for (SimpleObject dumb : simpleObject) {
-			SimpleObjectValidations rule = dumb.rule();
+		for (CcpSimpleObject dumb : simpleObject) {
+			CcpSimpleObjectValidations rule = dumb.rule();
 			String[] fields = dumb.fields();
 			
-			String completeRuleName = getCompleteRuleName(SimpleObject.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpSimpleObject.class, rule);
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 
 		}
 		
-		Year[] year = rules.year();
-		for (Year dumb : year) {
+		CcpYear[] year = rules.year();
+		for (CcpYear dumb : year) {
 			double bound = dumb.bound();
-			BoundValidations rule = dumb.rule();
+			CcpBoundValidations rule = dumb.rule();
 			String[] fields = dumb.fields();
 			
-			String completeRuleName = getCompleteRuleName(Year.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpYear.class, rule);
 			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
 			specification = specification.addToItem(completeRuleName, "bound", bound);
 
@@ -206,21 +206,21 @@ public class CcpJsonFieldsValidations {
 		return specification;
 	}
 	
-	public static String getCompleteRuleName(Class<?> ruleClazz, BoundValidations rule) {
+	public static String getCompleteRuleName(Class<?> ruleClazz, CcpBoundValidations rule) {
 		String completeRuleName = getCompleteRuleName(ruleClazz, (Enum<?>)rule);
 		return completeRuleName;
 	}
 
 	private static CcpJsonRepresentation validateRestricted(CcpJsonFieldsValidation rules, CcpJsonRepresentation json,
 			CcpJsonRepresentation result) {
-		AllowedValues[] restricteds = rules.allowedValues();
+		CcpAllowedValues[] restricteds = rules.allowedValues();
 
-		for (AllowedValues validation : restricteds) {
+		for (CcpAllowedValues validation : restricteds) {
 			String[] restrictedValues = validation.allowedValues();
 			String[] fields = validation.fields();
-			AllowedValuesValidations rule = validation.rule();
+			CcpAllowedValuesValidations rule = validation.rule();
 			
-			String completeRuleName = getCompleteRuleName(AllowedValues.class, rule);
+			String completeRuleName = getCompleteRuleName(CcpAllowedValues.class, rule);
 			
 			CcpJsonRepresentation errors = CcpOtherConstants.EMPTY_JSON;
 			
@@ -255,7 +255,7 @@ public class CcpJsonFieldsValidations {
 			CcpJsonRepresentation json, 
 			Class<?> ruleClass, 
 			Object bound, 
-			BoundValidations rule, 
+			CcpBoundValidations rule, 
 			String... fields) {
 		
 		String completeRuleName = getCompleteRuleName(ruleClass, (Enum<?>)rule);
@@ -310,96 +310,96 @@ public class CcpJsonFieldsValidations {
 			CcpJsonRepresentation result) {
 
 		{
-			ArrayNumbers[] x1 = rules.arrayNumbers();
+			CcpArrayNumbers[] x1 = rules.arrayNumbers();
 
-			for (ArrayNumbers validation : x1) {
+			for (CcpArrayNumbers validation : x1) {
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, ArrayNumbers.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpArrayNumbers.class, bound, rule, fields);
 			}
 			
 		}
 
 		{
-			ArraySize[] x1 = rules.arraySize();
+			CcpArraySize[] x1 = rules.arraySize();
 
-			for (ArraySize validation : x1) {
+			for (CcpArraySize validation : x1) {
 
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, ArraySize.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpArraySize.class, bound, rule, fields);
 			}
 
 		}
 		{
-			ArrayTextSize[] x1 = rules.arrayTextSize();
+			CcpArrayTextSize[] x1 = rules.arrayTextSize();
 
-			for (ArrayTextSize validation : x1) {
+			for (CcpArrayTextSize validation : x1) {
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, ArrayTextSize.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpArrayTextSize.class, bound, rule, fields);
 			}
 
 		}
 		{
-			ObjectNumbers[] x1 = rules.objectNumbers();
+			CcpObjectNumbers[] x1 = rules.objectNumbers();
 
-			for (ObjectNumbers validation : x1) {
+			for (CcpObjectNumbers validation : x1) {
 
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, ObjectNumbers.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpObjectNumbers.class, bound, rule, fields);
 			}
 
 		}
 		{
-			ObjectTextSize[] x1 = rules.objectTextSize();
+			CcpObjectTextSize[] x1 = rules.objectTextSize();
 
-			for (ObjectTextSize validation : x1) {
+			for (CcpObjectTextSize validation : x1) {
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, ObjectTextSize.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpObjectTextSize.class, bound, rule, fields);
 			}
 
 		}
 		{
-			Day[] x1 = rules.day();
+			CcpDay[] x1 = rules.day();
 
-			for (Day validation : x1) {
+			for (CcpDay validation : x1) {
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
-				result = addErrorDetail(result, json, Day.class, bound, rule, fields);
+				CcpBoundValidations rule = validation.rule();
+				result = addErrorDetail(result, json, CcpDay.class, bound, rule, fields);
 			}
 
 		}
 		{
-			Year[] x1 = rules.year();
+			CcpYear[] x1 = rules.year();
 
-			for (Year validation : x1) {
+			for (CcpYear validation : x1) {
 				double bound = validation.bound();
 				String[] fields = validation.fields();
-				BoundValidations rule = validation.rule();
+				CcpBoundValidations rule = validation.rule();
 
-				result = addErrorDetail(result, json, Year.class, bound, rule, fields);
+				result = addErrorDetail(result, json, CcpYear.class, bound, rule, fields);
 			}
 
 		}
 		
 		{
-			Regex[] x1 = rules.regex();
+			CcpRegex[] x1 = rules.regex();
 			CcpJsonRepresentation errors = CcpOtherConstants.EMPTY_JSON;
-			for (Regex validation : x1) {
+			for (CcpRegex validation : x1) {
 				String[] fields = validation.fields();
 				String regex = validation.value().value;
 				for (String field : fields) {

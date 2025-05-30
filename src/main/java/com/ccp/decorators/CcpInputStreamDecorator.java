@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.ccp.exceptions.inputstream.CcpMissingInputStream;
+import com.ccp.exceptions.inputstream.CcpErrorInputStreamMissing;
 
 
 public class CcpInputStreamDecorator implements CcpDecorator<String> {
@@ -25,11 +25,11 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		String getenv = System.getenv(this.content);
 		
 		if(getenv == null) {
-			throw new CcpMissingInputStream(this.content);
+			throw new CcpErrorInputStreamMissing(this.content);
 		}
 
 		if(getenv.trim().isEmpty()) {
-			throw new CcpMissingInputStream(this.content);
+			throw new CcpErrorInputStreamMissing(this.content);
 		}
 
 		CcpStringDecorator csd = new CcpStringDecorator(getenv);
@@ -51,7 +51,7 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		ClassLoader classLoader = class1.getClassLoader();
 		URL resource = classLoader.getResource(this.content);
 		if(resource == null) {
-			throw new CcpMissingInputStream(this.content);
+			throw new CcpErrorInputStreamMissing(this.content);
 		}
 		try {
 			InputStream stream = resource.openStream();
@@ -63,7 +63,7 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	
 	public InputStream file() {
 		if(new CcpStringDecorator(this.content).file().exists() == false) {
-			throw new CcpMissingInputStream(this.content);
+			throw new CcpErrorInputStreamMissing(this.content);
 		}
 		try {
 			FileInputStream fileInputStream = new FileInputStream(this.content);
@@ -84,14 +84,14 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		try {
 			InputStream is = this.environmentVariables();
 			return is;
-		} catch (CcpMissingInputStream e) {
+		} catch (CcpErrorInputStreamMissing e) {
 
 		}
 		
 		try {
 			InputStream is = this.classLoader();
 			return is;
-		} catch (CcpMissingInputStream e) {
+		} catch (CcpErrorInputStreamMissing e) {
 
 		}
 		InputStream is = this.file();

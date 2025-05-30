@@ -6,7 +6,7 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.exceptions.http.CcpHttpError;
+import com.ccp.exceptions.http.CcpErrorHttp;
 import com.ccp.http.CcpHttpMethods;
 
 
@@ -65,7 +65,7 @@ public final class CcpHttpHandler {
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 
-			CcpHttpError httpError = this.ccpHttp.getHttpError(trace, url, method, headers, request, status, response.httpResponse, fieldSet);
+			CcpErrorHttp httpError = this.ccpHttp.getHttpError(trace, url, method, headers, request, status, response.httpResponse, fieldSet);
 			throw httpError;
 		}
 	

@@ -19,7 +19,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.exceptions.file.CcpFolderParentIsMissing;
+import com.ccp.exceptions.file.CcpErrorFolderParentIsMissing;
 
 
 public class CcpFileDecorator implements CcpDecorator<String> {
@@ -105,7 +105,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		File file = tryToCreateFolder();
 		boolean fileIsMissing = file.exists() == false;
 		if(fileIsMissing) {
-			throw new CcpFolderParentIsMissing(this);
+			throw new CcpErrorFolderParentIsMissing(this);
 		}
 		try {
 			Path path = file.toPath();

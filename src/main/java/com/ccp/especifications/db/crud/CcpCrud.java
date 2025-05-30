@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.db.utils.CcpEntityPrimaryKeyIsMissing;
+import com.ccp.exceptions.db.utils.CcpErrorEntityPrimaryKeyIsMissing;
 
 public interface CcpCrud {
 	CcpJsonRepresentation getOneById(String entityName, String id);
@@ -53,7 +53,7 @@ public interface CcpCrud {
 				try {
 					CcpCacheDecorator cache = new CcpCacheDecorator(entity, json);
 					keysToDeleteInCache.add(cache.key);
-				} catch (CcpEntityPrimaryKeyIsMissing e) {
+				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 
 				}
 			}

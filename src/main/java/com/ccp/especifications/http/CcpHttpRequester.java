@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.exceptions.http.CcpHttpClientError;
-import com.ccp.exceptions.http.CcpHttpError;
-import com.ccp.exceptions.http.CcpHttpServerError;
+import com.ccp.exceptions.http.CcpErrorHttpClient;
+import com.ccp.exceptions.http.CcpErrorHttp;
+import com.ccp.exceptions.http.CcpErrorHttpServer;
 import com.ccp.http.CcpHttpMethods;
 
 public interface CcpHttpRequester {
@@ -25,7 +25,7 @@ public interface CcpHttpRequester {
 		}
 		Set<String> expectedStatusList = Arrays.asList(numbers).stream().map(x -> "" + x).collect(Collectors.toSet());
 		
-		CcpHttpError httpError = this.getHttpError(
+		CcpErrorHttp httpError = this.getHttpError(
 				"", 
 				url, 
 				method, 
@@ -39,7 +39,7 @@ public interface CcpHttpRequester {
 		throw httpError;
 	}
 
-	default CcpHttpError getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
+	default CcpErrorHttp getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, Integer status, String response, Set<String> expectedStatusList) {
 
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put("url", url).put("method", method)
@@ -48,23 +48,23 @@ public interface CcpHttpRequester {
 				expectedStatusList);
 
 		if (status >= 600) {
-			CcpHttpError ccpHttpError = new CcpHttpError(entity);
+			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}
 
 		if (status < 400) {
-			CcpHttpError ccpHttpError = new CcpHttpError(entity);
+			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}
 
 		boolean isClientError = status < 500;
 
 		if (isClientError) {
-			CcpHttpClientError ccpHttpClientError = new CcpHttpClientError(entity);
+			CcpErrorHttpClient ccpHttpClientError = new CcpErrorHttpClient(entity);
 			return ccpHttpClientError;
 		}
 
-		CcpHttpServerError ccpHttpServerError = new CcpHttpServerError(entity);
+		CcpErrorHttpServer ccpHttpServerError = new CcpErrorHttpServer(entity);
 		return ccpHttpServerError;
 	}
 

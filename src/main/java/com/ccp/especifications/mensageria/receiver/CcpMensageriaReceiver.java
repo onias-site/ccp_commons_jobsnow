@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.mensageria.receiver.CcpInvalidTopic;
+import com.ccp.exceptions.mensageria.receiver.CcpErrorMensageriaInvalidName;
 
 public class CcpMensageriaReceiver {
 	
@@ -24,7 +24,7 @@ public class CcpMensageriaReceiver {
 
 		try {
 			Class<?> forName = Class.forName(processName);
-			Constructor<?> constructor = forName.getConstructor();
+			Constructor<?> constructor = forName.getDeclaredConstructor();
 			constructor.setAccessible(true);
 			newInstance = constructor.newInstance();
 		} catch (Exception e) {
@@ -38,7 +38,7 @@ public class CcpMensageriaReceiver {
 		boolean invalidTopic = newInstance instanceof CcpEntity == false;
 	
 		if(invalidTopic) {
-			throw new CcpInvalidTopic(processName);
+			throw new CcpErrorMensageriaInvalidName(processName);
 		}		
 		
 		CcpEntity entity = (CcpEntity)newInstance;

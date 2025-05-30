@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.db.crud.CcpFieldsToReturnNotMentioned;
-import com.ccp.exceptions.process.CcpFlowDisturb;
+import com.ccp.exceptions.db.crud.CcpErrorFlowFieldsToReturnNotMentioned;
+import com.ccp.exceptions.process.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
 
@@ -26,24 +26,25 @@ public class CcpSelectFinally {
 
 	}
 
-	public CcpSelectFinally endThisProcedure(Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpSelectFinally endThisProcedure(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList("statements");
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		this.findById(this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
+		this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
 		return this;
 	}
 
-	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
+	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList("statements");
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		CcpJsonRepresentation findById = this.findById(this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
+		CcpJsonRepresentation findById = this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
 		return findById;
 	}
 
 	
 	@SuppressWarnings("unchecked")
 	private CcpJsonRepresentation findById( 
+			String origin,
 			CcpJsonRepresentation json, Function<CcpJsonRepresentation, 
 			CcpJsonRepresentation> whenFlowError, 
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
@@ -116,11 +117,11 @@ public class CcpSelectFinally {
 				CcpJsonRepresentation put = json.addToItem("errorDetails", "message", message).addToItem("errorDetails", "status", status);
 				CcpJsonRepresentation apply = whenFlowError.apply(put);
 				List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
-						.map(j -> j.getTransformedJsonIfFoundTheField("entity", PutEntity.INSTANCE))
-						.map(j -> j.getTransformedJsonIfFoundTheField("status", PutStatus.INSTANCE))
+						.map(j -> j.getTransformedJsonIfFoundTheField("entity", FunctionPutEntity.INSTANCE))
+						.map(j -> j.getTransformedJsonIfFoundTheField("status", FunctionPutStatus.INSTANCE))
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put("flow", asList);
-				throw new CcpFlowDisturb(result, status , message, this.fields);
+				throw new CcpErrorFlowDisturb(result.put("origin", origin), status , message, this.fields);
 			}
 			
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject("action");
@@ -138,10 +139,10 @@ public class CcpSelectFinally {
 		boolean zeroFields = this.fields.length <= 0;
 		
 		if(zeroFields) {
-			throw new CcpFieldsToReturnNotMentioned();
+			throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 		}
 		
-		CcpJsonRepresentation subMap = json.getJsonPiece(this.fields);
+		CcpJsonRepresentation subMap = json.getJsonPiece(this.fields).put("origin", origin);
 		return subMap;
 	}
 }

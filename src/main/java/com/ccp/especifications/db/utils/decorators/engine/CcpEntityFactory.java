@@ -11,8 +11,8 @@ import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityDecor
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityExpurgable;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTwin;
-import com.ccp.exceptions.db.utils.CcpIncorrectEntityClassConfiguration;
-import com.ccp.exceptions.db.utils.CcpIncorrectEntityClassConfiguration.IncorrectEntityClassConfigurationType;
+import com.ccp.exceptions.db.utils.CcpErrorEntityIncorrectClassConfiguration;
+import com.ccp.exceptions.db.utils.CcpErrorEntityIncorrectClassConfiguration.IncorrectEntityClassConfigurationType;
 
 public class CcpEntityFactory {
 
@@ -79,7 +79,7 @@ public class CcpEntityFactory {
 		boolean thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime = hasDecorators && isExpurgableEntity;
 		
 		if(thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime) {
-			throw new CcpIncorrectEntityClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime);
+			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime);
 
 		}
 		int cacheExpires = CcpEntityExpurgableOptions.daily.cacheExpires;
@@ -136,7 +136,7 @@ public class CcpEntityFactory {
 		
 		boolean didNotDeclareFieldsEnum = declaredClasses.length == 0;
 		if(didNotDeclareFieldsEnum) {
-			throw new CcpIncorrectEntityClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclarePublicStaticEnum);
+			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclarePublicStaticEnum);
 		}
 		
 		Class<?> firstClass = declaredClasses[0];
@@ -144,7 +144,7 @@ public class CcpEntityFactory {
 		boolean incorrectClassName = firstClass.getSimpleName().equals("Fields") == false;
 		
 		if(incorrectClassName) {
-			throw new CcpIncorrectEntityClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclareAnEnumCalledFields);
+			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclareAnEnumCalledFields);
 		}
 		
 		Method method;
@@ -165,7 +165,7 @@ public class CcpEntityFactory {
 		boolean doesNotImplementTheInterface = field instanceof CcpEntityField == false;
 		
 		if(doesNotImplementTheInterface) {
-			throw new CcpIncorrectEntityClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustHaveAnEnumThatImplementsTheInterface);
+			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustHaveAnEnumThatImplementsTheInterface);
 		}
 		
 		return fields;

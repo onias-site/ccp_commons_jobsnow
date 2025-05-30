@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.exceptions.json.CCpJsonFieldIsNotValidJsonList;
-import com.ccp.exceptions.json.CcpJsonFieldNotFound;
-import com.ccp.exceptions.json.CcpJsonInvalid;
-import com.ccp.exceptions.json.CcpJsonInvalidFieldFormat;
-import com.ccp.exceptions.json.CcpJsonNull;
-import com.ccp.exceptions.json.CcpJsonPathIsMissing;
+import com.ccp.exceptions.json.CCpErrorJsonFieldIsNotValidJsonList;
+import com.ccp.exceptions.json.CcpErrorJsonFieldNotFound;
+import com.ccp.exceptions.json.CcpErrorJsonInvalid;
+import com.ccp.exceptions.json.CcpErrorJsonInvalidFieldFormat;
+import com.ccp.exceptions.json.CcpErrorJsonNull;
+import com.ccp.exceptions.json.CcpErrorJsonPathIsMissing;
 import com.ccp.utils.CcpHashAlgorithm;
-import com.ccp.validation.ItIsTrueThatTheFollowingFields;
+import com.ccp.validation.CcpItIsTrueThatTheFollowingFields;
  
 public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Object>>  {
 
@@ -98,13 +98,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			return fromJson;
 			
 		} catch (Exception e) {
-			throw new CcpJsonInvalid(json , e);
+			throw new CcpErrorJsonInvalid(json , e);
 		}
 	}
 	
 	public CcpJsonRepresentation(Map<String, Object> content) {
 		if(content == null) {
-			throw new CcpJsonNull();
+			throw new CcpErrorJsonNull();
 		}
 		LinkedHashMap<String, Object> linkedHashMap = new LinkedHashMap<String, Object>();
 		Set<String> keySet = content.keySet();
@@ -178,7 +178,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		try {
 			return Double.valueOf("" + object).longValue();
 		} catch (Exception e) {
-			throw new CcpJsonInvalidFieldFormat(object, field, "long", this);
+			throw new CcpErrorJsonInvalidFieldFormat(object, field, "long", this);
 		}
 	}
 
@@ -189,7 +189,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		try {
 			return Double.valueOf("" + object).intValue();
 		} catch (Exception e) {
-			throw new CcpJsonInvalidFieldFormat(object, field, "integer", this);
+			throw new CcpErrorJsonInvalidFieldFormat(object, field, "integer", this);
 		}
 		
 	}
@@ -207,7 +207,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		try {
 			return Double.valueOf("" + object);
 		} catch (Exception e) {
-			throw new CcpJsonInvalidFieldFormat(object, field, "double", this);
+			throw new CcpErrorJsonInvalidFieldFormat(object, field, "double", this);
 		}
 	}
 	
@@ -471,7 +471,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		boolean pathIsMissing = paths.length == 0;
 		
 		if(pathIsMissing) {
-			throw new CcpJsonPathIsMissing(this);
+			throw new CcpErrorJsonPathIsMissing(this);
 		}
 		
 		CcpJsonRepresentation initial = this;
@@ -543,7 +543,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			}
 			
 			Class<? extends Object> class1 = value.getClass();
-			throw new CCpJsonFieldIsNotValidJsonList(this, class1, paths);
+			throw new CCpErrorJsonFieldIsNotValidJsonList(this, class1, paths);
 		}
 		
 		return response;
@@ -719,7 +719,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		Object object = this.content.get(field);
 		boolean valueIsAbsent = object == null;
 		if(valueIsAbsent) {
-			throw new CcpJsonFieldNotFound(field, this);
+			throw new CcpErrorJsonFieldNotFound(field, this);
 		}
 		return object;
 	}
@@ -733,7 +733,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			}
 			return (T) object;
 		}
-		throw new CcpJsonFieldNotFound(Arrays.asList(fields).toString(), this);
+		throw new CcpErrorJsonFieldNotFound(Arrays.asList(fields).toString(), this);
 	}
 	
 	public boolean isEmpty() {
@@ -813,8 +813,8 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return cccpCollectionDecorator;
 	}
 	
-	public ItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String...fields) {
-		return new ItIsTrueThatTheFollowingFields(this, fields);
+	public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String...fields) {
+		return new CcpItIsTrueThatTheFollowingFields(this, fields);
 	}
 	
 	public Set<String> getMissingFields(Collection<String> fields){
