@@ -8,7 +8,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
@@ -210,9 +210,13 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return validateJson;
 	}
 
-	public CcpBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
-		CcpBulkHandlerTransferRecordToReverseEntity transferRecordToReverseEntity = this.entity.getTransferRecordToReverseEntity();
+	public CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
+		CcpEntityBulkHandlerTransferRecordToReverseEntity transferRecordToReverseEntity = this.entity.getTransferRecordToReverseEntity();
 		return transferRecordToReverseEntity;
+	}
+
+	public Class<?> getConfigurationClass() {
+		return entity.getConfigurationClass();
 	}
 
 	

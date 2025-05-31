@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import com.ccp.decorators.CcpStringDecorator;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityDecorators;
@@ -63,7 +63,7 @@ public class CcpEntityFactory {
 
 	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, Boolean transferType) {
 
-		CcpBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
+		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
 		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);
 		
 		boolean hasDecorators = configurationClass.isAnnotationPresent(CcpEntityDecorators.class);

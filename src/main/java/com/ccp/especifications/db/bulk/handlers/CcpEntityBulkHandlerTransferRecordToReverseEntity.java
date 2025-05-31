@@ -17,13 +17,13 @@ import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityOpera
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTransferOperationEspecification;
 
-public class CcpBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
+public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
 	private final String transferType;
 	
 	private final Class<?> entityClass;
 
-	public CcpBulkHandlerTransferRecordToReverseEntity(Boolean inactivate,
+	public CcpEntityBulkHandlerTransferRecordToReverseEntity(Boolean inactivate,
 			Class<?> entityClass) {
 		this.transferType = inactivate ? "inactivate" : "reactivate";
 		this.entityClass = entityClass;
@@ -31,9 +31,10 @@ public class CcpBulkHandlerTransferRecordToReverseEntity implements CcpHandleWit
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
-		CcpEntity twinEntity = this.getEntityToSearch().getTwinEntity();
+		CcpEntity entityToSearch = this.getEntityToSearch();
+		CcpEntity twinEntity = entityToSearch.getTwinEntity();
 		CcpBulkItem itemTo = twinEntity.getMainBulkItem(json, CcpEntityBulkOperationType.create);
-		CcpBulkItem itemFrom = this.getEntityToSearch().getMainBulkItem(json, CcpEntityBulkOperationType.delete);
+		CcpBulkItem itemFrom = entityToSearch.getMainBulkItem(json, CcpEntityBulkOperationType.delete);
 		List<CcpBulkItem> asList = Arrays.asList(itemTo, itemFrom);
 		
 		return asList;
@@ -52,7 +53,14 @@ public class CcpBulkHandlerTransferRecordToReverseEntity implements CcpHandleWit
 		try {
 			Field declaredField = this.entityClass.getDeclaredField("ENTITY");
 			Object object = declaredField.get(null);
-			return (CcpEntity) object;
+			CcpEntity object2 = (CcpEntity) object;
+			boolean itIsInvokingTwinEntity = "reactivate".equals(this.transferType);
+			
+			if(itIsInvokingTwinEntity) {
+				CcpEntity twinEntity = object2.getTwinEntity();
+				return twinEntity;
+			}
+			return object2;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

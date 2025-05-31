@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,5 +23,18 @@ public interface CcpEntityConfigurator {
 		.map(json -> entity.getMainBulkItem(json, CcpEntityBulkOperationType.create))
 		.collect(Collectors.toList());
 		return collect;
+	}
+	
+	default CcpEntity getEntity() {
+		try {
+			Class<? extends CcpEntityConfigurator> class1 = this.getClass();
+			Field declaredField = class1.getDeclaredField("ENTITY");
+			declaredField.setAccessible(true);
+			Object object = declaredField.get(null);
+			return (CcpEntity) object;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 }

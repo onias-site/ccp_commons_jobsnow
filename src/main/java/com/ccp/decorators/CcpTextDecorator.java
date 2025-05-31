@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.exceptions.json.CcpErrorJsonInvalid;
+import com.ccp.exceptions.json.fields.CcpErrorJsonFieldsInvalid;
 
 public class CcpTextDecorator implements CcpDecorator<String> {
 	public final String content;
@@ -190,7 +192,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		try {
 			new CcpJsonRepresentation(this.content);
 			return true;
-		} catch (Exception e) {
+		} catch (CcpErrorJsonInvalid e) {
 			return false;
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.exceptions.json.fields.CcpErrorJsonFieldsInvalid;
 import com.ccp.validation.annotations.CcpAllowedValues;
 import com.ccp.validation.annotations.CcpArrayNumbers;
 import com.ccp.validation.annotations.CcpArraySize;
@@ -62,7 +63,7 @@ public class CcpJsonFieldsValidations {
 		// Incrementa a variável de evidência com a especificação
 		CcpJsonRepresentation result = evidences.put("specification", specification).put("json", json);
 		// Se der algum erro, será redirecionado à classe CcpJsonInvalid()
-		throw new CcpErrorJsonInvalid(result);
+		throw new CcpErrorJsonFieldsInvalid(result);
 	}
 
 	private static CcpJsonRepresentation simpleValidation(

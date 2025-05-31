@@ -1,13 +1,13 @@
-package com.ccp.validation;
+package com.ccp.exceptions.json.fields;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
 @SuppressWarnings("serial")
-public class CcpErrorJsonInvalid extends RuntimeException {
+public class CcpErrorJsonFieldsInvalid extends RuntimeException {
 
 	public final CcpJsonRepresentation result;
 
-	protected CcpErrorJsonInvalid(CcpJsonRepresentation result) {
+	public CcpErrorJsonFieldsInvalid(CcpJsonRepresentation result) {
 		super(result.toString());
 		this.result = result;
 	}

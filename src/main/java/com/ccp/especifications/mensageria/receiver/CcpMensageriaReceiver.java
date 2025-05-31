@@ -6,9 +6,10 @@ import java.util.function.Consumer;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
 import com.ccp.exceptions.mensageria.receiver.CcpErrorMensageriaInvalidName;
 
-public class CcpMensageriaReceiver {
+public abstract class CcpMensageriaReceiver {
 	
 	private final String operationTypeFieldName;
 	private final String operationFieldName;
@@ -21,9 +22,9 @@ public class CcpMensageriaReceiver {
 	public CcpTopic getProcess(String processName, CcpJsonRepresentation json){
 		
 		Object newInstance;
-
+		Class<?> forName;
 		try {
-			Class<?> forName = Class.forName(processName);
+			forName = Class.forName(processName);
 			Constructor<?> constructor = forName.getDeclaredConstructor();
 			constructor.setAccessible(true);
 			newInstance = constructor.newInstance();
@@ -35,13 +36,15 @@ public class CcpMensageriaReceiver {
 			return topic;
 		}
 		
-		boolean invalidTopic = newInstance instanceof CcpEntity == false;
+		boolean invalidTopic = newInstance instanceof CcpEntityConfigurator == false;
 	
 		if(invalidTopic) {
 			throw new CcpErrorMensageriaInvalidName(processName);
 		}		
 		
-		CcpEntity entity = (CcpEntity)newInstance;
+	
+		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
+		CcpEntity entity = configurator.getEntity();
 		String operationType = json.getAsString(this.operationTypeFieldName);
 		CcpMensageriaOperationType valueOf = CcpMensageriaOperationType.valueOf(operationType);
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
@@ -51,11 +54,20 @@ public class CcpMensageriaReceiver {
 	}
 	
 
-	public CcpExecuteBulkOperation getExecuteBulkOperation() {
-		throw new UnsupportedOperationException();
-	}
+	public abstract CcpExecuteBulkOperation getExecuteBulkOperation();
 	
-	public Consumer<String[]> getFunctionToDeleteKeysInTheCache(){
-		throw new UnsupportedOperationException();
+	public abstract Consumer<String[]> getFunctionToDeleteKeysInTheCache();
+	
+	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
+		String mensageriaReceiver = json.getAsString("mensageriaReceiver");
+		try {
+			Class<?> forName = Class.forName(mensageriaReceiver);
+			Constructor<?> declaredConstructor = forName.getDeclaredConstructor();
+			declaredConstructor.setAccessible(true);
+			Object newInstance = declaredConstructor.newInstance();
+			return (CcpMensageriaReceiver) newInstance;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

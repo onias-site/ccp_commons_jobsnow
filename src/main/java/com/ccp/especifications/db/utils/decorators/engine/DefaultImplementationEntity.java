@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
@@ -18,12 +18,12 @@ import com.ccp.validation.CcpJsonFieldsValidations;
 
 final class DefaultImplementationEntity implements CcpEntity{
 
-	final CcpBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity;
+	final CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity;
 	final CcpEntityField[] fields;
 	final Class<?> entityClass;
 	final String entityName;
 
-	public DefaultImplementationEntity(String entityName, Class<?> entityClass, CcpBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity, CcpEntityField... fields) {
+	public DefaultImplementationEntity(String entityName, Class<?> entityClass, CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity, CcpEntityField... fields) {
 		this.entityTransferRecordToReverseEntity = entityTransferRecordToReverseEntity;
 		this.entityClass = entityClass;
 		this.entityName = entityName;
@@ -91,13 +91,17 @@ final class DefaultImplementationEntity implements CcpEntity{
 	public CcpEntity validateJson(CcpJsonRepresentation json) {
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(this.entityClass);
 		Class<?> jsonValidationClass = especifications.classWithFieldsValidationsRules();
-		String featureName = entityClass.getName()+ "." + this;
+		String featureName = this.entityClass.getName()+ "." + this;
 		CcpJsonFieldsValidations.validate(jsonValidationClass, json.content, featureName);
 		return this;
 	}
 
-	public CcpBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
+	public CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
 		return this.entityTransferRecordToReverseEntity;
+	}
+
+	public Class<?> getConfigurationClass() {
+		return this.entityClass;
 	}
 
 	

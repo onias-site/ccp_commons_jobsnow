@@ -6,7 +6,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerSave;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerSaveTwin;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 
@@ -29,7 +29,7 @@ public enum CcpBulkHandlers {
 	},
 	transferToReverseEntity{
 		public CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> getBulkHandler(CcpEntity entity) {
-			CcpBulkHandlerTransferRecordToReverseEntity transferRecordToReverseEntity = entity.getTransferRecordToReverseEntity();
+			CcpEntityBulkHandlerTransferRecordToReverseEntity transferRecordToReverseEntity = entity.getTransferRecordToReverseEntity();
 			return transferRecordToReverseEntity;
 		}
 		
