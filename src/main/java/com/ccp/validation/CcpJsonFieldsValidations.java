@@ -29,7 +29,7 @@ public class CcpJsonFieldsValidations {
 		if(isNotPresent) {
 			return;
 		}
-		// Se todos campos do JSON estiverem na tabela, dá continuidade organizando
+		//TODO PASSAR PARA O DECORATOR
 		CcpJsonFieldsValidation rules = clazz.getAnnotation(CcpJsonFieldsValidation.class);
 		// Organiza os dados e executa o método de validação
 		validate(rules, map, featureName);
@@ -40,7 +40,7 @@ public class CcpJsonFieldsValidations {
 		CcpJsonRepresentation json = new CcpJsonRepresentation(map);
 		// ???
 		Class<?> rulesClass = rules.rulesClass();
-		// ???
+		//TODO PASSAR PARA O DECORATOR
 		rules = rulesClass.isAnnotationPresent(CcpJsonFieldsValidation.class) ? rulesClass.getAnnotation(CcpJsonFieldsValidation.class) : rules;
 		// Cria variável de evidência em formato JSON vazia
 		CcpJsonRepresentation evidences = CcpOtherConstants.EMPTY_JSON;

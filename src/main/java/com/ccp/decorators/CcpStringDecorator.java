@@ -68,6 +68,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		return ccpPropertiesDecorator;
 	}
 	
+	public CcpReflectionConstructorDecorator reflection() {
+		CcpReflectionConstructorDecorator decorator = new CcpReflectionConstructorDecorator(this.content);
+		return decorator;
+	}
+	
 	public boolean isInnerJson() {
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		boolean validJson = json.isValidJson(this.content);

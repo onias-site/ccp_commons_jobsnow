@@ -27,6 +27,7 @@ public interface CcpEntityConfigurator {
 	
 	default CcpEntity getEntity() {
 		try {
+			//TODO PASSAR PARA O DECORATOR
 			Class<? extends CcpEntityConfigurator> class1 = this.getClass();
 			Field declaredField = class1.getDeclaredField("ENTITY");
 			declaredField.setAccessible(true);

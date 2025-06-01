@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityOperationSpecification;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 
@@ -63,23 +64,19 @@ public enum CcpEntityCrudOperationType
 
 	public abstract List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getStepsAfter(Class<?> entityClass);
 
-	@SuppressWarnings("unchecked")
 	public static Function<CcpJsonRepresentation, CcpJsonRepresentation> instanciateFunction(Class<?> x) {
-		try {
-			Constructor<?> declaredConstructor = x.getDeclaredConstructor();
-			declaredConstructor.setAccessible(true);
-			Object newInstance = declaredConstructor.newInstance();
-			return (Function<CcpJsonRepresentation, CcpJsonRepresentation>) newInstance;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(x);
+
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> newInstance = reflection.newInstance();
+		
+		return newInstance;
 	}
 	
 	public static CcpEntitySpecifications getEspecifications(Class<?> entityClass) {
 		if(entityClass.isAnnotationPresent(CcpEntitySpecifications.class) == false) {
 			throw new RuntimeException("The class '" + entityClass + "' is not annoted by " + CcpEntitySpecifications.class.getName());
 		}
+		//TODO PASSAR PARA O DECORATOR
 		CcpEntitySpecifications annotation = entityClass.getAnnotation(CcpEntitySpecifications.class);
 		return annotation;
 	}

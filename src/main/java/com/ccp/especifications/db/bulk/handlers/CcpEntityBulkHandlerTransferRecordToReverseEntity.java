@@ -78,8 +78,10 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 	
 	private List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getFunctions(String operationSpecification, String callbackName){
 		try {
+			//TODO PASSAR PARA O DECORATOR
 			CcpEntitySpecifications configuration = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
 			Method method = CcpEntitySpecifications.class.getDeclaredMethod(this.transferType);
+			//TODO PASSAR PARA O DECORATOR
 			CcpEntityTransferOperationEspecification cfg = (CcpEntityTransferOperationEspecification) method.invoke(configuration);
 			Method operationSpecificationMethod = CcpEntityTransferOperationEspecification.class.getDeclaredMethod(operationSpecification);
 			CcpEntityOperationSpecification operationSpecificationValue = (CcpEntityOperationSpecification) operationSpecificationMethod.invoke(cfg);

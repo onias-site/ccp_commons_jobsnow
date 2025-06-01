@@ -1,8 +1,8 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
@@ -40,6 +40,7 @@ public class CcpEntityFactory {
 			CcpEntity entity = this.getEntityInstance(configurationClass);
 			return entity;
 		}
+		//TODO PASSAR PARA O DECORATOR
 		CcpEntityTwin annotation = configurationClass.getAnnotation(CcpEntityTwin.class);
 		String twinEntityName = annotation.twinEntityName();
 		
@@ -66,6 +67,7 @@ public class CcpEntityFactory {
 		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
 		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);
 		
+		//TODO PASSAR PARA O DECORATOR
 		boolean hasDecorators = configurationClass.isAnnotationPresent(CcpEntityDecorators.class);
 	
 		if(hasDecorators) {
@@ -106,9 +108,8 @@ public class CcpEntityFactory {
 	private static CcpEntity getDecoratedEntity(CcpEntity entity, Class<?>... decorators) {
 		try {
 			for (Class<?> decorator : decorators) {
-				Constructor<?> declaredConstructor = decorator.getDeclaredConstructor();
-				declaredConstructor.setAccessible(true);
-				CcpEntityDecoratorFactory newInstance = (CcpEntityDecoratorFactory) declaredConstructor.newInstance();
+				CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
+				CcpEntityDecoratorFactory newInstance = reflection.newInstance();
 				entity = newInstance.getEntity(entity);
 			}
 			return entity;
@@ -120,9 +121,8 @@ public class CcpEntityFactory {
 
 	private static CcpEntity getExpurgableEntity(Class<?> decorator, CcpEntityExpurgableOptions longevity, CcpEntity entity) {
 		try {
-			Constructor<?> declaredConstructor = decorator.getDeclaredConstructor();
-			declaredConstructor.setAccessible(true);
-			CcpEntityExpurgableFactory newInstance = (CcpEntityExpurgableFactory) declaredConstructor.newInstance();
+			CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
+			CcpEntityExpurgableFactory newInstance = reflection.newInstance();
 			CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
 			return expurgableEntity;
 		} catch (Exception e) {

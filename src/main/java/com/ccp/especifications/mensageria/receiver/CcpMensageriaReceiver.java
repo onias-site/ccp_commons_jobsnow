@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
+import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
@@ -20,17 +22,9 @@ public abstract class CcpMensageriaReceiver {
 	}
 
 	public CcpTopic getProcess(String processName, CcpJsonRepresentation json){
-		
-		Object newInstance;
-		Class<?> forName;
-		try {
-			forName = Class.forName(processName);
-			Constructor<?> constructor = forName.getDeclaredConstructor();
-			constructor.setAccessible(true);
-			newInstance = constructor.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpReflectionConstructorDecorator reflection = new CcpStringDecorator(processName).reflection();
+
+		Object newInstance = reflection.newInstance();
 		
 		if(newInstance instanceof CcpTopic topic) {
 			return topic;
@@ -59,15 +53,11 @@ public abstract class CcpMensageriaReceiver {
 	public abstract Consumer<String[]> getFunctionToDeleteKeysInTheCache();
 	
 	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
-		String mensageriaReceiver = json.getAsString("mensageriaReceiver");
-		try {
-			Class<?> forName = Class.forName(mensageriaReceiver);
-			Constructor<?> declaredConstructor = forName.getDeclaredConstructor();
-			declaredConstructor.setAccessible(true);
-			Object newInstance = declaredConstructor.newInstance();
-			return (CcpMensageriaReceiver) newInstance;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, "mensageriaReceiver");
+		
+		CcpMensageriaReceiver newInstance = reflection.newInstance();
+		
+		return newInstance;
 	}
 }

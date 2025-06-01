@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.exceptions.json.CcpErrorJsonInvalid;
-import com.ccp.exceptions.json.fields.CcpErrorJsonFieldsInvalid;
 
 public class CcpTextDecorator implements CcpDecorator<String> {
 	public final String content;
