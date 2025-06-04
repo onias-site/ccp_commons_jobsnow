@@ -50,6 +50,14 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 	
 	
-	
+	public CcpReflectionOptionsDecorator fromStaticContext() {
+		CcpReflectionStaticContextDecorator result = new CcpReflectionStaticContextDecorator(this);
+		return result;
+	} 
+
+	public CcpReflectionOptionsDecorator fromNewInstance() {
+		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(this);
+		return result;
+	} 
 	
 }

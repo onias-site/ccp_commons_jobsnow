@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
+import com.ccp.decorators.CcpReflectionMethodDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
@@ -80,9 +82,8 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 		try {
 			//TODO PASSAR PARA O DECORATOR
 			CcpEntitySpecifications configuration = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
-			Method method = CcpEntitySpecifications.class.getDeclaredMethod(this.transferType);
-			//TODO PASSAR PARA O DECORATOR
-			CcpEntityTransferOperationEspecification cfg = (CcpEntityTransferOperationEspecification) method.invoke(configuration);
+			CcpReflectionMethodDecorator method = new CcpReflectionConstructorDecorator(CcpEntitySpecifications.class).fromStaticContext().method(this.transferType);
+			CcpEntityTransferOperationEspecification cfg = method.invoke(configuration);
 			Method operationSpecificationMethod = CcpEntityTransferOperationEspecification.class.getDeclaredMethod(operationSpecification);
 			CcpEntityOperationSpecification operationSpecificationValue = (CcpEntityOperationSpecification) operationSpecificationMethod.invoke(cfg);
 			Method callbackNameMethod = CcpEntityOperationSpecification.class.getDeclaredMethod(callbackName);
