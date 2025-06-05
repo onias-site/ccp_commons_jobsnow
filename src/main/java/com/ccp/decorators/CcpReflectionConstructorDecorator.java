@@ -26,6 +26,16 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public boolean thisClassExists(){
+		try {
+			Class.forName(this.content);
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
+
 	
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance() {
