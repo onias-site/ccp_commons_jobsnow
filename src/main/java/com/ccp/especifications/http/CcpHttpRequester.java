@@ -67,5 +67,7 @@ public interface CcpHttpRequester {
 		CcpErrorHttpServer ccpHttpServerError = new CcpErrorHttpServer(entity);
 		return ccpHttpServerError;
 	}
+	
+
 
 }

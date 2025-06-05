@@ -1,7 +1,6 @@
 package com.ccp.especifications.db.bulk.handlers;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -82,15 +81,26 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 		try {
 			//TODO PASSAR PARA O DECORATOR
 			CcpEntitySpecifications configuration = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
-			CcpReflectionMethodDecorator method = new CcpReflectionConstructorDecorator(CcpEntitySpecifications.class).fromStaticContext().method(this.transferType);
-			CcpEntityTransferOperationEspecification cfg = method.invoke(configuration);
-			Method operationSpecificationMethod = CcpEntityTransferOperationEspecification.class.getDeclaredMethod(operationSpecification);
-			CcpEntityOperationSpecification operationSpecificationValue = (CcpEntityOperationSpecification) operationSpecificationMethod.invoke(cfg);
-			Method callbackNameMethod = CcpEntityOperationSpecification.class.getDeclaredMethod(callbackName);
-			Class<?>[] invoke = (Class<?>[])callbackNameMethod.invoke(operationSpecificationValue);
+			
+			
+			
+			CcpReflectionMethodDecorator methodTransferType = new CcpReflectionConstructorDecorator(CcpEntitySpecifications.class)
+					.fromInstance(configuration).fromDeclaredMethod(this.transferType);
+			CcpEntityTransferOperationEspecification cfg = methodTransferType.invokeFromMethod();
+			
+			CcpReflectionMethodDecorator methodOperationSpecification = new CcpReflectionConstructorDecorator(CcpEntityTransferOperationEspecification.class)
+					.fromInstance(cfg).fromDeclaredMethod(operationSpecification);
+			CcpEntityOperationSpecification operationSpecificationValue = methodOperationSpecification.invokeFromMethod(configuration);
+
+			CcpReflectionMethodDecorator methodCallback = new CcpReflectionConstructorDecorator(CcpEntityOperationSpecification.class)
+					.fromInstance(operationSpecificationValue).fromDeclaredMethod(callbackName);
+			Class<?>[] invoke = methodCallback.invokeFromMethod();
+
+			
 			List<Class<?>> asList = Arrays.asList(invoke);
 			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> functions = asList.stream().map(x -> CcpEntityCrudOperationType.instanciateFunction(x)).collect(Collectors.toList());
 			return functions;
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

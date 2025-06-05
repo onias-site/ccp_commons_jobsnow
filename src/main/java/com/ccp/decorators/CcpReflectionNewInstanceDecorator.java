@@ -2,16 +2,20 @@ package com.ccp.decorators;
 
 public class CcpReflectionNewInstanceDecorator extends CcpReflectionOptionsDecorator {
 
-	public final CcpReflectionConstructorDecorator constructor;
+	public final Object instance;
 	
+	public CcpReflectionNewInstanceDecorator(Object instance) {
+		super(instance.getClass());
+		this.instance = instance;
+	}
+
 	protected CcpReflectionNewInstanceDecorator(CcpReflectionConstructorDecorator constructor) {
 		super(constructor.forName());
-		this.constructor = constructor;
+		this.instance = constructor.newInstance();
 	}
 	
 	protected Object getInstance() {
-		Object newInstance = this.constructor.newInstance();
-		return newInstance;
+		return this.instance;
 	}
 	
 }

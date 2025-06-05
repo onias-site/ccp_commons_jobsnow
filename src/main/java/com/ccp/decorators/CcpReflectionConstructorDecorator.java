@@ -59,5 +59,10 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(this);
 		return result;
 	} 
+
+	public CcpReflectionOptionsDecorator fromInstance(Object instance) {
+		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(instance);
+		return result;
+	} 
 	
 }

@@ -1,0 +1,17 @@
+curl 'https://api.saasexch.com/bapi/themis/api/v2/strategy/query' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'accept-language: pt-BR,pt;q=0.8' \
+  -H 'authorization: Basic MDgwMjEzNzI4MDozbnRlMWNpM3pETHlQYkprbzgwQ3RFaHR0MkZwQWUzTg==' \
+  -H 'content-type: application/json' \
+  -H 'origin: https://coinmarketcap.com' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://coinmarketcap.com/' \
+  -H 'sec-ch-ua: "Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: cross-site' \
+  -H 'sec-gpc: 1' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36' \
+  --data-raw '{"trace_id":"9aa8e522-1d0e-409f-b0ab-f8bf01c0f0bb","strategy_ids":[1013,1484,1952,2280,2529,3282,3436,3708,3724,3817,4409,4410,4826,5005,5360,5973,5974,6400],"platform":0,"env":"PROD"}'

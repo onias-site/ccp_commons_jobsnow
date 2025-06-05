@@ -27,7 +27,7 @@ public class CcpReflectionMethodDecorator implements CcpDecorator<Method> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T invoke(Object... arguments) {
+	public <T> T invokeFromMethod(Object... arguments) {
 		try {
 			Object invoke = this.content.invoke(this.instance, arguments);
 			return (T)invoke;
