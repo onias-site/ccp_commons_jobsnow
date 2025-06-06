@@ -75,7 +75,6 @@ public enum CcpEntityCrudOperationType
 		if(entityClass.isAnnotationPresent(CcpEntitySpecifications.class) == false) {
 			throw new RuntimeException("The class '" + entityClass + "' is not annoted by " + CcpEntitySpecifications.class.getName());
 		}
-		//TODO PASSAR PARA O DECORATOR
 		CcpEntitySpecifications annotation = entityClass.getAnnotation(CcpEntitySpecifications.class);
 		return annotation;
 	}

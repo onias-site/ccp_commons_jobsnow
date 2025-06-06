@@ -40,7 +40,6 @@ public class CcpEntityFactory {
 			CcpEntity entity = this.getEntityInstance(configurationClass);
 			return entity;
 		}
-		//TODO PASSAR PARA O DECORATOR
 		CcpEntityTwin annotation = configurationClass.getAnnotation(CcpEntityTwin.class);
 		String twinEntityName = annotation.twinEntityName();
 		
@@ -67,7 +66,6 @@ public class CcpEntityFactory {
 		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
 		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);
 		
-		//TODO PASSAR PARA O DECORATOR
 		boolean hasDecorators = configurationClass.isAnnotationPresent(CcpEntityDecorators.class);
 	
 		if(hasDecorators) {
