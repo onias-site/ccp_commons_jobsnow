@@ -14,7 +14,7 @@ public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Clas
 	public CcpReflectionFieldDecorator field(String fieldName) {
 		try {
 			Field declaredField = this.content.getDeclaredField(fieldName);
-			CcpReflectionFieldDecorator decorator = new CcpReflectionFieldDecorator(declaredField, null);
+			CcpReflectionFieldDecorator decorator = new CcpReflectionFieldDecorator(declaredField, this.content);
 			return decorator;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -23,7 +23,7 @@ public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Clas
 	public CcpReflectionMethodDecorator fromDeclaredMethod(String methodName, Class<?>... parameters) {
 		try {
 			Method declaredField = this.content.getDeclaredMethod(methodName, parameters);
-			CcpReflectionMethodDecorator decorator = new CcpReflectionMethodDecorator(declaredField, null);
+			CcpReflectionMethodDecorator decorator = new CcpReflectionMethodDecorator(declaredField, this.content);
 			return decorator;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

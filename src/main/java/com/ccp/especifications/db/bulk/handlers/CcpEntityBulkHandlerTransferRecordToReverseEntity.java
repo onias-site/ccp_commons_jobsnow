@@ -1,14 +1,14 @@
 package com.ccp.especifications.db.bulk.handlers;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.decorators.CcpReflectionMethodDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
@@ -76,29 +76,31 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 		List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> functions = this.getFunctions("whenRecordToTransferIsFound", "afterOperation");
 		return functions;
 	}
-	
+	@SuppressWarnings("unchecked")
+	private <T> T invokeAnnotationMethod(Annotation annotation, String methodName) {
+		try {
+			Class<? extends Annotation> annotationType = annotation.annotationType();
+			Method declaredMethod = annotationType.getDeclaredMethod(methodName);
+			return (T) declaredMethod.invoke(annotation);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 	private List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getFunctions(String operationSpecification, String callbackName){
 		try {
 			//TODO PASSAR PARA O DECORATOR
 			CcpEntitySpecifications configuration = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
-			
-			
-			
-			CcpReflectionMethodDecorator methodTransferType = new CcpReflectionConstructorDecorator(CcpEntitySpecifications.class)
-					.fromInstance(configuration).fromDeclaredMethod(this.transferType);
-			CcpEntityTransferOperationEspecification cfg = methodTransferType.invokeFromMethod();
-			
-			CcpReflectionMethodDecorator methodOperationSpecification = new CcpReflectionConstructorDecorator(CcpEntityTransferOperationEspecification.class)
-					.fromInstance(cfg).fromDeclaredMethod(operationSpecification);
-			CcpEntityOperationSpecification operationSpecificationValue = methodOperationSpecification.invokeFromMethod(configuration);
 
-			CcpReflectionMethodDecorator methodCallback = new CcpReflectionConstructorDecorator(CcpEntityOperationSpecification.class)
-					.fromInstance(operationSpecificationValue).fromDeclaredMethod(callbackName);
-			Class<?>[] invoke = methodCallback.invokeFromMethod();
+			CcpEntityTransferOperationEspecification cfg =  this.invokeAnnotationMethod(configuration, this.transferType);
+		
+			CcpEntityOperationSpecification operationSpecificationValue = this.invokeAnnotationMethod(cfg, operationSpecification);
+		
+			Class<?>[] invoke = this.invokeAnnotationMethod(operationSpecificationValue, callbackName);
 
-			
 			List<Class<?>> asList = Arrays.asList(invoke);
+			
 			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> functions = asList.stream().map(x -> CcpEntityCrudOperationType.instanciateFunction(x)).collect(Collectors.toList());
+			
 			return functions;
 			
 		} catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.ccp.decorators;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
 public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
@@ -70,8 +71,15 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 		return result;
 	} 
 
+	public CcpReflectionOptionsDecorator fromAnnotationInstance(Annotation annotation) {
+		Class<? extends Annotation> annotationType = annotation.annotationType();
+		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(annotation, annotationType);
+		return result;
+	}
+
 	public CcpReflectionOptionsDecorator fromInstance(Object instance) {
-		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(instance);
+		Class<?> clazz = instance.getClass();
+		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(instance, clazz);
 		return result;
 	} 
 	

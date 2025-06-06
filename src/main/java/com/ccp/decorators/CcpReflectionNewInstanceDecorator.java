@@ -4,8 +4,8 @@ public class CcpReflectionNewInstanceDecorator extends CcpReflectionOptionsDecor
 
 	public final Object instance;
 	
-	public CcpReflectionNewInstanceDecorator(Object instance) {
-		super(instance.getClass());
+	public CcpReflectionNewInstanceDecorator(Object instance, Class<?> clazz) {
+		super(clazz);
 		this.instance = instance;
 	}
 
