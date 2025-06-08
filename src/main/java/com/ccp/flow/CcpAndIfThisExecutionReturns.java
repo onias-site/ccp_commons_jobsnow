@@ -52,7 +52,6 @@ public final class CcpAndIfThisExecutionReturns {
 	private CcpJsonRepresentation tryToFixTheFlow(CcpErrorFlowDisturb e) {
 		try {
 			Function<CcpJsonRepresentation, CcpJsonRepresentation>[] nextFlows = this.flow.getAsObject(e.status.name());
-//			System.out.println("Fluxos a serem executados por este desvio de fluxo: " + Arrays.asList(nextFlows));
 			CcpJsonRepresentation json = this.givenJson;
 			
 			for (Function<CcpJsonRepresentation, CcpJsonRepresentation> nextFlow : nextFlows) {

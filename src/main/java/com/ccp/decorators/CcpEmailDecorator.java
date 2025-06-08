@@ -44,13 +44,15 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	public CcpEmailDecorator stripAccents() {
-		if(this.isValid()) {
+		boolean valid = this.isValid();
+		if(valid) {
 			String[] split = this.content.split("@");
 			String s1 = split[0];
 			String s2 = split[1];
 			String p1 = new CcpTextDecorator(s1).stripAccents().content;
 			String p2 = new CcpTextDecorator(s2).stripAccents().content;
-			return new CcpEmailDecorator(p1 + "@" + p2);
+			CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(p1 + "@" + p2);
+			return ccpEmailDecorator;
 		}
 		
 		String s = Normalizer.normalize(this.content, Normalizer.Form.NFD);

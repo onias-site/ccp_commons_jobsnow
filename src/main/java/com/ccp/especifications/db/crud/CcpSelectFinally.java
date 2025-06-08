@@ -102,7 +102,6 @@ public class CcpSelectFinally {
 				}
 			}
 			
-			
 			boolean willNotExecuteAction = specification.containsField("action") == false;
 			
 			if(willNotExecuteAction) {
@@ -121,7 +120,12 @@ public class CcpSelectFinally {
 						.map(j -> j.getTransformedJsonIfFoundTheField("status", FunctionPutStatus.INSTANCE))
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put("flow", asList);
-				throw new CcpErrorFlowDisturb(result.put("origin", origin), status , message, this.fields);
+				
+				String reason = "Context: " + origin + ". Entity: " + entity.getEntityName()
+				+ ". status: " + status
+				+ ". shouldHaveBeenFound: " + shouldHaveBeenFound + ". wasActuallyFound: " + wasActuallyFound;
+				
+				throw new CcpErrorFlowDisturb(result, status , reason, this.fields);
 			}
 			
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject("action");

@@ -1,5 +1,6 @@
 package com.ccp.decorators;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class CcpReflectionMethodDecorator implements CcpDecorator<Method> {
@@ -31,7 +32,10 @@ public class CcpReflectionMethodDecorator implements CcpDecorator<Method> {
 		try {
 			Object invoke = this.content.invoke(this.instance, arguments);
 			return (T)invoke;
-		} catch (Exception e) {
+		}catch(InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} 
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

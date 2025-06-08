@@ -23,7 +23,8 @@ public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Clas
 	public CcpReflectionMethodDecorator fromDeclaredMethod(String methodName, Class<?>... parameters) {
 		try {
 			Method declaredField = this.content.getDeclaredMethod(methodName, parameters);
-			CcpReflectionMethodDecorator decorator = new CcpReflectionMethodDecorator(declaredField, this.content);
+			Object instance = this.getInstance();
+			CcpReflectionMethodDecorator decorator = new CcpReflectionMethodDecorator(declaredField, instance);
 			return decorator;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
