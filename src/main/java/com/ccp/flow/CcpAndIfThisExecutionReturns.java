@@ -63,7 +63,7 @@ public final class CcpAndIfThisExecutionReturns {
 			}
 			return json;
 		} catch (CcpErrorJsonFieldNotFound ex) {
-			throw ex;
+			throw ex;  
 		}
 	}
 

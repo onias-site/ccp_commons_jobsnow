@@ -30,7 +30,7 @@ public class CcpSelectFinally {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList("statements");
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
 		this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
-		return this;
+		return this; 
 	}
 
 	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
@@ -58,7 +58,7 @@ public class CcpSelectFinally {
 
 		CcpEntity[] entities = set.toArray(new CcpEntity[set.size()]);
 		
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class); 
 		
 		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, entities);
 		
