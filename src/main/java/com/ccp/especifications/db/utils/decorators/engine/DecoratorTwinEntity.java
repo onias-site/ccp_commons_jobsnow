@@ -67,13 +67,16 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 
 		return requiredEntityRow;
 	}
+	
 	private CcpEntity validateTwinEntity(CcpJsonRepresentation json) {
+		
 		CcpEntity twinEntity = this.getTwinEntity();
 		boolean doesNotExist = twinEntity.exists(json) == false;
 		
 		if(doesNotExist) {
 			return this;
 		}
+		
 		String id = twinEntity.calculateId(json);
 		String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this, twinEntity);
 		throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new String[0]);
@@ -91,23 +94,4 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return oneById;
 	}
 	
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		
-		CcpJsonRepresentation delete = this.entity.delete(json);
-		CcpEntity twinEntity = this.getTwinEntity();
-		twinEntity.delete(json);
-		return delete;
-	}
-
-	public boolean delete(String id) {
-		CcpJsonRepresentation oneById = this.entity.getOneById(id);
-		boolean delete = this.entity.delete(id);
-		CcpEntity twinEntity = this.getTwinEntity();
-		twinEntity.delete(oneById);
-		return delete;
-	}
-	
-	public final boolean hasTwinEntity() {
-		return true;
-	}
 }
