@@ -41,6 +41,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 	
 	public CcpTextDecorator stripAccents() {
+		
 		String s = Normalizer.normalize(this.content, Normalizer.Form.NFD);
 		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replaceAll("[^\\w\\s.,+-]", "");
 		return new CcpTextDecorator(s);

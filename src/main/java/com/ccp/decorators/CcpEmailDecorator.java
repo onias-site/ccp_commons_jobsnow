@@ -125,14 +125,11 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		    Pattern.compile(CcpStringConstants.EMAIL_REGEX.value, Pattern.CASE_INSENSITIVE);
 
 	public CcpEmailDecorator findFirst(String delimitadores) {
-
+		
 		String[] palavras = this.content.toLowerCase().split(delimitadores);
 		for (String palavra : palavras) {
 			if(palavra.contains("+")) {
 				String[] split = palavra.replace("+", " ").split(" ");
-				if(split.length == 0) {
-					continue;
-				}
 				String email = split[split.length - 1];
 				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(email);
 				if(ccpEmailDecorator.isValid()) {
@@ -143,8 +140,16 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 			if(palavra.endsWith(".")) {
 				palavra = palavra.substring(0, palavra.length() - 1);
 			}
+			String[] split = palavra.split("@");
 			
-			CcpEmailDecorator ced = new CcpEmailDecorator(palavra);
+			String str = "";
+			
+			for (String string : split) {
+				String content = new CcpTextDecorator(string).stripAccents().getContent();
+				str += (content + "@");
+			}
+			String substring = str.substring(0, str.length() - 1);
+			CcpEmailDecorator ced = new CcpEmailDecorator(substring);
 			if(ced.isValid()) {
 				CcpEmailDecorator stripAccents = ced.stripAccents();
 				String retorno = stripAccents.content.toLowerCase().trim();
