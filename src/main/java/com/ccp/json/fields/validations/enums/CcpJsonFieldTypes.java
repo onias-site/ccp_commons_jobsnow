@@ -86,8 +86,7 @@ public enum CcpJsonFieldTypes {
 		List<CcpJsonFieldErrorTypes> asList = Arrays.asList(
 				CcpJsonFieldErrorTypes.annotationIsMissing,  
 				CcpJsonFieldErrorTypes.incompatibleType,  
-				CcpJsonFieldErrorTypes.requiredFieldIsMissing,
-				CcpJsonFieldErrorTypes.requiredAtLeastOneFieldIsMissing
+				CcpJsonFieldErrorTypes.requiredFieldIsMissing
 				);
 		return new ArrayList<CcpJsonFieldErrorTypes>(asList);
 	}

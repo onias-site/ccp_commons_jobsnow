@@ -787,6 +787,16 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation put = this.put(field, itemAsMap.content);
 		return put;
 	}
+	
+	public CcpJsonRepresentation addToItem(CcpJsonRepresentation value, String...path) {
+		CcpJsonRepresentation json = this;
+		for (String field : path) {
+			CcpJsonRepresentation innerJson = json.getInnerJson(field);
+			
+		}
+		
+		return json;
+	}
 
 
 	public CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {

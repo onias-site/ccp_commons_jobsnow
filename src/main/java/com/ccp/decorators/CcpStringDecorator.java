@@ -51,7 +51,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		return new CcpUrlDecorator(this.content);
 	}
 	
-	public CcpJsonRepresentation map() {
+	public CcpJsonRepresentation json() {
 		return new CcpJsonRepresentation(this.content);
 	}
 	

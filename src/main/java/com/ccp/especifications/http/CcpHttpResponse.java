@@ -32,7 +32,7 @@ public class CcpHttpResponse {
 	
 	public CcpJsonRepresentation asSingleJson() {
 		try {
-			return new CcpStringDecorator(this.httpResponse).map();
+			return new CcpStringDecorator(this.httpResponse).json();
 		} catch (Exception e) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}

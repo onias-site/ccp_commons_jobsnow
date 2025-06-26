@@ -52,7 +52,6 @@ public enum CcpJsonFieldErrorTypes {
 			return annotationIsMissing;
 		}
 	},
-	requiredAtLeastOneFieldIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation),
 	requiredFieldIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation),
 	objectNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
 	objectNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
@@ -77,7 +76,15 @@ public enum CcpJsonFieldErrorTypes {
 
 	private final CcpJsonFieldErrorHandleType errorHandleType;
 	
-	public abstract CcpJsonRepresentation getError(
+	abstract CcpJsonRepresentation getRuleExplanation(
+			CcpJsonRepresentation json,
+			Class<?> clazz, 
+			Field field,
+			CcpJsonFieldValueExtractor valueExtractor 
+			
+			);
+	
+	abstract CcpJsonRepresentation getError(
 			CcpJsonRepresentation json,
 			Class<?> clazz, 
 			Field field,
@@ -85,7 +92,7 @@ public enum CcpJsonFieldErrorTypes {
 			CcpJsonFieldValueExtractor valueExtractor 
 			);
 
-	public abstract boolean hasError(
+	abstract boolean hasError(
 			CcpJsonRepresentation json,
 			Class<?> clazz, 
 			Field field,
@@ -99,26 +106,38 @@ public enum CcpJsonFieldErrorTypes {
 			CcpJsonRepresentation errors,
 			CcpJsonRepresentation json,
 			Class<?> clazz, 
-			Field field,
+			Field fieldReflection,
 			Class<? extends Annotation> annotation,
 			Predicate<CcpJsonRepresentation> predicate,
 			CcpJsonFieldValueExtractor valueExtractor 
 			) {
 		
-		boolean hasNoError = this.hasError(json, clazz, field, annotation, predicate, valueExtractor) == false;
+		boolean hasNoError = this.hasError(json, clazz, fieldReflection, annotation, predicate, valueExtractor) == false;
 		
 		if(hasNoError) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 		
-		CcpJsonRepresentation errorList = this.getError(json, clazz, field, annotation, valueExtractor);
+		String ruleName = this.name();
+		String fieldName = fieldReflection.getName();
 		
+		CcpJsonRepresentation field = errors.getInnerJson(fieldName);
+		CcpJsonRepresentation rule = field.getInnerJson(ruleName);
 		
-		String fieldName = field.getName();
-		String errorName = this.name();
-		CcpJsonRepresentation addToItem = errors.addToItem(fieldName, errorName, errorList);
-		this.errorHandleType.breakValidationIfNecessary(addToItem);
-		return addToItem;
+		Object providedValue = valueExtractor.getValue(json, fieldName);
+		CcpJsonRepresentation withProvidedValue = rule.put("providedValue", providedValue);
+
+		CcpJsonRepresentation ruleExplanation = this.getRuleExplanation(rule, clazz, fieldReflection, valueExtractor);
+		CcpJsonRepresentation withRuleExplanation = withProvidedValue.put("ruleExplanation", ruleExplanation);
+		
+		CcpJsonRepresentation error = this.getError(json, clazz, fieldReflection, annotation, valueExtractor);
+		CcpJsonRepresentation withError = withRuleExplanation.put("error", error);
+		
+		CcpJsonRepresentation updatedField = field.put(ruleName, withError);
+		CcpJsonRepresentation updatedErrors = errors.put(fieldName, updatedField);
+		
+		this.errorHandleType.breakValidation(updatedErrors);
+		return updatedErrors;
 	}
 
 }
