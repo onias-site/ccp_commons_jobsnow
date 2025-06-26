@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface CcpJsonFieldIntegerType {
+public @interface CcpJsonFieldNumberType {
 	int[] allowedValues() default {};
 	int minValue() default 0;
 	int maxValue() default 0;

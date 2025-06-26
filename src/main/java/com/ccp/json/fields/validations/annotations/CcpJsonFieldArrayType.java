@@ -13,5 +13,4 @@ public @interface CcpJsonFieldArrayType {
 	boolean nonRepeatedItems();
 	int minSize() default 0;
 	int maxSize() default 0;
-	boolean allowEmpty();
 }

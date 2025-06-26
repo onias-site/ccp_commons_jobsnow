@@ -230,6 +230,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpTextDecorator text = ccpStringDecorator.text();
 		return text;
 	}
+
+	public CcpStringDecorator getAsStringDecorator(String field) {
+		String asString = this.getAsString(field);
+		CcpStringDecorator decorator = new CcpStringDecorator(asString);
+		return decorator;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public String getAsString(String field) {
