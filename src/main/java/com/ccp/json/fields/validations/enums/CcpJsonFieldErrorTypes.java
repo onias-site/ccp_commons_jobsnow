@@ -7,7 +7,10 @@ import java.util.function.Predicate;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
-@SuppressWarnings("rawtypes")
+enum CcpJsonFieldErrorTypesConstants{
+	error, ruleExplanation, providedValue	
+}
+
 public enum CcpJsonFieldErrorTypes {
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		public CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
@@ -33,6 +36,13 @@ public enum CcpJsonFieldErrorTypes {
 			
 			return test;
  		}
+
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	},
 	annotationIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		public CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
@@ -51,20 +61,313 @@ public enum CcpJsonFieldErrorTypes {
 			
 			return annotationIsMissing;
 		}
+
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	},
-	requiredFieldIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation),
-	objectNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectArrayMinSize(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectArrayMaxSize(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectArrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTextMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTextMaxLength(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTextAllowedValues(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTextRegex(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTimeMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
-	objectTimeMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation),
+	requiredFieldIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectArrayMinSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectArrayMaxSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectArrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTextMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTextMaxLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTextAllowedValues(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTextRegex(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTimeMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
+	objectTimeMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+		@Override
+		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
+				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
+				CcpJsonFieldValueExtractor valueExtractor) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	},
 	
 
 	;
@@ -125,16 +428,17 @@ public enum CcpJsonFieldErrorTypes {
 		CcpJsonRepresentation rule = field.getInnerJson(ruleName);
 		
 		Object providedValue = valueExtractor.getValue(json, fieldName);
-		CcpJsonRepresentation withProvidedValue = rule.put("providedValue", providedValue);
+		CcpJsonRepresentation withProvidedValue = rule.put(CcpJsonFieldErrorTypesConstants.providedValue, providedValue);
 
 		CcpJsonRepresentation ruleExplanation = this.getRuleExplanation(rule, clazz, fieldReflection, valueExtractor);
-		CcpJsonRepresentation withRuleExplanation = withProvidedValue.put("ruleExplanation", ruleExplanation);
+		CcpJsonRepresentation withRuleExplanation = withProvidedValue.put(CcpJsonFieldErrorTypesConstants.ruleExplanation, ruleExplanation);
 		
 		CcpJsonRepresentation error = this.getError(json, clazz, fieldReflection, annotation, valueExtractor);
-		CcpJsonRepresentation withError = withRuleExplanation.put("error", error);
+		CcpJsonRepresentation withError = withRuleExplanation.put(CcpJsonFieldErrorTypesConstants.error, error);
 		
-		CcpJsonRepresentation updatedField = field.put(ruleName, withError);
-		CcpJsonRepresentation updatedErrors = errors.put(fieldName, updatedField);
+		CcpJsonRepresentation updatedField = field.put(this, withError);
+//		FIXME CcpJsonRepresentation updatedErrors = errors.put(fieldName, updatedField);
+		CcpJsonRepresentation updatedErrors = errors.put(null, updatedField);
 		
 		this.errorHandleType.breakValidation(updatedErrors);
 		return updatedErrors;

@@ -6,7 +6,7 @@ import com.ccp.decorators.CcpTimeDecorator;
 
 interface TimeEnlapsedValidations extends CcpBoundValidations {
 	default Double getDifference(CcpJsonRepresentation json, String field) {
-		Double value = json.getAsDoubleNumber(field);
+		Double value = json.getDynamicVersion().getAsDoubleNumber(field);
 		CcpTimeDecorator ctd = new CcpTimeDecorator();
 		int currentYear = ctd.getYear();
 		double diff = currentYear - value;
@@ -15,12 +15,12 @@ interface TimeEnlapsedValidations extends CcpBoundValidations {
 
 	
 	default boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-		boolean fieldsIsNotPresent = json.containsAllFields(fields) == false;
+		boolean fieldsIsNotPresent = json.getDynamicVersion().containsAllFields(fields) == false;
 		if(fieldsIsNotPresent) {
 			return true;
 		}
 		for (String field : fields) {
-			String asString = json.getAsString(field);
+			String asString = json.getDynamicVersion().getAsString(field);
 			boolean isNotDoubleNumber = new CcpStringDecorator(asString).isDoubleNumber() == false;
 			if(isNotDoubleNumber) {
 				continue;

@@ -19,7 +19,9 @@ import com.ccp.validation.annotations.CcpYear;
 import com.ccp.validation.enums.CcpAllowedValuesValidations;
 import com.ccp.validation.enums.CcpBoundValidations;
 import com.ccp.validation.enums.CcpSimpleObjectValidations;
-
+enum CcpJsonFieldsValidationsConstants{
+	errors, specification, regex, value, name, wrongFields, bound, restrictedValues, evaluatedFields, json, featureName, 
+}
 public class CcpJsonFieldsValidations {
 	// Valida o conteúdo das informações do JSON com os campos da tabela que receberá os dados
 	public static void validate(Class<?> clazz, Map<String, Object> map, String featureName) {
@@ -36,20 +38,20 @@ public class CcpJsonFieldsValidations {
 	// Após a organização do método, é chamado aqui para execução
 	public static void validate(CcpJsonFieldsValidation rules, Map<String, Object> map, String featureName) {
 		// Recebe o JSON mapeado
-		CcpJsonRepresentation json = new CcpJsonRepresentation(map);
+		CcpJsonRepresentation jsn = new CcpJsonRepresentation(map);
 		// ???
 		Class<?> rulesClass = rules.rulesClass();
 		rules = rulesClass.isAnnotationPresent(CcpJsonFieldsValidation.class) ? rulesClass.getAnnotation(CcpJsonFieldsValidation.class) : rules;
 		// Cria variável de evidência em formato JSON vazia
 		CcpJsonRepresentation evidences = CcpOtherConstants.EMPTY_JSON;
 		// Validando os limites
-		evidences = validateBounds(rules, json, evidences);
+		evidences = validateBounds(rules, jsn, evidences);
 		// Validando restrições
-		evidences = validateRestricted(rules, json, evidences);
+		evidences = validateRestricted(rules, jsn, evidences);
 		// Validações simples 
-		evidences = simpleValidation(rules, json, evidences);
+		evidences = simpleValidation(rules, jsn, evidences);
 		// Acrescenta a relação de erros
-		CcpJsonRepresentation errors = evidences.getInnerJson("errors");
+		CcpJsonRepresentation errors = evidences.getInnerJson(CcpJsonFieldsValidationsConstants.errors);
 		// Carrega a variável booleana vazia		--		Não está faltando um if do tipo se errors for vazio então carrega noErrors com errors.isEmpty()? 
 		boolean noErrors = errors.isEmpty();
 		// Caso noErros seja verdadeiro, retorna
@@ -59,7 +61,9 @@ public class CcpJsonFieldsValidations {
 		// Se noErrors for falso continua carregando a variável de especificação
 		CcpJsonRepresentation specification = getSpecification(featureName, rules);
 		// Incrementa a variável de evidência com a especificação
-		CcpJsonRepresentation result = evidences.put("specification", specification).put("json", json);
+		CcpJsonRepresentation result = evidences
+				.put(CcpJsonFieldsValidationsConstants.specification, specification)
+				.put(CcpJsonFieldsValidationsConstants.json, jsn);
 		// Se der algum erro, será redirecionado à classe CcpJsonInvalid()
 		throw new CcpErrorJsonFieldsInvalid(result);
 	}
@@ -86,7 +90,7 @@ public class CcpJsonFieldsValidations {
 		
 		CcpAllowedValues[] allowedValues = rules.allowedValues();
 		
-		specification = specification.put("featureName", featureName);
+		specification = specification.put(CcpJsonFieldsValidationsConstants.featureName, featureName);
 		for (CcpAllowedValues dumb : allowedValues) {
 
 			String[] restrictedValues = dumb.allowedValues();
@@ -94,8 +98,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpAllowedValues.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "restrictedValues", restrictedValues);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.restrictedValues, restrictedValues);
 		}
 		
 		CcpArrayNumbers[] arrayNumbers = rules.arrayNumbers();
@@ -106,8 +110,8 @@ public class CcpJsonFieldsValidations {
 			double bound = dumb.bound();
 			
 			String completeRuleName = getCompleteRuleName(CcpArrayNumbers.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 		}
 		
 		CcpArraySize[] arraySize = rules.arraySize();
@@ -118,8 +122,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpArraySize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 
 		}
 		CcpArrayTextSize[] arrayTextSize = rules.arrayTextSize();
@@ -130,8 +134,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpArrayTextSize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 		}
 		
 		CcpDay[] day = rules.day();
@@ -142,8 +146,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpDay.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 
 		}
 		CcpObjectNumbers[] objectNumbers = rules.objectNumbers();
@@ -153,8 +157,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpObjectNumbers.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 
 		}
 		CcpObjectTextSize[] objectTextSize = rules.objectTextSize();
@@ -164,8 +168,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpObjectTextSize.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 
 		}
 		CcpRegex[] regex = rules.regex();
@@ -175,8 +179,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = CcpRegex.class.getSimpleName();
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "value", value);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.value, value);
 
 		}
 		
@@ -187,7 +191,7 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpSimpleObject.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
 
 		}
 		
@@ -198,8 +202,8 @@ public class CcpJsonFieldsValidations {
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = getCompleteRuleName(CcpYear.class, rule);
-			specification = specification.addToItem(completeRuleName, "evaluatedFields", fields);
-			specification = specification.addToItem(completeRuleName, "bound", bound);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.evaluatedFields, fields);
+			specification = specification.addToItem(completeRuleName, CcpJsonFieldsValidationsConstants.bound, bound);
 
 		}
 		return specification;
@@ -230,20 +234,20 @@ public class CcpJsonFieldsValidations {
 				if(validJson) {
 					continue;
 				}
-				errors = errors.put("restrictedValues", restrictedValues);
+				errors = errors.put(CcpJsonFieldsValidationsConstants.restrictedValues, restrictedValues);
 				
-				boolean containsKey = json.containsField(field) == false;
+				boolean containsKey = json.getDynamicVersion().containsField(field) == false;
 				if(containsKey) {
 					continue;
 				}
 				
-				Object value = json.get(field);
+				Object value = json.getDynamicVersion().get(field);
 				CcpJsonRepresentation fieldDetails = CcpOtherConstants.EMPTY_JSON
-						.put("name", field)
-						.put("value", value)
+						.put(CcpJsonFieldsValidationsConstants.name, field)
+						.put(CcpJsonFieldsValidationsConstants.value, value)
 						;
-				errors = errors.addToList("wrongFields", fieldDetails);
-				result = result.addToItem("errors", completeRuleName, errors);
+				errors = errors.addToList(CcpJsonFieldsValidationsConstants.wrongFields, fieldDetails);
+				result = result.addToItem(CcpJsonFieldsValidationsConstants.errors, completeRuleName, errors);
 			}
 		}
 		return result;
@@ -270,23 +274,23 @@ public class CcpJsonFieldsValidations {
 			if(validJson) {
 				continue;
 			}
-			errors = errors.put("bound", bound);
-			boolean fieldIsNotPresent = json.containsAllFields(field) == false;
+			errors = errors.put(CcpJsonFieldsValidationsConstants.bound, bound);
+			boolean fieldIsNotPresent = json.getDynamicVersion().containsAllFields(field) == false;
 			if(fieldIsNotPresent) {
 				CcpJsonRepresentation fieldDetails = CcpOtherConstants.EMPTY_JSON
-						.put("name", field)
+						.put(CcpJsonFieldsValidationsConstants.name, field)
 						;
-				errors = errors.addToList("wrongFields", fieldDetails);
-				result = result.addToItem("errors", completeRuleName, errors);
+				errors = errors.addToList(CcpJsonFieldsValidationsConstants.wrongFields, fieldDetails);
+				result = result.addToItem(CcpJsonFieldsValidationsConstants.errors, completeRuleName, errors);
 				continue;
 			}
-			Object value = json.get(field);
+			Object value = json.getDynamicVersion().get(field);
 			CcpJsonRepresentation fieldDetails = CcpOtherConstants.EMPTY_JSON
-					.put("name", field)
-					.put("value", value)
+					.put(CcpJsonFieldsValidationsConstants.name, field)
+					.put(CcpJsonFieldsValidationsConstants.value, value)
 					;
-			errors = errors.addToList("wrongFields", fieldDetails);
-			result = result.addToItem("errors", completeRuleName, errors);
+			errors = errors.addToList(CcpJsonFieldsValidationsConstants.wrongFields, fieldDetails);
+			result = result.addToItem(CcpJsonFieldsValidationsConstants.errors, completeRuleName, errors);
 		}
 		
 		return result;
@@ -402,20 +406,20 @@ public class CcpJsonFieldsValidations {
 				String[] fields = validation.fields();
 				String regex = validation.value().value;
 				for (String field : fields) {
-					boolean validJson = json.itIsTrueThatTheFollowingFields(field).ifTheyAreAll()
+					boolean validJson = json.getDynamicVersion().itIsTrueThatTheFollowingFields(field).ifTheyAreAll()
 							.textsThenEachOneMatchesWithTheFollowingRegex(regex);
 
 					if (validJson) {
 						continue;
 					}
-					errors = errors.put("regex", regex);
-					Object value = json.get(field);
+					errors = errors.put(CcpJsonFieldsValidationsConstants.regex, regex);
+					Object value = json.getDynamicVersion().get(field);
 					CcpJsonRepresentation fieldDetails = CcpOtherConstants.EMPTY_JSON
-							.put("name", field)
-							.put("value", value)
+							.put(CcpJsonFieldsValidationsConstants.name, field)
+							.put(CcpJsonFieldsValidationsConstants.value, value)
 							;
-					errors = errors.addToList("wrongFields", fieldDetails);
-					result = result.addToItem("errors", "regex", errors);
+					errors = errors.addToList(CcpJsonFieldsValidationsConstants.wrongFields, fieldDetails);
+					result = result.addToItem(CcpJsonFieldsValidationsConstants.errors, CcpJsonFieldsValidationsConstants.regex, errors);
 					
 				}
 			}

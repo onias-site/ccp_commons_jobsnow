@@ -7,14 +7,14 @@ import com.ccp.decorators.CcpJsonRepresentation;
 public enum CcpJsonFieldValueExtractor {
 	fromArray {
 		public Object getValue(CcpJsonRepresentation json, String fieldName) {
-			List<Object> asObjectList = json.getAsObjectList(fieldName);
+			List<Object> asObjectList = json.getDynamicVersion().getAsObjectList(fieldName);
 			return asObjectList;
 		}
 	},
 	fromObject {
 		@Override
 		public Object getValue(CcpJsonRepresentation json, String fieldName) {
-			Object object = json.get(fieldName);
+			Object object = json.getDynamicVersion().get(fieldName);
 			return object;
 		}
 	}

@@ -20,23 +20,23 @@ public class CcpSelectUnionAll {
 		String fieldNameToId = dependency.getFieldNameToId();
 		
 		for (CcpJsonRepresentation result : results) {
-			String id = result.getAsString(fieldNameToId);
-			String entity = result.getAsString(fieldNameToEntity);
-			CcpJsonRepresentation removeKeys = result.removeFields(fieldNameToId, fieldNameToEntity);
-			condensed = condensed.addToItem(entity, id, removeKeys);
+			String id = result.getDynamicVersion().getAsString(fieldNameToId);
+			String entity = result.getDynamicVersion().getAsString(fieldNameToEntity);
+			CcpJsonRepresentation removeKeys = result.getDynamicVersion().removeFields(fieldNameToId, fieldNameToEntity);
+			condensed = condensed.getDynamicVersion().addToItem(entity, id, removeKeys);
 		}
 		this.condensed = condensed;
 	}
 	
 	public boolean isPresent(String entityName, String id) {
 		
-		boolean entityNotFound = this.condensed.containsAllFields(entityName) == false;
+		boolean entityNotFound = this.condensed.getDynamicVersion().containsAllFields(entityName) == false;
 		
 		if(entityNotFound) {
 			return false;
 		}
 		
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJsonFromPath(entityName, id);
+		CcpJsonRepresentation innerJson = this.condensed.getDynamicVersion().getInnerJsonFromPath(entityName, id);
 		
 		boolean idNotFound = innerJson.isEmpty();
 		
@@ -74,21 +74,21 @@ public class CcpSelectUnionAll {
 	
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
 		
-		boolean indexNotFound = this.condensed.containsAllFields(index) == false;
+		boolean indexNotFound = this.condensed.getDynamicVersion().containsAllFields(index) == false;
 		
 		if(indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 		
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(index);
+		CcpJsonRepresentation innerJson = this.condensed.getDynamicVersion().getInnerJson(index);
 
-		boolean idNotFound = innerJson.containsAllFields(id) == false;
+		boolean idNotFound = innerJson.getDynamicVersion().containsAllFields(id) == false;
 		
 		if(idNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 		
-		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(id);
+		CcpJsonRepresentation jsonValue = innerJson.getDynamicVersion().getInnerJson(id);
 		return jsonValue;
 	}
 

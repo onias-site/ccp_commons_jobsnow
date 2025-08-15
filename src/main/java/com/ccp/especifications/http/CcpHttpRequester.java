@@ -11,6 +11,22 @@ import com.ccp.exceptions.http.CcpErrorHttp;
 import com.ccp.exceptions.http.CcpErrorHttpServer;
 import com.ccp.http.CcpHttpMethods;
 
+enum CcpHttpRequesterConstants{
+	expectedStatusList,
+	details,
+	trace,
+	response,
+	status,
+	request,
+	headers,
+	method,
+	url,
+	
+	
+			
+	
+}
+
 public interface CcpHttpRequester {
 	CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String body);
 
@@ -42,10 +58,17 @@ public interface CcpHttpRequester {
 	default CcpErrorHttp getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, Integer status, String response, Set<String> expectedStatusList) {
 
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put("url", url).put("method", method)
-				.put("headers", headers).put("request", request).put("status", status).put("response", response);
-		CcpJsonRepresentation entity = put.put("trace", trace).put("details", put.content).put("expectedStatusList",
-				expectedStatusList);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
+				.put(CcpHttpRequesterConstants.url, url)
+				.put(CcpHttpRequesterConstants.method, method)
+				.put(CcpHttpRequesterConstants.headers, headers)
+				.put(CcpHttpRequesterConstants.request, request)
+				.put(CcpHttpRequesterConstants.status, status)
+				.put(CcpHttpRequesterConstants.response, response);
+		CcpJsonRepresentation entity = put
+				.put(CcpHttpRequesterConstants.trace, trace)
+				.put(CcpHttpRequesterConstants.details, put.content)
+				.put(CcpHttpRequesterConstants.expectedStatusList, expectedStatusList);
 
 		if (status >= 600) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);

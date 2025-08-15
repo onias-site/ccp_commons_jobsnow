@@ -22,12 +22,12 @@ public final class CcpHttpHandler {
 	}
 
 	public CcpHttpHandler(Integer httpStatus, Function<CcpJsonRepresentation, CcpJsonRepresentation> alternativeFlow) {
-		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus.toString(), CcpOtherConstants.DO_NOTHING);
+		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
 		this.alternativeFlow = alternativeFlow;
 	}
 	
 	public CcpHttpHandler(Integer httpStatus) {
-		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus.toString(), CcpOtherConstants.DO_NOTHING);
+		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
 		this.alternativeFlow = null;
 	}
 	
@@ -60,8 +60,10 @@ public final class CcpHttpHandler {
 	public <V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
 		int status = response.httpStatus;
+		//FIXME
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getOrDefault(null, this.alternativeFlow);
 		
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getOrDefault("" + status, this.alternativeFlow);
+//		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getOrDefault("" + status, this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

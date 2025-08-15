@@ -171,8 +171,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		String key = fileName.replace(".java", "") + "." + methodName + ":" + lineNumber+ "<BR>";
 		return key;
 	}
+
+	public Long getAsLongNumber(Enum<?> field) {
+		Long asLongNumber = this.getAsLongNumber(field.name());
+		return asLongNumber;
+	}
 	
-	public Long getAsLongNumber(String field) {
+	private Long getAsLongNumber(String field) {
 		
 		Object object = this.content.get(field);
 		try {
@@ -182,27 +187,36 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 	}
 
-	public Integer getAsIntegerNumber(String field) {
-		
+	public Integer getAsIntegerNumber(Enum<?> field) {
+		Integer asIntegerNumber = this.getAsIntegerNumber(field.name());
+		return asIntegerNumber;
+	}
+	
+	private Integer getAsIntegerNumber(String field) {
 		Object object = this.content.get(field);
-
 		try {
 			return Double.valueOf("" + object).intValue();
 		} catch (Exception e) {
 			throw new CcpErrorJsonInvalidFieldFormat(object, field, "integer", this);
 		}
-		
 	}
 	
-
-	public boolean getAsBoolean(String field) {
+	public boolean getAsBoolean(Enum<?> field) {
+		boolean asBoolean = this.getAsBoolean(field.name());
+		return asBoolean;
+	}
+	
+	private boolean getAsBoolean(String field) {
 		String asString = this.getAsString(field);
 		return Boolean.valueOf(asString.toLowerCase());
 	}
+
+	public Double getAsDoubleNumber(Enum<?> field) {
+		Double asDoubleNumber = this.getAsDoubleNumber(field.name());
+		return asDoubleNumber;
+	}
 	
-	
-	public Double getAsDoubleNumber(String field) {
-		
+	private Double getAsDoubleNumber(String field) {
 		Object object = this.content.get(field);
 		try {
 			return Double.valueOf("" + object);
@@ -211,7 +225,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 	}
 	
-	public CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
+	public CcpJsonRepresentation putFilledTemplate(Enum<?> fieldToSearch, Enum<?> fieldToPut) {
+		CcpJsonRepresentation putFilledTemplate = this.putFilledTemplate(fieldToSearch.name(), fieldToPut.name());
+		return putFilledTemplate;
+	}
+	
+	private CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
 		
 		String asString = this.getAsString(fieldToSearch);
 		
@@ -224,21 +243,36 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return put;
 	}
 	
-	public CcpTextDecorator getAsTextDecorator(String field) {
+	public CcpTextDecorator getAsTextDecorator(Enum<?> field) {
+		CcpTextDecorator asTextDecorator = this.getAsTextDecorator(field.name());
+		return asTextDecorator;
+	}
+	
+	private CcpTextDecorator getAsTextDecorator(String field) {
 		String asString = this.getAsString(field);
 		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(asString);
 		CcpTextDecorator text = ccpStringDecorator.text();
 		return text;
 	}
 
-	public CcpStringDecorator getAsStringDecorator(String field) {
+	public CcpStringDecorator getAsStringDecorator(Enum<?> field) {
+		CcpStringDecorator asStringDecorator = this.getAsStringDecorator(field.name());
+		return asStringDecorator;
+	}
+	
+	private CcpStringDecorator getAsStringDecorator(String field) {
 		String asString = this.getAsString(field);
 		CcpStringDecorator decorator = new CcpStringDecorator(asString);
 		return decorator;
 	}
 	
+	public String getAsString(Enum<?> field) {
+		String asString = this.getAsString(field.name());
+		return asString;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public String getAsString(String field) {
+	private String getAsString(String field) {
 
 		Object object = this.content.get(field);
 		
@@ -259,12 +293,16 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		if(object instanceof CcpJsonRepresentation json) {
 			return json.toString();
 		}
-		
 		return ("" + object);
 	}
 
+	public <T> T getOrDefault(Enum<?> field, T defaultValue) {
+		T orDefault = this.getOrDefault(field.name(), defaultValue);
+		return orDefault;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public <T> T getOrDefault(String field, T defaultValue) {
+	private <T> T getOrDefault(String field, T defaultValue) {
 		Object object = this.content.get(field);
 		
 		if(null == object) {
@@ -280,9 +318,14 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation jsonPiece = this.getJsonPiece(array);
 		return jsonPiece;
 	}	
+
+	public CcpJsonRepresentation getJsonPiece(Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		CcpJsonRepresentation jsonPiece = this.getJsonPiece(fields2);
+		return jsonPiece;
+	}
 	
-	public CcpJsonRepresentation getJsonPiece(String... fields) {
-		
+	private CcpJsonRepresentation getJsonPiece(String... fields) {
 		Map<String, Object> subMap = new LinkedHashMap<>();
 		
 		for (String field : fields) {
@@ -331,14 +374,24 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		Set<String> keySet = this.content.keySet();
 		return keySet;
 	}
-
-	public CcpJsonRepresentation put(String field, CcpDecorator<?> map) {
+	
+	public CcpJsonRepresentation put(Enum<?> field, CcpDecorator<?> map) {
+		CcpJsonRepresentation put = this.put(field.name(), map);
+		return put;
+	}
+	
+	private CcpJsonRepresentation put(String field, CcpDecorator<?> map) {
 		Object internalContent = map.getContent();
 		CcpJsonRepresentation put = this.put(field, internalContent);
 		return put;
 	}
-
-	public CcpJsonRepresentation put(String field, Collection<CcpJsonRepresentation> list) {
+	
+	public CcpJsonRepresentation put(Enum<?> field, Collection<CcpJsonRepresentation> list) {
+		CcpJsonRepresentation put = this.put(field.name(), list);
+		return put;
+	}
+	
+	private CcpJsonRepresentation put(String field, Collection<CcpJsonRepresentation> list) {
 		List<Map<String, Object>> collect = list.stream().map(x -> x.content).collect(Collectors.toList());
 		CcpJsonRepresentation put = this.put(field, collect);
 		return put;
@@ -351,17 +404,21 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	
 	@SafeVarargs
 	public final CcpJsonRepresentation getTransformedJson(Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
-	
 		CcpJsonRepresentation transformedJson = this;
-		
 		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer : transformers) {
 			transformedJson = transformer.apply(transformedJson);
 		}
 		return transformedJson;
 	}
+
+	@SuppressWarnings("unchecked")
+	public CcpJsonRepresentation getTransformedJsonIfFoundTheField(Enum<?> field, Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+		CcpJsonRepresentation transformedJsonIfFoundTheField = this.getTransformedJsonIfFoundTheField(field.name(), transformers);
+		return transformedJsonIfFoundTheField;
+	}
 	
 	@SuppressWarnings("unchecked")
-	public final CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
 
 		boolean fieldNotFound = this.containsAllFields(field) == false;
 		if(fieldNotFound) {
@@ -377,13 +434,27 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return transformedJson;
 	}
 	
+	public CcpJsonRepresentation addJsonTransformer(Enum<?> field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(field.name(), process);
+		return addJsonTransformer;
+	}
 	
-	public CcpJsonRepresentation addJsonTransformer(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+	public CcpJsonRepresentation addJsonTransformer(Integer field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer("" + field, process);
+		return addJsonTransformer;
+	}
+	private CcpJsonRepresentation addJsonTransformer(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
 		CcpJsonRepresentation put = this.put(field, process);
 		return put;
 	}
 	
-	public CcpJsonRepresentation putSameValueInManyFields(Object value, String... fields) {
+	public CcpJsonRepresentation putSameValueInManyFields(Object value, Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		CcpJsonRepresentation putSameValueInManyFields = this.putSameValueInManyFields(value, fields2);
+		return putSameValueInManyFields;
+	}
+	
+	private CcpJsonRepresentation putSameValueInManyFields(Object value, String... fields) {
 		CcpJsonRepresentation json = this;
 		
 		for (String field : fields) {
@@ -393,8 +464,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return json;
 	}
 	
-	public CcpJsonRepresentation put(String field, Object value) {
-		
+	public CcpJsonRepresentation put(Enum<?> field, Object value) {
+		CcpJsonRepresentation put = this.put(field.name(), value);
+		return put;
+	}
+	
+	private CcpJsonRepresentation put(String field, Object value) {
 		Map<String, Object> content = new LinkedHashMap<>();
 		content.putAll(this.content);
 		content.put(field, value);
@@ -402,7 +477,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return json;
 	}  
 
-	public CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
+	public CcpJsonRepresentation duplicateValueFromField(Enum<?> fieldToCopy, Enum<?>... array) {
+		String[] fields = this.getFields(array);
+		CcpJsonRepresentation response = this.duplicateValueFromField(fieldToCopy.name(), fields);
+		return response;
+	}	
+
+	private CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
 		boolean inexistentField = this.containsAllFields(fieldToCopy) == false;
 
 		if (inexistentField) {
@@ -419,8 +500,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return newMap;
 	}
 	
+	public CcpJsonRepresentation renameField(Enum<?> oldField, Enum<?> newField) {
+		CcpJsonRepresentation renameField = this.renameField(oldField.name(), newField.name());
+		return renameField;
+	}
 	
-	public CcpJsonRepresentation renameField(String oldField, String newField) {
+	private CcpJsonRepresentation renameField(String oldField, String newField) {
 		Map<String, Object> content = new HashMap<>();
 		content.putAll(this.content);
 		Object value = content.remove(oldField);
@@ -432,10 +517,14 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		content.put(newField, value);
 		CcpJsonRepresentation json = new CcpJsonRepresentation(content);
 		return json;
-		
+	}
+
+	public CcpJsonRepresentation removeField(Enum<?> field) {
+		CcpJsonRepresentation removeField = this.removeField(field.name());
+		return removeField;
 	}
 	
-	public CcpJsonRepresentation removeField(String field) {
+	private CcpJsonRepresentation removeField(String field) {
 		Map<String, Object> content = this.getContent();
 		Map<String, Object> copy = new HashMap<>(content);
 		copy.remove(field);
@@ -443,7 +532,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return json;
 	}
 	
-	public CcpJsonRepresentation removeFields(String... fields) {
+	public CcpJsonRepresentation removeFields(Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		CcpJsonRepresentation removeFields = this.removeFields(fields2);
+		return removeFields;
+	}
+	
+	private CcpJsonRepresentation removeFields(String... fields) {
 		CcpJsonRepresentation json = this;
 		for (String field : fields) {
 			json = json.removeField(field);
@@ -456,11 +551,17 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 	
 	public CcpJsonRepresentation copy() {
-		return new CcpJsonRepresentation(this.getContent());
+		CcpJsonRepresentation json = new CcpJsonRepresentation(this.getContent());
+		return json;
 	}
-
 	
-	public CcpJsonRepresentation getInnerJsonFromPath(String...paths) {
+	public CcpJsonRepresentation getInnerJsonFromPath(Enum<?>...paths) {
+		String[] fields = this.getFields(paths);
+		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fields);
+		return innerJsonFromPath;
+	}
+	
+	private CcpJsonRepresentation getInnerJsonFromPath(String...paths) {
 		try {
 			Map<String, Object> map =  this.getValueFromPath(new HashMap<>(), paths);
 			CcpJsonRepresentation json = new CcpJsonRepresentation(map);
@@ -470,9 +571,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			return map;
 		}
 	}
+
+	public <T>T getValueFromPath(T defaultValue, Enum<?>... paths){
+		String[] fields = this.getFields(paths);
+		T valueFromPath = this.getValueFromPath(defaultValue, fields);
+		return valueFromPath;	
+	}
 	
 	@SuppressWarnings("unchecked")
-	public <T>T getValueFromPath(T defaultValue, String... paths){
+	private <T>T getValueFromPath(T defaultValue, String... paths){
 		
 		boolean pathIsMissing = paths.length == 0;
 		
@@ -512,12 +619,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return asObject;
 	}
 
-	/**
-	 * @param paths
-	 * @return
-	 */
+
+	public List<CcpJsonRepresentation> getInnerJsonListFromPath(Enum<?>...paths) {
+		String[] fields = this.getFields(paths);
+		List<CcpJsonRepresentation> innerJsonListFromPath = this.getInnerJsonListFromPath(fields);
+		return innerJsonListFromPath;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public List<CcpJsonRepresentation> getInnerJsonListFromPath(String...paths) {
+	private List<CcpJsonRepresentation> getInnerJsonListFromPath(String...paths) {
 		
 		List<Object> valueFromPath = this.getValueFromPath(new ArrayList<>(), paths);
 		
@@ -554,10 +664,14 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		
 		return response;
 	}	
-	
+
+	public CcpJsonRepresentation getInnerJson(Enum<?> field) {
+		CcpJsonRepresentation innerJson = this.getInnerJson(field.name());
+		return innerJson;
+	}
 	
 	@SuppressWarnings("unchecked")
-	public CcpJsonRepresentation getInnerJson(String field) {
+	private CcpJsonRepresentation getInnerJson(String field) {
 
 		Object object = this.content.get(field);
 		
@@ -578,9 +692,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 
 		return CcpOtherConstants.EMPTY_JSON;
 	}
+
+	
+	public List<CcpJsonRepresentation> getAsJsonList(Enum<?> field) {
+		List<CcpJsonRepresentation> asJsonList = this.getAsJsonList(field.name());
+		return asJsonList;
+	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CcpJsonRepresentation> getAsJsonList(String field) {
+	private List<CcpJsonRepresentation> getAsJsonList(String field) {
 		
 		Object object = this.content.get(field);
 		 
@@ -619,7 +739,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return ccpCollectionDecorator;
 	}
 	
-	public List<String> getAsStringList(String... fields){
+	public List<String> getAsStringList(Enum<?>... fields){
+		String[] fields2 = this.getFields(fields);
+		List<String> asStringList = this.getAsStringList(fields2);
+		return asStringList;
+	}
+	
+	private List<String> getAsStringList(String... fields){
 		for (String field : fields) {
 			List<String> collect = this.getAsObjectList(field).stream()
 					.filter(x -> x != null)
@@ -632,7 +758,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return new ArrayList<>();
 	}
 	
-	public List<Object> getAsObjectList(String field) {
+	public List<Object> getAsObjectList(Enum<?> field) {
+		List<Object> asObjectList = this.getAsObjectList(field.name());
+		return asObjectList;
+	}
+	
+	private List<Object> getAsObjectList(String field) {
 		
 		boolean isNotPresent = this.containsAllFields(field) == false;
 		
@@ -679,7 +810,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return mapDecorator;
 	}
 	
-	public boolean containsField(String field) {
+	public boolean containsField(Enum<?> field) {
+		boolean containsField = this.containsField(field.name());
+		return containsField;
+	}
+
+	private boolean containsField(String field) {
 		boolean containsKey = this.content.containsKey(field);
 		return containsKey;
 	}
@@ -696,14 +832,25 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		String[] array = fields.toArray(a);
 		return array;
 	}	
+
+	public boolean containsAllFields(Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		boolean containsAllFields = this.containsAllFields(fields2);
+		return containsAllFields;
+	}
 	
-	public boolean containsAllFields(String... fields) {
+	private boolean containsAllFields(String... fields) {
 		boolean containsFields = this.containsFields(false, fields);
 		return containsFields; 
 	}
 	
-
-	public boolean containsAnyFields(String... fields) {
+	public boolean containsAnyFields(Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		boolean containsAnyFields = this.containsAnyFields(fields2);
+		return containsAnyFields;
+	}
+	
+	private boolean containsAnyFields(String... fields) {
 		boolean containsFields = this.containsFields(true, fields);
 		return containsFields;
 	}
@@ -721,7 +868,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return false;
 	}
 	
-	public Object get(String field) {
+	public Object get(Enum<?> field) {
+		Object object = this.get(field.name());
+		return object;
+	}
+	
+	private Object get(String field) {
 		Object object = this.content.get(field);
 		boolean valueIsAbsent = object == null;
 		if(valueIsAbsent) {
@@ -729,9 +881,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 		return object;
 	}
+
+	public <T> T getAsObject(Enum<?>... fields) {
+		String[] fields2 = this.getFields(fields);
+		T asObject = this.getAsObject(fields2);
+		return asObject;
+	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T getAsObject(String... fields) {
+	private <T> T getAsObject(String... fields) {
 		for (String field : fields) {
 			Object object = this.content.get(field);
 			if(object == null) {
@@ -746,9 +904,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		boolean empty = this.content.isEmpty();
 		return empty;
 	}
-	
 
-	public CcpJsonRepresentation addToList(String field, Object... values) {
+	public CcpJsonRepresentation addToList(Enum<?> field, Object... values) {
+		CcpJsonRepresentation addToList = this.addToList(field.name(), values);
+		return addToList;
+	}
+
+	private CcpJsonRepresentation addToList(String field, Object... values) {
 		CcpJsonRepresentation result = this;
 		for (Object value : values) {
 			result = result.addToList(field, value);
@@ -764,42 +926,51 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return put;
 	}
 
-	public CcpJsonRepresentation addToList(String field, CcpJsonRepresentation value) {
+	public CcpJsonRepresentation addToList(Enum<?> field, CcpJsonRepresentation value) {
+		CcpJsonRepresentation addToList = this.addToList(field.name(), value);
+		return addToList;
+	}
+	
+	private CcpJsonRepresentation addToList(String field, CcpJsonRepresentation value) {
 		List<Object> list = this.getAsObjectList(field);
 		list = new ArrayList<>(list);
 		list.add(value.content);
 		CcpJsonRepresentation put = this.put(field, list);
 		return put;
 	}
-
-	public CcpJsonRepresentation addToItem(String field, String subField, Object value) {
+	
+	public CcpJsonRepresentation addToItem(Enum<?> field, Enum<?> subField, Object value) {
+		CcpJsonRepresentation addToItem = this.addToItem(field.name(), subField.name(), value);
+		return addToItem;
+	}
+	
+	private CcpJsonRepresentation addToItem(String field, String subField, Object value) {
 		CcpJsonRepresentation itemAsMap = this.getInnerJson(field);
 		itemAsMap = itemAsMap.put(subField, value);
 		
 		CcpJsonRepresentation put = this.put(field, itemAsMap.content);
 		return put;
 	}
+
+	public CcpJsonRepresentation addToItem(Enum<?> field, Enum<?> subField, CcpJsonRepresentation value) {
+		CcpJsonRepresentation addToItem = this.addToItem(field.name(), subField.name(), value);
+		return addToItem;
+	}
 	
-	public CcpJsonRepresentation addToItem(String field, String subField, CcpJsonRepresentation value) {
+	private CcpJsonRepresentation addToItem(String field, String subField, CcpJsonRepresentation value) {
 		CcpJsonRepresentation itemAsMap = this.getInnerJson(field);
 		itemAsMap = itemAsMap.put(subField, value.content);
 		
 		CcpJsonRepresentation put = this.put(field, itemAsMap.content);
 		return put;
 	}
-	
-	public CcpJsonRepresentation addToItem(CcpJsonRepresentation value, String...path) {
-		CcpJsonRepresentation json = this;
-		for (String field : path) {
-			CcpJsonRepresentation innerJson = json.getInnerJson(field);
-			
-		}
-		
-		return json;
+
+	public CcpJsonRepresentation copyIfNotContains(Enum<?> fieldToCopy, Enum<?> fieldToPaste) {
+		CcpJsonRepresentation copyIfNotContains = this.copyIfNotContains(fieldToCopy.name(), fieldToPaste.name());
+		return copyIfNotContains;
 	}
-
-
-	public CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {
+	
+	private CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {
 
 		boolean containsAllFields = this.containsAllFields(fieldToPaste);
 		
@@ -812,8 +983,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return duplicateValueFromField;
 	}		
 	
-	public CcpJsonRepresentation putIfNotContains(String field, Object value) {
-
+	public CcpJsonRepresentation putIfNotContains(Enum<?> field, Object value) {
+	
+		CcpJsonRepresentation putIfNotContains = this.putIfNotContains(field.name(), value);
+		return putIfNotContains;
+	}
+	
+	private CcpJsonRepresentation putIfNotContains(String field, Object value) {
 		boolean containsAllFields = this.containsAllFields(field);
 		
 		if(containsAllFields) {
@@ -823,13 +999,23 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation put = this.put(field, value);
 		return put;
 	}
-
-	public CcpCollectionDecorator getAsArrayMetadata(String field) {
+	
+	public CcpCollectionDecorator getAsArrayMetadata(Enum<?> field) {
+		CcpCollectionDecorator asArrayMetadata = this.getAsArrayMetadata(field.name());
+		return asArrayMetadata;
+	}
+	
+	private CcpCollectionDecorator getAsArrayMetadata(String field) {
 		CcpCollectionDecorator cccpCollectionDecorator = new CcpCollectionDecorator(this, field);
 		return cccpCollectionDecorator;
 	}
+	public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(Enum<?>...fields) {
+		String[] fields2 = this.getFields(fields);
+		CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields = this.itIsTrueThatTheFollowingFields(fields2);
+		return itIsTrueThatTheFollowingFields;
+	}
 	
-	public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String...fields) {
+	private CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String...fields) {
 		return new CcpItIsTrueThatTheFollowingFields(this, fields);
 	}
 	
@@ -878,8 +1064,13 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation transformedJson = this.getTransformedJson(array);
 		return transformedJson;
 	}
+
+	public boolean isInnerJson(Enum<?> fieldName) {
+		boolean innerJson = this.isInnerJson(fieldName.name());
+		return innerJson;
+	}
 	
-	public boolean isInnerJson(String fieldName) {
+	private boolean isInnerJson(String fieldName) {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		String asString = this.getAsString(fieldName);
 		if(asString.trim().isEmpty()) {
@@ -888,4 +1079,226 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		boolean validJson = handler.isValidJson(asString);
 		return validJson;
 	}
+	
+	private String[] getFields(Enum<?>... enumItems) {
+		int k = 0;
+		String[] array = new String[enumItems.length];
+		for (Enum<?> enum1 : enumItems) {
+			array[k++] = enum1.name();
+		}
+		
+		return array;
+	}
+
+	public CcpJsonRepresentation addToItem(String completeRuleName, Enum<?> evaluatedfields,
+			Object... fields) {
+		CcpJsonRepresentation addToItem = this.addToItem(completeRuleName, evaluatedfields.name(), fields);
+		return addToItem;
+	}
+
+	public CcpJsonRepresentation addToItem(Enum<?> errors, String completeRuleName,
+			CcpJsonRepresentation errors2) {
+		CcpJsonRepresentation addToItem = this.addToItem(errors.name(), completeRuleName, errors2);
+		return addToItem;
+	}
+
+	
+	public CcpDynamicJsonRepresentation getDynamicVersion() {
+		return new CcpDynamicJsonRepresentation(this);
+	}
+	
+	
+	public static class CcpDynamicJsonRepresentation {
+		private CcpJsonRepresentation json;
+
+		private CcpDynamicJsonRepresentation(CcpJsonRepresentation json) {
+			this.json = json;
+		}
+
+		public String toString() {
+			return this.json.toString();
+		}
+
+		public CcpJsonRepresentation addJsonTransformer(String field,
+				Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+			return this.json.addJsonTransformer(field, process);
+		}
+
+		public CcpJsonRepresentation addToItem(String field, String subField, CcpJsonRepresentation value) {
+			return this.json.addToItem(field, subField, value);
+		}
+
+		public CcpJsonRepresentation addToItem(String field, String subField, Object value) {
+			return this.json.addToItem(field, subField, value);
+		}
+
+		public CcpJsonRepresentation addToList(String field, CcpJsonRepresentation value) {
+			return this.json.addToList(field, value);
+		}
+
+		public CcpJsonRepresentation addToList(String field, Object... values) {
+			return this.json.addToList(field, values);
+
+		}
+
+		public boolean containsAllFields(String... fields) {
+			return this.json.containsAllFields(fields);
+		}
+
+		public boolean containsAnyFields(String... fields) {
+			return this.json.containsAnyFields(fields);
+		}
+
+		public boolean containsField(String field) {
+			return this.json.containsField(field);
+		}
+
+		public boolean containsFields(boolean assertion, String... fields) {
+			return this.json.containsFields(assertion, fields);
+		}
+
+		public CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {
+			return this.json.copyIfNotContains(fieldToCopy, fieldToPaste);
+		}
+
+		public CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
+			return this.json.duplicateValueFromField(fieldToCopy, fieldsToPaste);
+		}
+
+		public Object get(String field) {
+			return this.json.get(field);
+		}
+
+		public CcpCollectionDecorator getAsArrayMetadata(String field) {
+			return this.json.getAsArrayMetadata(field);
+		}
+
+		public boolean getAsBoolean(String field) {
+			return this.json.getAsBoolean(field);			
+		}
+
+		public Double getAsDoubleNumber(String field) {
+			return this.json.getAsDoubleNumber(field);			
+		}
+
+		public Integer getAsIntegerNumber(String field) {
+			return this.json.getAsIntegerNumber(field);
+		}
+
+		public List<CcpJsonRepresentation> getAsJsonList(String field) {
+			return this.json.getAsJsonList(field);			
+		}
+
+		public Long getAsLongNumber(String field) {
+			return this.json.getAsLongNumber(field);
+		}
+
+		public <T> T getAsObject(String... fields) {
+			return this.json.getAsObject(fields);
+		}
+
+		public List<Object> getAsObjectList(String field) {
+			return this.json.getAsObjectList(field);
+		}
+
+		public String getAsString(String field) {
+			return this.json.getAsString(field);
+		}
+
+		public CcpStringDecorator getAsStringDecorator(String field) {
+			return this.json.getAsStringDecorator(field);			
+		}
+
+		public List<String> getAsStringList(String... fields) {
+			return this.json.getAsStringList(fields);
+		}
+
+		public CcpTextDecorator getAsTextDecorator(String field) {
+			return this.json.getAsTextDecorator(field);			
+		}
+
+		public CcpJsonRepresentation getInnerJson(String field) {
+			return this.json.getInnerJson(field);
+		}
+
+		public CcpJsonRepresentation getInnerJsonFromPath(String... paths) {
+			return this.json.getInnerJsonFromPath(paths);
+		}
+
+		public List<CcpJsonRepresentation> getInnerJsonListFromPath(String... paths) {
+			return this.json.getInnerJsonListFromPath(paths);
+		}
+
+		public <T> T getOrDefault(String field, T defaultValue) {
+			return this.json.getOrDefault(field, defaultValue);
+		}
+
+		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field,
+				@SuppressWarnings("unchecked") Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+			return this.json.getTransformedJsonIfFoundTheField(field, transformers);
+		}
+
+		public <T> T getValueFromPath(T defaultValue, String... paths) {
+			return this.json.getValueFromPath(defaultValue, paths);
+		}
+
+		public boolean isInnerJson(String fieldName) {
+			return this.json.isInnerJson(fieldName);			
+		}
+
+		public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String... fields) {
+			return this.json.itIsTrueThatTheFollowingFields(fields);
+		}
+
+		public CcpJsonRepresentation put(String field, CcpDecorator<?> map) {
+			return this.json.put(field, map);
+		}
+
+		public CcpJsonRepresentation put(String field, Collection<CcpJsonRepresentation> list) {
+			return this.json.put(field, list);
+
+		}
+
+		public CcpJsonRepresentation put(String field, Object value) {
+			return this.json.put(field, value);
+
+		}
+
+		public CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
+			return this.json.putFilledTemplate(fieldToSearch, fieldToPut);
+
+		}
+
+		public CcpJsonRepresentation putIfNotContains(String field, Object value) {
+			return this.json.putIfNotContains(field, value);
+		}
+
+		public CcpJsonRepresentation putSameValueInManyFields(Object value, String... fields) {
+			return this.json.putSameValueInManyFields(value, fields);
+		}
+
+		public CcpJsonRepresentation removeFields(String... fields) {
+			return this.json.removeFields(fields);
+		}
+
+		public CcpJsonRepresentation renameField(String oldField, String newField) {
+			return this.json.renameField(oldField, newField);
+		}
+
+		public CcpJsonRepresentation getJsonPiece(String... fields) {
+			return this.json.getJsonPiece(fields);
+		}
+
+		public CcpJsonRepresentation removeField(String time) {
+			return this.json.removeField(time);
+		}
+
+	}
+
+
+	public CcpJsonRepresentation addToItem(Enum<?> statis, String field, Object avg) {
+		CcpJsonRepresentation addToItem = addToItem(statis.name(), field, avg);
+		return addToItem;
+	}
+	
 }

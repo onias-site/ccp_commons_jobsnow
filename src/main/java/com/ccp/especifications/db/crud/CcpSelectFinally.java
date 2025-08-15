@@ -14,7 +14,10 @@ import com.ccp.exceptions.db.crud.CcpErrorFlowFieldsToReturnNotMentioned;
 import com.ccp.exceptions.process.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
-
+enum CcpSelectFinallyConstants{
+	statements, entity, action, found, _entities, status, message, errorDetails, flow, origin
+	
+}
 public class CcpSelectFinally {
 	private final CcpJsonRepresentation id;
 	private final CcpJsonRepresentation statements;
@@ -27,7 +30,7 @@ public class CcpSelectFinally {
 	}
 
 	public CcpSelectFinally endThisProcedure(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList("statements");
+		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpSelectFinallyConstants.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
 		this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
 		return this; 
@@ -35,7 +38,7 @@ public class CcpSelectFinally {
 
 	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
-		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList("statements");
+		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpSelectFinallyConstants.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
 		CcpJsonRepresentation findById = this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
 		return findById;
@@ -50,8 +53,8 @@ public class CcpSelectFinally {
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
 			CcpJsonRepresentation... specifications) {
 		List<CcpEntity> keySet = Arrays.asList(specifications).stream()
-				.filter(x -> x.containsAllFields("entity"))
-				.map(x -> (CcpEntity) x.get("entity") ) 
+				.filter(x -> x.containsAllFields(CcpSelectFinallyConstants.entity))
+				.map(x -> (CcpEntity) x.get(CcpSelectFinallyConstants.entity) ) 
 				.collect(Collectors.toList());
 		
 		LinkedHashSet<CcpEntity> set = new LinkedHashSet<>(keySet);
@@ -64,17 +67,17 @@ public class CcpSelectFinally {
 		
 		for (CcpJsonRepresentation specification : specifications) {
 			
-			boolean executeFreeAction = specification.containsField("entity") == false;
+			boolean executeFreeAction = specification.containsField(CcpSelectFinallyConstants.entity) == false;
 			
 			if(executeFreeAction) {
-				Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject("action");
+				Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject(CcpSelectFinallyConstants.action);
 				json = action.apply(json);
 				continue;
 			}
 			
-			boolean shouldHaveBeenFound = specification.getAsBoolean("found");
+			boolean shouldHaveBeenFound = specification.getAsBoolean(CcpSelectFinallyConstants.found);
 			
-			CcpEntity entity = specification.getAsObject("entity");
+			CcpEntity entity = specification.getAsObject(CcpSelectFinallyConstants.entity);
 			
 			boolean wasActuallyFound;
 			
@@ -94,7 +97,7 @@ public class CcpSelectFinally {
 				String entityName = entity.getEntityName();
 				try {
 					CcpJsonRepresentation dataBaseRow = entity.getRequiredEntityRow(unionAll, json);
-					json = json.addToItem("_entities", entityName, dataBaseRow);
+					json = json.addToItem(CcpSelectFinallyConstants._entities, entityName, dataBaseRow);
 					continue;
 				} catch (Exception e) {
 					entity.isPresentInThisUnionAll(unionAll, json);
@@ -102,24 +105,25 @@ public class CcpSelectFinally {
 				}
 			}
 			
-			boolean willNotExecuteAction = specification.containsField("action") == false;
+			boolean willNotExecuteAction = specification.containsField(CcpSelectFinallyConstants.action) == false;
 			
 			if(willNotExecuteAction) {
 			
-				boolean willNotThrowException = specification.containsField("status") == false;
+				boolean willNotThrowException = specification.containsField(CcpSelectFinallyConstants.status) == false;
 				
 				if(willNotThrowException) {
 					continue;
 				}
-				CcpProcessStatus status = specification.getAsObject("status");
-				String message = specification.getOrDefault("message", status.name());
-				CcpJsonRepresentation put = json.addToItem("errorDetails", "message", message).addToItem("errorDetails", "status", status);
+				CcpProcessStatus status = specification.getAsObject(CcpSelectFinallyConstants.status);
+				String message = specification.getOrDefault(CcpSelectFinallyConstants.message, status.name());
+				CcpJsonRepresentation put = json.addToItem(CcpSelectFinallyConstants.errorDetails, CcpSelectFinallyConstants.message, message)
+						.addToItem(CcpSelectFinallyConstants.errorDetails, CcpSelectFinallyConstants.status, status);
 				CcpJsonRepresentation apply = whenFlowError.apply(put);
 				List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
-						.map(j -> j.getTransformedJsonIfFoundTheField("entity", FunctionPutEntity.INSTANCE))
-						.map(j -> j.getTransformedJsonIfFoundTheField("status", FunctionPutStatus.INSTANCE))
+						.map(j -> j.getTransformedJsonIfFoundTheField(CcpSelectFinallyConstants.entity, FunctionPutEntity.INSTANCE))
+						.map(j -> j.getTransformedJsonIfFoundTheField(CcpSelectFinallyConstants.status, FunctionPutStatus.INSTANCE))
 						.collect(Collectors.toList());
-				CcpJsonRepresentation result = apply.put("flow", asList);
+				CcpJsonRepresentation result = apply.put(CcpSelectFinallyConstants.flow, asList);
 				
 				String reason = "Context: " + origin + ". Entity: " + entity.getEntityName()
 				+ ". status: " + status
@@ -128,7 +132,7 @@ public class CcpSelectFinally {
 				throw new CcpErrorFlowDisturb(result, status , reason, this.fields);
 			}
 			
-			Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject("action");
+			Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject(CcpSelectFinallyConstants.action);
 
 			if(shouldHaveBeenFound == false) {
 				json = action.apply(json);
@@ -136,7 +140,7 @@ public class CcpSelectFinally {
 			}
 			String entityName = entity.getEntityName();
 			CcpJsonRepresentation dataBaseRow = entity.getRequiredEntityRow(unionAll, json);
-			CcpJsonRepresentation context = json.addToItem("_entities", entityName, dataBaseRow);
+			CcpJsonRepresentation context = json.addToItem(CcpSelectFinallyConstants._entities, entityName, dataBaseRow);
 			json = action.apply(context);
 		} 
 		
@@ -146,7 +150,7 @@ public class CcpSelectFinally {
 			throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 		}
 		
-		CcpJsonRepresentation subMap = json.getJsonPiece(this.fields).put("origin", origin);
+		CcpJsonRepresentation subMap = json.getDynamicVersion().getJsonPiece(this.fields).put(CcpSelectFinallyConstants.origin, origin);
 		return subMap;
 	}
 }

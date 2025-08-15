@@ -7,6 +7,10 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.exceptions.db.utils.CcpEntityJsonTransformerError;
 
+
+enum CcpBulkItemConstants{
+	id, json, entity, operation 
+}
 public class CcpBulkItem {
 
 	public final CcpEntityBulkOperationType operation;
@@ -43,10 +47,10 @@ public class CcpBulkItem {
 	public CcpJsonRepresentation asMap() {
 		String entityName = this.entity.getEntityName();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put("operation", this.operation)
-				.put("entity", entityName)
-				.put("json", this.json)
-				.put("id", this.id);
+				.put(CcpBulkItemConstants.operation, this.operation)
+				.put(CcpBulkItemConstants.entity, entityName)
+				.put(CcpBulkItemConstants.json, this.json)
+				.put(CcpBulkItemConstants.id, this.id);
 		return put;
 	}
 	

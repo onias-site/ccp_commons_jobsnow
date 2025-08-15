@@ -10,9 +10,9 @@ import com.ccp.exceptions.db.utils.CcpErrorBulkEntityRecordNotFound;
 
 public enum CcpEntityBulkOperationType {
 
-	create(CcpOtherConstants.EMPTY_JSON.put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
-	update(CcpOtherConstants.EMPTY_JSON.put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
-	delete(CcpOtherConstants.EMPTY_JSON.put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
+	create(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
+	update(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
+	delete(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	}))
@@ -37,7 +37,7 @@ public enum CcpEntityBulkOperationType {
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
 		int status = result.status();
-		boolean statusNotFound = this.handlers.containsAllFields("" + status) == false;
+		boolean statusNotFound = this.handlers.getDynamicVersion().containsAllFields("" + status) == false;
 		
 		if(statusNotFound) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
@@ -45,7 +45,7 @@ public enum CcpEntityBulkOperationType {
 			return ccpBulkItem;
 		}
 		
-		Function<CcpBulkItem,CcpBulkItem> handler = this.handlers.getAsObject("" + status);
+		Function<CcpBulkItem,CcpBulkItem> handler = this.handlers.getDynamicVersion().getAsObject("" + status);
 		CcpBulkItem bulkItem = result.getBulkItem();
 		CcpBulkItem apply = handler.apply(bulkItem);
 		return apply;

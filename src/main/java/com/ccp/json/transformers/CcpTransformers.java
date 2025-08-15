@@ -9,7 +9,7 @@ public interface CcpTransformers extends Function<CcpJsonRepresentation, CcpJson
 
 	
 	default CcpJsonRepresentation substring(CcpJsonRepresentation json, String field, int limit) {
-		String value = json.getAsString(field);
+		String value = json.getDynamicVersion().getAsString(field);
 		boolean isValid = value.trim().length() <= limit;
 		
 		if (isValid) {
@@ -17,46 +17,46 @@ public interface CcpTransformers extends Function<CcpJsonRepresentation, CcpJson
 		}
 		
 		String substring = value.substring(0, limit);
-		CcpJsonRepresentation put = json.put(field, substring);
+		CcpJsonRepresentation put = json.getDynamicVersion().put(field, substring);
 		return put;
 	}
 
 	default CcpJsonRepresentation putMinValue(CcpJsonRepresentation json, String field, int minValue) {
-		boolean isNotPresent = json.containsAllFields(field) == false;
+		boolean isNotPresent = json.getDynamicVersion().containsAllFields(field) == false;
 		if(isNotPresent) {
 			return json;
 		}
 		
-		Double value = json.getAsDoubleNumber(field);
+		Double value = json.getDynamicVersion().getAsDoubleNumber(field);
 		
 		if(value >= minValue) {
 			return json;
 		}
 		
-		CcpJsonRepresentation put = json.put(field, minValue);
+		CcpJsonRepresentation put = json.getDynamicVersion().put(field, minValue);
 		return put;
 	}
 
 	default CcpJsonRepresentation addLongValue(CcpJsonRepresentation json, String field, Long longValue) {
-		String value = json.getAsString(field);
+		String value = json.getDynamicVersion().getAsString(field);
 		
 		boolean isLongNumber = new CcpStringDecorator(value).isLongNumber();
 		
 		if(isLongNumber) {
 			return json;
 		}
-		CcpJsonRepresentation put = json.put(field, longValue);
+		CcpJsonRepresentation put = json.getDynamicVersion().put(field, longValue);
 		return put;
 
 	}
 	
 	default CcpJsonRepresentation addRequiredAtLeastOne(CcpJsonRepresentation json, String field, Object value, String... fields) {
-		boolean containsAnyFields = json.containsAnyFields(fields);
+		boolean containsAnyFields = json.getDynamicVersion().containsAnyFields(fields);
 		if(containsAnyFields) {
 			return json;
 		}
 		
-		CcpJsonRepresentation put = json.put(field, value);
+		CcpJsonRepresentation put = json.getDynamicVersion().put(field, value);
 		return put;
 	}
 
