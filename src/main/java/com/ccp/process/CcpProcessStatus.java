@@ -1,8 +1,9 @@
 package com.ccp.process;
 
-public interface CcpProcessStatus {
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+
+public interface CcpProcessStatus  extends CcpJsonFieldName{
 	int asNumber();
-	String name();
 	default String verifyStatus(int actualStatus) {
 		int expectedStatus = this.asNumber();
 		

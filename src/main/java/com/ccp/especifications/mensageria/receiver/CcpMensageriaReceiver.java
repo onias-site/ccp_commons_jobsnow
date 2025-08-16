@@ -1,6 +1,5 @@
 package com.ccp.especifications.mensageria.receiver;
 
-import java.lang.reflect.Constructor;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -39,7 +38,7 @@ public abstract class CcpMensageriaReceiver {
 	
 		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
 		CcpEntity entity = configurator.getEntity();
-		String operationType = json.getAsString(this.operationTypeFieldName);
+		String operationType = json.getDynamicVersion().getAsString(this.operationTypeFieldName);
 		CcpMensageriaOperationType valueOf = CcpMensageriaOperationType.valueOf(operationType);
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();

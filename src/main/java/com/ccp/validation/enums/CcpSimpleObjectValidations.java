@@ -2,9 +2,10 @@ package com.ccp.validation.enums;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.validation.CcpJsonFieldsValidations;
 import com.ccp.validation.annotations.CcpSimpleObject;
-enum CcpSimpleObjectValidationsConstants{
+enum CcpSimpleObjectValidationsConstants  implements CcpJsonFieldName{
 	errors, wrongFields, value, name
 	
 }

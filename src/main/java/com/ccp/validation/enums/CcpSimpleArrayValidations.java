@@ -8,49 +8,49 @@ public enum CcpSimpleArrayValidations {
 
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().hasTheSizeThatIs().greaterThan(0d);
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().hasTheSizeThatIs().greaterThan(0d);
 			return x;
 		}},
 	
 	booleanItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().bool();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().bool();
 			return x;
 		}
 	},
 	doubleItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().doubleNumber();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().doubleNumber();
 			return x;
 		}
 	},
 	jsonItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().json();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().json();
 			return x;
 		}
 	},
 	listItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().list();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().list();
 			return x;
 		}
 	},
 	integerItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().longNumber();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isOfTheType().longNumber();
 			return x;
 		}
 	},
 	nonRepeatedItems {
 		
 		public boolean isValidJson(CcpJsonRepresentation json, String... fields) {
-			boolean x = json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().hasNonDuplicatedItems();
+			boolean x = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().hasNonDuplicatedItems();
 			return x;
 		}
 	},

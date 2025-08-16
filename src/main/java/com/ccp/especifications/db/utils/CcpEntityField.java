@@ -4,11 +4,10 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
-public interface CcpEntityField {
+public interface CcpEntityField extends CcpJsonFieldName {
 
-	String name();
-	
 	boolean isPrimaryKey();
 	
 	Function<CcpJsonRepresentation, CcpJsonRepresentation> getTransformer();

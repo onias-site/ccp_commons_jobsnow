@@ -6,9 +6,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ccp.constantes.CcpStringConstants;
-
 public class CcpEmailDecorator implements  CcpDecorator<String>{
+	public static final String	EMAIL_REGEX = ("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$");
 
 //	private static Set<String> nonProfessionalDomains = new HashSet<>();
 //	
@@ -122,7 +121,7 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return true;
 	}
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
-		    Pattern.compile(CcpStringConstants.EMAIL_REGEX.value, Pattern.CASE_INSENSITIVE);
+		    Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
 	public CcpEmailDecorator findFirst(String delimitadores) {
 		

@@ -7,31 +7,31 @@ public enum CcpObjectNumberValidations implements CcpBoundValidations{
 	equalsTo
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsTo(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsTo(bound);
 		}
 	},
 	equalsOrGreaterThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsOrGreaterThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsOrGreaterThan(bound);
 		}
 	},
 	equalsOrLessThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsOrLessThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().equalsOrLessThan(bound);
 		}
 	},
 	greaterThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().greaterThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().greaterThan(bound);
 		}
 	},
 	lessThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().lessThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIs().lessThan(bound);
 		}
 	},
 	;

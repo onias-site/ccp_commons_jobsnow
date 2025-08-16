@@ -3,9 +3,13 @@ package com.ccp.especifications.db.query;
 import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
-
+enum CcpDbQueryAggregationsConstants  implements CcpJsonFieldName{
+	field
+	
+}
 public final class CcpDbQueryAggregations extends CcpDbQueryComponent{
 	
 	 CcpDbQueryAggregations(CcpDbQueryComponent parent) {
@@ -27,9 +31,9 @@ public final class CcpDbQueryAggregations extends CcpDbQueryComponent{
 
 	private CcpDbQueryAggregations createAggregation(String aggregationName, CcpEntityField fieldName, String key) {
 		CcpDbQueryAggregations copy = this.copy();
-		Map<String, Object> c1 = CcpOtherConstants.EMPTY_JSON.put("field", fieldName).getContent();
-		Map<String, Object> c2 = CcpOtherConstants.EMPTY_JSON.put(key, c1).getContent();
-		copy.json = copy.json.put(aggregationName, c2);
+		Map<String, Object> c1 = CcpOtherConstants.EMPTY_JSON.put(CcpDbQueryAggregationsConstants.field, fieldName).getContent();
+		Map<String, Object> c2 = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(key, c1).getContent();
+		copy.json = copy.json.getDynamicVersion().put(aggregationName, c2);
 		return copy;
 	}
 	public CcpDbQueryAggregations addMaxAggregation(String aggregationName, CcpEntityField fieldName) {

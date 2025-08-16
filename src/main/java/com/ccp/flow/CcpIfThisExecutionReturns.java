@@ -22,7 +22,7 @@ public final class CcpIfThisExecutionReturns {
 	
 	@SuppressWarnings("unchecked")
 	public CcpExecuteTheGivenProcess thenExecuteTheGivenProcesses(Function<CcpJsonRepresentation, CcpJsonRepresentation>... givenProcess) {
-		CcpJsonRepresentation nextFlow = this.flow.put(processStatus.name(), givenProcess);
+		CcpJsonRepresentation nextFlow = this.flow.put(this.processStatus, givenProcess);
 		return new CcpExecuteTheGivenProcess(this.givenFinalTargetProcess, this.givenJson, nextFlow);
 	}
 }

@@ -9,7 +9,7 @@ public enum CcpArrayNumbersValidations implements CcpBoundValidations{
 	equalsTo
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields = json.itIsTrueThatTheFollowingFields(fields);
+			CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields = json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields);
 			CcpIfTheyAreArrayValuesSoEachOne ifTheyAreAllArrayValuesThenEachOne = itIsTrueThatTheFollowingFields.ifTheyAreAllArrayValuesThenEachOne();
 			CcpRangeSize numberAndItIs = ifTheyAreAllArrayValuesThenEachOne.isNumberAndItIs();
 			return numberAndItIs.equalsTo(bound);
@@ -18,25 +18,25 @@ public enum CcpArrayNumbersValidations implements CcpBoundValidations{
 	equalsOrGreaterThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().equalsOrGreaterThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().equalsOrGreaterThan(bound);
 		}
 	},
 	equalsOrLessThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().equalsOrLessThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().equalsOrLessThan(bound);
 		}
 	},
 	greaterThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().greaterThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().greaterThan(bound);
 		}
 	},
 	lessThan
 	{
 		public boolean isValidJson(CcpJsonRepresentation json, double bound, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().lessThan(bound);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne().isNumberAndItIs().lessThan(bound);
 		}
 	},
 	;

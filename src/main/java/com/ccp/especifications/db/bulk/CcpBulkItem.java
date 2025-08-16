@@ -4,13 +4,19 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.exceptions.db.utils.CcpEntityJsonTransformerError;
 
 
-enum CcpBulkItemConstants{
-	id, json, entity, operation 
+enum CcpBulkItemConstants  implements CcpJsonFieldName{
+	json
 }
+enum CcpBulkItemFields  implements CcpJsonFieldName{
+	id,  entity, operation 
+}
+
+
 public class CcpBulkItem {
 
 	public final CcpEntityBulkOperationType operation;
@@ -39,7 +45,7 @@ public class CcpBulkItem {
 
 	public String toString() {
 		CcpJsonRepresentation put = this.asMap();
-		CcpJsonRepresentation jsonPiece = put.getJsonPiece("entity", "operation", "id");
+		CcpJsonRepresentation jsonPiece = put.getJsonPiece(CcpBulkItemFields.values());
 		String string = jsonPiece.toString();
 		return string;
 	}
@@ -47,10 +53,10 @@ public class CcpBulkItem {
 	public CcpJsonRepresentation asMap() {
 		String entityName = this.entity.getEntityName();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put(CcpBulkItemConstants.operation, this.operation)
-				.put(CcpBulkItemConstants.entity, entityName)
+				.put(CcpBulkItemFields.operation, this.operation)
+				.put(CcpBulkItemFields.entity, entityName)
 				.put(CcpBulkItemConstants.json, this.json)
-				.put(CcpBulkItemConstants.id, this.id);
+				.put(CcpBulkItemFields.id, this.id);
 		return put;
 	}
 	

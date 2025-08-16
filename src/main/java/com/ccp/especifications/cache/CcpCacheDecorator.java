@@ -69,14 +69,14 @@ public final class CcpCacheDecorator {
 	
 	public CcpCacheDecorator incrementKey(String key, Object value) {
 		String _key = this.key + "." + key + "." + value;
-		CcpJsonRepresentation put = this.cacheParameters.put(key, value);
+		CcpJsonRepresentation put = this.cacheParameters.getDynamicVersion().put(key, value);
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(put, _key);
 		return ccpCacheDecorator;
 	}
 	
 	public CcpCacheDecorator incrementKeys(CcpJsonRepresentation json, String... keys) {
 		
-		CcpJsonRepresentation jsonPiece = json.getJsonPiece(keys);
+		CcpJsonRepresentation jsonPiece = json.getDynamicVersion().getJsonPiece(keys);
 		
 		CcpCacheDecorator result = this.incrementKeys(jsonPiece);
 		
@@ -89,7 +89,7 @@ public final class CcpCacheDecorator {
 		Set<String> keySet = jsonPiece.fieldSet();
 		
 		for (String key : keySet) {
-			Object value = jsonPiece.get(key);
+			Object value = jsonPiece.getDynamicVersion().get(key);
 			result = result.incrementKey(key, value);
 		}
 		return result;

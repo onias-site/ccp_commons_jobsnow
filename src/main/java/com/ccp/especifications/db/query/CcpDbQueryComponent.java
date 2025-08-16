@@ -30,7 +30,7 @@ abstract class CcpDbQueryComponent {
 		 
 		 Object value = child.getValue();
 		 
-		 instanceCopy.json = instanceCopy.json.put(child.name, value);
+		 instanceCopy.json = instanceCopy.json.getDynamicVersion().put(child.name, value);
 		 
 		 return (T)instanceCopy;
 	 }
@@ -66,7 +66,7 @@ abstract class CcpDbQueryComponent {
 	
 	public <T extends CcpDbQueryComponent> T putProperty(String propertyName, Object propertyValue){
 		T clone = this.copy();
-		clone.json = clone.json.put(propertyName, propertyValue);
+		clone.json = clone.json.getDynamicVersion().put(propertyName, propertyValue);
 		return clone;
 
 	}

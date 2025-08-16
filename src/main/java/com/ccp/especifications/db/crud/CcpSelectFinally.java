@@ -8,13 +8,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.exceptions.db.crud.CcpErrorFlowFieldsToReturnNotMentioned;
 import com.ccp.exceptions.process.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
-enum CcpSelectFinallyConstants{
+enum CcpSelectFinallyConstants  implements CcpJsonFieldName{
 	statements, entity, action, found, _entities, status, message, errorDetails, flow, origin
 	
 }

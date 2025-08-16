@@ -60,10 +60,8 @@ public final class CcpHttpHandler {
 	public <V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
 		int status = response.httpStatus;
-		//FIXME
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getOrDefault(null, this.alternativeFlow);
 		
-//		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getOrDefault("" + status, this.alternativeFlow);
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getDynamicVersion().getOrDefault("" + status, this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

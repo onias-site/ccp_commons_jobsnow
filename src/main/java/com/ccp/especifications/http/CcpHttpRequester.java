@@ -6,12 +6,13 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.exceptions.http.CcpErrorHttpClient;
 import com.ccp.exceptions.http.CcpErrorHttp;
 import com.ccp.exceptions.http.CcpErrorHttpServer;
 import com.ccp.http.CcpHttpMethods;
 
-enum CcpHttpRequesterConstants{
+enum CcpHttpRequesterConstants  implements CcpJsonFieldName{
 	expectedStatusList,
 	details,
 	trace,

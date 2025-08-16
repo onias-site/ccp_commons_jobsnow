@@ -16,7 +16,7 @@ class EntityCrud implements CcpTopic{
 	}
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		String operation = json.getAsString(this.operationFieldName);
+		String operation = json.getDynamicVersion().getAsString(this.operationFieldName);
 		CcpEntityCrudOperationType valueOf = CcpEntityCrudOperationType.valueOf(operation);
 		CcpJsonRepresentation apply = valueOf.execute(this.entity, json);
 		return apply;

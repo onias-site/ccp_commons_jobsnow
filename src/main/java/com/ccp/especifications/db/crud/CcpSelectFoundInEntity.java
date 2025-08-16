@@ -4,8 +4,13 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
+enum CcpSelectFoundInEntityConstants  implements CcpJsonFieldName{
+	statements
+	
+}
 
 public class CcpSelectFoundInEntity {
 	private final CcpJsonRepresentation id;
@@ -27,12 +32,12 @@ public class CcpSelectFoundInEntity {
 	}
 
 	private CcpSelectNextStep addStatement(String key, Object obj) {
-		List<CcpJsonRepresentation> list = this.statements.getAsJsonList("statements");
+		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(CcpSelectFoundInEntityConstants.statements);
 		CcpJsonRepresentation lastStatement = list.get(list.size() - 1);
-		CcpJsonRepresentation put = lastStatement.put(key, obj);
+		CcpJsonRepresentation put = lastStatement.getDynamicVersion().put(key, obj);
 		List<CcpJsonRepresentation> subList = list.subList(0, list.size() - 1);
 		subList.add(put);
-		CcpJsonRepresentation newStatements = this.statements.put("statements", subList);
+		CcpJsonRepresentation newStatements = this.statements.put(CcpSelectFoundInEntityConstants.statements, subList);
 		return new CcpSelectNextStep(this.id, newStatements);
 	}
 	

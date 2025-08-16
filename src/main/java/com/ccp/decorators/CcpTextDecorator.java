@@ -157,7 +157,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		Set<String> keySet = content.keySet();
 		String message = new String(this.content);
 		for (String key : keySet) {
-			String value = parameters.getAsString(key);
+			String value = parameters.getDynamicVersion().getAsString(key);
 			message = message.replace("{" + key + "}", value);
 		}
 		return new CcpTextDecorator(message);

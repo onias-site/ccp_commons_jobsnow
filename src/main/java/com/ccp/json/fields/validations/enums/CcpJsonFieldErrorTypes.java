@@ -6,12 +6,13 @@ import java.util.function.Predicate;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
-enum CcpJsonFieldErrorTypesConstants{
+enum CcpJsonFieldErrorTypesConstants  implements CcpJsonFieldName{
 	error, ruleExplanation, providedValue	
 }
 
-public enum CcpJsonFieldErrorTypes {
+public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		public CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
@@ -424,8 +425,8 @@ public enum CcpJsonFieldErrorTypes {
 		String ruleName = this.name();
 		String fieldName = fieldReflection.getName();
 		
-		CcpJsonRepresentation field = errors.getInnerJson(fieldName);
-		CcpJsonRepresentation rule = field.getInnerJson(ruleName);
+		CcpJsonRepresentation field = errors.getDynamicVersion().getInnerJson(fieldName);
+		CcpJsonRepresentation rule = field.getDynamicVersion().getInnerJson(ruleName);
 		
 		Object providedValue = valueExtractor.getValue(json, fieldName);
 		CcpJsonRepresentation withProvidedValue = rule.put(CcpJsonFieldErrorTypesConstants.providedValue, providedValue);

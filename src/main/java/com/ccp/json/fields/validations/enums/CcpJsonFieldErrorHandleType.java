@@ -1,7 +1,6 @@
 package com.ccp.json.fields.validations.enums;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.json.fields.validations.exceptions.CcpJsonFieldErrorInterruptValidation;
 
 public enum CcpJsonFieldErrorHandleType {

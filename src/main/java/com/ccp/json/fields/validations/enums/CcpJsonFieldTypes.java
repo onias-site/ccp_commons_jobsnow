@@ -17,23 +17,23 @@ import com.ccp.json.fields.validations.annotations.CcpJsonFieldTimeType;
 public enum CcpJsonFieldTypes {
 	Bool(CcpJsonField.class){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
-			return json -> json.getAsStringDecorator(fieldName).isBoolean();
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
 		}
 		
 	}, Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
-			return json -> json.getAsStringDecorator(fieldName).isList();
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
 		
 	}, Json(CcpJsonField.class){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
-			return json -> json.getAsStringDecorator(fieldName).isInnerJson();
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
 		
 	}, 
 	NumberType(CcpJsonFieldNumberType.class, CcpJsonFieldErrorTypes.objectNumberMaxValue, CcpJsonFieldErrorTypes.objectNumberMinValue, CcpJsonFieldErrorTypes.objectNumberAllowed){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
-			return json -> json.getAsStringDecorator(fieldName).isDoubleNumber() ;
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isDoubleNumber() ;
 		}
 		
 	}, 
@@ -46,7 +46,7 @@ public enum CcpJsonFieldTypes {
 	}, 
 	Time(CcpJsonFieldTimeType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
-			return json -> json.getAsStringDecorator(fieldName).isLongNumber();
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}
 		
 	}

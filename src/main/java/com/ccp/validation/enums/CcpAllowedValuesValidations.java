@@ -9,25 +9,25 @@ public enum CcpAllowedValuesValidations {
 	arrayWithAllowedTexts {
 
 		public boolean isValidJson(CcpJsonRepresentation json, List<Object> restrictedValues, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne()
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne()
 					.isTextAndItIsContainedAtTheList(restrictedValues);
 		}
 	},
 	arrayWithAllowedNumbers {
 		public boolean isValidJson(CcpJsonRepresentation json, List<Object> restrictedValues, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne()
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAllArrayValuesThenEachOne()
 					.isNumberAndItIsContainedAtTheList(restrictedValues);
 		}
 	},
 	objectWithAllowedTexts {
 		public boolean isValidJson(CcpJsonRepresentation json, List<Object> restrictedValues, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().textsThenEachOneIsContainedAtTheList(restrictedValues);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().textsThenEachOneIsContainedAtTheList(restrictedValues);
 		}
 	},
 	objectWithAllowedNumbers {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean isValidJson(CcpJsonRepresentation json, List<Object> restrictedValues, String... fields) {
-			return json.itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIsContainedAtTheList((List)restrictedValues);
+			return json.getDynamicVersion().itIsTrueThatTheFollowingFields(fields).ifTheyAreAll().numbersThenEachOneIsContainedAtTheList((List)restrictedValues);
 		}
 	},
 	

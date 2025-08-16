@@ -24,7 +24,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	
 	public CcpCollectionDecorator(CcpJsonRepresentation json, String key) {
-		List<Object> asObjectList = json.getAsObjectList(key);
+		List<Object> asObjectList = json.getDynamicVersion().getAsObjectList(key);
 		this.content = asObjectList;
 	}
 

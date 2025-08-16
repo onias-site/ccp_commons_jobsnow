@@ -31,7 +31,7 @@ public final class CcpAndIfThisExecutionReturns {
 			return responseWhenTheFlowPerformsNormally;
 		} catch (CcpErrorFlowDisturb e) {
 			CcpJsonRepresentation json = this.tryToFixTheFlow(e);
-			CcpJsonRepresentation remainingFlow = this.flow.removeField(e.status.name());
+			CcpJsonRepresentation remainingFlow = this.flow.removeField(e.status);
 			CcpAndIfThisExecutionReturns andIfThisExecutionReturns = new CcpAndIfThisExecutionReturns(this.givenFinalTargetProcess, json, remainingFlow);
 			CcpJsonRepresentation endThisStatement = andIfThisExecutionReturns.endThisStatement(whatToNext);
 			return endThisStatement;
@@ -51,7 +51,7 @@ public final class CcpAndIfThisExecutionReturns {
  
 	private CcpJsonRepresentation tryToFixTheFlow(CcpErrorFlowDisturb e) {
 		try {
-			Function<CcpJsonRepresentation, CcpJsonRepresentation>[] nextFlows = this.flow.getAsObject(e.status.name());
+			Function<CcpJsonRepresentation, CcpJsonRepresentation>[] nextFlows = this.flow.getAsObject(e.status);
 			CcpJsonRepresentation json = this.givenJson;
 			
 			for (Function<CcpJsonRepresentation, CcpJsonRepresentation> nextFlow : nextFlows) {

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.exceptions.json.fields.CcpErrorJsonFieldsInvalid;
 import com.ccp.validation.annotations.CcpAllowedValues;
 import com.ccp.validation.annotations.CcpArrayNumbers;
@@ -19,7 +20,7 @@ import com.ccp.validation.annotations.CcpYear;
 import com.ccp.validation.enums.CcpAllowedValuesValidations;
 import com.ccp.validation.enums.CcpBoundValidations;
 import com.ccp.validation.enums.CcpSimpleObjectValidations;
-enum CcpJsonFieldsValidationsConstants{
+enum CcpJsonFieldsValidationsConstants  implements CcpJsonFieldName{
 	errors, specification, regex, value, name, wrongFields, bound, restrictedValues, evaluatedFields, json, featureName, 
 }
 public class CcpJsonFieldsValidations {
@@ -175,7 +176,7 @@ public class CcpJsonFieldsValidations {
 		CcpRegex[] regex = rules.regex();
 		
 		for (CcpRegex dumb : regex) {
-			String value = dumb.value().value;
+			String value = dumb.value();
 			String[] fields = dumb.fields();
 			
 			String completeRuleName = CcpRegex.class.getSimpleName();
@@ -404,7 +405,7 @@ public class CcpJsonFieldsValidations {
 			CcpJsonRepresentation errors = CcpOtherConstants.EMPTY_JSON;
 			for (CcpRegex validation : x1) {
 				String[] fields = validation.fields();
-				String regex = validation.value().value;
+				String regex = validation.value();
 				for (String field : fields) {
 					boolean validJson = json.getDynamicVersion().itIsTrueThatTheFollowingFields(field).ifTheyAreAll()
 							.textsThenEachOneMatchesWithTheFollowingRegex(regex);

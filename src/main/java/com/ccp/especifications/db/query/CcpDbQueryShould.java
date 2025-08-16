@@ -1,6 +1,12 @@
 package com.ccp.especifications.db.query;
 
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
+
+enum CcpDbQueryShouldConstants  implements CcpJsonFieldName{
+	minimum_should_match
+	
+}
 
 public final class CcpDbQueryShould  extends CcpDbQueryBooleanOperator {
 
@@ -16,7 +22,7 @@ public final class CcpDbQueryShould  extends CcpDbQueryBooleanOperator {
 
 	CcpDbQueryShould setMinimumShouldMatch(int minimumShouldMatch) {
 		CcpDbQueryShould copy = this.copy();
-		copy.parent.json = copy.parent.json.put("minimum_should_match", minimumShouldMatch);
+		copy.parent.json = copy.parent.json.put(CcpDbQueryShouldConstants.minimum_should_match, minimumShouldMatch);
 		return copy;
 	}
 	

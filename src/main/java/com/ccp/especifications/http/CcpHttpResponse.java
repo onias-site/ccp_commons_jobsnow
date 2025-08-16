@@ -6,9 +6,13 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.decorators.CcpTextDecorator;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-
+enum CcpHttpResponseConstants  implements CcpJsonFieldName{
+	httpResponse, httpStatus
+	
+}
 public class CcpHttpResponse {
 
 	public final String httpResponse;
@@ -67,8 +71,8 @@ public class CcpHttpResponse {
 	
 	public String toString() {
 		return CcpOtherConstants.EMPTY_JSON
-				.put("httpStatus", this.httpStatus)
-				.put("httpResponse", this.httpResponse)
+				.put(CcpHttpResponseConstants.httpStatus, this.httpStatus)
+				.put(CcpHttpResponseConstants.httpResponse, this.httpResponse)
 				.toString();
 	}
 	

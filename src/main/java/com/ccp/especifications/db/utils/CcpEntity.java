@@ -14,6 +14,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
@@ -26,6 +27,10 @@ import com.ccp.exceptions.process.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
 
+enum CcpEntityConstants  implements CcpJsonFieldName{
+	entity, id, entityName, primaryKeyNames, _entities
+	
+}
 
 public interface CcpEntity{
 
@@ -53,8 +58,8 @@ public interface CcpEntity{
 		String entityName = this.getEntityName();
 		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
-		.put(fieldNameToEntity, entityName)
-		.put(fieldNameToId, id)
+		.getDynamicVersion().put(fieldNameToEntity, entityName)
+		.getDynamicVersion().put(fieldNameToId, id)
 		;
 		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
 		return asList;
@@ -141,7 +146,7 @@ public interface CcpEntity{
 
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation md = this.getOneById(json, x -> {throw new CcpErrorFlowDisturb(x.put("entity", entityName), CcpProcessStatusDefault.NOT_FOUND);});
+		CcpJsonRepresentation md = this.getOneById(json, x -> {throw new CcpErrorFlowDisturb(x.put(CcpEntityConstants.entity, entityName), CcpProcessStatusDefault.NOT_FOUND);});
 		return md;
 	}
 	
@@ -155,7 +160,7 @@ public interface CcpEntity{
 			
 		} catch (CcpErrorBulkEntityRecordNotFound e) {
 			String entityName = this.getEntityName();
-			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put("id", id).put("entity", entityName);
+			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpEntityConstants.id, id).put(CcpEntityConstants.entity, entityName);
 			throw new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
 		}
 	}
@@ -212,8 +217,7 @@ public interface CcpEntity{
 
 	default CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
 		CcpEntityField[] fields = this.getFields();
-		String[] array = Arrays.asList(fields).stream().map(x -> x.name()).collect(Collectors.toList()).toArray(new String[fields.length]);
-		CcpJsonRepresentation subMap = json.getJsonPiece(array);
+		CcpJsonRepresentation subMap = json.getJsonPiece(fields);
 		return subMap;
 	}
 	
@@ -252,13 +256,13 @@ public interface CcpEntity{
 	}
 
 	default boolean isPresentInThisJsonInMainEntity(CcpJsonRepresentation json) {
-		CcpJsonRepresentation innerJsonFromPath = json.getInnerJsonFromPath("_entities", this.getEntityName());
+		CcpJsonRepresentation innerJsonFromPath = json.getInnerJsonFromPath(CcpEntityConstants._entities, this.getEntityName());
 		return innerJsonFromPath.isEmpty() == false;
 	}
 
 	default CcpJsonRepresentation getInnerJsonFromMainAndTwinEntities(CcpJsonRepresentation json) {
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation j1 = json.getInnerJsonFromPath("_entities", entityName);
+		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(CcpEntityConstants._entities, entityName);
 		return j1;
 	}
 	
@@ -301,8 +305,8 @@ public interface CcpEntity{
 		List<String> primaryKeyNames = this.getPrimaryKeyNames();
 		String entityName = this.getEntityName();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-		.put("primaryKeyNames", primaryKeyNames)
-		.put("entityName", entityName);
+		.put(CcpEntityConstants.primaryKeyNames, primaryKeyNames)
+		.put(CcpEntityConstants.entityName, entityName);
 		return put;
 	}
 	

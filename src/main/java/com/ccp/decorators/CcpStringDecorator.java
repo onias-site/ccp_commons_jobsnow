@@ -11,7 +11,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	public final String content;
 
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getAsString(key);
+		this.content = json.getDynamicVersion().getAsString(key);
 	}
 
 	

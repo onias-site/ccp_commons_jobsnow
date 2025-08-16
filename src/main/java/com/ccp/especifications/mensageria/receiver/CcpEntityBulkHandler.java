@@ -39,7 +39,7 @@ public class CcpEntityBulkHandler implements CcpTopic {
 
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		String operation = json.getAsString(this.operationFieldName);
+		String operation = json.getDynamicVersion().getAsString(this.operationFieldName);
 		CcpBulkHandlers valueOf = CcpBulkHandlers.valueOf(operation);
 		CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> bulkHandler = valueOf.getBulkHandler(this.entity);
 		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, bulkHandler);
