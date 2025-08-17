@@ -6,11 +6,10 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
-enum CcpDbQueryAggregationsConstants  implements CcpJsonFieldName{
-	field
-	
-}
 public final class CcpDbQueryAggregations extends CcpDbQueryComponent{
+	enum JsonFieldNames implements CcpJsonFieldName{
+		field
+	}
 	
 	 CcpDbQueryAggregations(CcpDbQueryComponent parent) {
 		super(parent, "aggs");
@@ -31,7 +30,7 @@ public final class CcpDbQueryAggregations extends CcpDbQueryComponent{
 
 	private CcpDbQueryAggregations createAggregation(String aggregationName, CcpEntityField fieldName, String key) {
 		CcpDbQueryAggregations copy = this.copy();
-		Map<String, Object> c1 = CcpOtherConstants.EMPTY_JSON.put(CcpDbQueryAggregationsConstants.field, fieldName).getContent();
+		Map<String, Object> c1 = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.field, fieldName).getContent();
 		Map<String, Object> c2 = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(key, c1).getContent();
 		copy.json = copy.json.getDynamicVersion().put(aggregationName, c2);
 		return copy;

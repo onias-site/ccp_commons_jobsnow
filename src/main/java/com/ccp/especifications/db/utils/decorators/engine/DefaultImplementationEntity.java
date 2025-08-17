@@ -12,8 +12,8 @@ import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferReco
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
+import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
-import com.ccp.exceptions.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.validation.CcpJsonFieldsValidations;
 
 final class DefaultImplementationEntity implements CcpEntity{

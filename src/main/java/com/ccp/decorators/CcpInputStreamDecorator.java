@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.ccp.exceptions.inputstream.CcpErrorInputStreamMissing;
-
 
 public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	

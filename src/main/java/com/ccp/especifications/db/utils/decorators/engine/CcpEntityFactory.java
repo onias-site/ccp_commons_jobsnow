@@ -7,12 +7,12 @@ import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
+import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration;
+import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration.IncorrectEntityClassConfigurationType;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityDecorators;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityExpurgable;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTwin;
-import com.ccp.exceptions.db.utils.CcpErrorEntityIncorrectClassConfiguration;
-import com.ccp.exceptions.db.utils.CcpErrorEntityIncorrectClassConfiguration.IncorrectEntityClassConfigurationType;
 
 public class CcpEntityFactory {
 

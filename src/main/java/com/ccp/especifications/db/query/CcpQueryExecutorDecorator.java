@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.http.CcpHttpMethods;
+import com.ccp.especifications.http.CcpHttpMethods;
 
 public class CcpQueryExecutorDecorator {
 

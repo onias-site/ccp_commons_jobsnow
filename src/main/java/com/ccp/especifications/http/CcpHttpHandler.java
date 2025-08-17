@@ -6,8 +6,6 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.exceptions.http.CcpErrorHttp;
-import com.ccp.http.CcpHttpMethods;
 
 
 public final class CcpHttpHandler {

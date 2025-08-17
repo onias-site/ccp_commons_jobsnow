@@ -8,7 +8,6 @@ import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
-import com.ccp.exceptions.mensageria.receiver.CcpErrorMensageriaInvalidName;
 
 public abstract class CcpMensageriaReceiver {
 	

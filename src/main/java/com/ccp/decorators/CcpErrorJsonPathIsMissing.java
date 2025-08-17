@@ -1,0 +1,8 @@
+package com.ccp.decorators;
+
+@SuppressWarnings("serial")
+public class CcpErrorJsonPathIsMissing extends RuntimeException {
+	public CcpErrorJsonPathIsMissing(CcpJsonRepresentation json) {
+		super("The path is empty, please fill the missing path in the json: " + json);
+	}
+}

@@ -8,10 +8,10 @@ import java.util.Map;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
-enum CcpDbQueryOptionsConstants  implements CcpJsonFieldName{
-	sort, match_all
-}
 public class CcpDbQueryOptions extends CcpDbQueryComponent{
+	enum JsonFieldNames implements CcpJsonFieldName{
+		sort, match_all
+	}
 	
 	public static final CcpDbQueryOptions INSTANCE = new CcpDbQueryOptions();
 	
@@ -57,13 +57,13 @@ public class CcpDbQueryOptions extends CcpDbQueryComponent{
 		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(fieldName, sortType).getContent();
 		
 		List<Object> asList = Arrays.asList(content);
-		//TODO PRESTAR ATENNCAO NA LINHA ABAIXO, POIS ERA ASSIM ANTES: if(copy.json.content.containsKey('sort')) {
-		if(copy.json.containsAllFields(CcpDbQueryOptionsConstants.sort)) {
-			List<Object> sort = copy.json.getAsObjectList(CcpDbQueryOptionsConstants.sort);
+		//ATTENTION PRESTAR ATENNCAO NA LINHA ABAIXO, POIS ERA ASSIM ANTES: if(copy.json.content.containsKey('sort')) {
+		if(copy.json.containsAllFields(JsonFieldNames.sort)) {
+			List<Object> sort = copy.json.getAsObjectList(JsonFieldNames.sort);
 			asList = new ArrayList<>(sort);
 			asList.add(content);
 		}
-		copy.json = copy.json.put(CcpDbQueryOptionsConstants.sort, asList);
+		copy.json = copy.json.put(JsonFieldNames.sort, asList);
 		return copy;
 	}
 	@SuppressWarnings("unchecked")
@@ -108,7 +108,7 @@ public class CcpDbQueryOptions extends CcpDbQueryComponent{
 	}
 	
 	public CcpDbQueryOptions matchAll() {
-		CcpDbQueryOptions clone = super.putProperty("query", CcpOtherConstants.EMPTY_JSON.put(CcpDbQueryOptionsConstants.match_all, CcpOtherConstants.EMPTY_JSON.content).content);
+		CcpDbQueryOptions clone = super.putProperty("query", CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.match_all, CcpOtherConstants.EMPTY_JSON.content).content);
 		return clone;
 	}
 

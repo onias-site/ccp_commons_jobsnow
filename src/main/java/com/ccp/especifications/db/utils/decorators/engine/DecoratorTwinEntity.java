@@ -9,14 +9,14 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.process.CcpErrorFlowDisturb;
+import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
-enum DecoratorTwinEntityConstants implements CcpJsonFieldName{
-	_entities
-}
 
 class DecoratorTwinEntity extends CcpEntityDelegator {
+	enum JsonFieldNames implements CcpJsonFieldName{
+		_entities
+	}
 
 	private final CcpEntity twin;
 	
@@ -47,8 +47,8 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		String entityName = this.getEntityName();
 		CcpEntity twinEntity = this.getTwinEntity();
 		String twinEntityName = twinEntity.getEntityName();
-		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(DecoratorTwinEntityConstants._entities, entityName);
-		CcpJsonRepresentation j2 = json.getInnerJsonFromPath(DecoratorTwinEntityConstants._entities, twinEntityName);
+		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(JsonFieldNames._entities, entityName);
+		CcpJsonRepresentation j2 = json.getInnerJsonFromPath(JsonFieldNames._entities, twinEntityName);
 		CcpJsonRepresentation putAll = j1.putAll(j2);
 		return putAll;
 	}

@@ -11,8 +11,6 @@ import com.ccp.json.fields.validations.enums.CcpJsonFieldTypes;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonField {
-
-	CcpJsonFieldAtLeastOne[] atLeastOne();
 	CcpJsonFieldTypes type();
 	boolean required();
 }

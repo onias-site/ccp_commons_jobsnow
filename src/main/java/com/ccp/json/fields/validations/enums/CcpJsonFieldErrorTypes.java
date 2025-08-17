@@ -8,15 +8,12 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
-enum CcpJsonFieldErrorTypesConstants  implements CcpJsonFieldName{
-	error, ruleExplanation, providedValue	
-}
 
-public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
+public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName{
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		public CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -41,14 +38,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 	},
 	annotationIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		public CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -66,7 +63,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 	},
@@ -74,14 +71,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -89,7 +86,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -97,14 +94,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			// FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -112,7 +109,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -120,14 +117,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -135,7 +132,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -143,14 +140,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -158,7 +155,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -166,14 +163,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -181,7 +178,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -189,14 +186,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -204,7 +201,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -212,14 +209,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -227,7 +224,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -235,14 +232,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -250,7 +247,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -258,14 +255,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -273,7 +270,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -281,14 +278,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -296,7 +293,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -304,14 +301,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -319,7 +316,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -327,14 +324,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -342,7 +339,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -350,14 +347,14 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		@Override
 		CcpJsonRepresentation getRuleExplanation(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return null;
 		}
 
@@ -365,7 +362,7 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field,
 				Class<? extends Annotation> annotation, Predicate<CcpJsonRepresentation> predicate,
 				CcpJsonFieldValueExtractor valueExtractor) {
-			// TODO Auto-generated method stub
+			//FIXME Auto-generated method stub
 			return false;
 		}
 	},
@@ -429,20 +426,22 @@ public enum CcpJsonFieldErrorTypes  implements CcpJsonFieldName{
 		CcpJsonRepresentation rule = field.getDynamicVersion().getInnerJson(ruleName);
 		
 		Object providedValue = valueExtractor.getValue(json, fieldName);
-		CcpJsonRepresentation withProvidedValue = rule.put(CcpJsonFieldErrorTypesConstants.providedValue, providedValue);
+		CcpJsonRepresentation withProvidedValue = rule.put(JsonFieldNames.providedValue, providedValue);
 
 		CcpJsonRepresentation ruleExplanation = this.getRuleExplanation(rule, clazz, fieldReflection, valueExtractor);
-		CcpJsonRepresentation withRuleExplanation = withProvidedValue.put(CcpJsonFieldErrorTypesConstants.ruleExplanation, ruleExplanation);
+		CcpJsonRepresentation withRuleExplanation = withProvidedValue.put(JsonFieldNames.ruleExplanation, ruleExplanation);
 		
 		CcpJsonRepresentation error = this.getError(json, clazz, fieldReflection, annotation, valueExtractor);
-		CcpJsonRepresentation withError = withRuleExplanation.put(CcpJsonFieldErrorTypesConstants.error, error);
+		CcpJsonRepresentation withError = withRuleExplanation.put(JsonFieldNames.error, error);
 		
 		CcpJsonRepresentation updatedField = field.put(this, withError);
-//		FIXME CcpJsonRepresentation updatedErrors = errors.put(fieldName, updatedField);
-		CcpJsonRepresentation updatedErrors = errors.put(null, updatedField);
+		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().put(fieldName, updatedField);
 		
 		this.errorHandleType.breakValidation(updatedErrors);
 		return updatedErrors;
 	}
 
+	enum JsonFieldNames implements CcpJsonFieldName{
+		error, ruleExplanation, providedValue	
+	}
 }

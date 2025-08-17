@@ -6,18 +6,17 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.exceptions.db.utils.CcpEntityJsonTransformerError;
+import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 
-
-enum CcpBulkItemConstants  implements CcpJsonFieldName{
-	json
-}
-enum CcpBulkItemFields  implements CcpJsonFieldName{
+enum CcpBulkItemFields implements CcpJsonFieldName{
 	id,  entity, operation 
 }
 
 
 public class CcpBulkItem {
+	enum JsonFieldNames implements CcpJsonFieldName{
+		json
+	}
 
 	public final CcpEntityBulkOperationType operation;
 	public final CcpJsonRepresentation json;
@@ -55,7 +54,7 @@ public class CcpBulkItem {
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
 				.put(CcpBulkItemFields.operation, this.operation)
 				.put(CcpBulkItemFields.entity, entityName)
-				.put(CcpBulkItemConstants.json, this.json)
+				.put(JsonFieldNames.json, this.json)
 				.put(CcpBulkItemFields.id, this.id);
 		return put;
 	}

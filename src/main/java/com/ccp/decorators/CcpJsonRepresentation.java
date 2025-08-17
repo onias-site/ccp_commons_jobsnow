@@ -23,12 +23,6 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.exceptions.json.CCpErrorJsonFieldIsNotValidJsonList;
-import com.ccp.exceptions.json.CcpErrorJsonFieldNotFound;
-import com.ccp.exceptions.json.CcpErrorJsonInvalid;
-import com.ccp.exceptions.json.CcpErrorJsonInvalidFieldFormat;
-import com.ccp.exceptions.json.CcpErrorJsonNull;
-import com.ccp.exceptions.json.CcpErrorJsonPathIsMissing;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validation.CcpItIsTrueThatTheFollowingFields;
  

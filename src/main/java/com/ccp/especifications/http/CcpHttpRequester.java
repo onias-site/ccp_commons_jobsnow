@@ -7,28 +7,20 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.exceptions.http.CcpErrorHttpClient;
-import com.ccp.exceptions.http.CcpErrorHttp;
-import com.ccp.exceptions.http.CcpErrorHttpServer;
-import com.ccp.http.CcpHttpMethods;
 
-enum CcpHttpRequesterConstants  implements CcpJsonFieldName{
-	expectedStatusList,
-	details,
-	trace,
-	response,
-	status,
-	request,
-	headers,
-	method,
-	url,
-	
-	
-			
-	
-}
 
 public interface CcpHttpRequester {
+	enum JsonFieldNames implements CcpJsonFieldName{
+		expectedStatusList,
+		details,
+		trace,
+		response,
+		status,
+		request,
+		headers,
+		method,
+		url,
+	}
 	CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String body);
 
 	default CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String request,
@@ -60,16 +52,16 @@ public interface CcpHttpRequester {
 			String request, Integer status, String response, Set<String> expectedStatusList) {
 
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put(CcpHttpRequesterConstants.url, url)
-				.put(CcpHttpRequesterConstants.method, method)
-				.put(CcpHttpRequesterConstants.headers, headers)
-				.put(CcpHttpRequesterConstants.request, request)
-				.put(CcpHttpRequesterConstants.status, status)
-				.put(CcpHttpRequesterConstants.response, response);
+				.put(JsonFieldNames.url, url)
+				.put(JsonFieldNames.method, method)
+				.put(JsonFieldNames.headers, headers)
+				.put(JsonFieldNames.request, request)
+				.put(JsonFieldNames.status, status)
+				.put(JsonFieldNames.response, response);
 		CcpJsonRepresentation entity = put
-				.put(CcpHttpRequesterConstants.trace, trace)
-				.put(CcpHttpRequesterConstants.details, put.content)
-				.put(CcpHttpRequesterConstants.expectedStatusList, expectedStatusList);
+				.put(JsonFieldNames.trace, trace)
+				.put(JsonFieldNames.details, put.content)
+				.put(JsonFieldNames.expectedStatusList, expectedStatusList);
 
 		if (status >= 600) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);

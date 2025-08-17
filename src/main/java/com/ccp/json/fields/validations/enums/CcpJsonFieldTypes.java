@@ -19,26 +19,23 @@ public enum CcpJsonFieldTypes {
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
 		}
-		
-	}, Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
+	}, 
+	Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
-		
-	}, Json(CcpJsonField.class){
+	},
+	Json(CcpJsonField.class){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
-		
 	}, 
 	NumberType(CcpJsonFieldNumberType.class, CcpJsonFieldErrorTypes.objectNumberMaxValue, CcpJsonFieldErrorTypes.objectNumberMinValue, CcpJsonFieldErrorTypes.objectNumberAllowed){
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isDoubleNumber() ;
 		}
-		
 	}, 
 	Text(CcpJsonFieldTextType.class, CcpJsonFieldErrorTypes.objectTextRegex, CcpJsonFieldErrorTypes.objectTextAllowedValues, CcpJsonFieldErrorTypes.objectTextMaxLength, CcpJsonFieldErrorTypes.objectTextMinLength){
-
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> true;
 		}
@@ -48,26 +45,19 @@ public enum CcpJsonFieldTypes {
 		Predicate<CcpJsonRepresentation> getTypes(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}
-		
 	}
-	
 	;
-	
 	private final Class<? extends Annotation> annotation;
 	private final CcpJsonFieldErrorTypes[] errorTypes;
 	
 	private CcpJsonFieldTypes(Class<? extends Annotation> annotation, CcpJsonFieldErrorTypes... errorTypes) {
 		this.annotation = annotation;
 		this.errorTypes = errorTypes;
-		
 	}
-	
 	
 	abstract Predicate<CcpJsonRepresentation> getTypes(String fieldName);
 
-	public CcpJsonRepresentation validate(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, Class<?> clazz) {
-		
-		
+	public CcpJsonRepresentation validate(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, Class<?> clazz, CcpJsonFieldValueExtractor fieldValueExtractor) {
 		String fieldName = field.getName();
 		List<CcpJsonFieldErrorTypes> validations = this.getDefaultValidations();
 		List<CcpJsonFieldErrorTypes> asList = Arrays.asList(this.errorTypes);
@@ -76,9 +66,8 @@ public enum CcpJsonFieldTypes {
 		Predicate<CcpJsonRepresentation> types = this.getTypes(fieldName);
 		
 		for (CcpJsonFieldErrorTypes errorType : validations) {
-			errors = errorType.evaluate(errors, json, clazz, field, this.annotation, types, CcpJsonFieldValueExtractor.fromObject);
+			errors = errorType.evaluate(errors, json, clazz, field, this.annotation, types, fieldValueExtractor);
 		}
-		
 		return errors;
 	}
 	

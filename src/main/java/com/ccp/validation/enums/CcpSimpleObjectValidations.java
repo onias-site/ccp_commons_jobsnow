@@ -5,10 +5,6 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.validation.CcpJsonFieldsValidations;
 import com.ccp.validation.annotations.CcpSimpleObject;
-enum CcpSimpleObjectValidationsConstants  implements CcpJsonFieldName{
-	errors, wrongFields, value, name
-	
-}
 public enum CcpSimpleObjectValidations {
 	requiredFields {
 		
@@ -34,7 +30,7 @@ public enum CcpSimpleObjectValidations {
 			
 			String completeRuleName = CcpJsonFieldsValidations.getCompleteRuleName(CcpSimpleObject.class, this);
 			CcpJsonRepresentation errors = CcpOtherConstants.EMPTY_JSON.addToList("wrongFields", (Object[])fields);
-			result = result.addToItem(CcpSimpleObjectValidationsConstants.errors, completeRuleName, errors);
+			result = result.addToItem(JsonFieldNames.errors, completeRuleName, errors);
 			return result;
 
 		}
@@ -97,13 +93,16 @@ public enum CcpSimpleObjectValidations {
 			
 			Object value = json.content.get(field);
 			CcpJsonRepresentation fieldDetails = CcpOtherConstants.EMPTY_JSON
-					.put(CcpSimpleObjectValidationsConstants.name, field)
-					.put(CcpSimpleObjectValidationsConstants.value, value)
+					.put(JsonFieldNames.name, field)
+					.put(JsonFieldNames.value, value)
 					;
-			errors = errors.addToList(CcpSimpleObjectValidationsConstants.wrongFields, fieldDetails);
-			result = result.addToItem(CcpSimpleObjectValidationsConstants.errors, completeRuleName, errors);
+			errors = errors.addToList(JsonFieldNames.wrongFields, fieldDetails);
+			result = result.addToItem(JsonFieldNames.errors, completeRuleName, errors);
 		}
 		return result;
 	}
 
+	enum JsonFieldNames implements CcpJsonFieldName{
+		errors, wrongFields, value, name
+	}
 }

@@ -19,7 +19,6 @@ import java.util.zip.ZipOutputStream;
 
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.exceptions.file.CcpErrorFolderParentIsMissing;
 
 
 public class CcpFileDecorator implements CcpDecorator<String> {

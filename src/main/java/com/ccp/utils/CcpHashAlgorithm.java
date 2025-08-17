@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
-import com.ccp.exceptions.hash.CcpErrorHashAlgorithmNotFound;
+import com.ccp.decorators.CcpErrorHashAlgorithmNotFound;
 
 public enum CcpHashAlgorithm {
 	MD5("MD5"),

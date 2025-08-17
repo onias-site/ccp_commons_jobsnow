@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
-import com.ccp.exceptions.json.CcpErrorJsonInvalid;
 
 public class CcpTextDecorator implements CcpDecorator<String> {
 	public final String content;

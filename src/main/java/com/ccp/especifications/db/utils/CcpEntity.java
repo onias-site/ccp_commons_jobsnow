@@ -21,18 +21,14 @@ import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
-import com.ccp.exceptions.db.utils.CcpErrorEntityPrimaryKeyIsMissing;
-import com.ccp.exceptions.db.utils.CcpErrorBulkEntityRecordNotFound;
-import com.ccp.exceptions.process.CcpErrorFlowDisturb;
+import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
 
-enum CcpEntityConstants  implements CcpJsonFieldName{
-	entity, id, entityName, primaryKeyNames, _entities
-	
-}
-
 public interface CcpEntity{
+	enum JsonFieldNames implements CcpJsonFieldName{
+		entity, id, entityName, primaryKeyNames, _entities
+	}
 
 	default CcpBulkItem toBulkItemToCreateOrDelete(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		boolean presentInThisUnionAll = this.isPresentInThisUnionAll(unionAll, json);
@@ -146,7 +142,7 @@ public interface CcpEntity{
 
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation md = this.getOneById(json, x -> {throw new CcpErrorFlowDisturb(x.put(CcpEntityConstants.entity, entityName), CcpProcessStatusDefault.NOT_FOUND);});
+		CcpJsonRepresentation md = this.getOneById(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityName), CcpProcessStatusDefault.NOT_FOUND);});
 		return md;
 	}
 	
@@ -160,7 +156,7 @@ public interface CcpEntity{
 			
 		} catch (CcpErrorBulkEntityRecordNotFound e) {
 			String entityName = this.getEntityName();
-			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpEntityConstants.id, id).put(CcpEntityConstants.entity, entityName);
+			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.id, id).put(JsonFieldNames.entity, entityName);
 			throw new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
 		}
 	}
@@ -256,13 +252,13 @@ public interface CcpEntity{
 	}
 
 	default boolean isPresentInThisJsonInMainEntity(CcpJsonRepresentation json) {
-		CcpJsonRepresentation innerJsonFromPath = json.getInnerJsonFromPath(CcpEntityConstants._entities, this.getEntityName());
+		CcpJsonRepresentation innerJsonFromPath = json.getInnerJsonFromPath(JsonFieldNames._entities, this.getEntityName());
 		return innerJsonFromPath.isEmpty() == false;
 	}
 
 	default CcpJsonRepresentation getInnerJsonFromMainAndTwinEntities(CcpJsonRepresentation json) {
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(CcpEntityConstants._entities, entityName);
+		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(JsonFieldNames._entities, entityName);
 		return j1;
 	}
 	
@@ -305,8 +301,8 @@ public interface CcpEntity{
 		List<String> primaryKeyNames = this.getPrimaryKeyNames();
 		String entityName = this.getEntityName();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-		.put(CcpEntityConstants.primaryKeyNames, primaryKeyNames)
-		.put(CcpEntityConstants.entityName, entityName);
+		.put(JsonFieldNames.primaryKeyNames, primaryKeyNames)
+		.put(JsonFieldNames.entityName, entityName);
 		return put;
 	}
 	

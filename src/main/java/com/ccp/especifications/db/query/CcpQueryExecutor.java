@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.http.CcpHttpMethods;
+import com.ccp.especifications.http.CcpHttpMethods;
 public interface CcpQueryExecutor {
 
 	CcpJsonRepresentation getTermsStatis(CcpDbQueryOptions elasticQuery, String[] resourcesNames, String fieldName);

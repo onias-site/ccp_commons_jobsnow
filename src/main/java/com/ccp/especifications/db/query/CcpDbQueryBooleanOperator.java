@@ -9,11 +9,10 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
-enum CcpDbQueryBooleanOperatorConstants  implements CcpJsonFieldName{
-	operator, boost, query
-	
-}
 abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
+	enum JsonFieldNames implements CcpJsonFieldName{
+		operator, boost, query
+	}
 
 	protected Set<Object> items = new LinkedHashSet<>();
 
@@ -86,9 +85,9 @@ abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 			return (T)clone;
 		}
 		
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpDbQueryBooleanOperatorConstants.query, value).put(CcpDbQueryBooleanOperatorConstants.boost, boost);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.query, value).put(JsonFieldNames.boost, boost);
 		if(operator != null && operator.trim().isEmpty() == false) {
-			put = put.put(CcpDbQueryBooleanOperatorConstants.operator, operator);
+			put = put.put(JsonFieldNames.operator, operator);
 		}
 		Map<String, Object> map = put.getContent();
 		Map<String, Object> mapField = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(field, map).getContent();	
