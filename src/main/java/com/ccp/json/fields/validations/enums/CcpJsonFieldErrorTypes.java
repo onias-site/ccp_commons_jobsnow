@@ -13,37 +13,46 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldArrayType;
+import com.ccp.json.fields.validations.annotations.CcpJsonFieldNested;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldNumberType;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldTextType;
+import com.ccp.json.fields.validations.engine.CcpJsonFieldsValidator;
 
 public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 
-		public boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 
-			Object value = valueExtractor.getValue(json, field);
+		    String fieldName = field.getName();
+			Object value = json.getDynamicVersion().getAsObject(fieldName);
 
 			if (value == null) {
 				return false;
 			}
 
-			String fieldName = field.getName();
 			Predicate<CcpJsonRepresentation> evaluateCorrectType = type.evaluateCompatibleType(fieldName);
 			boolean test = evaluateCorrectType.test(json);
 			return test;
 		}
 
 		@SuppressWarnings("unchecked")
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String typeName = type.name();
 			return (T)typeName;
+		}
+		
+		@Override
+		protected Object getProvidedValue(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			String fieldName = field.getName();
+			Object object = json.getDynamicVersion().get(fieldName).getClass().getName();
+			return object;
 		}
 
 	},
 	annotationIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation) {
-		public boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 
-			boolean annotationIsMissing = field.isAnnotationPresent(type.annotation) == false;
+			boolean annotationIsMissing = false == field.isAnnotationPresent(type.annotation);
 
 			return annotationIsMissing;
 		}
@@ -51,20 +60,20 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String name = type.annotation.getClass().getName();
 			String string = "This field has to be annoted by " + name;
 			return (T)string;
 		}
 
 		
-		protected Object getRealValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		protected Object getProvidedValue(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			return "";
 		}
 	},
 	requiredFieldIsMissing(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String fieldName = field.getName();
 			boolean thisFieldIsPresent = json.getDynamicVersion().containsAllFields(fieldName);
 			return thisFieldIsPresent;
@@ -72,31 +81,32 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String fieldName = field.getName();
 			String result = "The field '" + fieldName + "' is required";
 			return (T)result;
 		}
 
-		protected Object getRealValue(CcpJsonRepresentation json, Class<?> clazz, Field field,  CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		protected Object getProvidedValue(CcpJsonRepresentation json,  Field field,  CcpJsonFieldTypes type) {
 			return "";
 		}
 	},
 	objectNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 		    
 		    CcpJsonFieldNumberType annotation = field.getAnnotation(CcpJsonFieldNumberType.class);
 		    double number = annotation.maxValue();
-		    Double value = valueExtractor.getValue(json, field);
+		    String fieldName = field.getName();
+			Double value = json.getDynamicVersion().getAsObject(fieldName);
 		    return value > number;
 		}
 
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 		    CcpJsonFieldNumberType annotation = field.getAnnotation(CcpJsonFieldNumberType.class);
 		    Double value = annotation.maxValue();
 
@@ -106,15 +116,16 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-		    Integer number = this.getExpectedValue(json, clazz, field, type, valueExtractor);
-		    Double value = valueExtractor.getValue(json, field);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    Integer number = this.getValidationParameter(json,  field, type);
+		    String fieldName = field.getName();
+			Double value = json.getDynamicVersion().getAsObject(fieldName);
 		    return value < number;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, 	CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 		    CcpJsonFieldNumberType annotation = field.getAnnotation(CcpJsonFieldNumberType.class);
 		    Double value = annotation.minValue();
  
@@ -124,8 +135,8 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			List<Double> allowedValues = this.getExpectedValue(json, clazz, field, type, valueExtractor);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+			List<Double> allowedValues = this.getValidationParameter(json,  field, type);
 			
 			boolean doNotValidate = allowedValues.isEmpty();
 			
@@ -133,14 +144,15 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 				return false;
 			}
 			
-			Double value = valueExtractor.getValue(json, field);
+		    String fieldName = field.getName();
+			Double value = json.getDynamicVersion().getAsObject(fieldName);
 			boolean isAllowed = allowedValues.contains(value);
 			return isAllowed;
 		}
 
 		
 		@SuppressWarnings("unchecked")
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 		    CcpJsonFieldNumberType annotation = field.getAnnotation(CcpJsonFieldNumberType.class);
 		    double[] allowedValues = annotation.allowedValues();
 			List<Double> list = new ArrayList<>();
@@ -153,16 +165,17 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectArrayMinSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			Collection<?> value = valueExtractor.getValue(json, field);
-			Integer expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    String fieldName = field.getName();
+			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Integer validationParameter = this.getValidationParameter(json,  field, type);
 			int size = value.size();
-			return expectedValue > size;
+			return validationParameter > size;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldArrayType annotation = field.getAnnotation(CcpJsonFieldArrayType.class);
 			Integer value = annotation.minSize();
 			return (T)value;
@@ -171,16 +184,17 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectArrayMaxSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			Collection<?> value = valueExtractor.getValue(json, field);
-			Integer expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    String fieldName = field.getName();
+			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Integer validationParameter = this.getValidationParameter(json,  field, type);
 			int size = value.size();
-			return expectedValue < size;
+			return validationParameter < size;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldArrayType annotation = field.getAnnotation(CcpJsonFieldArrayType.class);
 			Integer value = annotation.maxSize();
 			return (T)value;
@@ -189,8 +203,9 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectArrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			Collection<?> value = valueExtractor.getValue(json, field);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    String fieldName = field.getName();
+			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
 			Set<?> set = new HashSet<>(value);
 			int size = set.size();
 			int size2 = value.size();
@@ -199,23 +214,24 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			return (T)"";
 		}
 	},
 	objectTextMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			String value = valueExtractor.getValue(json, field);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    String fieldName = field.getName();
+			String value = json.getDynamicVersion().getAsObject(fieldName);
 			int length = value.length();
-			Integer expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
-			return length < expectedValue;
+			Integer validationParameter = this.getValidationParameter(json,  field, type);
+			return length < validationParameter;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, 	CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldTextType annotation = field.getAnnotation(CcpJsonFieldTextType.class);
 			Integer value = annotation.minLength();
 			return (T)value;
@@ -224,16 +240,17 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectTextMaxLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			String value = valueExtractor.getValue(json, field);
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+		    String fieldName = field.getName();
+			String value = json.getDynamicVersion().getAsObject(fieldName);
 			int length = value.length();
-			Integer expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
-			return length > expectedValue;
+			Integer validationParameter = this.getValidationParameter(json,  field, type);
+			return length > validationParameter;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, 	CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldTextType annotation = field.getAnnotation(CcpJsonFieldTextType.class);
 			Integer value = annotation.maxLength();
 			return (T)value;
@@ -242,24 +259,25 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectTextAllowedValues(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz,  Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			List<String> expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
-			boolean doNotValidate = expectedValue.isEmpty();
+		boolean hasError(CcpJsonRepresentation json,   Field field, CcpJsonFieldTypes type) {
+			List<String> validationParameter = this.getValidationParameter(json,  field, type);
+			boolean doNotValidate = validationParameter.isEmpty();
 			
 			if(doNotValidate) {
 				return false;
 			}
 			
-			String value = valueExtractor.getValue(json, field);
+		    String fieldName = field.getName();
+			String value = json.getDynamicVersion().getAsObject(fieldName);
 			
-			boolean contains = expectedValue.contains(value);
+			boolean contains = validationParameter.contains(value);
 			
 			return contains;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldTextType annotation = field.getAnnotation(CcpJsonFieldTextType.class);
 			String[] allowedValues = annotation.allowedValues();
 			List<String> value = Arrays.asList(allowedValues);
@@ -267,22 +285,22 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		}
 	},
 	objectTextRegex(CcpJsonFieldErrorHandleType.continueFieldValidation) {
-
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
-			String expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
-			boolean doNotValidate = expectedValue.trim().isEmpty();
+		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
+			String validationParameter = this.getValidationParameter(json,  field, type);
+			boolean doNotValidate = validationParameter.trim().isEmpty();
 			if(doNotValidate) {
 				return false;
 			}
-			String value = valueExtractor.getValue(json, field);
-			boolean matches = value.matches(expectedValue);
+		    String fieldName = field.getName();
+			String value = json.getDynamicVersion().getAsObject(fieldName);
+			boolean matches = value.matches(validationParameter);
 			return matches;
 		}
 
 		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			CcpJsonFieldTextType annotation = field.getAnnotation(CcpJsonFieldTextType.class);
 			String value = annotation.regexValidation();
 			return (T)value;
@@ -291,38 +309,57 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	objectTimeMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz,
-				Field field, CcpJsonFieldTypes type,
-				CcpJsonFieldValueExtractor valueExtractor) {
+		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			// FIXME Auto-generated method stub
 			return false;
 		}
 
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz,
-				Field field, CcpJsonFieldTypes type,
-				CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 	},
 	objectTimeMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
-		boolean hasError(CcpJsonRepresentation json, Class<?> clazz,
-				Field field, CcpJsonFieldTypes type,
-				CcpJsonFieldValueExtractor valueExtractor) {
+		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			// FIXME Auto-generated method stub
 			return false;
 		}
 
 		
-		<T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz,
-				Field field, CcpJsonFieldTypes type,
-				CcpJsonFieldValueExtractor valueExtractor) {
+		<T extends Object> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 	},
+	nested(CcpJsonFieldErrorHandleType.continueFieldValidation){
+
+		@SuppressWarnings("unchecked")
+		@Override
+		<T> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			String fieldName = field.getName();
+			CcpJsonRepresentation innerJson = json.getDynamicVersion().getInnerJson(fieldName);
+			CcpJsonFieldNested annotation = field.getAnnotation(CcpJsonFieldNested.class);
+			Class<?> validationClass = annotation.validationClass();
+			CcpJsonRepresentation errors = CcpJsonFieldsValidator.INSTANCE.getErrors(validationClass, innerJson);
+			return (T) errors;
+		}
+
+		@Override
+		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
+			boolean hasNoErrors = false == errors.isEmpty();
+			return hasNoErrors;
+		}
+		
+		@Override
+		protected CcpJsonRepresentation getError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
+			return errors;
+		}
+		
+	}
 	;
 
 	private CcpJsonFieldErrorTypes(CcpJsonFieldErrorHandleType handleType) {
@@ -331,34 +368,29 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 
 	private final CcpJsonFieldErrorHandleType errorHandleType;
 
-	abstract <T extends Object> T getExpectedValue(CcpJsonRepresentation json, Class<?> clazz,
-			Field field, CcpJsonFieldTypes type,
-			CcpJsonFieldValueExtractor valueExtractor);
+	abstract <T extends Object> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type);
 
-	abstract boolean hasError(CcpJsonRepresentation json, Class<?> clazz,
-			Field field, CcpJsonFieldTypes type,
-			CcpJsonFieldValueExtractor valueExtractor);
+	abstract boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type);
 
-	protected Object getRealValue(CcpJsonRepresentation json, Class<?> clazz,
-			Field field, CcpJsonFieldTypes type,
-			CcpJsonFieldValueExtractor valueExtractor) {
+	protected Object getProvidedValue(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 
-		Object value = valueExtractor.getValue(json, field);
+		String fieldName = field.getName();
+		Object value = json.getDynamicVersion().get(fieldName);
 
 		return value;
 	}
 
-	final CcpJsonRepresentation getError(CcpJsonRepresentation json, Class<?> clazz, Field field, CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+	protected CcpJsonRepresentation getError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 	
-		String expectedValue = this.getExpectedValue(json, clazz, field, type, valueExtractor);
+		String validationParameter = this.getValidationParameter(json,  field, type);
 		String message = this.name();
 
 		CcpJsonRepresentation error = CcpOtherConstants.EMPTY_JSON
 				.put(JsonFieldNames.errorMessage, message)
-				.put(JsonFieldNames.valueToCompare, expectedValue)
+				.put(JsonFieldNames.validationParameter, validationParameter)
 				;
 
-		Object providedValue = this.getRealValue(json, clazz, field, type, valueExtractor);
+		Object providedValue = this.getProvidedValue(json,  field, type);
 
 		boolean hasNoRealValue = providedValue.toString().trim().isEmpty();
 
@@ -370,12 +402,9 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		return put;
 	}
 
-	public final CcpJsonRepresentation evaluate(CcpJsonRepresentation errors,
-			CcpJsonRepresentation json, Class<?> clazz, Field field,
-			CcpJsonFieldTypes type, CcpJsonFieldValueExtractor valueExtractor) {
+	public final CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 
-		boolean hasNoError = this.hasError(json, clazz, field, type,
-				valueExtractor) == false;
+		boolean hasNoError = false == this.hasError(json,  field, type);
 
 		if (hasNoError) {
 			return CcpOtherConstants.EMPTY_JSON;
@@ -387,10 +416,10 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		CcpJsonRepresentation relatedErrorsToThisField = errors.getDynamicVersion().getInnerJson(fieldName);
 		CcpJsonRepresentation rule = relatedErrorsToThisField.getDynamicVersion().getInnerJson(ruleName);
 
-		Object providedValue = valueExtractor.getValue(json, field);
+		Object providedValue = json.getDynamicVersion().get(fieldName);
 		CcpJsonRepresentation withProvidedValue = rule.put(JsonFieldNames.providedValue, providedValue);
 
-		CcpJsonRepresentation error = this.getError(json, clazz, field, type, valueExtractor);
+		CcpJsonRepresentation error = this.getError(json, field, type);
 		CcpJsonRepresentation withError = withProvidedValue.put(JsonFieldNames.error, error);
 
 		CcpJsonRepresentation updatedField = relatedErrorsToThisField.put(this, withError);
@@ -402,6 +431,6 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	}
 
 	enum JsonFieldNames implements CcpJsonFieldName {
-		error, ruleExplanation, providedValue, errorMessage, valueToCompare
+		error, ruleExplanation, providedValue, errorMessage, validationParameter
 	}
 }

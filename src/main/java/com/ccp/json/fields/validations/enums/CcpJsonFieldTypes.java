@@ -58,15 +58,31 @@ public enum CcpJsonFieldTypes {
 	
 	abstract Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName);
 
-	public CcpJsonRepresentation evaluate(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, Class<?> clazz, CcpJsonFieldValueExtractor fieldValueExtractor) {
+	public boolean hasErrors(CcpJsonRepresentation json, Field field) {
+		List<CcpJsonFieldErrorTypes> validations = this.getValidations();
+		for (CcpJsonFieldErrorTypes validation : validations) {
+			boolean hasError = validation.hasError(json, field, this);
+			if(hasError) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public CcpJsonRepresentation evaluate(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field) {
+		List<CcpJsonFieldErrorTypes> validations = this.getValidations();
+		
+		for (CcpJsonFieldErrorTypes errorType : validations) {
+			errors = errorType.getErrors(errors, json,field, this);
+		}
+		return errors;
+	}
+
+	private List<CcpJsonFieldErrorTypes> getValidations() {
 		List<CcpJsonFieldErrorTypes> validations = this.getDefaultValidations();
 		List<CcpJsonFieldErrorTypes> asList = Arrays.asList(this.errorTypes);
 		validations.addAll(asList);
-		
-		for (CcpJsonFieldErrorTypes errorType : validations) {
-			errors = errorType.evaluate(errors, json, clazz, field, this, fieldValueExtractor);
-		}
-		return errors;
+		return validations;
 	}
 	
 	private List<CcpJsonFieldErrorTypes> getDefaultValidations(){

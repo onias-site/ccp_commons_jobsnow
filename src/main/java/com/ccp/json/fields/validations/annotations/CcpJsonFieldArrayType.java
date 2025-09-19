@@ -13,5 +13,4 @@ public @interface CcpJsonFieldArrayType {
 	boolean nonRepeatedItems();
 	int minSize() default Integer.MIN_VALUE;
 	int maxSize() default Integer.MAX_VALUE;
-	CcpJsonField field();
 }
