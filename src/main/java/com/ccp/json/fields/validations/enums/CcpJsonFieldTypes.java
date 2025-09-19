@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.fields.validations.annotations.CcpJsonField;
-import com.ccp.json.fields.validations.annotations.CcpJsonFieldArrayType;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldNested;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldNumberType;
 import com.ccp.json.fields.validations.annotations.CcpJsonFieldTextType;
@@ -21,12 +20,12 @@ public enum CcpJsonFieldTypes {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
 		}
 	}, 
-	Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.arrayMinSize, CcpJsonFieldErrorTypes.arrayMaxSize, CcpJsonFieldErrorTypes.arrayNonReapeted){
+	Array(CcpJsonField.class, CcpJsonFieldErrorTypes.arrayMinSize, CcpJsonFieldErrorTypes.arrayMaxSize, CcpJsonFieldErrorTypes.arrayNonReapeted){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
 	},
-	Json(CcpJsonFieldNested.class){
+	Json(CcpJsonFieldNested.class, CcpJsonFieldErrorTypes.nestedJson){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
@@ -42,7 +41,7 @@ public enum CcpJsonFieldTypes {
 		}
 		
 	}, 
-	Time(CcpJsonFieldTimeType.class, CcpJsonFieldErrorTypes.arrayMinSize, CcpJsonFieldErrorTypes.arrayMaxSize, CcpJsonFieldErrorTypes.arrayNonReapeted){
+	Time(CcpJsonFieldTimeType.class, CcpJsonFieldErrorTypes.timeMaxValue, CcpJsonFieldErrorTypes.timeMinValue){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}

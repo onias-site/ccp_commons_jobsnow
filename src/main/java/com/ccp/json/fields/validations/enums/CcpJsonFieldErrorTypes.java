@@ -61,7 +61,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		
 		<T extends Object> T getValidationParameter(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String name = type.annotation.getClass().getName();
-			String string = "This field has to be annoted by " + name;
+			String string = "This field must be annoted by " + name;
 			return (T)string;
 		}
 
@@ -332,32 +332,28 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return null;
 		}
 	},
-	nested(CcpJsonFieldErrorHandleType.continueFieldValidation){
+	nestedJson(CcpJsonFieldErrorHandleType.continueFieldValidation){
 
 		@SuppressWarnings("unchecked")
 		
 		<T> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			return (T) "";
+		}
+
+		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
+			CcpJsonRepresentation errors = this.getError(json, field, type);
+			boolean hasNoErrors = false == errors.isEmpty();
+			return hasNoErrors;
+		}
+		
+		protected CcpJsonRepresentation getError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			String fieldName = field.getName();
 			CcpJsonRepresentation innerJson = json.getDynamicVersion().getInnerJson(fieldName);
 			CcpJsonFieldNested annotation = field.getAnnotation(CcpJsonFieldNested.class);
 			Class<?> validationClass = annotation.validationClass();
 			CcpJsonRepresentation errors = CcpJsonFieldsValidator.INSTANCE.getErrors(validationClass, innerJson);
-			return (T) errors;
-		}
-
-		
-		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
-			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
-			boolean hasNoErrors = false == errors.isEmpty();
-			return hasNoErrors;
-		}
-		
-		
-		protected CcpJsonRepresentation getError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
-			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
 			return errors;
 		}
-		
 	}
 	;
 
@@ -409,19 +405,13 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 
-		String ruleName = this.name();
 		String fieldName = field.getName();
 
 		CcpJsonRepresentation relatedErrorsToThisField = errors.getDynamicVersion().getInnerJson(fieldName);
-		CcpJsonRepresentation rule = relatedErrorsToThisField.getDynamicVersion().getInnerJson(ruleName);
-
-		Object providedValue = json.getDynamicVersion().get(fieldName);
-		CcpJsonRepresentation withProvidedValue = rule.put(JsonFieldNames.providedValue, providedValue);
 
 		CcpJsonRepresentation error = this.getError(json, field, type);
-		CcpJsonRepresentation withError = withProvidedValue.put(JsonFieldNames.error, error);
 
-		CcpJsonRepresentation updatedField = relatedErrorsToThisField.put(this, withError);
+		CcpJsonRepresentation updatedField = relatedErrorsToThisField.put(this, error);
 		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().put(fieldName, updatedField);
 
 		this.errorHandleType.maybeBreakValidation(updatedErrors);

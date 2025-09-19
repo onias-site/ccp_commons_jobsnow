@@ -18,9 +18,8 @@ public class CcpJsonFieldsValidator {
 	public CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		CcpJsonRepresentation errors =  CcpOtherConstants.EMPTY_JSON;
-		try {
-			for (Field field : declaredFields) {
-				
+		for (Field field : declaredFields) {
+			try {
 				boolean ignoreThisField = false == field.isAnnotationPresent(CcpJsonField.class);
 
 				if (ignoreThisField) {
@@ -52,15 +51,13 @@ public class CcpJsonFieldsValidator {
 					errors = type.getErrors(errors, put, field);
 					break;
 				}
+				
+			} catch (CcpJsonFieldErrorSkipOthersValidationsToTheField e) {
+				errors = errors.putAll(e.validationResultFromField);
 			}
-		} 
-		catch (CcpJsonFieldErrorInterruptValidation e) {
-			errors = e.validationResultFromField;
-		}
-		catch (Exception e) { 
-			throw new RuntimeException(e);
 		}
 		return errors;
+
 	}
 	
 }
