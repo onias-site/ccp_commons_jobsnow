@@ -31,8 +31,8 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			}
 
 			Predicate<CcpJsonRepresentation> evaluateCorrectType = type.evaluateCompatibleType(fieldName);
-			boolean test = evaluateCorrectType.test(json);
-			return test;
+			boolean incompatibleType = false == evaluateCorrectType.test(json);
+			return incompatibleType;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -41,7 +41,6 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)typeName;
 		}
 		
-		@Override
 		protected Object getProvidedValue(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			String fieldName = field.getName();
 			Object object = json.getDynamicVersion().get(fieldName).getClass().getName();
@@ -91,7 +90,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return "";
 		}
 	},
-	objectNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	numberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -113,7 +112,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		    return (T) value;
 		}
 	},
-	objectNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	numberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -132,7 +131,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 		    return (T) value;
 		}
 	},
-	objectNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	numberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -162,7 +161,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T) list;
 		}
 	},
-	objectArrayMinSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	arrayMinSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -181,7 +180,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectArrayMaxSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	arrayMaxSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -200,7 +199,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectArrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	arrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -218,7 +217,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)"";
 		}
 	},
-	objectTextMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	textMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -237,7 +236,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectTextMaxLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	textMaxLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
@@ -256,7 +255,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectTextAllowedValues(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	textAllowedValues(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json,   Field field, CcpJsonFieldTypes type) {
@@ -284,7 +283,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectTextRegex(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	textRegex(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldTypes type) {
 			String validationParameter = this.getValidationParameter(json,  field, type);
@@ -306,7 +305,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T)value;
 		}
 	},
-	objectTimeMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	timeMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		
 		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
@@ -320,7 +319,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return null;
 		}
 	},
-	objectTimeMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	timeMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			// FIXME Auto-generated method stub
@@ -336,7 +335,7 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 	nested(CcpJsonFieldErrorHandleType.continueFieldValidation){
 
 		@SuppressWarnings("unchecked")
-		@Override
+		
 		<T> T getValidationParameter(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			String fieldName = field.getName();
 			CcpJsonRepresentation innerJson = json.getDynamicVersion().getInnerJson(fieldName);
@@ -346,14 +345,14 @@ public enum CcpJsonFieldErrorTypes implements CcpJsonFieldName {
 			return (T) errors;
 		}
 
-		@Override
+		
 		boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
 			boolean hasNoErrors = false == errors.isEmpty();
 			return hasNoErrors;
 		}
 		
-		@Override
+		
 		protected CcpJsonRepresentation getError(CcpJsonRepresentation json, Field field, CcpJsonFieldTypes type) {
 			CcpJsonRepresentation errors = this.getValidationParameter(json, field, type);
 			return errors;

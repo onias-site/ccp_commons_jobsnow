@@ -32,7 +32,7 @@ public class CcpJsonFieldsValidator {
 				if(isNotAnArray) {
 					CcpJsonField jsonField = field.getAnnotation(CcpJsonField.class);
 					CcpJsonFieldTypes type = jsonField.type();
-					errors = type.evaluate(errors, json, field);
+					errors = type.getErrors(errors, json, field);
 					continue;
 				}
 				
@@ -45,11 +45,11 @@ public class CcpJsonFieldsValidator {
 					CcpJsonFieldTypes type = jsonField.type();
 					CcpJsonRepresentation put = json.getDynamicVersion().put(fieldName, obj);
 					
-					boolean hasNoErrors = false == type.hasErrors(json, field);
+					boolean hasNoErrors = false == type.hasErrors(put, field);
 					if(hasNoErrors) {
 						continue;
 					}
-					errors = type.evaluate(errors, put, field);
+					errors = type.getErrors(errors, put, field);
 					break;
 				}
 			}
@@ -60,7 +60,6 @@ public class CcpJsonFieldsValidator {
 		catch (Exception e) { 
 			throw new RuntimeException(e);
 		}
-		
 		return errors;
 	}
 	

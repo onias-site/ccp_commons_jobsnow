@@ -21,7 +21,7 @@ public enum CcpJsonFieldTypes {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
 		}
 	}, 
-	Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
+	Array(CcpJsonFieldArrayType.class, CcpJsonFieldErrorTypes.arrayMinSize, CcpJsonFieldErrorTypes.arrayMaxSize, CcpJsonFieldErrorTypes.arrayNonReapeted){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
@@ -31,18 +31,18 @@ public enum CcpJsonFieldTypes {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
 	}, 
-	NumberType(CcpJsonFieldNumberType.class, CcpJsonFieldErrorTypes.objectNumberMaxValue, CcpJsonFieldErrorTypes.objectNumberMinValue, CcpJsonFieldErrorTypes.objectNumberAllowed){
+	NumberType(CcpJsonFieldNumberType.class, CcpJsonFieldErrorTypes.numberMaxValue, CcpJsonFieldErrorTypes.numberMinValue, CcpJsonFieldErrorTypes.numberAllowed){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isDoubleNumber() ;
 		}
 	}, 
-	Text(CcpJsonFieldTextType.class, CcpJsonFieldErrorTypes.objectTextRegex, CcpJsonFieldErrorTypes.objectTextAllowedValues, CcpJsonFieldErrorTypes.objectTextMaxLength, CcpJsonFieldErrorTypes.objectTextMinLength){
+	Text(CcpJsonFieldTextType.class, CcpJsonFieldErrorTypes.textRegex, CcpJsonFieldErrorTypes.textAllowedValues, CcpJsonFieldErrorTypes.textMaxLength, CcpJsonFieldErrorTypes.textMinLength){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> true;
 		}
 		
 	}, 
-	Time(CcpJsonFieldTimeType.class, CcpJsonFieldErrorTypes.objectArrayMinSize, CcpJsonFieldErrorTypes.objectArrayMaxSize, CcpJsonFieldErrorTypes.objectArrayNonReapeted){
+	Time(CcpJsonFieldTimeType.class, CcpJsonFieldErrorTypes.arrayMinSize, CcpJsonFieldErrorTypes.arrayMaxSize, CcpJsonFieldErrorTypes.arrayNonReapeted){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}
@@ -69,7 +69,7 @@ public enum CcpJsonFieldTypes {
 		return false;
 	}
 	
-	public CcpJsonRepresentation evaluate(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field) {
+	public CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field) {
 		List<CcpJsonFieldErrorTypes> validations = this.getValidations();
 		
 		for (CcpJsonFieldErrorTypes errorType : validations) {
