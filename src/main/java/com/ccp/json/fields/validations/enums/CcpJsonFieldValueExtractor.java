@@ -1,24 +1,29 @@
 package com.ccp.json.fields.validations.enums;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public enum CcpJsonFieldValueExtractor {
 	fromArray {
-		public Object getValue(CcpJsonRepresentation json, String fieldName) {
+		@SuppressWarnings("unchecked")
+		public <T> T getValue(CcpJsonRepresentation json, Field field) {
+			String fieldName = field.getName();
 			List<Object> asObjectList = json.getDynamicVersion().getAsObjectList(fieldName);
-			return asObjectList;
+			return (T)asObjectList;
 		}
 	},
 	fromObject {
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object getValue(CcpJsonRepresentation json, String fieldName) {
+		public <T> T getValue(CcpJsonRepresentation json, Field field) {
+			String fieldName = field.getName();
 			Object object = json.getDynamicVersion().get(fieldName);
-			return object;
+			return (T)object;
 		}
 	}
 	;
-	public abstract Object getValue(CcpJsonRepresentation json, String fieldName);
+	public abstract <T> T getValue(CcpJsonRepresentation json, Field field);
 	
 }

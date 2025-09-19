@@ -12,5 +12,4 @@ import com.ccp.json.fields.validations.enums.CcpJsonFieldTypes;
 @Target(FIELD)
 public @interface CcpJsonField {
 	CcpJsonFieldTypes type();
-	boolean required();
 }

@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface CcpJsonFieldTextType {
 	String[] allowedValues() default {};
-	int minLength() default 0;
-	int maxLength() default 0;
-	String regexValidation();
+	int minLength() default Integer.MIN_VALUE;
+	int maxLength() default Integer.MAX_VALUE;
+	String regexValidation() default "";
 
 }

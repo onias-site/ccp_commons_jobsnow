@@ -6,17 +6,17 @@ import com.ccp.json.fields.validations.engine.CcpJsonFieldErrorInterruptValidati
 public enum CcpJsonFieldErrorHandleType {
 
 	breakFieldValidation {
-		public void breakValidation(CcpJsonRepresentation error) {
+		public void maybeBreakValidation(CcpJsonRepresentation error) {
 			throw new CcpJsonFieldErrorInterruptValidation(error);
 		}
 	},
 	continueFieldValidation {
-		public void breakValidation(CcpJsonRepresentation error) {
+		public void maybeBreakValidation(CcpJsonRepresentation error) {
 		}
 	}
 	;
 	
-	public abstract void breakValidation(CcpJsonRepresentation error);
+	public abstract void maybeBreakValidation(CcpJsonRepresentation error);
 	
 
 	
