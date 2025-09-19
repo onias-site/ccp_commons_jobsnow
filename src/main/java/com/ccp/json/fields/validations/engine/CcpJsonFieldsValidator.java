@@ -34,6 +34,13 @@ public class CcpJsonFieldsValidator {
 					errors = type.getErrors(errors, json, field);
 					continue;
 				}
+
+				boolean hasArrayErrors = CcpJsonFieldTypes.Array.hasErrors(json, field);
+				
+				if(hasArrayErrors) {
+					errors = CcpJsonFieldTypes.Array.getErrors(errors, json, field);
+					break;
+				}
 				
 				String fieldName = field.getName();
 				
@@ -43,7 +50,6 @@ public class CcpJsonFieldsValidator {
 					CcpJsonField jsonField = field.getAnnotation(CcpJsonField.class);
 					CcpJsonFieldTypes type = jsonField.type();
 					CcpJsonRepresentation put = json.getDynamicVersion().put(fieldName, obj);
-					
 					boolean hasNoErrors = false == type.hasErrors(put, field);
 					if(hasNoErrors) {
 						continue;
