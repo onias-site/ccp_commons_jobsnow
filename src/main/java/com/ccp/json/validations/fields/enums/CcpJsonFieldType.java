@@ -75,9 +75,20 @@ public enum CcpJsonFieldType {
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		
 		for (CcpJsonFieldValidatorInterface errorType : validations) {
-			errors = errorType.getErrors(errors, json,field, this);
+			errors = errorType.getErrors(errors, json, field, this);
 		}
+		
 		return errors;
+	}
+
+	public CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation ruleExplanation, Field field) {
+		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
+		
+		for (CcpJsonFieldValidatorInterface errorType : validations) {
+			ruleExplanation = errorType.updateRuleExplanation(ruleExplanation, field, this);
+		}
+		
+		return ruleExplanation;
 	}
 
 	private List<CcpJsonFieldValidatorInterface> getAllValidations(Field field) {

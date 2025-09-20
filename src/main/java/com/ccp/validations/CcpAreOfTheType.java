@@ -1,4 +1,4 @@
-package com.ccp.validation;
+package com.ccp.validations;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

@@ -15,7 +15,7 @@ public interface CcpJsonFieldValidatorInterface {
 	
 	boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type);
 
-	CcpJsonRepresentation getRule(Field field, CcpJsonFieldType type);
+	Object getRuleExplanation(Field field, CcpJsonFieldType type);
 
 	default Object getError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 		
@@ -42,6 +42,17 @@ public interface CcpJsonFieldValidatorInterface {
 		errorHandleType.maybeBreakValidation(updatedErrors);
 		
 		return updatedErrors;
+	}
+
+	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation allRules, Field field, CcpJsonFieldType type) {
+
+		String fieldName = field.getName();
+
+		Object ruleExplanation = this.getRuleExplanation(field, type);
+
+		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, ruleExplanation);
+		
+		return updatedRuleExplanation;
 	}
 
 }

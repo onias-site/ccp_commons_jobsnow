@@ -24,7 +24,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.utils.CcpHashAlgorithm;
-import com.ccp.validation.CcpItIsTrueThatTheFollowingFields;
+import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
 public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Object>>  {
 

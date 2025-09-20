@@ -1,4 +1,4 @@
-package com.ccp.validation;
+package com.ccp.validations;
 
 import java.util.ArrayList;
 import java.util.Arrays;

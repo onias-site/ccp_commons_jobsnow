@@ -50,17 +50,21 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			return errors;
 		}
 
-		public CcpJsonRepresentation getRule(CcpJsonRepresentation json, Class<?> clazz) {
-			// TODO Auto-generated method stub
-			return null;
+		public List<String> getRuleExplanation(Class<?> clazz) {
+			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
+			CcpJsonValidatorRequiredAtLeastOne[] requiredAtLeastOne = annotation.requiredAtLeastOne();
+			List<String> rules = new ArrayList<>();
+			for (CcpJsonValidatorRequiredAtLeastOne validation : requiredAtLeastOne) {
+				
+				String[] oneOfThem = validation.oneOfThem();
+				String error = "The provided json must has one of this following fields: " + Arrays.asList(oneOfThem).toString();
+				rules.add(error);
+			}
+			return rules;
 		}
 
 		public boolean isCriticalValidation(CcpJsonRepresentation json, Class<?> clazz) {
 			return false;
 		}
-		
 	},
-	
-	
-	
 }

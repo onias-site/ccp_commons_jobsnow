@@ -12,7 +12,7 @@ public interface CcpJsonValidator {
 	
 	boolean isCriticalValidation(CcpJsonRepresentation json, Class<?> clazz);
 
-	CcpJsonRepresentation getRule(CcpJsonRepresentation json, Class<?> clazz);
+	Object getRuleExplanation(Class<?> clazz);
 	
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Class<?> clazz) {
 
