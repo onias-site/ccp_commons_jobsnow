@@ -1,4 +1,4 @@
-package com.ccp.json.fields.validations.annotations;
+package com.ccp.json.validations.fields.annotations.type;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -10,8 +10,8 @@ import com.ccp.especifications.db.utils.decorators.engine.CcpEntityExpurgableOpt
 
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface CcpJsonFieldTimeType {
-	CcpEntityExpurgableOptions type();
+public @interface CcpJsonFieldTypeTime {
+	CcpEntityExpurgableOptions intervalType();
 	int minValue() default Integer.MIN_VALUE;
 	int maxValue() default Integer.MAX_VALUE;
 }

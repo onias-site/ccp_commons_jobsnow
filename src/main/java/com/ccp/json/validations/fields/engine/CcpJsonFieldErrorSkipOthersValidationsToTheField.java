@@ -1,4 +1,4 @@
-package com.ccp.json.fields.validations.engine;
+package com.ccp.json.validations.fields.engine;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
