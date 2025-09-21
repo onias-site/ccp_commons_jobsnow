@@ -100,6 +100,53 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 	},
 	
+	collectionOrNotCollection(CcpJsonFieldErrorHandleType.breakFieldValidation){
+
+		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			boolean hasNoError = this.hasError(json, field, type) == false;
+			
+			if(hasNoError) {
+				return "";
+			}
+			
+			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldTypeArray.class);
+			String fieldName = field.getName();
+		
+			if(mustBeCollection) {
+				Object providedValue = this.getProvidedValue(json, field, type);
+				String errorMessage = "The field '" + fieldName + "' has a value '" + providedValue + "' that is not a collection";
+				return errorMessage;
+			}
+			
+			List<Object> providedValue = json.getDynamicVersion().getAsObjectList(fieldName);
+			String errorMessage = "The field '" + fieldName + "' has a value '" + providedValue + "' that can not be a collection";
+			return errorMessage;
+		}
+
+		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			String fieldName = field.getName();
+			boolean isCollection = json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
+			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldTypeArray.class);
+			
+			boolean hasError = (isCollection ^ mustBeCollection);
+			return hasError;
+		}
+
+		public Object getRuleExplanation(Field field, CcpJsonFieldType type) {
+			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldTypeArray.class);
+			String fieldName = field.getName();
+			
+			if(mustBeCollection) {
+				String errorMessage = "The field '" + fieldName + "' accepts only collection values";
+				return errorMessage;
+				
+			}
+			String errorMessage = "The field '" + fieldName + "' does not accept collection values";
+			return errorMessage;
+		}
+		
+	},
+	
 	integerNumber(CcpJsonFieldErrorHandleType.continueFieldValidation){
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -133,7 +180,6 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			boolean integerNumber = annotation.integerNumber();
 			return integerNumber;
 		}
-		
 	},
 	
 	numberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {

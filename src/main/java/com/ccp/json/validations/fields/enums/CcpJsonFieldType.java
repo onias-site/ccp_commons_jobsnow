@@ -117,8 +117,9 @@ public enum CcpJsonFieldType {
 	private List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
 		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>();
 		asList.add(CcpJsonFieldTypeError.annotationIsMissing);
-		asList.add(CcpJsonFieldTypeError.incompatibleType);
 		asList.add(CcpJsonFieldTypeError.requiredFieldIsMissing);
+		asList.add(CcpJsonFieldTypeError.collectionOrNotCollection);
+		asList.add(CcpJsonFieldTypeError.incompatibleType);
 		
 		return asList;
 	}
