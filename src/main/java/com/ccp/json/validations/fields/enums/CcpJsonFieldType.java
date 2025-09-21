@@ -44,11 +44,17 @@ public enum CcpJsonFieldType {
 		}
 		
 	}, 
-	Time(CcpJsonFieldTypeTime.class, CcpJsonFieldTypeError.timeMaxValueBeforeCurrentTime, CcpJsonFieldTypeError.timeMinValueBeforeCurrentTime){
+	TimeBeforeCurrentDate(CcpJsonFieldTypeTime.class, CcpJsonFieldTypeError.timeMaxValueBeforeCurrentTime, CcpJsonFieldTypeError.timeMinValueBeforeCurrentTime){
+		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
+			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
+		}
+	},
+	TimeAfterCurrentDate(CcpJsonFieldTypeTime.class, CcpJsonFieldTypeError.timeMaxValueAfterCurrentTime, CcpJsonFieldTypeError.timeMinValueAfterCurrentTime){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}
 	}
+
 	;
 	public final Class<? extends Annotation> requiredAnnotation;
 	private final CcpJsonFieldTypeError[] errorTypes;

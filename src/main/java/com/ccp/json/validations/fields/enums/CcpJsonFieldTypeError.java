@@ -10,10 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpTimeDecorator;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpTimeDecorator;
 import com.ccp.especifications.db.utils.decorators.engine.CcpEntityExpurgableOptions;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidator;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeArray;
@@ -66,25 +65,26 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 
 			boolean annotationIsMissing = false == field.isAnnotationPresent(type.requiredAnnotation);
-
+			
 			return annotationIsMissing;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			
 			String fieldName = field.getName();
 			String name = type.requiredAnnotation.getClass().getName();
 			String errorMessage = "The field '" + fieldName
-					+ "' must be annoted by '" + name + "' annotation" ;
-			return errorMessage;
+					+ "' must be annoted by '" + name + "' annotation";
+			
+			throw new RuntimeException(errorMessage);
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String ruleExplanation = this.getErrorMessage(CcpOtherConstants.EMPTY_JSON, field, type);
-			return ruleExplanation;
+			return "";
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			return true;
+			return false;
 		}
 		
 		public boolean skipValidationIfFieldIsMissing(CcpJsonRepresentation json, Field field) {
