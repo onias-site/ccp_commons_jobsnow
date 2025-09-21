@@ -13,12 +13,12 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidator;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNested;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeText;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTime;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
 public enum CcpJsonFieldType {
-	Bool(CcpJsonFieldValidator.class){
+	Boolean(CcpJsonFieldValidator.class){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
 		}
@@ -33,12 +33,12 @@ public enum CcpJsonFieldType {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
 	}, 
-	NumberType(CcpJsonFieldTypeNumber.class, CcpJsonFieldTypeError.numberMaxValue, CcpJsonFieldTypeError.numberMinValue, CcpJsonFieldTypeError.numberAllowed){
+	Number(CcpJsonFieldTypeNumber.class, CcpJsonFieldTypeError.numberMaxValue, CcpJsonFieldTypeError.numberMinValue, CcpJsonFieldTypeError.numberAllowed, CcpJsonFieldTypeError.numberInteger){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isDoubleNumber() ;
 		}
 	}, 
-	Text(CcpJsonFieldTypeText.class, CcpJsonFieldTypeError.textRegex, CcpJsonFieldTypeError.textAllowedValues, CcpJsonFieldTypeError.textMaxLength, CcpJsonFieldTypeError.textMinLength){
+	String(CcpJsonFieldTypeString.class, CcpJsonFieldTypeError.textRegex, CcpJsonFieldTypeError.textAllowedValues, CcpJsonFieldTypeError.textMaxLength, CcpJsonFieldTypeError.textMinLength){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> true;
 		}
@@ -50,11 +50,11 @@ public enum CcpJsonFieldType {
 		}
 	}
 	;
-	public final Class<? extends Annotation> annotation;
+	public final Class<? extends Annotation> requiredAnnotation;
 	private final CcpJsonFieldTypeError[] errorTypes;
 	
-	private CcpJsonFieldType(Class<? extends Annotation> annotation, CcpJsonFieldTypeError... errorTypes) {
-		this.annotation = annotation;
+	private CcpJsonFieldType(Class<? extends Annotation> requiredAnnotation, CcpJsonFieldTypeError... errorTypes) {
+		this.requiredAnnotation = requiredAnnotation;
 		this.errorTypes = errorTypes;
 	}
 	

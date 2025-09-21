@@ -13,5 +13,6 @@ import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
 @SuppressWarnings("rawtypes")
 public @interface CcpJsonFieldValidator {
 	CcpJsonFieldType type();
+	boolean required() default false;
 	Class[] customFieldValidations() default {};
 }

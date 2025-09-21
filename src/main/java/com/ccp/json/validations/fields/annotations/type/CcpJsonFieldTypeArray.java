@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface CcpJsonFieldTypeArray {
 	
-	boolean nonRepeatedItems();
+	boolean nonRepeatedItems() default false;
 	int minSize() default Integer.MIN_VALUE;
 	int maxSize() default Integer.MAX_VALUE;
 }
