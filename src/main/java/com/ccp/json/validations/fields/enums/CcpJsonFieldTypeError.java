@@ -21,6 +21,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeText;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTime;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
+import com.ccp.json.validations.global.engine.CcpJsonValidationRulesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
@@ -97,6 +98,42 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			String ruleExplanation = "The field '" + fieldName + "' is required";
 			return ruleExplanation;
 		}
+	},
+	
+	integerNumber(CcpJsonFieldErrorHandleType.continueFieldValidation){
+
+		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			Object providedValue = this.getProvidedValue(json, field, type);
+			String fieldName = field.getName();
+			String errorMessage = "The field '" + fieldName + "' has a value '" + providedValue + "' that is not a integer number";
+			return errorMessage;
+		}
+
+		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+		    
+			CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
+		    boolean allowsDoubleValue = annotation.integerNumber();
+			
+		    if(allowsDoubleValue) {
+		    	return false;
+		    }
+		    String fieldName = field.getName();
+		    boolean isInvalid = false == json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
+		    return isInvalid;
+		}
+
+		public Object getRuleExplanation(Field field, CcpJsonFieldType type) {
+			String fieldName = field.getName();
+			String ruleExplanation = "The field '" + fieldName + "' accepts only integer number";
+			return ruleExplanation;
+		}
+
+		public boolean hasRules(Field field, CcpJsonFieldType type) {
+		    CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
+			boolean integerNumber = annotation.integerNumber();
+			return integerNumber;
+		}
+		
 	},
 	
 	numberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -551,11 +588,15 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return "";
 		}
 
-		public CcpJsonRepresentation getRuleExplanation(Field field, CcpJsonFieldType type) {
-			// TODO Auto-generated method stub
-			return null;
+		public  Map<String, Object> getRuleExplanation(Field field, CcpJsonFieldType type) {
+			CcpJsonFieldTypeNested annotation = field.getAnnotation(CcpJsonFieldTypeNested.class);
+			Class<?> validationClass = annotation.validationClass();
+			CcpJsonRepresentation errors = CcpJsonValidationRulesEngine.INSTANCE.getRulesExplanations(validationClass);
+			return errors.content;
 		}
 	}
+	
+	
 	;
 	
 	private CcpJsonFieldTypeError(CcpJsonFieldErrorHandleType handleType) {

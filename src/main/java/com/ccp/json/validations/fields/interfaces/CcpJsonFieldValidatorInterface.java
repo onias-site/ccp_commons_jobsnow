@@ -46,6 +46,12 @@ public interface CcpJsonFieldValidatorInterface {
 
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation allRules, Field field, CcpJsonFieldType type) {
 
+		boolean hasNoRules = this.hasRules(field, type) == false;
+		
+		if(hasNoRules) {
+			return allRules;
+		}
+		
 		String fieldName = field.getName();
 
 		Object ruleExplanation = this.getRuleExplanation(field, type);
@@ -53,6 +59,10 @@ public interface CcpJsonFieldValidatorInterface {
 		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, ruleExplanation);
 		
 		return updatedRuleExplanation;
+	}
+	
+	default boolean hasRules(Field field, CcpJsonFieldType type) {
+		return true;
 	}
 
 }
