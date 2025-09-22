@@ -56,8 +56,11 @@ public interface CcpJsonFieldValidatorInterface {
 	}
 
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation allRules, Field field, CcpJsonFieldType type) {
-
-		boolean hasNoRules = this.hasRuleExplanation(field, type) == false;
+		boolean hasNoAnnotation = false == field.isAnnotationPresent(type.requiredAnnotation);
+		if(hasNoAnnotation) {
+			throw new RuntimeException("It is missing the annotation " + type.requiredAnnotation.getName() );
+		}
+		boolean hasNoRules = false == this.hasRuleExplanation(field, type);
 		
 		if(hasNoRules) {
 			return allRules;

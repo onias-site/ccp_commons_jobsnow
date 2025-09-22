@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidator;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNested;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTime;
@@ -28,7 +28,7 @@ public enum CcpJsonFieldType {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
 	},
-	Json(CcpJsonFieldTypeNested.class, CcpJsonFieldTypeError.nestedJson){
+	NestedJson(CcpJsonFieldTypeNestedJson.class, CcpJsonFieldTypeError.nestedJson){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
 		}
