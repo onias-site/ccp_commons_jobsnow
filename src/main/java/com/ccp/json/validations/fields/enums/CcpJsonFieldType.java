@@ -4,7 +4,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJs
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTime;
+import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorCatalog;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
 public enum CcpJsonFieldType {
@@ -98,14 +102,59 @@ public enum CcpJsonFieldType {
 	}
 
 	private List<CcpJsonFieldValidatorInterface> getAllValidations(Field field) {
+		
 		List<CcpJsonFieldValidatorInterface> validations = this.getDefaultValidations();
 		List<CcpJsonFieldTypeError> errorTypes = Arrays.asList(this.errorTypes);
 		validations.addAll(errorTypes);
 		List<CcpJsonFieldValidatorInterface> customValidations = this.getCustomValidations(field);
 		validations.addAll(customValidations);
-		return validations;
+		List<CcpJsonFieldValidatorInterface> otherValidations = this.getOtherValidations(field);
+		validations.addAll(otherValidations);
+
+		
+		Map<String, CcpJsonFieldValidatorInterface> map = new LinkedHashMap<>();
+
+		for (CcpJsonFieldValidatorInterface validation : validations) {
+		
+			java.lang.String name = validation.getClass().getName() + "." + validation.name();
+			
+			boolean alreadyAddeded = map.containsKey(name);
+			
+			if(alreadyAddeded) {
+				continue;
+			}
+
+			map.put(name, validation);
+		}
+		
+		Collection<CcpJsonFieldValidatorInterface> values = map.values();
+		ArrayList<CcpJsonFieldValidatorInterface> arrayList = new ArrayList<>(values);
+		return arrayList;
 	}
 	
+	@SuppressWarnings("rawtypes")
+	List<CcpJsonFieldValidatorInterface> getOtherValidations(Field field) {
+		
+		CcpJsonFieldValidator annotation = field.getAnnotation(CcpJsonFieldValidator.class);
+		
+		Class[] classes = annotation.validationsCatalog();
+		
+		List<CcpJsonFieldValidatorCatalog> catalogs = Arrays.asList(classes).stream()
+		.map(clazz -> new CcpReflectionConstructorDecorator(clazz))
+		.map(constructor -> (CcpJsonFieldValidatorCatalog)constructor.newInstance())
+		.collect(Collectors.toList());
+		
+		List<CcpJsonFieldValidatorInterface> allInstances = new ArrayList<>();
+		
+		for (CcpJsonFieldValidatorCatalog catalog : catalogs) {
+			CcpJsonFieldValidatorInterface[] validations = catalog.getValidations(field);
+			List<CcpJsonFieldValidatorInterface> instances = Arrays.asList(validations);
+			allInstances.addAll(instances);
+		}
+		
+		return allInstances;
+	}
+
 	private List<CcpJsonFieldValidatorInterface> getCustomValidations(Field field) {
 		
 		CcpJsonFieldValidator annotation = field.getAnnotation(CcpJsonFieldValidator.class);
@@ -122,11 +171,16 @@ public enum CcpJsonFieldType {
 	
 	private List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
 		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>();
+		
 		asList.add(CcpJsonFieldTypeError.annotationIsMissing);
 		asList.add(CcpJsonFieldTypeError.requiredFieldIsMissing);
 		asList.add(CcpJsonFieldTypeError.collectionOrNotCollection);
 		asList.add(CcpJsonFieldTypeError.incompatibleType);
 		
 		return asList;
+	}
+
+	public CcpJsonFieldTypeError[] getErrorTypes() {
+		return errorTypes;
 	}
 }

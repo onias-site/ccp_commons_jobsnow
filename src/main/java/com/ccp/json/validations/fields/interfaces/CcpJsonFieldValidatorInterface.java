@@ -10,6 +10,11 @@ public interface CcpJsonFieldValidatorInterface {
 	
 	CcpJsonFieldErrorHandleType getErrorHandleType() ;
 	
+	default String name() {
+		String className = this.getClass().getName();
+		return className;
+	}
+	
 	String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type);
 	
 	boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type);
