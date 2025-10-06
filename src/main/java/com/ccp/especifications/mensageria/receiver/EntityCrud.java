@@ -12,7 +12,6 @@ class EntityCrud implements CcpTopic{
 	public EntityCrud(CcpEntity entity, String operationFieldName) {
 		this.operationFieldName = operationFieldName;
 		this.entity = entity;
-
 	}
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
@@ -21,5 +20,4 @@ class EntityCrud implements CcpTopic{
 		CcpJsonRepresentation apply = valueOf.execute(this.entity, json);
 		return apply;
 	}
-	
 }

@@ -16,6 +16,7 @@ import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface
 @Target(FIELD)
 public @interface CcpJsonFieldTypeNestedJson {
 	Class<?> validationClass() default NoOp.class;
+	boolean allowsEmptyJson() default true;
 }
 class NoOp implements CcpJsonFieldValidatorInterface{
 

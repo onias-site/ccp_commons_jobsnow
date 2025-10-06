@@ -15,6 +15,10 @@ public interface CcpJsonFieldValidatorInterface {
 		return className;
 	}
 	
+	default boolean canBeReplaced() {
+		return true;
+	}
+	
 	String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type);
 	
 	boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type);
