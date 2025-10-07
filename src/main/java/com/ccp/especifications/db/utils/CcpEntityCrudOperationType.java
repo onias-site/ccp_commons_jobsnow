@@ -11,7 +11,7 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityOperationSpecification;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 
-public enum CcpEntityCrudOperationType 
+public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 {
 	save {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
@@ -25,6 +25,11 @@ public enum CcpEntityCrudOperationType
 			Class<?>[] callBacks = operation.afterOperation();
 			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
 			return  collect;
+		}
+		
+		public Class<?> getJsonValidationClass(CcpEntity entity) {
+			Class<?> jsonValidationClass = entity.getJsonValidationClass();
+			return jsonValidationClass;
 		}
 	},
 	delete {
@@ -78,7 +83,4 @@ public enum CcpEntityCrudOperationType
 		CcpEntitySpecifications annotation = entityClass.getAnnotation(CcpEntitySpecifications.class);
 		return annotation;
 	}
-	
-
-
 }

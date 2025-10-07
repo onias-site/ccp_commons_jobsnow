@@ -8,7 +8,5 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface CcpJsonFieldTypeNestedJson {
-	Class<?> validationClass() default CcpJsonFieldTypeNestedJson.class;
-	boolean allowsEmptyJson() default true;
+public @interface CcpJsonFieldTypeBoolean {
 }

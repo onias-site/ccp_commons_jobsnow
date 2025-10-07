@@ -1,0 +1,17 @@
+package com.ccp.json.validations.fields.annotations;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(RUNTIME)
+@Target(FIELD)
+public @interface CcpJsonFieldValidatorArray {
+	
+	int exactSize() default Integer.MIN_VALUE;
+	boolean nonRepeatedItems() default true;
+	int minSize() default Integer.MIN_VALUE;
+	int maxSize() default Integer.MAX_VALUE;
+}

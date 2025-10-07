@@ -2,6 +2,7 @@ package com.ccp.especifications.mensageria.receiver;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -9,33 +10,19 @@ import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 
-public class CcpEntityBulkHandler implements CcpTopic {
+public class CcpEntityBulkHandler implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
 	private final CcpEntity entity;
 	private final String operationFieldName;
 	private final CcpExecuteBulkOperation executeBulkOperation;
 	private final Consumer<String[]> functionToDeleteKeysInTheCache;
 	
-	
-
-
-
-
-
-	public CcpEntityBulkHandler(CcpEntity entity, String operationFieldName,
-			CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		super();
+	public CcpEntityBulkHandler(CcpEntity entity, String operationFieldName, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		this.entity = entity;
 		this.operationFieldName = operationFieldName;
 		this.executeBulkOperation = executeBulkOperation;
 		this.functionToDeleteKeysInTheCache = functionToDeleteKeysInTheCache;
 	}
-
-
-
-
-
-
 
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {

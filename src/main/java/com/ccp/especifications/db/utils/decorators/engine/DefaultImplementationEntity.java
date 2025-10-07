@@ -14,6 +14,7 @@ import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 final class DefaultImplementationEntity implements CcpEntity{
 
@@ -91,7 +92,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(this.entityClass);
 		Class<?> jsonValidationClass = especifications.classWithFieldsValidationsRules();
 		String featureName = this.entityClass.getName()+ "." + this;
-//		CcpJsonFieldsValidations.validate(jsonValidationClass, json.content, featureName);
+		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
 		return this;
 	}
 

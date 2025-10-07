@@ -8,10 +8,10 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface CcpJsonFieldTypeArray {
-	
-	int exactSize() default Integer.MIN_VALUE;
-	boolean nonRepeatedItems() default true;
-	int minSize() default Integer.MIN_VALUE;
-	int maxSize() default Integer.MAX_VALUE;
+public @interface CcpJsonFieldTypeNumberInteger {
+	long[] allowedValues() default {};
+	long minValue() default Long.MIN_VALUE;
+	long maxValue() default Long.MAX_VALUE;
+	long exactValue() default Long.MIN_VALUE;
+
 }

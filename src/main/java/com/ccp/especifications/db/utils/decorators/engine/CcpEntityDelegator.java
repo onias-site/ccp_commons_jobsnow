@@ -216,8 +216,12 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public Class<?> getConfigurationClass() {
-		return entity.getConfigurationClass();
+		Class<?> configurationClass = this.entity.getConfigurationClass();
+		return configurationClass;
 	}
 
-	
+	public Class<?> getJsonValidationClass() {
+		Class<?> jsonValidationClass = this.entity.getJsonValidationClass();
+		return jsonValidationClass;
+	}
 }

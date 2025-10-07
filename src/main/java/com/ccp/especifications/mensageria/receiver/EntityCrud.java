@@ -1,10 +1,12 @@
 package com.ccp.especifications.mensageria.receiver;
 
+import java.util.function.Function;
+
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 
-class EntityCrud implements CcpTopic{
+class EntityCrud implements Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 	private final String operationFieldName;
 
 	private final CcpEntity entity;

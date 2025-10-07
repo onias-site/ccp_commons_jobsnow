@@ -10,7 +10,7 @@ import com.ccp.especifications.db.utils.decorators.engine.CcpEntityExpurgableOpt
 
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface CcpJsonFieldTypeTime {
+public @interface CcpJsonFieldTypeTimeAfter {
 	int exactValue() default Integer.MAX_VALUE;
 	CcpEntityExpurgableOptions intervalType();
 	int minValue() default Integer.MIN_VALUE;

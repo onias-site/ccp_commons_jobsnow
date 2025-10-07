@@ -21,6 +21,7 @@ import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
@@ -315,4 +316,11 @@ public interface CcpEntity{
 	CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity();
 	
 	Class<?> getConfigurationClass();
+	
+	default Class<?> getJsonValidationClass(){
+		Class<?> configurationClass = this.getConfigurationClass();
+		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(configurationClass);
+		Class<?> classWithFieldsValidationsRules = especifications.classWithFieldsValidationsRules();
+		return classWithFieldsValidationsRules;
+	}
 }

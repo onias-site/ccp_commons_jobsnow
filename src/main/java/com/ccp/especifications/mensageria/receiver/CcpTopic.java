@@ -9,11 +9,9 @@ public interface CcpTopic extends Function<CcpJsonRepresentation, CcpJsonReprese
 	default boolean canSave() {
 		return true;
 	}
-
-//	
-//	default CcpJsonRepresentation sendToMensageria(CcpJsonRepresentation json) {
-//		JnMensageriaSender jms = new JnMensageriaSender(this);
-//		CcpJsonRepresentation apply = jms.apply(json);
-//		return apply;
-//	}
+	
+	default Class<?> getJsonValidationClass(){
+		Class<? extends CcpTopic> class1 = this.getClass();
+		return class1;
+	}
 }

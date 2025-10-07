@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidator;
+import com.ccp.json.validations.fields.annotations.CcpJsonCommonsFields;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
 import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
@@ -21,7 +21,7 @@ public class CcpJsonValidationRulesEngine {
 	
 	public static final CcpJsonValidationRulesEngine INSTANCE = new CcpJsonValidationRulesEngine();
 	
-	public CcpJsonRepresentation getRulesExplanations(Class<?> clazz) {
+	public CcpJsonRepresentation getRulesExplanation(Class<?> clazz) {
 		
 		CcpJsonRepresentation rulesExplanations = this.getRulesExplanationsFromClass(clazz);
 		
@@ -33,15 +33,16 @@ public class CcpJsonValidationRulesEngine {
 	private CcpJsonRepresentation addRulesExplanationsFromFields(CcpJsonRepresentation ruleExplanation, Class<?> clazz) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		for (Field field : declaredFields) {
-			boolean ignoreThisField = false == field.isAnnotationPresent(CcpJsonFieldValidator.class);
+			boolean ignoreThisField = false == field.isAnnotationPresent(CcpJsonCommonsFields.class);
 			
 			if (ignoreThisField) {
 				continue; 
 			}
-			
-			CcpJsonFieldValidator jsonField = field.getAnnotation(CcpJsonFieldValidator.class);
-			CcpJsonFieldType type = jsonField.type();
-			ruleExplanation = type.updateRuleExplanation(ruleExplanation, field);
+			try {
+				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(field);	
+				ruleExplanation = type.updateRuleExplanation(ruleExplanation, field);
+			} catch (Exception e) {
+			}
 		}
 		return ruleExplanation;
 	}

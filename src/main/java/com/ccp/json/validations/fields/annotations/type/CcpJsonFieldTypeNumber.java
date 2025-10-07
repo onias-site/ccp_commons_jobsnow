@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface CcpJsonFieldTypeNumber {
 	double[] allowedValues() default {};
-	boolean integerNumber() default false;
 	double minValue() default Double.MIN_VALUE;
 	double maxValue() default Double.MAX_VALUE;
 	double exactValue() default Double.MIN_VALUE;
