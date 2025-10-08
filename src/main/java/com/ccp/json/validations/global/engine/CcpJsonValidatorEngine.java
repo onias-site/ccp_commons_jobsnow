@@ -25,6 +25,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefo
 import com.ccp.json.validations.fields.engine.CcpJsonFieldErrorSkipOthersValidationsToTheField;
 import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
+import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
@@ -74,7 +75,7 @@ public class CcpJsonValidatorEngine {
 		}
 		
 		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberNatural.class)) {
-			return CcpJsonFieldType.NumberNatural;
+			return CcpJsonFieldType.NumberUnsigned;
 		}
 
 		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberInteger.class)) {
@@ -97,6 +98,12 @@ public class CcpJsonValidatorEngine {
 	}
 	
 	private Field getReplacedField(Field field) {
+		
+		boolean useTheSameField = false == field.isAnnotationPresent(CcpJsonCommonsFields.class);
+		if(useTheSameField) {
+			return field;
+		}
+		
 		CcpJsonCommonsFields annotation = field.getAnnotation(CcpJsonCommonsFields.class);
 		Class<?> classToAppendValidations = annotation.value();
 		try {
@@ -116,10 +123,10 @@ public class CcpJsonValidatorEngine {
 		
 		for (Field field : declaredFields) {
 			try {
-				boolean hasErrors = CcpJsonFieldType.Required.hasErrors(json, field);
+				boolean hasErrors = CcpJsonFieldType.Required.hasErrors(json, field, CcpJsonFieldsValidationContext.collection);
 
 				if(hasErrors) {
-					errors = CcpJsonFieldType.Required.getErrors(errors, json, field);
+					errors = CcpJsonFieldType.Required.getErrors(errors, json, field, CcpJsonFieldsValidationContext.collection);
 					continue;
 				}
 				
@@ -141,14 +148,14 @@ public class CcpJsonValidatorEngine {
 				boolean isNotAnArray = false == field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 				
 				if(isNotAnArray) {
-					errors = type.getErrors(errors, json, field);
+					errors = type.getErrors(errors, json, field, CcpJsonFieldsValidationContext.single);
 					continue;
 				}
 				
-				boolean hasArrayErrors = CcpJsonFieldType.Array.hasErrors(json, field);
+				boolean hasArrayErrors = CcpJsonFieldType.Array.hasErrors(json, field, CcpJsonFieldsValidationContext.single);
 
 				if(hasArrayErrors) {
-					errors = CcpJsonFieldType.Array.getErrors(errors, json, field);
+					errors = CcpJsonFieldType.Array.getErrors(errors, json, field, CcpJsonFieldsValidationContext.single);
 					continue;
 				}
 				String fieldName = field.getName();
@@ -157,11 +164,11 @@ public class CcpJsonValidatorEngine {
 				
 				for (Object obj : asObjectList) {
 					CcpJsonRepresentation put = json.getDynamicVersion().put(fieldName, obj);
-					boolean hasNoErrors = false == type.hasErrors(put, field);
+					boolean hasNoErrors = false == type.hasErrors(put, field, CcpJsonFieldsValidationContext.collection);
 					if(hasNoErrors) {
 						continue;
 					}
-					errors = type.getErrors(errors, put, field);
+					errors = type.getErrors(errors, put, field, CcpJsonFieldsValidationContext.collection);
 					break;
 				}
 				

@@ -1,6 +1,7 @@
 package com.ccp.json.validations.fields.enums;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -14,9 +15,14 @@ public enum CcpJsonFieldType {
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> true;
 		}
+
+		public boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
+			boolean hasError = CcpJsonFieldError.requiredFieldIsMissing.hasError(json, field, this);
+			return hasError;
+		}
+		
 		protected List<CcpJsonFieldValidatorInterface> getDefaultValidations() {
-			List<CcpJsonFieldValidatorInterface> asList = Arrays.asList(CcpJsonFieldError.requiredFieldIsMissing);
-			return asList;
+			return Arrays.asList(CcpJsonFieldError.requiredFieldIsMissing);
 		}
 	},
 	
@@ -47,7 +53,7 @@ public enum CcpJsonFieldType {
 		}
 	}, 
 
-	NumberNatural(CcpJsonFieldTypeError.naturalNumberMaxValue, CcpJsonFieldTypeError.naturalNumberMinValue, CcpJsonFieldTypeError.naturalNumberExactValue, CcpJsonFieldTypeError.naturalNumberAllowed){
+	NumberUnsigned(CcpJsonFieldTypeError.unsignedNumberMaxValue, CcpJsonFieldTypeError.unsignedNumberMinValue, CcpJsonFieldTypeError.unsignedNumberExactValue, CcpJsonFieldTypeError.unsignedNumberAllowed){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> {
 				CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
@@ -79,17 +85,38 @@ public enum CcpJsonFieldType {
 		}
 	}
 	;
-	private final CcpJsonFieldTypeError[] errorTypes;
+	private final CcpJsonFieldValidatorInterface[] errorTypes;
 	
-	private CcpJsonFieldType(CcpJsonFieldTypeError... errorTypes) {
+	private CcpJsonFieldType(CcpJsonFieldValidatorInterface... errorTypes) {
 		this.errorTypes = errorTypes;
 	}
 	
 	abstract Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName);
 
-	public boolean hasErrors(CcpJsonRepresentation json, Field field) {
+	
+	public boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
+		java.lang.String fieldName = field.getName();
+		
+		boolean thisFieldIsAbsent = false == json.getDynamicVersion().containsAllFields(fieldName);
+		
+		if(thisFieldIsAbsent) {
+			return false;
+		}
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		for (CcpJsonFieldValidatorInterface validation : validations) {
+			
+			boolean isNotValidValidationContext = false == validation.isValidValidationContext(context);
+			
+			if(isNotValidValidationContext) {
+				continue;
+			}
+			
+			boolean hasNoRules = false == validation.hasRuleExplanation(field, this);
+			
+			if(hasNoRules) {
+				continue;
+			}
+			
 			boolean hasError = validation.hasError(json, field, this);
 			if(hasError) {
 				return true;
@@ -98,10 +125,24 @@ public enum CcpJsonFieldType {
 		return false;
 	}
 	
-	public CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field) {
+	public CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		
 		for (CcpJsonFieldValidatorInterface errorType : validations) {
+			boolean isInvalidContextValidation = false == errorType.isValidValidationContext(context);
+			
+			if(isInvalidContextValidation) {
+				continue;
+			}
+			
+			boolean hasNoRules = false == errorType.hasRuleExplanation(field, this);
+			if(hasNoRules) {
+				continue;
+			}
+			boolean hasNoErrors = false == this.hasErrors(json, field, context);
+			if(hasNoErrors) {
+				continue;
+			}
 			errors = errorType.getErrors(errors, json, field, this);
 		}
 		
@@ -121,18 +162,18 @@ public enum CcpJsonFieldType {
 	private List<CcpJsonFieldValidatorInterface> getAllValidations(Field field) {
 		
 		List<CcpJsonFieldValidatorInterface> validations = this.getDefaultValidations();
-		List<CcpJsonFieldTypeError> errorTypes = Arrays.asList(this.errorTypes);
+		List<CcpJsonFieldValidatorInterface> errorTypes = Arrays.asList(this.errorTypes);
 		validations.addAll(errorTypes);
 		
 		return validations;
 	}
 
 	protected List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
-		List<CcpJsonFieldValidatorInterface> asList = Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.collectionOrNotCollection);
+		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>(Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.collectionOrNotCollection));
 		return asList;
 	}
 
-	public CcpJsonFieldTypeError[] getErrorTypes() {
+	public CcpJsonFieldValidatorInterface[] getErrorTypes() {
 		return errorTypes;
 	}
 }

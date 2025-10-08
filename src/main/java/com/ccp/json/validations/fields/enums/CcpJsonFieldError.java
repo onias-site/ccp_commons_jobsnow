@@ -15,7 +15,7 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
-
+			
 		    String fieldName = field.getName();
 			Object value = json.getDynamicVersion().getAsObject(fieldName);
 
@@ -32,16 +32,28 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			String fieldName = field.getName();
 			String providedType = json.getDynamicVersion().get(fieldName).getClass().getName();
 			String expectedType = type.name();
-			return "The field " + fieldName + " must be " + expectedType + " type, but this field is " + providedType + " type";
+			boolean isArray = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+			
+			if(isArray) {
+				return "The field " + fieldName + " must be a collection " + expectedType + " but some item in this collection is the "+ providedType + " type";
+			}
+			return "The field " + fieldName + " must be a " + expectedType + " type, but this field is " + providedType + " type";
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
+			boolean isArray = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+			
+			if(isArray) {
+				return "";
+			}
+			
 			String fieldName = field.getName();
 			String expectedType = type.name();
 			return "The field " + fieldName + " must be " + expectedType + " type";
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
+
 			return true;
 		}
 	},
@@ -84,6 +96,7 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 	},
 	
 	collectionOrNotCollection(CcpJsonFieldErrorHandleType.breakFieldValidation){
+		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			boolean hasNoError = this.hasError(json, field, type) == false;
 			
@@ -131,7 +144,13 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			return true;
 		}
+
+		public boolean isValidValidationContext(CcpJsonFieldsValidationContext context) {
+			return CcpJsonFieldsValidationContext.single.equals(context);
+		}
 	},
+	
+
 	;
 	
 	private CcpJsonFieldError(CcpJsonFieldErrorHandleType handleType) {

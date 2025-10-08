@@ -5,9 +5,12 @@ import java.lang.reflect.Field;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
+import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 
 public interface CcpJsonFieldValidatorInterface {
-	
+	default boolean isValidValidationContext(CcpJsonFieldsValidationContext context) {
+		return true;
+	}
 	CcpJsonFieldErrorHandleType getErrorHandleType() ;
 	
 	String name();
@@ -55,7 +58,9 @@ public interface CcpJsonFieldValidatorInterface {
 		String fieldName = field.getName();
 		
 		Object ruleExplanation = this.getRuleExplanation(field, type);
-
+		if(ruleExplanation.toString().trim().isEmpty()) {
+			return allRules;
+		}
 		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, ruleExplanation);
 		
 		return updatedRuleExplanation;

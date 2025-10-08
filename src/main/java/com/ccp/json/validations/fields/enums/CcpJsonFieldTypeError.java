@@ -26,13 +26,13 @@ import com.ccp.json.validations.global.engine.CcpJsonValidationRulesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
-	naturalNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	unsignedNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
 		    Long number = annotation.maxValue();
 		    String fieldName = field.getName();
-		    Long value = json.getDynamicVersion().getAsObject(fieldName);
+		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value > number;
 		}
 
@@ -62,12 +62,12 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return boundValue < Long.MAX_VALUE;
 		}
 	},
-	naturalNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	unsignedNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-			Long value = json.getDynamicVersion().getAsObject(fieldName);
+			Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value < number;
 		}
 
@@ -99,12 +99,12 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return boundValue >= 0;
 		}
 	},
-	naturalNumberExactValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	unsignedNumberExactValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-		    Long value = json.getDynamicVersion().getAsObject(fieldName);
+		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value != number;
 		}
 
@@ -134,7 +134,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return boundValue > Long.MIN_VALUE;
 		}
 	},
-	naturalNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
+	unsignedNumberAllowed(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			List<Long> allowedValues = this.getValidationParameter(field, type);
@@ -146,7 +146,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			}
 			
 		    String fieldName = field.getName();
-			Long value = json.getDynamicVersion().getAsObject(fieldName);
+			Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 			boolean isAllowed = allowedValues.contains(value);
 			return isAllowed;
 		}
@@ -188,7 +188,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			CcpJsonFieldTypeNumberInteger annotation = field.getAnnotation(CcpJsonFieldTypeNumberInteger.class);
 		    Long number = annotation.maxValue();
 		    String fieldName = field.getName();
-		    Long value = json.getDynamicVersion().getAsObject(fieldName);
+		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value > number;
 		}
 
@@ -223,7 +223,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-			Long value = json.getDynamicVersion().getAsObject(fieldName);
+			Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value < number;
 		}
 
@@ -260,7 +260,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-		    Long value = json.getDynamicVersion().getAsObject(fieldName);
+		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 		    return value != number;
 		}
 
@@ -304,7 +304,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			}
 			
 		    String fieldName = field.getName();
-			Long value = json.getDynamicVersion().getAsObject(fieldName);
+			Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
 			boolean isAllowed = allowedValues.contains(value);
 			return isAllowed;
 		}
@@ -347,7 +347,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
 		    double number = annotation.maxValue();
 		    String fieldName = field.getName();
-			Double value = json.getDynamicVersion().getAsObject(fieldName);
+			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 		    return value > number;
 		}
 
@@ -383,7 +383,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    Integer number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-			Double value = json.getDynamicVersion().getAsObject(fieldName);
+			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 		    return value < number;
 		}
 
@@ -421,7 +421,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			Double number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
-			Double value = json.getDynamicVersion().getAsObject(fieldName);
+			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 		    return value != number;
 		}
 
@@ -466,7 +466,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			}
 			
 		    String fieldName = field.getName();
-			Double value = json.getDynamicVersion().getAsObject(fieldName);
+			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 			boolean isAllowed = allowedValues.contains(value);
 			return isAllowed;
 		}
@@ -507,22 +507,20 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Integer validationParameter = this.getValidationParameter(field, type);
 			int size = value.size();
 			return validationParameter > size;
 		}
 
-		@SuppressWarnings("unchecked")
-		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Integer getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldValidatorArray annotation = field.getAnnotation(CcpJsonFieldValidatorArray.class);
 			Integer value = annotation.minSize();
-			return (T)value;
+			return value;
 		}
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			Double bound = this.getValidationParameter(field, type);
+			Integer bound = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			List<Object> providedValue = json.getDynamicVersion().getAsObjectList(fieldName);
 			String errorMessage = "The field " + fieldName + " has a value " + providedValue 
@@ -532,14 +530,14 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			String ruleExplanation =  "The field " + fieldName + " has to be a collection values with size that can not be less than " + boundValue;
 			return ruleExplanation;
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			return boundValue > Integer.MIN_VALUE;
 		}
 	},
@@ -548,22 +546,21 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Integer validationParameter = this.getValidationParameter(field, type);
 			int size = value.size();
 			return validationParameter != size;
 		}
 
-		@SuppressWarnings("unchecked")
 		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Integer getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldValidatorArray annotation = field.getAnnotation(CcpJsonFieldValidatorArray.class);
 			Integer value = annotation.exactSize();
-			return (T)value;
+			return value;
 		}
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			Double bound = this.getValidationParameter(field, type);
+			Integer bound = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			List<Object> providedValue = json.getDynamicVersion().getAsObjectList(fieldName);
 			String errorMessage = "The field " + fieldName + " has a value " + providedValue 
@@ -573,14 +570,14 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			String ruleExplanation =  "The field " + fieldName + " has to be a collection values with size that can not be different to " + boundValue;
 			return ruleExplanation;
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			return boundValue > Integer.MIN_VALUE;
 		}
 	},
@@ -589,22 +586,20 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Integer validationParameter = this.getValidationParameter(field, type);
 			int size = value.size();
 			return validationParameter < size;
 		}
 
-		@SuppressWarnings("unchecked")
-		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Integer getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldValidatorArray annotation = field.getAnnotation(CcpJsonFieldValidatorArray.class);
 			Integer value = annotation.maxSize();
-			return (T)value;
+			return value;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			Double bound = this.getValidationParameter(field, type);
+			Integer bound = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			List<Object> providedValue = json.getDynamicVersion().getAsObjectList(fieldName);
 			String errorMessage = "The field " + fieldName + " has a value " + providedValue 
@@ -614,14 +609,14 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			String ruleExplanation =  "The field " + fieldName + " has to be collection values with size that can not be greater than " + boundValue;
 			return ruleExplanation;
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			Double boundValue = this.getValidationParameter(field, type);
+			Integer boundValue = this.getValidationParameter(field, type);
 			return boundValue < Integer.MAX_VALUE;
 		}
 	},
@@ -629,11 +624,11 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			Collection<?> value = json.getDynamicVersion().getAsObject(fieldName);
+			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Set<?> set = new HashSet<>(value);
 			int size = set.size();
 			int size2 = value.size();
-			return size == size2;
+			return size != size2;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -657,7 +652,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	stringMinLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			String value = json.getDynamicVersion().getAsObject(fieldName);
+			String value = json.getDynamicVersion().getAsString(fieldName);
 			int length = value.length();
 			Integer validationParameter = this.getValidationParameter(field, type);
 			return length < validationParameter;
@@ -696,7 +691,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	stringExactLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			String value = json.getDynamicVersion().getAsObject(fieldName);
+			String value = json.getDynamicVersion().getAsString(fieldName);
 			int length = value.length();
 			Integer validationParameter = this.getValidationParameter(field, type);
 			return length != validationParameter;
@@ -739,7 +734,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 		    String fieldName = field.getName();
-			String value = json.getDynamicVersion().getAsObject(fieldName);
+			String value = json.getDynamicVersion().getAsString(fieldName);
 			int length = value.length();
 			Integer validationParameter = this.getValidationParameter(field, type);
 			return length > validationParameter;
@@ -786,7 +781,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			}
 			
 		    String fieldName = field.getName();
-			String value = json.getDynamicVersion().getAsObject(fieldName);
+			String value = json.getDynamicVersion().getAsString(fieldName);
 			
 			boolean contains = validationParameter.contains(value);
 			
@@ -833,7 +828,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 				return false;
 			}
 		    String fieldName = field.getName();
-			String value = json.getDynamicVersion().getAsObject(fieldName);
+			String value = json.getDynamicVersion().getAsString(fieldName);
 			boolean matches = value.matches(validationParameter);
 			return matches;
 		}
