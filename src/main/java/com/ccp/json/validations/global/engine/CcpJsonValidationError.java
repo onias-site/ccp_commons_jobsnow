@@ -7,12 +7,13 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 @SuppressWarnings("serial")
 public class CcpJsonValidationError extends RuntimeException{
 
-
+	public final CcpJsonRepresentation json;
 	public CcpJsonValidationError(Class<?> clazz, CcpJsonRepresentation givenJson, CcpJsonRepresentation errors, CcpJsonRepresentation rulesExplanation, String featureName) {
-		super(getErrorMessage(clazz, givenJson, errors, rulesExplanation, featureName));
+		super(getErrorMessage(clazz, givenJson, errors, rulesExplanation, featureName).asPrettyJson());
+		this.json =getErrorMessage(clazz, givenJson, errors, rulesExplanation, featureName);
 	}
 
-	private static String getErrorMessage(Class<?> clazz, CcpJsonRepresentation givenJson, CcpJsonRepresentation errors, CcpJsonRepresentation rulesExplanation, String featureName) {
+	private static CcpJsonRepresentation getErrorMessage(Class<?> clazz, CcpJsonRepresentation givenJson, CcpJsonRepresentation errors, CcpJsonRepresentation rulesExplanation, String featureName) {
 		CcpJsonRepresentation body = CcpOtherConstants.EMPTY_JSON
 		.put(JsonFieldNames.errors, errors)
 		.put(JsonFieldNames.featureName, featureName)
@@ -20,8 +21,7 @@ public class CcpJsonValidationError extends RuntimeException{
 		.put(JsonFieldNames.rulesExplanation, rulesExplanation)
 		.put(JsonFieldNames.givenJson, givenJson);
 		
-		String asPrettyJson = body.asPrettyJson();
-		return asPrettyJson;
+		return body;
 	}
 }
 enum JsonFieldNames implements CcpJsonFieldName{

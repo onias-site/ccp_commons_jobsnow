@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
+import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
 import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
@@ -39,8 +40,7 @@ public class CcpJsonValidationRulesEngine {
 				ruleExplanation = CcpJsonFieldType.Required.updateRuleExplanation(ruleExplanation, field);
 				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(field);	
 				ruleExplanation = type.updateRuleExplanation(ruleExplanation, field);
-			} catch (Exception e) {
-				System.out.println();
+			} catch (CcpJsonFieldNotValidated e) {
 			}
 		}
 		return ruleExplanation;

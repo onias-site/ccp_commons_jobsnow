@@ -51,7 +51,7 @@ public class CcpJsonValidatorEngine {
 		throw new CcpJsonValidationError(clazz, json, errors, rulesExplanation, featureName);
 	}
 	
-	public CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
+	private CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation errors = this.getErrorsFromClass(clazz, json);
 		

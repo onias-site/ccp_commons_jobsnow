@@ -2,7 +2,9 @@ package com.ccp.json.validations.fields.interfaces;
 
 import java.lang.reflect.Field;
 
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
@@ -37,8 +39,12 @@ public interface CcpJsonFieldValidatorInterface {
 		String fieldName = field.getName();
 		
 		Object error = this.getError(json, field, type);
+		
+		CcpJsonRepresentation errorObject = CcpOtherConstants.EMPTY_JSON
+				.put(ErrorFields.errorName, this.name())
+				.put(ErrorFields.errorDescription, error);
 
-		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().addToList(fieldName, error);
+		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().addToList(fieldName, errorObject);
 
 		CcpJsonFieldErrorHandleType errorHandleType = this.getErrorHandleType();
 		
@@ -61,10 +67,21 @@ public interface CcpJsonFieldValidatorInterface {
 		if(ruleExplanation.toString().trim().isEmpty()) {
 			return allRules;
 		}
-		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, ruleExplanation);
+		CcpJsonRepresentation rule = CcpOtherConstants.EMPTY_JSON
+				.put(RuleFields.ruleName, this.name())
+				.put(RuleFields.ruleDescription, ruleExplanation);
+		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, rule);
 		
 		return updatedRuleExplanation;
 	}
 	
 	boolean hasRuleExplanation(Field field, CcpJsonFieldType type) ;
+	enum RuleFields implements CcpJsonFieldName{
+		ruleName, ruleDescription
+		;
+	}
+	enum ErrorFields implements CcpJsonFieldName{
+		errorName, errorDescription
+		;
+	}
 }

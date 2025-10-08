@@ -728,7 +728,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		
 		Collection<Object> list = (Collection<Object>) object;
 		
-		List<CcpJsonRepresentation> collect = list.stream().map(obj -> new CcpJsonRepresentation((Map<String, Object>) obj))
+		List<CcpJsonRepresentation> collect = list.stream().map(obj -> {
+			
+			if(obj instanceof CcpJsonRepresentation jsn) {
+				return jsn;
+			}
+			
+			CcpJsonRepresentation json = new CcpJsonRepresentation((Map<String, Object>) obj);
+			return json;
+		})
 				.collect(Collectors.toList());
 		
 		return collect;

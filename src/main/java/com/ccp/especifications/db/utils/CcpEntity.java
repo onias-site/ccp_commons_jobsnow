@@ -185,11 +185,11 @@ public interface CcpEntity{
 	}
 
 	default CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
-		this.validateJson(json);
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String entityName = this.getEntityName();
 		CcpJsonRepresentation handledJson = this.getTransformedJsonBeforeAnyCrudOperations(json);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(handledJson);
+		this.validateJson(onlyExistingFields);
 		crud.createOrUpdate(entityName, onlyExistingFields, id);
 		CcpJsonRepresentation transformedJson = this.getTransformedJsonAfterOperation(handledJson, CcpEntityCrudOperationType.save);
 		return transformedJson;

@@ -95,7 +95,7 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 	},
 	
-	collectionOrNotCollection(CcpJsonFieldErrorHandleType.breakFieldValidation){
+	validateCollectionOrSigleValue(CcpJsonFieldErrorHandleType.breakFieldValidation){
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			boolean hasNoError = this.hasError(json, field, type) == false;

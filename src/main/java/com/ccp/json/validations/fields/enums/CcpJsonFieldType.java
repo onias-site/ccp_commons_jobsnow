@@ -235,7 +235,7 @@ public enum CcpJsonFieldType {
 	}
 
 	protected List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
-		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>(Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.collectionOrNotCollection));
+		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>(Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.validateCollectionOrSigleValue));
 		return asList;
 	}
 
