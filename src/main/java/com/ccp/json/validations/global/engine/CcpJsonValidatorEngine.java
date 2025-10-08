@@ -11,9 +11,10 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
-import com.ccp.json.validations.fields.annotations.CcpJsonCommonsFields;
+import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFrom;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeBoolean;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
@@ -31,7 +32,11 @@ import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
 public class CcpJsonValidatorEngine {
-	
+	enum JsonFields implements CcpJsonFieldName{
+		field, type
+		;
+		
+	}
 	private CcpJsonValidatorEngine() {}
 	
 	public static final CcpJsonValidatorEngine INSTANCE = new CcpJsonValidatorEngine();
@@ -97,14 +102,14 @@ public class CcpJsonValidatorEngine {
 		throw new CcpJsonFieldNotValidated();
 	}
 	
-	private Field getReplacedField(Field field) {
+	public Field getReplacedField(Field field) {
 		
-		boolean useTheSameField = false == field.isAnnotationPresent(CcpJsonCommonsFields.class);
+		boolean useTheSameField = false == field.isAnnotationPresent(CcpJsonCopyFieldValidationsFrom.class);
 		if(useTheSameField) {
 			return field;
 		}
 		
-		CcpJsonCommonsFields annotation = field.getAnnotation(CcpJsonCommonsFields.class);
+		CcpJsonCopyFieldValidationsFrom annotation = field.getAnnotation(CcpJsonCopyFieldValidationsFrom.class);
 		Class<?> classToAppendValidations = annotation.value();
 		try {
 			String fieldName = field.getName();
@@ -119,7 +124,7 @@ public class CcpJsonValidatorEngine {
 	
 	private CcpJsonRepresentation addErrorsFromFields(CcpJsonRepresentation errors, CcpJsonRepresentation json, Class<?> clazz) {
 		Field[] declaredFields = clazz.getDeclaredFields();
-		Map<Field, CcpJsonFieldType> map = new LinkedHashMap<>();
+		Map<Field, CcpJsonRepresentation> map = new LinkedHashMap<>();
 		
 		for (Field field : declaredFields) {
 			try {
@@ -132,7 +137,11 @@ public class CcpJsonValidatorEngine {
 				
 				Field replacedField = this.getReplacedField(field);
 				CcpJsonFieldType jsonFieldType = this.getJsonFieldType(replacedField);
-				map.put(replacedField, jsonFieldType);
+				
+				CcpJsonRepresentation values = CcpOtherConstants.EMPTY_JSON
+				.put(JsonFields.field, field)
+				.put(JsonFields.type, jsonFieldType);
+				map.put(replacedField, values);
 			} catch (CcpJsonFieldNotValidated e) {
 
 			}
@@ -141,8 +150,9 @@ public class CcpJsonValidatorEngine {
 		Set<Field> fields = map.keySet();
 		
 		for (Field field : fields) {
-			
-			CcpJsonFieldType type = map.get(field);
+			CcpJsonRepresentation values = map.get(field);
+			CcpJsonFieldType type = values.getAsObject(JsonFields.type);
+			Field oldField = values.getAsObject(JsonFields.field);
 			try {
 
 				boolean isNotAnArray = false == field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
@@ -152,10 +162,10 @@ public class CcpJsonValidatorEngine {
 					continue;
 				}
 				
-				boolean hasArrayErrors = CcpJsonFieldType.Array.hasErrors(json, field, CcpJsonFieldsValidationContext.single);
+				boolean hasArrayErrors = CcpJsonFieldType.Array.hasErrors(json, oldField, CcpJsonFieldsValidationContext.single);
 
 				if(hasArrayErrors) {
-					errors = CcpJsonFieldType.Array.getErrors(errors, json, field, CcpJsonFieldsValidationContext.single);
+					errors = CcpJsonFieldType.Array.getErrors(errors, json, oldField, CcpJsonFieldsValidationContext.single);
 					continue;
 				}
 				String fieldName = field.getName();

@@ -38,8 +38,9 @@ public class CcpJsonValidationRulesEngine {
 			try {
 				ruleExplanation = CcpJsonFieldType.Array.updateRuleExplanation(ruleExplanation, field);
 				ruleExplanation = CcpJsonFieldType.Required.updateRuleExplanation(ruleExplanation, field);
-				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(field);	
-				ruleExplanation = type.updateRuleExplanation(ruleExplanation, field);
+				Field replacedField = CcpJsonValidatorEngine.INSTANCE.getReplacedField(field);
+				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(replacedField);	
+				ruleExplanation = type.updateRuleExplanation(ruleExplanation, replacedField);
 			} catch (CcpJsonFieldNotValidated e) {
 			}
 		}

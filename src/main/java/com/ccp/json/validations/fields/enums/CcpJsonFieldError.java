@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
@@ -121,7 +123,9 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
 			String fieldName = field.getName();
-			boolean isCollection = json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
+			CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
+			CcpStringDecorator asStringDecorator = dynamicVersion.getAsStringDecorator(fieldName);
+			boolean isCollection = asStringDecorator.isList();
 			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 			
 			boolean hasError = (isCollection ^ mustBeCollection);

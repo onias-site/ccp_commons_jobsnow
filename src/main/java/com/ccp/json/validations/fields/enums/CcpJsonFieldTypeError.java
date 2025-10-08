@@ -103,6 +103,11 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	unsignedNumberExactValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+			boolean hasNoRuleExplanation = false == this.hasRuleExplanation(field, type);
+			
+			if(hasNoRuleExplanation) {
+				return false;
+			}
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
 		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
@@ -659,16 +664,14 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return length < validationParameter;
 		}
 
-		@SuppressWarnings("unchecked")
-		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Integer getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
 			Integer value = annotation.minLength();
-			return (T)value;
+			return value;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			Double bound = this.getValidationParameter(field, type);
+			Integer bound = this.getValidationParameter(field, type);
 			String fieldName = field.getName();
 			String providedValue = json.getDynamicVersion().getAsString(fieldName);
 			String errorMessage = "The field " + fieldName + " has a value " + providedValue 
@@ -686,7 +689,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			Integer boundValue = this.getValidationParameter(field, type);
-			return boundValue > Integer.MIN_VALUE;
+			return boundValue > 0;
 		}
 	},
 	stringExactLength(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -787,9 +790,9 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    String fieldName = field.getName();
 			String value = json.getDynamicVersion().getAsString(fieldName);
 			
-			boolean contains = validationParameter.contains(value);
+			boolean notContains = false == validationParameter.contains(value);
 			
-			return contains;
+			return notContains;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -885,6 +888,10 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			if(allowsEmptyString) {
 				return false;
 			}
+			boolean x = stringMinLength.hasError(json, field, type);
+			if(x) {
+				return false;
+			}
 			String fieldName = field.getName();
 			boolean empty = json.getDynamicVersion().getAsString(fieldName).isEmpty();
 			return empty;
@@ -895,8 +902,11 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			String ruleExplanation = "The field " + fieldName + " must contain a not empty string";
 			return ruleExplanation;
 		}
-
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
+			boolean x = stringMinLength.hasRuleExplanation(field, type);
+			if(x) {
+				return false;
+			}
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
 			boolean allowsEmptyString = annotation.allowsEmptyString();
 			return false == allowsEmptyString;

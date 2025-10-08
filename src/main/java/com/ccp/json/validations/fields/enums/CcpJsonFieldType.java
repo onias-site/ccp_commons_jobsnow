@@ -189,6 +189,14 @@ public enum CcpJsonFieldType {
 	}
 	
 	public CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
+
+		java.lang.String fieldName = field.getName();
+		
+		boolean fieldIsNotPresent = false == json.getDynamicVersion().containsAllFields(fieldName);
+		if(fieldIsNotPresent) {
+			return errors;
+		}
+
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		
 		for (CcpJsonFieldValidatorInterface errorType : validations) {
@@ -202,7 +210,8 @@ public enum CcpJsonFieldType {
 			if(hasNoRules) {
 				continue;
 			}
-			boolean hasNoErrors = false == this.hasErrors(json, field, context);
+			
+			boolean hasNoErrors = false == errorType.hasError(json, field, this);
 			if(hasNoErrors) {
 				continue;
 			}
