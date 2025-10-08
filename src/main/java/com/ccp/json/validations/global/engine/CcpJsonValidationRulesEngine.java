@@ -35,10 +35,12 @@ public class CcpJsonValidationRulesEngine {
 		
 		for (Field field : declaredFields) {
 			try {
+				ruleExplanation = CcpJsonFieldType.Array.updateRuleExplanation(ruleExplanation, field);
 				ruleExplanation = CcpJsonFieldType.Required.updateRuleExplanation(ruleExplanation, field);
 				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(field);	
 				ruleExplanation = type.updateRuleExplanation(ruleExplanation, field);
 			} catch (Exception e) {
+				System.out.println();
 			}
 		}
 		return ruleExplanation;

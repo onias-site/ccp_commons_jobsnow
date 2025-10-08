@@ -119,6 +119,7 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			
 			String fieldName = field.getName();
 			boolean isCollection = json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
@@ -142,6 +143,9 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 		
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
+			if(CcpJsonFieldType.Array.equals(type)){
+				return false;
+			}
 			return true;
 		}
 

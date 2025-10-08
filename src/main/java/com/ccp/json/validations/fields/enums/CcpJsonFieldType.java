@@ -8,6 +8,16 @@ import java.util.function.Predicate;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
+import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
+import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeBoolean;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberInteger;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberNatural;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfter;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
 public enum CcpJsonFieldType {
@@ -24,11 +34,21 @@ public enum CcpJsonFieldType {
 		protected List<CcpJsonFieldValidatorInterface> getDefaultValidations() {
 			return Arrays.asList(CcpJsonFieldError.requiredFieldIsMissing);
 		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
+			return annotationPresent;
+		}
 	},
 	
 	Boolean{
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isBoolean();
+		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeBoolean.class);
+			return annotationPresent;
 		}
 	}, 
 	Array(CcpJsonFieldTypeError.arrayMinSize, CcpJsonFieldTypeError.arrayExactSize, CcpJsonFieldTypeError.arrayMaxSize, CcpJsonFieldTypeError.arrayNonReapeted){
@@ -36,20 +56,41 @@ public enum CcpJsonFieldType {
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isList();
 		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+			return annotationPresent;
+		}
+		
 	},
 	NestedJson(CcpJsonFieldTypeError.nestedJson, CcpJsonFieldTypeError.emptyJson){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isInnerJson();
+		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNestedJson.class);
+			return annotationPresent;
 		}
 	}, 
 	Number(CcpJsonFieldTypeError.doubleNumberMaxValue, CcpJsonFieldTypeError.doubleNumberMinValue, CcpJsonFieldTypeError.doubleNumberExactValue, CcpJsonFieldTypeError.doubleNumberAllowed){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isDoubleNumber() ;
 		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNumber.class);
+			return annotationPresent;
+		}
 	}, 
 	NumberInteger(CcpJsonFieldTypeError.longNumberMaxValue, CcpJsonFieldTypeError.longNumberMinValue, CcpJsonFieldTypeError.longNumberExactValue, CcpJsonFieldTypeError.longNumberAllowed){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber() ;
+		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNumberInteger.class);
+			return annotationPresent;
 		}
 	}, 
 
@@ -67,23 +108,45 @@ public enum CcpJsonFieldType {
 				return asLongNumber >= 0;
 			} ;
 		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNumberNatural.class);
+			return annotationPresent;
+		}
+
 	}, 
 	String(CcpJsonFieldTypeError.stringNotEmpty, CcpJsonFieldTypeError.stringExactLength, CcpJsonFieldTypeError.stringRegex, CcpJsonFieldTypeError.stringAllowedValues, CcpJsonFieldTypeError.stringMaxLength, CcpJsonFieldTypeError.stringMinLength){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> true;
 		}
 		
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeString.class);
+			return annotationPresent;
+		}
 	}, 
 	TimeBeforeCurrentDate(CcpJsonFieldTypeError.timeMaxValueBeforeCurrentTime, CcpJsonFieldTypeError.timeExactValueBeforeCurrentTime, CcpJsonFieldTypeError.timeMinValueBeforeCurrentTime){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
+		}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeTimeBefore.class);
+			return annotationPresent;
 		}
 	},
 	TimeAfterCurrentDate(CcpJsonFieldTypeError.timeMaxValueAfterCurrentTime, CcpJsonFieldTypeError.timeExactValueAfterCurrentTime, CcpJsonFieldTypeError.timeMinValueAfterCurrentTime){
 		Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> json.getDynamicVersion().getAsStringDecorator(fieldName).isLongNumber();
 		}
-	}
+
+		boolean hasRuleExplanation(Field field) {
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeTimeAfter.class);
+			return annotationPresent;
+		}
+	},
+	
 	;
 	private final CcpJsonFieldValidatorInterface[] errorTypes;
 	
@@ -135,7 +198,7 @@ public enum CcpJsonFieldType {
 				continue;
 			}
 			
-			boolean hasNoRules = false == errorType.hasRuleExplanation(field, this);
+			boolean hasNoRules = false == this.hasRuleExplanation(field);
 			if(hasNoRules) {
 				continue;
 			}
@@ -150,12 +213,15 @@ public enum CcpJsonFieldType {
 	}
 
 	public CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation ruleExplanation, Field field) {
+		boolean hasNoRulesExplanations = false == this.hasRuleExplanation(field);
+		if(hasNoRulesExplanations) {
+			return ruleExplanation;
+		}
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		
 		for (CcpJsonFieldValidatorInterface errorType : validations) {
 			ruleExplanation = errorType.updateRuleExplanation(ruleExplanation, field, this);
 		}
-		
 		return ruleExplanation;
 	}
 
@@ -176,4 +242,6 @@ public enum CcpJsonFieldType {
 	public CcpJsonFieldValidatorInterface[] getErrorTypes() {
 		return errorTypes;
 	}
+	
+	abstract boolean hasRuleExplanation(Field field);
 }
