@@ -6,7 +6,6 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType;
-import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 
 public interface CcpJsonFieldValidatorInterface {

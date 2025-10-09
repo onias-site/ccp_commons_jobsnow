@@ -21,6 +21,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberIn
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberNatural;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
+import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 import com.ccp.json.validations.global.engine.CcpJsonValidationError;
 import com.ccp.json.validations.global.engine.CcpJsonValidationRulesEngine;

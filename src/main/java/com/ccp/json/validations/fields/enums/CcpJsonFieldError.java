@@ -8,8 +8,9 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
-import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
+import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
+import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
 public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
@@ -147,7 +148,7 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 		
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			if(CcpJsonFieldType.Array.equals(type)){
+			if(CcpJsonFieldDefaultTypes.Array.equals(type)){
 				return false;
 			}
 			return true;

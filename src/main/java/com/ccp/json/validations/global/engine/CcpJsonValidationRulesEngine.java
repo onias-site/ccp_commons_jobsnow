@@ -10,7 +10,8 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
-import com.ccp.json.validations.fields.enums.CcpJsonFieldType;
+import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
+import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
@@ -36,8 +37,8 @@ public class CcpJsonValidationRulesEngine {
 		
 		for (Field field : declaredFields) {
 			try {
-				ruleExplanation = CcpJsonFieldType.Array.updateRuleExplanation(ruleExplanation, field);
-				ruleExplanation = CcpJsonFieldType.Required.updateRuleExplanation(ruleExplanation, field);
+				ruleExplanation = CcpJsonFieldDefaultTypes.Array.updateRuleExplanation(ruleExplanation, field);
+				ruleExplanation = CcpJsonFieldDefaultTypes.Required.updateRuleExplanation(ruleExplanation, field);
 				Field replacedField = CcpJsonValidatorEngine.INSTANCE.getReplacedField(field);
 				CcpJsonFieldType type = CcpJsonValidatorEngine.INSTANCE.getJsonFieldType(replacedField);	
 				ruleExplanation = type.updateRuleExplanation(ruleExplanation, replacedField);
