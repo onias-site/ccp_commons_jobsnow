@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
-import com.ccp.especifications.mensageria.receiver.CcpTopic;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 {
@@ -18,10 +18,10 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			return json;
 		}
 
-		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
+		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
 			CcpEntitySpecifications especifications = super.getEspecifications(entityClass);
 			Class<?>[] callBacks = especifications.afterSaveRecord();
-			List<CcpTopic> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
+			List<CcpBusiness> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
 			return collect;
 		}
 		
@@ -37,10 +37,10 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			return json;
 		}
 
-		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
+		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
 			CcpEntitySpecifications especifications = super.getEspecifications(entityClass);
 			Class<?>[] callBacks = especifications.afterDeleteRecord();
-			List<CcpTopic> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
+			List<CcpBusiness> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
 			return  collect;
 		}
 	}
@@ -53,7 +53,7 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 		}
 
 
-		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
+		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
 			return new ArrayList<>();
 		}
 
@@ -63,12 +63,12 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
 
-	public abstract List<CcpTopic> getStepsAfter(Class<?> entityClass);
+	public abstract List<CcpBusiness> getStepsAfter(Class<?> entityClass);
 
-	public static CcpTopic instanciateFunction(Class<?> x) {
+	public static CcpBusiness instanciateFunction(Class<?> x) {
 		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(x);
 
-		CcpTopic newInstance = reflection.newInstance();
+		CcpBusiness newInstance = reflection.newInstance();
 		
 		return newInstance;
 	}

@@ -4,14 +4,14 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
-public interface CcpTopic extends Function<CcpJsonRepresentation, CcpJsonRepresentation>{
+public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
-	default boolean canSave() {
+	default boolean canBeSavedAsAsyncTask() {
 		return true;
 	}
 	
 	default Class<?> getJsonValidationClass(){
-		Class<? extends CcpTopic> class1 = this.getClass();
+		Class<? extends CcpBusiness> class1 = this.getClass();
 		return class1;
 	}
 	

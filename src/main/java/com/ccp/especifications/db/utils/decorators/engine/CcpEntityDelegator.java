@@ -194,8 +194,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return bulkItems;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonBeforeAnyCrudOperations(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonBeforeAnyCrudOperations(json);
+	public CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonByEachFieldInJson(json);
 		return transformedJsonBeforeOperation;
 	}
 

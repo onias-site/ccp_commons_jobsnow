@@ -105,7 +105,7 @@ public interface CcpEntity{
 		}
 		CcpJsonRepresentation onlyPrimaryKeyValues = json.getJsonPiece(onlyPrimaryKeyNames);
 		
-		CcpJsonRepresentation transformedJson = this.getTransformedJsonBeforeAnyCrudOperations(onlyPrimaryKeyValues);
+		CcpJsonRepresentation transformedJson = this.getTransformedJsonByEachFieldInJson(onlyPrimaryKeyValues);
 		
 		CcpJsonRepresentation jsonPiece = transformedJson.getJsonPiece(onlyPrimaryKeyNames);
 		return jsonPiece;
@@ -187,7 +187,8 @@ public interface CcpEntity{
 	default CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation handledJson = this.getTransformedJsonBeforeAnyCrudOperations(json);
+		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
+		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(handledJson);
 		this.validateJson(onlyExistingFields);
 		crud.createOrUpdate(entityName, onlyExistingFields, id);
@@ -219,7 +220,7 @@ public interface CcpEntity{
 	}
 	
 	default CcpJsonRepresentation getOnlyExistingFieldsAndHandledJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJson = this.getTransformedJsonBeforeAnyCrudOperations(json);
+		CcpJsonRepresentation transformedJson = this.getTransformedJsonByEachFieldInJson(json);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJson);
 		return onlyExistingFields;
 	}
@@ -307,7 +308,7 @@ public interface CcpEntity{
 		return put;
 	}
 	
-	CcpJsonRepresentation getTransformedJsonBeforeAnyCrudOperations(CcpJsonRepresentation json);
+	CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json);
 
 	CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation);
 	

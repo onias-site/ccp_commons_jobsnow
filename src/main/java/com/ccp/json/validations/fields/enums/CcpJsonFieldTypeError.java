@@ -1076,7 +1076,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			String fieldName = field.getName();
 			CcpJsonRepresentation innerJson = json.getDynamicVersion().getInnerJson(fieldName);
 			CcpJsonFieldTypeNestedJson annotation = field.getAnnotation(CcpJsonFieldTypeNestedJson.class);
-			Class<?> validationClass = annotation.validationClass();
+			Class<?> validationClass = annotation.jsonValidation();
 			try {
 				CcpJsonValidatorEngine.INSTANCE.validateJson(validationClass, innerJson, fieldName);
 				return CcpOtherConstants.EMPTY_JSON.content;
@@ -1091,7 +1091,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public  Map<String, Object> getRuleExplanation(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeNestedJson annotation = field.getAnnotation(CcpJsonFieldTypeNestedJson.class);
-			Class<?> validationClass = annotation.validationClass();
+			Class<?> validationClass = annotation.jsonValidation();
 			CcpJsonRepresentation rulesExplanation = CcpJsonValidationRulesEngine.INSTANCE.getRulesExplanation(validationClass);
 			if(rulesExplanation.isEmpty()) {
 				return CcpOtherConstants.EMPTY_JSON.content;

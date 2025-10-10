@@ -13,7 +13,7 @@ import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTwin;
-import com.ccp.especifications.mensageria.receiver.CcpTopic;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
@@ -57,15 +57,11 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 		}
 	}
 	
-	public List<CcpTopic> doAfterSavingIfRecordIsNotFound() {
-		List<CcpTopic> functions = this.getFunctions("afterOperation");
+	public List<CcpBusiness> doAfterSavingIfRecordIsFound() {
+		List<CcpBusiness> functions = this.getFunctions("after" + this.transferType);
 		return functions;
 	}
 	
-	public List<CcpTopic> doAfterSavingIfRecordIsFound() {
-		List<CcpTopic> functions = this.getFunctions("afterOperation");
-		return functions;
-	}
 	@SuppressWarnings("unchecked")
 	private <T> T invokeAnnotationMethod(String methodName) {
 		try {
@@ -76,14 +72,14 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 			throw new RuntimeException(e);
 		}
 	}
-	private List<CcpTopic> getFunctions(String callbackName){
+	
+	private List<CcpBusiness> getFunctions(String callbackName){
 		try {
-
 			Class<?>[] invoke = this.invokeAnnotationMethod(callbackName);
 
 			List<Class<?>> asList = Arrays.asList(invoke);
 			
-			List<CcpTopic> functions = asList.stream().map(x -> CcpEntityCrudOperationType.instanciateFunction(x)).collect(Collectors.toList());
+			List<CcpBusiness> functions = asList.stream().map(x -> CcpEntityCrudOperationType.instanciateFunction(x)).collect(Collectors.toList());
 			
 			return functions;
 			

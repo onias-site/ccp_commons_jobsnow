@@ -2,9 +2,9 @@ package com.ccp.json.transformers;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
-import com.ccp.especifications.mensageria.receiver.CcpTopic;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
-public interface CcpTransformers extends CcpTopic {
+public interface CcpTransformers extends CcpBusiness {
 
 	
 	default CcpJsonRepresentation substring(CcpJsonRepresentation json, String field, int limit) {

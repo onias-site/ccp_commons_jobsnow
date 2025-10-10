@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.mensageria.receiver.CcpTopic;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public interface CcpHandleWithSearchResultsInTheEntity<T> {
 
@@ -15,11 +15,11 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	
 	CcpEntity getEntityToSearch();
 	
-	default List<CcpTopic> doAfterSavingIfRecordIsNotFound(){
+	default List<CcpBusiness> doAfterSavingIfRecordIsNotFound(){
 		return new ArrayList<>();
 	}
 
-	default List<CcpTopic> doAfterSavingIfRecordIsFound(){
+	default List<CcpBusiness> doAfterSavingIfRecordIsFound(){
 		return new ArrayList<>();
 	}
 	

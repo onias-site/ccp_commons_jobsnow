@@ -21,11 +21,12 @@ public abstract class CcpMensageriaReceiver {
 	}
 
 	public Function<CcpJsonRepresentation, CcpJsonRepresentation> getProcess(String processName, CcpJsonRepresentation json){
+		
 		CcpReflectionConstructorDecorator reflection = new CcpStringDecorator(processName).reflection();
 
 		Object newInstance = reflection.newInstance();
 		
-		if(newInstance instanceof CcpTopic topic) {
+		if(newInstance instanceof CcpBusiness topic) {
 			return topic;
 		}
 		
@@ -33,9 +34,8 @@ public abstract class CcpMensageriaReceiver {
 	
 		if(invalidTopic) {
 			throw new CcpErrorMensageriaInvalidName(processName);
-		}		
+		}
 		
-	
 		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
 		CcpEntity entity = configurator.getEntity();
 		String operationType = json.getDynamicVersion().getAsString(this.operationTypeFieldName);

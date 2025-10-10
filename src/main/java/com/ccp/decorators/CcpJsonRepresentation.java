@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.especifications.mensageria.receiver.CcpTopic;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
@@ -406,7 +406,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 	
 	@SafeVarargs
-	public final CcpJsonRepresentation getTransformedJson(CcpTopic... transformers) {
+	public final CcpJsonRepresentation getTransformedJson(CcpBusiness... transformers) {
 		CcpJsonRepresentation transformedJson = this;
 		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer : transformers) {
 			transformedJson = transformer.apply(transformedJson);
@@ -1065,11 +1065,10 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return false;
 	}
 	
-
 	public CcpJsonRepresentation getTransformedJson(
-			List<CcpTopic> jsonTransformers) {
+			List<CcpBusiness> jsonTransformers) {
 		
-		CcpTopic[] array = jsonTransformers.toArray(new CcpTopic[jsonTransformers.size()]);
+		CcpBusiness[] array = jsonTransformers.toArray(new CcpBusiness[jsonTransformers.size()]);
 		CcpJsonRepresentation transformedJson = this.getTransformedJson(array);
 		return transformedJson;
 	}
@@ -1095,7 +1094,6 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		for (CcpJsonFieldName enum1 : enumItems) {
 			array[k++] = enum1.getValue();
 		}
-		
 		return array;
 	}
 
@@ -1301,10 +1299,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		public CcpJsonRepresentation removeField(String time) {
 			return this.json.removeField(time);
 		}
-
-
 	}
-
 
 	public CcpJsonRepresentation addToItem(CcpJsonFieldName statis, String field, Object avg) {
 		CcpJsonRepresentation addToItem = addToItem(statis.getValue(), field, avg);
@@ -1314,6 +1309,4 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;
 	}
-
-	
 }

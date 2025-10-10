@@ -11,9 +11,7 @@ import java.lang.annotation.Target;
 public @interface CcpEntityTwin {
 
 	String twinEntityName();
-	Class[] afterInactivateRecordWhenNotFound();
-	Class[] afterReactivateRecordWhenNotFound();
-	Class[] afterInactivateRecordWhenFound();
-	Class[] afterReactivateRecordWhenFound();
+	Class[] afterInactivate();
+	Class[] afterReactivate();
 
 }
