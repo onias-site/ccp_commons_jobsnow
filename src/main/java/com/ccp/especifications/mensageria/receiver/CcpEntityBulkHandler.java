@@ -10,12 +10,12 @@ import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 
-public class CcpEntityBulkHandler implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class CcpEntityBulkHandler implements CcpBusiness {
 
-	private final CcpEntity entity;
-	private final String operationFieldName;
-	private final CcpExecuteBulkOperation executeBulkOperation;
 	private final Consumer<String[]> functionToDeleteKeysInTheCache;
+	private final CcpExecuteBulkOperation executeBulkOperation;
+	private final String operationFieldName;
+	private final CcpEntity entity;
 	
 	public CcpEntityBulkHandler(CcpEntity entity, String operationFieldName, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		this.entity = entity;

@@ -1,11 +1,11 @@
 package com.ccp.especifications.db.crud;
 
-import java.util.function.Function;
-
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntity;
-class FunctionPutEntity implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
+
+class FunctionPutEntity implements CcpBusiness{
 	enum JsonFieldNames implements CcpJsonFieldName{
 		entity
 	}
