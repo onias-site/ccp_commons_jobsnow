@@ -14,4 +14,5 @@ public interface CcpTopic extends Function<CcpJsonRepresentation, CcpJsonReprese
 		Class<? extends CcpTopic> class1 = this.getClass();
 		return class1;
 	}
+	
 }

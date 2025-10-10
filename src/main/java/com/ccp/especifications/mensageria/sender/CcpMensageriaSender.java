@@ -19,7 +19,7 @@ public interface CcpMensageriaSender {
 	
 	default CcpMensageriaSender sendToMensageria(String topic, Class<?> jsonValidationClass, CcpJsonRepresentation... msgs) {
 		
-		String[] array = Arrays.asList(msgs).stream().map(x -> CcpJsonValidatorEngine.INSTANCE.validateJson(getClass(), x, topic).asUgglyJson()).collect(Collectors.toList())
+		String[] array = Arrays.asList(msgs).stream().map(x -> CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, x, topic).asUgglyJson()).collect(Collectors.toList())
 		.toArray(new String[msgs.length]);
 		CcpMensageriaSender send = this.sendToMensageria(topic, array);
 		return send;

@@ -7,7 +7,13 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
+@SuppressWarnings("rawtypes")
 public @interface CcpEntityTwin {
 
 	String twinEntityName();
+	Class[] afterInactivateRecordWhenNotFound();
+	Class[] afterReactivateRecordWhenNotFound();
+	Class[] afterInactivateRecordWhenFound();
+	Class[] afterReactivateRecordWhenFound();
+
 }

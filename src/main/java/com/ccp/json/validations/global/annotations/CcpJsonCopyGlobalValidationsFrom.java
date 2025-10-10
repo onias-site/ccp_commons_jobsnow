@@ -8,12 +8,6 @@ import java.lang.annotation.Target;
 
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface CcpJsonValidatorGlobal {
-	
-	CcpJsonValidatorFieldList[] requiresAtLeastOne() default {};
-	CcpJsonValidatorFieldList[] requiresAllOrNone() default {};
-	
-	@SuppressWarnings("rawtypes")
-	Class[] customJsonValidators() default {};
-	
+public @interface CcpJsonCopyGlobalValidationsFrom {
+	Class<?> value();
 }

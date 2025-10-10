@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
@@ -405,7 +406,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 	
 	@SafeVarargs
-	public final CcpJsonRepresentation getTransformedJson(Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+	public final CcpJsonRepresentation getTransformedJson(CcpTopic... transformers) {
 		CcpJsonRepresentation transformedJson = this;
 		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer : transformers) {
 			transformedJson = transformer.apply(transformedJson);
@@ -1065,11 +1066,10 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 	
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public CcpJsonRepresentation getTransformedJson(
-			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> jsonTransformers) {
+			List<CcpTopic> jsonTransformers) {
 		
-		Function[] array = jsonTransformers.toArray(new Function[jsonTransformers.size()]);
+		CcpTopic[] array = jsonTransformers.toArray(new CcpTopic[jsonTransformers.size()]);
 		CcpJsonRepresentation transformedJson = this.getTransformedJson(array);
 		return transformedJson;
 	}

@@ -1,6 +1,6 @@
 package com.ccp.json.validations.global.annotations;
 
-public @interface CcpJsonValidatorFieldList {
+public @interface CcpJsonValidationFieldList {
 	
 	String[] value() default{};
 }

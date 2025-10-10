@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.json.validations.global.annotations.CcpJsonValidatorFieldList;
-import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
+import com.ccp.json.validations.global.annotations.CcpJsonValidationFieldList;
+import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
 public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
@@ -16,10 +16,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 
 		public boolean hasError(CcpJsonRepresentation json, Class<?> clazz) {
 			
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] validations = annotation.requiresAtLeastOne();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] validations = annotation.requiresAtLeastOne();
 			
-			for (CcpJsonValidatorFieldList validation : validations) {
+			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] oneOfThem = validation.value();
 				
@@ -33,10 +33,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 		}
 
 		public List<String> getErrorMessage(CcpJsonRepresentation json, Class<?> clazz) {
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] requiredAtLeastOne = annotation.requiresAtLeastOne();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] requiredAtLeastOne = annotation.requiresAtLeastOne();
 			List<String> errors = new ArrayList<>();
-			for (CcpJsonValidatorFieldList validation : requiredAtLeastOne) {
+			for (CcpJsonValidationFieldList validation : requiredAtLeastOne) {
 				
 				String[] oneOfThem = validation.value();
 				
@@ -52,10 +52,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 		}
 
 		public List<String> getRuleExplanation(Class<?> clazz) {
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] requiredAtLeastOne = annotation.requiresAtLeastOne();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] requiredAtLeastOne = annotation.requiresAtLeastOne();
 			List<String> rules = new ArrayList<>();
-			for (CcpJsonValidatorFieldList validation : requiredAtLeastOne) {
+			for (CcpJsonValidationFieldList validation : requiredAtLeastOne) {
 				
 				String[] oneOfThem = validation.value();
 				String rule = "The provided json must has one of this following fields: " + Arrays.asList(oneOfThem).toString();
@@ -73,10 +73,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 
 		public boolean hasError(CcpJsonRepresentation json, Class<?> clazz) {
 	
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] validations = annotation.requiresAllOrNone();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] validations = annotation.requiresAllOrNone();
 			
-			for (CcpJsonValidatorFieldList validation : validations) {
+			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] array = validation.value();
 
@@ -99,10 +99,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			
 			List<String> errors = new ArrayList<>();
 			
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] validations = annotation.requiresAllOrNone();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] validations = annotation.requiresAllOrNone();
 			
-			for (CcpJsonValidatorFieldList validation : validations) {
+			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] array = validation.value();
 
@@ -130,10 +130,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 		}
 
 		public Object getRuleExplanation(Class<?> clazz) {
-			CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
-			CcpJsonValidatorFieldList[] list = annotation.requiresAtLeastOne();
+			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+			CcpJsonValidationFieldList[] list = annotation.requiresAtLeastOne();
 			List<String> rules = new ArrayList<>();
-			for (CcpJsonValidatorFieldList validation : list) {
+			for (CcpJsonValidationFieldList validation : list) {
 				
 				String[] oneOfThem = validation.value();
 				String rule = "The provided json must has all (or none) of this following fields: " + Arrays.asList(oneOfThem).toString() + ". If provide one of them, so must provide all of them";

@@ -1,11 +1,10 @@
 package com.ccp.json.transformers;
 
-import java.util.function.Function;
-
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 
-public interface CcpTransformers extends Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public interface CcpTransformers extends CcpTopic {
 
 	
 	default CcpJsonRepresentation substring(CcpJsonRepresentation json, String field, int limit) {

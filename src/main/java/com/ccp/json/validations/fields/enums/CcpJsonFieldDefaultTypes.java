@@ -13,7 +13,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeBoolean;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberInteger;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberNatural;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberUnsigned;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfter;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
@@ -111,7 +111,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 		}
 
 		public boolean hasRuleExplanation(Field field) {
-			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNumberNatural.class);
+			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeNumberUnsigned.class);
 			return annotationPresent;
 		}
 

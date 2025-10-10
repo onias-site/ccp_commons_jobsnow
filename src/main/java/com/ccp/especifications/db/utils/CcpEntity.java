@@ -320,7 +320,7 @@ public interface CcpEntity{
 	default Class<?> getJsonValidationClass(){
 		Class<?> configurationClass = this.getConfigurationClass();
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(configurationClass);
-		Class<?> classWithFieldsValidationsRules = especifications.classWithFieldsValidationsRules();
+		Class<?> classWithFieldsValidationsRules = especifications.jsonValidation();
 		return classWithFieldsValidationsRules;
 	}
 }

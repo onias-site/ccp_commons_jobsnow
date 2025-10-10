@@ -22,7 +22,7 @@ public enum CcpMensageriaOperationType {
 		}
 	},
 	none{
-		CcpTopic getTopicType(CcpEntity entity, String operationFieldName,  CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> getTopicType(CcpEntity entity, String operationFieldName,  CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
 			throw new UnsupportedOperationException();
 		}},
 	;

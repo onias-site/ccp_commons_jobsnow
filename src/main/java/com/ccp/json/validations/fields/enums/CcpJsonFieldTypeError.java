@@ -18,7 +18,7 @@ import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberInteger;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberNatural;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberUnsigned;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
@@ -31,7 +31,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	unsignedNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
+			CcpJsonFieldTypeNumberUnsigned annotation = field.getAnnotation(CcpJsonFieldTypeNumberUnsigned.class);
 		    Long number = annotation.maxValue();
 		    String fieldName = field.getName();
 		    Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
@@ -39,7 +39,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		Long getValidationParameter(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
+			CcpJsonFieldTypeNumberUnsigned annotation = field.getAnnotation(CcpJsonFieldTypeNumberUnsigned.class);
 			Long value = annotation.maxValue();
 		    return  value;
 		}
@@ -75,7 +75,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		
 		Long getValidationParameter(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
+			CcpJsonFieldTypeNumberUnsigned annotation = field.getAnnotation(CcpJsonFieldTypeNumberUnsigned.class);
 		    Long value = annotation.minValue();
  
 		    return value;
@@ -116,7 +116,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		Long getValidationParameter(Field field, CcpJsonFieldType type) {
-		    CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
+		    CcpJsonFieldTypeNumberUnsigned annotation = field.getAnnotation(CcpJsonFieldTypeNumberUnsigned.class);
 		    Long value = annotation.exactValue();
 		    return value;
 		}
@@ -159,7 +159,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		List<Long> getValidationParameter(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeNumberNatural annotation = field.getAnnotation(CcpJsonFieldTypeNumberNatural.class);
+			CcpJsonFieldTypeNumberUnsigned annotation = field.getAnnotation(CcpJsonFieldTypeNumberUnsigned.class);
 		    long[] allowedValues = annotation.allowedValues();
 			List<Long> list = new ArrayList<>();
 			for (long value : allowedValues) {

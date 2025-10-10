@@ -7,14 +7,12 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
+@SuppressWarnings("rawtypes")
 public @interface CcpEntitySpecifications {
 
-	CcpEntityTransferOperationEspecification inactivate();
-	CcpEntityTransferOperationEspecification reactivate();
-	CcpEntityOperationSpecification delete();
-	CcpEntityOperationSpecification save();
-	Class<?> classWithFieldsValidationsRules();
-
+	Class[] afterDeleteRecord();
+	Class[] afterSaveRecord();
 	boolean cacheableEntity();
-	
+	Class<?> jsonValidation();
+
 }

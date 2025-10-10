@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -15,6 +14,7 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 
 public interface CcpExecuteBulkOperation {
 	@SuppressWarnings("unchecked")
@@ -41,11 +41,11 @@ public interface CcpExecuteBulkOperation {
 			boolean presentInThisUnionAll = entityToSearch.isPresentInThisUnionAll(unionAll, data);
 			
 			if(presentInThisUnionAll) {
-				List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> doAfterSavingIfRecordIsFound = handler.doAfterSavingIfRecordIsFound();
+				List<CcpTopic> doAfterSavingIfRecordIsFound = handler.doAfterSavingIfRecordIsFound();
 				data = data.getTransformedJson(doAfterSavingIfRecordIsFound);
 				continue;
 			}
-			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> doAfterSavingIfRecordIsNotFound = handler.doAfterSavingIfRecordIsNotFound();
+			List<CcpTopic> doAfterSavingIfRecordIsNotFound = handler.doAfterSavingIfRecordIsNotFound();
 			data = data.getTransformedJson(doAfterSavingIfRecordIsNotFound);
 		}
 		

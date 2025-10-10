@@ -2,10 +2,10 @@ package com.ccp.especifications.db.crud;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 
 public interface CcpHandleWithSearchResultsInTheEntity<T> {
 
@@ -15,11 +15,11 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	
 	CcpEntity getEntityToSearch();
 	
-	default List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> doAfterSavingIfRecordIsNotFound(){
+	default List<CcpTopic> doAfterSavingIfRecordIsNotFound(){
 		return new ArrayList<>();
 	}
 
-	default List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> doAfterSavingIfRecordIsFound(){
+	default List<CcpTopic> doAfterSavingIfRecordIsFound(){
 		return new ArrayList<>();
 	}
 	

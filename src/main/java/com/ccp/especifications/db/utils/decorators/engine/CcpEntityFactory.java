@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityTransferType;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration;
@@ -44,7 +45,7 @@ public class CcpEntityFactory {
 		String twinEntityName = annotation.twinEntityName();
 		
 		CcpEntity original = this.getEntityInstance(configurationClass);
-		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, false);
+		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Inactivate);
 		
 		DecoratorTwinEntity entity = new DecoratorTwinEntity(original, twin);
 		return entity;
@@ -57,11 +58,11 @@ public class CcpEntityFactory {
 		int indexOf = snackCase.indexOf("entity");
 		String entityName = snackCase.substring(indexOf + 7);
 	
-		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, true);
+		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, CcpEntityTransferType.Reactivate);
 		return entity;
 	}
 
-	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, Boolean transferType) {
+	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, CcpEntityTransferType transferType) {
 
 		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
 		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);

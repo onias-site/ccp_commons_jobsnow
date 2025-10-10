@@ -12,7 +12,7 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
-import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
+import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
@@ -53,11 +53,11 @@ public class CcpJsonValidationRulesEngine {
 		CcpJsonRepresentation rulesExplanation =  CcpOtherConstants.EMPTY_JSON;
 		
 		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(CcpJsonValidatorDefaults.values());
-		boolean skipThisClass = clazz.isAnnotationPresent(CcpJsonValidatorGlobal.class) == false;
+		boolean skipThisClass = clazz.isAnnotationPresent(CcpJsonGlobalValidations.class) == false;
 		if(skipThisClass) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
+		CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
 		List<CcpJsonValidator> customGlobalValidations = Arrays.asList(annotation.customJsonValidators())
 				.stream().map(x -> new CcpReflectionConstructorDecorator(x)).map(constructor -> (CcpJsonValidator)constructor.newInstance())
 				.collect(Collectors.toList())	

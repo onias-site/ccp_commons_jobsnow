@@ -14,6 +14,7 @@ import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 final class DefaultImplementationEntity implements CcpEntity{
@@ -80,9 +81,11 @@ final class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
-		List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> stepsAfter = operation.getStepsAfter(this.entityClass);
+		List<CcpTopic> stepsAfter = operation.getStepsAfter(this.entityClass);
 		CcpJsonRepresentation result = json;
-		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> function : stepsAfter) {
+		for (CcpTopic function : stepsAfter) {
+			String featureName = function.getClass().getName();
+			CcpJsonValidatorEngine.INSTANCE.validateJson(function.getJsonValidationClass(), result, featureName);
 			result = function.apply(result);
 		}
 		return result;
@@ -90,8 +93,8 @@ final class DefaultImplementationEntity implements CcpEntity{
 
 	public CcpEntity validateJson(CcpJsonRepresentation json) {
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(this.entityClass);
-		Class<?> jsonValidationClass = especifications.classWithFieldsValidationsRules();
-		String featureName = this.entityClass.getName()+ "." + this;
+		Class<?> jsonValidationClass = especifications.jsonValidation();
+		String featureName = this.entityClass.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
 		return this;
 	}

@@ -3,13 +3,12 @@ package com.ccp.especifications.db.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityOperationSpecification;
 import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.especifications.mensageria.receiver.CcpTopic;
 
 public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 {
@@ -19,12 +18,11 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			return json;
 		}
 
-		public List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getStepsAfter(Class<?> entityClass) {
+		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
 			CcpEntitySpecifications especifications = super.getEspecifications(entityClass);
-			CcpEntityOperationSpecification operation = especifications.save();
-			Class<?>[] callBacks = operation.afterOperation();
-			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
-			return  collect;
+			Class<?>[] callBacks = especifications.afterSaveRecord();
+			List<CcpTopic> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
+			return collect;
 		}
 		
 		public Class<?> getJsonValidationClass(CcpEntity entity) {
@@ -39,11 +37,10 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			return json;
 		}
 
-		public List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getStepsAfter(Class<?> entityClass) {
+		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
 			CcpEntitySpecifications especifications = super.getEspecifications(entityClass);
-			CcpEntityOperationSpecification operation = especifications.delete();
-			Class<?>[] callBacks = operation.afterOperation();
-			List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
+			Class<?>[] callBacks = especifications.afterDeleteRecord();
+			List<CcpTopic> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
 			return  collect;
 		}
 	}
@@ -56,7 +53,7 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 		}
 
 
-		public List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getStepsAfter(Class<?> entityClass) {
+		public List<CcpTopic> getStepsAfter(Class<?> entityClass) {
 			return new ArrayList<>();
 		}
 
@@ -66,12 +63,12 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
 
-	public abstract List<Function<CcpJsonRepresentation, CcpJsonRepresentation>> getStepsAfter(Class<?> entityClass);
+	public abstract List<CcpTopic> getStepsAfter(Class<?> entityClass);
 
-	public static Function<CcpJsonRepresentation, CcpJsonRepresentation> instanciateFunction(Class<?> x) {
+	public static CcpTopic instanciateFunction(Class<?> x) {
 		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(x);
 
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> newInstance = reflection.newInstance();
+		CcpTopic newInstance = reflection.newInstance();
 		
 		return newInstance;
 	}

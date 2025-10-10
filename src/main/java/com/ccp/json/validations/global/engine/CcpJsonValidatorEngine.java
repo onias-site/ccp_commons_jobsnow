@@ -20,7 +20,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeCustom;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberInteger;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberNatural;
+import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberUnsigned;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfter;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
@@ -29,7 +29,8 @@ import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
-import com.ccp.json.validations.global.annotations.CcpJsonValidatorGlobal;
+import com.ccp.json.validations.global.annotations.CcpJsonCopyGlobalValidationsFrom;
+import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
@@ -37,8 +38,8 @@ public class CcpJsonValidatorEngine {
 	enum JsonFields implements CcpJsonFieldName{
 		field, type
 		;
-		
 	}
+	
 	private CcpJsonValidatorEngine() {}
 	
 	public static final CcpJsonValidatorEngine INSTANCE = new CcpJsonValidatorEngine();
@@ -81,7 +82,7 @@ public class CcpJsonValidatorEngine {
 			return CcpJsonFieldDefaultTypes.Number;
 		}
 		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberNatural.class)) {
+		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberUnsigned.class)) {
 			return CcpJsonFieldDefaultTypes.NumberUnsigned;
 		}
 
@@ -201,16 +202,23 @@ public class CcpJsonValidatorEngine {
 
 	private CcpJsonRepresentation getErrorsFromClass(Class<?> clazz, CcpJsonRepresentation json) {
 		
+		if(clazz.isAnnotationPresent(CcpJsonCopyGlobalValidationsFrom.class)) {
+			CcpJsonCopyGlobalValidationsFrom annotation = clazz.getAnnotation(CcpJsonCopyGlobalValidationsFrom.class);
+			Class<?> value = annotation.value();
+			CcpJsonRepresentation errorsFromClass = this.getErrorsFromClass(value, json);
+			return errorsFromClass;
+		}
+		
 		CcpJsonRepresentation errors =  CcpOtherConstants.EMPTY_JSON;
 		
-		boolean annotationIsMissing = false == clazz.isAnnotationPresent(CcpJsonValidatorGlobal.class);
+		boolean annotationIsMissing = false == clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
 		
 		if(annotationIsMissing) {
 			return errors;
 		}
 
 		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(CcpJsonValidatorDefaults.values());
-		CcpJsonValidatorGlobal annotation = clazz.getAnnotation(CcpJsonValidatorGlobal.class);
+		CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
 		List<CcpJsonValidator> customGlobalValidations = Arrays.asList(annotation.customJsonValidators())
 				.stream().map(x -> new CcpReflectionConstructorDecorator(x)).map(constructor -> (CcpJsonValidator)constructor.newInstance())
 				.collect(Collectors.toList())	
