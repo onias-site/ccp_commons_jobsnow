@@ -4,7 +4,9 @@ import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
+
 
 public final class CcpDbQuerySimplifiedQuery  extends CcpDbQueryBooleanOperator {
 
@@ -12,7 +14,6 @@ public final class CcpDbQuerySimplifiedQuery  extends CcpDbQueryBooleanOperator 
 		super(parent, "query");
 	}
 
-	@SuppressWarnings("unchecked")
 	public CcpDbQuerySimplifiedQuery  terms(CcpEntityField field, Object value) {
 		return super.terms(field, value);
 	}
@@ -65,14 +66,13 @@ public final class CcpDbQuerySimplifiedQuery  extends CcpDbQueryBooleanOperator 
 		}
 
 		
-		@SuppressWarnings("unchecked")
 		public CcpDbQuerySimplifiedQuery term(CcpEntityField field, Object value) {
 			return super.term(field, value);
 		}
 		
 		
 		@SuppressWarnings("unchecked")
-		public CcpDbQuerySimplifiedQuery match(CcpEntityField field, Object value) {
+		public CcpDbQuerySimplifiedQuery match(CcpJsonFieldName field, Object value) {
 			return super.match(field, value);
 		}
 		@SuppressWarnings("unchecked")

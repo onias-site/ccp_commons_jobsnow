@@ -30,7 +30,6 @@ public final class CcpDbQueryShouldNot  extends CcpDbQueryBooleanOperator {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	public CcpDbQueryShouldNot term(CcpEntityField field, Object value) {
 		return super.term(field, value);
 	}

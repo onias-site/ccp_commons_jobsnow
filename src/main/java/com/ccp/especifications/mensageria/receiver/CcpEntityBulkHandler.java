@@ -2,7 +2,6 @@ package com.ccp.especifications.mensageria.receiver;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;

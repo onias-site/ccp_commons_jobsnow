@@ -9,6 +9,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
+
 abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 	enum JsonFieldNames implements CcpJsonFieldName{
 		operator, boost, query
@@ -20,12 +21,12 @@ abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 		super(parent, name);
 	}
 
-	public <T extends CcpDbQueryBooleanOperator> T term(CcpEntityField field, Object value) {
+	public <T extends CcpDbQueryBooleanOperator> T term(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "term");
 		return addCondition;
 	}
 
-	public <T extends CcpDbQueryBooleanOperator> T terms(CcpEntityField field, Object value) {
+	public <T extends CcpDbQueryBooleanOperator> T terms(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "terms");
 		return addCondition;
 	}
@@ -35,7 +36,7 @@ abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 		return addCondition;
 	}
 
-	public <T extends CcpDbQueryBooleanOperator> T match(CcpEntityField field, Object value) {
+	public <T extends CcpDbQueryBooleanOperator> T match(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "match");
 		return addCondition;
 	}

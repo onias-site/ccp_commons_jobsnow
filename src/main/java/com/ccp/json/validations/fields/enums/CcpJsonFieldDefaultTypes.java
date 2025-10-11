@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeBoolean;
@@ -36,8 +37,20 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 		}
 
 		public boolean hasRuleExplanation(Field field) {
-			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
-			return annotationPresent;
+			
+			boolean annotationRequiredIsPresent = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
+			
+			if(annotationRequiredIsPresent) {
+				return true;
+			}
+			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			
+			if(hasAnnotationPrimaryKey) {
+				return true;
+			}
+
+			
+			return false;
 		}
 
 	},

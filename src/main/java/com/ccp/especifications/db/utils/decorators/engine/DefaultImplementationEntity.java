@@ -2,7 +2,6 @@ package com.ccp.especifications.db.utils.decorators.engine;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -13,7 +12,7 @@ import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
@@ -72,8 +71,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		CcpJsonRepresentation result = json;
 		for (CcpEntityField field : this.fields) {
 			try {
-				Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer = field.getTransformer();
-				result = transformer.apply(result);
+				result = field.transformer.apply(result);
 			} catch (CcpEntityJsonTransformerError e) {
 			}
 		}
@@ -93,7 +91,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 
 	public CcpEntity validateJson(CcpJsonRepresentation json) {
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(this.entityClass);
-		Class<?> jsonValidationClass = especifications.jsonValidation();
+		Class<?> jsonValidationClass = especifications.entityValidation();
 		String featureName = this.entityClass.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
 		return this;

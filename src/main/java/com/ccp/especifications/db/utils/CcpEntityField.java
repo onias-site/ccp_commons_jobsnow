@@ -6,39 +6,22 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
-public interface CcpEntityField extends CcpJsonFieldName {
+public class CcpEntityField implements CcpJsonFieldName{
 
-	boolean isPrimaryKey();
+	public static final CcpEntityField TIMESTAMP = new CcpEntityField("timestamp", false, CcpOtherConstants.DO_NOTHING);
+	public static final CcpEntityField DATE = new CcpEntityField("date", false, CcpOtherConstants.DO_NOTHING);
 	
-	Function<CcpJsonRepresentation, CcpJsonRepresentation> getTransformer();
+	public final Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer;
+	public final boolean primaryKey;
+	public final String name;
 	
-	CcpEntityField TIMESTAMP = new CcpEntityField() {
-		
-		public String name() {
-			return "timestamp";
-		}
-		
-		public boolean isPrimaryKey() {
-			return false;
-		}
-		
-		public Function<CcpJsonRepresentation, CcpJsonRepresentation> getTransformer() {
-			return CcpOtherConstants.DO_NOTHING;
-		}
-	};
+	public CcpEntityField(String name, boolean primaryKey, Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer) {
+		this.transformer = transformer;
+		this.primaryKey = primaryKey;
+		this.name = name;
+	}
 
-	CcpEntityField DATE = new CcpEntityField() {
-
-		public Function<CcpJsonRepresentation, CcpJsonRepresentation> getTransformer() {
-			return CcpOtherConstants.DO_NOTHING;
-		}
-		
-		public String name() {
-			return "date";
-		}
-		
-		public boolean isPrimaryKey() {
-			return false;
-		}
-	};
+	public String name() {
+		return this.name;
+	}
 }

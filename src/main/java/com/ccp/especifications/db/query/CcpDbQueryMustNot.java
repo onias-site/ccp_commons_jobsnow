@@ -25,8 +25,6 @@ public final class CcpDbQueryMustNot extends CcpDbQueryBooleanOperator{
 		return super.matchPhrase(field, value);
 	}
 
-	
-	@SuppressWarnings("unchecked")
 	public CcpDbQueryMustNot term(CcpEntityField field, Object value) {
 		return super.term(field, value);
 	}

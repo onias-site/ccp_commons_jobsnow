@@ -4,6 +4,7 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
 
+
 public final class CcpDbQueryShould  extends CcpDbQueryBooleanOperator {
 	enum JsonFieldNames implements CcpJsonFieldName{
 		minimum_should_match
@@ -35,8 +36,6 @@ public final class CcpDbQueryShould  extends CcpDbQueryBooleanOperator {
 		return super.matchPhrase(field, value);
 	}
 
-	
-	@SuppressWarnings("unchecked")
 	public CcpDbQueryShould match(CcpEntityField field, Object value) {
 		return super.match(field, value);
 	}
@@ -51,10 +50,6 @@ public final class CcpDbQueryShould  extends CcpDbQueryBooleanOperator {
 		return addCondition;
 	}
 
-
-
-	
-	@SuppressWarnings("unchecked")
 	public CcpDbQueryShould term(CcpEntityField field, Object value) {
 		return super.term(field, value);
 	}

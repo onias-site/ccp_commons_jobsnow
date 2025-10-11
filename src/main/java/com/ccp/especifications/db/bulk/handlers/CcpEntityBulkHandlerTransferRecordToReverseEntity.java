@@ -12,7 +12,7 @@ import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTwin;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{

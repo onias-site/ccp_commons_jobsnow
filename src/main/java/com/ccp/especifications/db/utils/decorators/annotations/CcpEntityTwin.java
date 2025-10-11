@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.decorators.configurations;
+package com.ccp.especifications.db.utils.decorators.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

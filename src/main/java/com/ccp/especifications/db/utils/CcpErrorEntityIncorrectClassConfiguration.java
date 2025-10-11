@@ -1,7 +1,7 @@
 package com.ccp.especifications.db.utils;
 
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityDecorators;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityExpurgable;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityDecorators;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityExpurgable;
 
 @SuppressWarnings("serial")
 public class CcpErrorEntityIncorrectClassConfiguration extends RuntimeException{
@@ -14,18 +14,6 @@ public class CcpErrorEntityIncorrectClassConfiguration extends RuntimeException{
 		mustDeclarePublicStaticEnum {
 			String getMessage(String className) {
 				String message = "The class '" + className + "' must declare a public static enum";	
-				return message;
-			}
-		},
-		mustDeclareAnEnumCalledFields {
-			String getMessage(String className) {
-				String message = "The class '" + className + "' must declare a public static enum called 'FIELDS'";	
-				return message;
-			}
-		},
-		mustHaveAnEnumThatImplementsTheInterface {
-			String getMessage(String className) {
-				String message = "The class '" + className + "' must have an enum that implements the interface " + CcpEntityField.class.getName();	
 				return message;
 			}
 		},

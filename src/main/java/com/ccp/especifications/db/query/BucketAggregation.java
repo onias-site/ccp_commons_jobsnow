@@ -7,6 +7,7 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
 
+
 public final class BucketAggregation extends CcpDbQueryComponent {
 	enum JsonFieldNames implements CcpJsonFieldName{
 		field

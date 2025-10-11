@@ -1,7 +1,11 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
@@ -10,10 +14,14 @@ import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration;
 import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration.IncorrectEntityClassConfigurationType;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityDecorators;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityExpurgable;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntityTwin;
+import com.ccp.especifications.db.utils.CcpJsonTransformersDefaultEntityField;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityDecorators;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityExpurgable;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldPrimaryKey;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldTransformer;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityTwin;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public class CcpEntityFactory {
 
@@ -138,37 +146,73 @@ public class CcpEntityFactory {
 			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclarePublicStaticEnum);
 		}
 		
-		Class<?> firstClass = declaredClasses[0];
-		
-		boolean incorrectClassName = firstClass.getSimpleName().equals("Fields") == false;
-		
-		if(incorrectClassName) {
-			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclareAnEnumCalledFields);
+		CcpEntitySpecifications annotation = configurationClass.getAnnotation(CcpEntitySpecifications.class);
+		Class<?> entitySchemeValidation = annotation.entityValidation();
+		Field[] declaredFields = entitySchemeValidation.getDeclaredFields();
+		List<CcpEntityField> list = new ArrayList<>();
+		for (Field field : declaredFields) {
+			
+			Object object;
+			try {
+				object = field.get(null);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			boolean skipThisField = false == object instanceof CcpJsonFieldName;
+			
+			if(skipThisField) {
+				continue;
+			}
+			
+			String name = ((CcpJsonFieldName)object).name();
+			CcpBusiness transformer = this.getEntityFieldTransformer(name, field);
+			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			CcpEntityField entityField = new CcpEntityField(name, primaryKey, transformer);
+			list.add(entityField);
 		}
 		
-		Method method;
-		try {
-			method = firstClass.getMethod("values");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} 
-		CcpEntityField[] fields;
-		try {
-			fields = (CcpEntityField[])method.invoke(null);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		CcpEntityField field = fields[0];
-		
-		boolean doesNotImplementTheInterface = field instanceof CcpEntityField == false;
-		
-		if(doesNotImplementTheInterface) {
-			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustHaveAnEnumThatImplementsTheInterface);
-		}
+		CcpEntityField[] fields = list.toArray(new CcpEntityField[list.size()]);
 		
 		return fields;
 	}
 	
-	
+	private CcpBusiness getEntityFieldTransformer(String name, Field field){
+		boolean hasCustomEntityFieldTransformer = field.isAnnotationPresent(CcpEntityFieldTransformer.class);
+		if(hasCustomEntityFieldTransformer) {
+			CcpEntityFieldTransformer annotation = field.getAnnotation(CcpEntityFieldTransformer.class);
+			Class<?> value = annotation.value();
+			CcpReflectionConstructorDecorator crcd = new CcpReflectionConstructorDecorator(value);
+			CcpBusiness transformer = crcd.newInstance();
+			return transformer;
+		}
+		
+		CcpEntitySpecifications annotation = this.configurationClass.getAnnotation(CcpEntitySpecifications.class);
+		Class<?> enumWithDefaultJsonTransformers = annotation.entityFieldsTransformers();
+		Field declaredField;
+		CcpJsonTransformersDefaultEntityField defaultEntityField;
+		try {
+			declaredField = enumWithDefaultJsonTransformers.getDeclaredField(name);
+			defaultEntityField = (CcpJsonTransformersDefaultEntityField)declaredField.get(null);
+		} catch (NoSuchFieldException e) {
+			return CcpOtherConstants.DO_NOTHING;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+
+		boolean isNotPrimaryKeyField = primaryKey == false;
+
+		 if(isNotPrimaryKeyField) {
+			 return defaultEntityField;
+		 }
+		 
+		 boolean canBePrimaryKey = defaultEntityField.canBePrimaryKey();
+		
+		 if(canBePrimaryKey) {
+			 return defaultEntityField;
+		 }
+
+		 throw new RuntimeException("The field '" + defaultEntityField.name() + "' can not be a primary key");
+	}
 }

@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.query;
 
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
 public final class CcpDbQueryMust extends CcpDbQueryBooleanOperator{
@@ -22,15 +23,14 @@ public final class CcpDbQueryMust extends CcpDbQueryBooleanOperator{
 	public CcpDbQueryMust prefix(CcpEntityField field, Object value) {
 		return super.prefix(field, value);
 	}
-
 	
 	@SuppressWarnings("unchecked")
-	public CcpDbQueryMust term(CcpEntityField field, Object value) {
+	public CcpDbQueryMust term(CcpJsonFieldName field, Object value) {
 		return super.term(field, value);
 	}
 
 	@SuppressWarnings("unchecked")
-	public CcpDbQueryMust terms(CcpEntityField field, Object value) {
+	public CcpDbQueryMust terms(CcpJsonFieldName field, Object value) {
 		return super.terms(field, value);
 	}
 
@@ -48,8 +48,6 @@ public final class CcpDbQueryMust extends CcpDbQueryBooleanOperator{
 		return new CcpDbQueryBool(this);
 	}
 
-	@SuppressWarnings("unchecked")
-	
 	public CcpDbQueryMust match(CcpEntityField field, Object value) {
 		return super.match(field, value);
 	}

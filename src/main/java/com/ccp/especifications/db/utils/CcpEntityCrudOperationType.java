@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation

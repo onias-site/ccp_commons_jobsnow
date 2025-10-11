@@ -14,6 +14,7 @@ import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
+
 public abstract class CcpEntityDelegator implements CcpEntity{
 
 	protected final CcpEntity entity;

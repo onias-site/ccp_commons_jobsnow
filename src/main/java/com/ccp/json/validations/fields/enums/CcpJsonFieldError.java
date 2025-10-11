@@ -8,6 +8,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
@@ -64,10 +65,15 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			
-			boolean hasAnnotation = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
-			boolean optional = false == hasAnnotation;
+			boolean hasAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
 			
-			if(optional) {
+			if(hasAnnotationRequired) {
+				return false;
+			}
+
+			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			
+			if(hasAnnotationPrimaryKey) {
 				return false;
 			}
 			
@@ -88,13 +94,19 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return ruleExplanation;
 		}
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			boolean hasAnnotation = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
-			boolean optional = false == hasAnnotation;
+			boolean hasAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
 			
-			if(optional) {
-				return false;
+			if(hasAnnotationRequired) {
+				return true;
 			}
-			return true;
+
+			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			
+			if(hasAnnotationPrimaryKey) {
+				return true;
+			}
+			
+			return false;
 		}
 	},
 	

@@ -21,7 +21,7 @@ import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
-import com.ccp.especifications.db.utils.decorators.configurations.CcpEntitySpecifications;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
@@ -227,7 +227,7 @@ public interface CcpEntity{
 
 	default List<String> getPrimaryKeyNames() {
 		CcpEntityField[] fields = this.getFields();
-		List<String> onlyPrimaryKey = new ArrayList<>(Arrays.asList(fields).stream().filter(x -> x.isPrimaryKey()).map(x -> x.name()).collect(Collectors.toList()));
+		List<String> onlyPrimaryKey = new ArrayList<>(Arrays.asList(fields).stream().filter(x -> x.primaryKey).map(x -> x.name()).collect(Collectors.toList()));
 		return onlyPrimaryKey;
 	}
 	
@@ -321,7 +321,7 @@ public interface CcpEntity{
 	default Class<?> getJsonValidationClass(){
 		Class<?> configurationClass = this.getConfigurationClass();
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(configurationClass);
-		Class<?> classWithFieldsValidationsRules = especifications.jsonValidation();
+		Class<?> classWithFieldsValidationsRules = especifications.entityValidation();
 		return classWithFieldsValidationsRules;
 	}
 }
