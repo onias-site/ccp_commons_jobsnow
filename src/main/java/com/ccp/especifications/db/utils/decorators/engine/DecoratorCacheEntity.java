@@ -1,12 +1,11 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
-import java.util.function.Function;
-
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 class DecoratorCacheEntity extends CcpEntityDelegator{
 
@@ -28,7 +27,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 	}
 	
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json,
-			Function<CcpJsonRepresentation, CcpJsonRepresentation> ifNotFound) {
+			CcpBusiness ifNotFound) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 	

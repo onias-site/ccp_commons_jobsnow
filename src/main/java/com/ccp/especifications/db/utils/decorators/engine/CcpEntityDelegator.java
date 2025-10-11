@@ -3,7 +3,6 @@ package com.ccp.especifications.db.utils.decorators.engine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -13,6 +12,7 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 
 public abstract class CcpEntityDelegator implements CcpEntity{
@@ -69,7 +69,7 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json,
-			Function<CcpJsonRepresentation, CcpJsonRepresentation> ifNotFound) {
+			CcpBusiness ifNotFound) {
 		CcpJsonRepresentation oneById = this.entity.getOneById(json, ifNotFound);
 		return oneById;
 	}
@@ -174,9 +174,9 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return onlyExistingFieldsAndHandledJson;
 	}
 
-	public Function<CcpJsonRepresentation, CcpJsonRepresentation> getOperationCallback(
+	public CcpBusiness getOperationCallback(
 			CcpEntityCrudOperationType operation) {
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> operationCallback = this.entity.getOperationCallback(operation);
+		CcpBusiness operationCallback = this.entity.getOperationCallback(operation);
 		return operationCallback;
 	}
 

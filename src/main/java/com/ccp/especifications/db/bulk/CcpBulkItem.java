@@ -1,12 +1,11 @@
 package com.ccp.especifications.db.bulk;
 
-import java.util.function.Function;
-
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 enum CcpBulkItemFields implements CcpJsonFieldName{
 	id,  entity, operation 
@@ -29,7 +28,7 @@ public class CcpBulkItem {
 	}
 	
 	public CcpBulkItem(CcpJsonRepresentation json, CcpEntityBulkOperationType operation, CcpEntity entity, 
-			String id, Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer) {
+			String id, CcpBusiness transformer) {
 		CcpJsonRepresentation transformedJson = json;
 		try {
 			transformedJson = transformer.apply(json);

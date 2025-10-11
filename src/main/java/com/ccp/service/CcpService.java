@@ -1,13 +1,13 @@
 package com.ccp.service;
 
 import java.util.Map;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpErrorJsonInvalid;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
-public interface CcpService extends Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public interface CcpService extends CcpBusiness {
 
 	Class<?> getJsonValidationClass();
 	

@@ -1,7 +1,6 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
@@ -9,6 +8,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
@@ -93,7 +93,7 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return oneById;
 	}
 	
-	public final CcpJsonRepresentation getOneById(CcpJsonRepresentation json, Function<CcpJsonRepresentation, CcpJsonRepresentation> ifNotFound) {
+	public final CcpJsonRepresentation getOneById(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		this.validateTwinEntity(json);
 		CcpJsonRepresentation oneById = this.entity.getOneById(json, ifNotFound);
 		return oneById;

@@ -1,7 +1,6 @@
 package com.ccp.especifications.mensageria.receiver;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
@@ -20,7 +19,7 @@ public abstract class CcpMensageriaReceiver {
 		this.operationFieldName = operationFieldName;
 	}
 
-	public Function<CcpJsonRepresentation, CcpJsonRepresentation> getProcess(String processName, CcpJsonRepresentation json){
+	public CcpBusiness getProcess(String processName, CcpJsonRepresentation json){
 		
 		CcpReflectionConstructorDecorator reflection = new CcpStringDecorator(processName).reflection();
 
@@ -42,7 +41,7 @@ public abstract class CcpMensageriaReceiver {
 		CcpMensageriaOperationType valueOf = CcpMensageriaOperationType.valueOf(operationType);
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> jnEntityTopic = valueOf.getTopicType(entity, this.operationFieldName, executeBulkOperation, functionToDeleteKeysInTheCache);
+		CcpBusiness jnEntityTopic = valueOf.getTopicType(entity, this.operationFieldName, executeBulkOperation, functionToDeleteKeysInTheCache);
 		return jnEntityTopic;
 	}
 	

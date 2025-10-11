@@ -1,15 +1,13 @@
 package com.ccp.flow;
 
-import java.util.function.Function;
-
-import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public final class CcpBeginThisStatement {
 	protected CcpBeginThisStatement() {
 		
 	}
 	
-	public CcpTryToExecuteTheGivenFinalTargetProcess tryToExecuteTheGivenFinalTargetProcess(Function<CcpJsonRepresentation, CcpJsonRepresentation> givenFinalTargetProcess) {
+	public CcpTryToExecuteTheGivenFinalTargetProcess tryToExecuteTheGivenFinalTargetProcess(CcpBusiness givenFinalTargetProcess) {
 		return new CcpTryToExecuteTheGivenFinalTargetProcess(givenFinalTargetProcess);
 	}
 }

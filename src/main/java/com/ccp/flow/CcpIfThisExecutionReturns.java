@@ -1,17 +1,16 @@
 package com.ccp.flow;
 
-import java.util.function.Function;
-
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.process.CcpProcessStatus;
 
 public final class CcpIfThisExecutionReturns {
-	protected final Function<CcpJsonRepresentation, CcpJsonRepresentation> givenFinalTargetProcess;
+	protected final CcpBusiness givenFinalTargetProcess;
 	protected final CcpJsonRepresentation givenJson;
 	protected final CcpProcessStatus processStatus;
 	protected final CcpJsonRepresentation flow;
 
-	protected CcpIfThisExecutionReturns(Function<CcpJsonRepresentation, CcpJsonRepresentation> givenFinalTargetProcess,
+	protected CcpIfThisExecutionReturns(CcpBusiness givenFinalTargetProcess,
 			CcpJsonRepresentation givenJson, CcpProcessStatus processStatus, CcpJsonRepresentation flow) {
 
 		this.givenFinalTargetProcess = givenFinalTargetProcess;
@@ -20,8 +19,7 @@ public final class CcpIfThisExecutionReturns {
 		this.flow = flow;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public CcpExecuteTheGivenProcess thenExecuteTheGivenProcesses(Function<CcpJsonRepresentation, CcpJsonRepresentation>... givenProcess) {
+	public CcpExecuteTheGivenProcess thenExecuteTheGivenProcesses(CcpBusiness... givenProcess) {
 		CcpJsonRepresentation nextFlow = this.flow.put(this.processStatus, givenProcess);
 		return new CcpExecuteTheGivenProcess(this.givenFinalTargetProcess, this.givenJson, nextFlow);
 	}

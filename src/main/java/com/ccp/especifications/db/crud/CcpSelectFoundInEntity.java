@@ -1,10 +1,10 @@
 package com.ccp.especifications.db.crud;
 
 import java.util.List;
-import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.process.CcpProcessStatus;
 
 
@@ -21,7 +21,7 @@ public class CcpSelectFoundInEntity {
 		this.id = id;
 	}
 
-	public CcpSelectNextStep executeAction(Function<CcpJsonRepresentation, CcpJsonRepresentation> action) {
+	public CcpSelectNextStep executeAction(CcpBusiness action) {
 		return this.addStatement("action", action);
 	}
 

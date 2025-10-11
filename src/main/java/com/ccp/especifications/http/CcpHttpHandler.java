@@ -1,17 +1,17 @@
 package com.ccp.especifications.http;
 
 import java.util.Set;
-import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 
 public final class CcpHttpHandler {
 
 	private final CcpJsonRepresentation flows;
-	private final Function<CcpJsonRepresentation, CcpJsonRepresentation> alternativeFlow;
+	private final CcpBusiness alternativeFlow;
 	public final CcpHttpRequester ccpHttp = CcpDependencyInjection.getDependency(CcpHttpRequester.class);
 
 	public CcpHttpHandler(CcpJsonRepresentation flows) {
@@ -19,7 +19,7 @@ public final class CcpHttpHandler {
 		this.flows = flows;
 	}
 
-	public CcpHttpHandler(Integer httpStatus, Function<CcpJsonRepresentation, CcpJsonRepresentation> alternativeFlow) {
+	public CcpHttpHandler(Integer httpStatus, CcpBusiness alternativeFlow) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
 		this.alternativeFlow = alternativeFlow;
 	}
@@ -59,7 +59,7 @@ public final class CcpHttpHandler {
 			String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
 		int status = response.httpStatus;
 		
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> flow = this.flows.getDynamicVersion().getOrDefault("" + status, this.alternativeFlow);
+		CcpBusiness flow = this.flows.getDynamicVersion().getOrDefault("" + status, this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

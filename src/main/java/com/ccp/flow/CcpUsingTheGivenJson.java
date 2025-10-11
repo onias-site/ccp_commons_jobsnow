@@ -1,17 +1,16 @@
 package com.ccp.flow;
 
-import java.util.function.Function;
-
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.process.CcpProcessStatus;
 
 public final class CcpUsingTheGivenJson {
-	protected final Function<CcpJsonRepresentation, CcpJsonRepresentation> givenFinalTargetProcess;
+	protected final CcpBusiness givenFinalTargetProcess;
 	
 	protected final CcpJsonRepresentation givenJson;
 	
-	protected CcpUsingTheGivenJson(Function<CcpJsonRepresentation, CcpJsonRepresentation> givenFinalTargetProcess,
+	protected CcpUsingTheGivenJson(CcpBusiness givenFinalTargetProcess,
 			CcpJsonRepresentation givenJson) {
 
 		this.givenFinalTargetProcess = givenFinalTargetProcess;

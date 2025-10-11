@@ -11,6 +11,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
@@ -29,14 +30,14 @@ public class CcpSelectFinally {
 
 	}
 
-	public CcpSelectFinally endThisProcedure(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpSelectFinally endThisProcedure(String context, CcpBusiness whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
 		this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
 		return this; 
 	}
 
-	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, Function<CcpJsonRepresentation, CcpJsonRepresentation> whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
+	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, CcpBusiness whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
@@ -45,7 +46,6 @@ public class CcpSelectFinally {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	private CcpJsonRepresentation findById( 
 			String origin,
 			CcpJsonRepresentation json, Function<CcpJsonRepresentation, 
@@ -70,7 +70,7 @@ public class CcpSelectFinally {
 			boolean executeFreeAction = specification.containsField(JsonFieldNames.entity) == false;
 			
 			if(executeFreeAction) {
-				Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject(JsonFieldNames.action);
+				CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
 				json = action.apply(json);
 				continue;
 			}
@@ -132,7 +132,7 @@ public class CcpSelectFinally {
 				throw new CcpErrorFlowDisturb(result, status , reason, this.fields);
 			}
 			
-			Function<CcpJsonRepresentation, CcpJsonRepresentation> action = specification.getAsObject(JsonFieldNames.action);
+			CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
 
 			if(shouldHaveBeenFound == false) {
 				json = action.apply(json);

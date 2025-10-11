@@ -408,20 +408,18 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	@SafeVarargs
 	public final CcpJsonRepresentation getTransformedJson(CcpBusiness... transformers) {
 		CcpJsonRepresentation transformedJson = this;
-		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer : transformers) {
+		for (CcpBusiness transformer : transformers) {
 			transformedJson = transformer.apply(transformedJson);
 		}
 		return transformedJson;
 	}
 
-	@SuppressWarnings("unchecked")
-	public CcpJsonRepresentation getTransformedJsonIfFoundTheField(CcpJsonFieldName field, Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+	public CcpJsonRepresentation getTransformedJsonIfFoundTheField(CcpJsonFieldName field, CcpBusiness... transformers) {
 		CcpJsonRepresentation transformedJsonIfFoundTheField = this.getTransformedJsonIfFoundTheField(field.getValue(), transformers);
 		return transformedJsonIfFoundTheField;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
 
 		boolean fieldNotFound = this.containsAllFields(field) == false;
 		if(fieldNotFound) {
@@ -430,23 +428,23 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		
 		CcpJsonRepresentation transformedJson = this;
 		
-		for (Function<CcpJsonRepresentation, CcpJsonRepresentation> transformer : transformers) {
+		for (CcpBusiness transformer : transformers) {
 			transformedJson = transformer.apply(transformedJson);
 		}
 		
 		return transformedJson;
 	}
 	
-	public CcpJsonRepresentation addJsonTransformer(CcpJsonFieldName field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+	public CcpJsonRepresentation addJsonTransformer(CcpJsonFieldName field, CcpBusiness process) {
 		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(field.getValue(), process);
 		return addJsonTransformer;
 	}
 	
-	public CcpJsonRepresentation addJsonTransformer(Integer field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+	public CcpJsonRepresentation addJsonTransformer(Integer field, CcpBusiness process) {
 		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer("" + field, process);
 		return addJsonTransformer;
 	}
-	private CcpJsonRepresentation addJsonTransformer(String field, Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+	private CcpJsonRepresentation addJsonTransformer(String field, CcpBusiness process) {
 		CcpJsonRepresentation put = this.put(field, process);
 		return put;
 	}
@@ -1127,7 +1125,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 
 		public CcpJsonRepresentation addJsonTransformer(String field,
-				Function<CcpJsonRepresentation, CcpJsonRepresentation> process) {
+				CcpBusiness process) {
 			return this.json.addJsonTransformer(field, process);
 		}
 
@@ -1241,7 +1239,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 
 		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field,
-				@SuppressWarnings("unchecked") Function<CcpJsonRepresentation, CcpJsonRepresentation>... transformers) {
+				 CcpBusiness... transformers) {
 			return this.json.getTransformedJsonIfFoundTheField(field, transformers);
 		}
 

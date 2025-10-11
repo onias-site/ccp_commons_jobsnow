@@ -1,10 +1,9 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
-import java.util.function.Function;
-
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
 
@@ -38,7 +37,7 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 	
 	
 	
-	public Function<CcpJsonRepresentation, CcpJsonRepresentation> getOperationCallback(CcpEntityCrudOperationType operation){
+	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
 		return json -> operation.execute(this, json);
 	}
 
