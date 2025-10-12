@@ -10,11 +10,12 @@ import java.lang.annotation.Target;
 @SuppressWarnings("rawtypes")
 public @interface CcpEntitySpecifications {
 
-	Class[] afterDeleteRecord();
 	Class[] afterSaveRecord();
-	Class[] beforeSaveRecord();
 	boolean cacheableEntity();
+	CcpEntitySaveFlow[] flow();
+	Class[] beforeSaveRecord();
 	Class<?> entityValidation();
+	Class[] afterDeleteRecord();
 	Class<?> entityFieldsTransformers();
 	
 

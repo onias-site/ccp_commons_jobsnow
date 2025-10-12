@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 {

@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -21,7 +22,6 @@ import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferReco
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
@@ -187,8 +187,8 @@ public interface CcpEntity{
 	default CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String entityName = this.getEntityName();
-		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
 		this.validateJson(json);
+		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
 		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
 		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);

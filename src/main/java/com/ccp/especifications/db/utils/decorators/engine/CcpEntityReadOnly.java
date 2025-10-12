@@ -3,7 +3,7 @@ package com.ccp.especifications.db.utils.decorators.engine;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
+import com.ccp.business.CcpBusiness;
 
 public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
 

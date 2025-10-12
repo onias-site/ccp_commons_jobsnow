@@ -1,8 +1,8 @@
 package com.ccp.json.transformers;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public interface CcpTransformers extends CcpBusiness {
 

@@ -2,9 +2,9 @@ package com.ccp.especifications.db.crud;
 
 import java.util.List;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.process.CcpProcessStatus;
 
 

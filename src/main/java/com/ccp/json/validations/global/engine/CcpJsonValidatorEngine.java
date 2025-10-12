@@ -166,7 +166,7 @@ public class CcpJsonValidatorEngine {
 			Field oldField = values.getAsObject(JsonFields.field);
 			try {
 
-				boolean isNotAnArray = false == field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+				boolean isNotAnArray = false == oldField.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 				
 				if(isNotAnArray) {
 					errors = type.getErrors(errors, json, field, CcpJsonFieldsValidationContext.single);

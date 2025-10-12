@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.ccp.decorators.CcpErrorJsonInvalid;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
+import com.ccp.business.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 public interface CcpService extends CcpBusiness {

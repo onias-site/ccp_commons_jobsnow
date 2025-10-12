@@ -1,8 +1,8 @@
 package com.ccp.especifications.db.utils;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public class CcpEntityField implements CcpJsonFieldName{
 

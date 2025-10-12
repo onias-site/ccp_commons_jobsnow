@@ -20,10 +20,10 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
@@ -279,7 +279,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 
 		Object object = this.content.get(field);
 		
-		boolean thisKeyIsNotPresent = this.content.containsKey(field) == false;
+		boolean thisKeyIsNotPresent = false == this.content.containsKey(field);
 		if(thisKeyIsNotPresent) {
 			return ""; 
 		}
@@ -421,7 +421,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	
 	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
 
-		boolean fieldNotFound = this.containsAllFields(field) == false;
+		boolean fieldNotFound = false == this.containsAllFields(field);
 		if(fieldNotFound) {
 			return this;
 		}
@@ -485,7 +485,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}	
 
 	private CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
-		boolean inexistentField = this.containsAllFields(fieldToCopy) == false;
+		boolean inexistentField = false == this.containsAllFields(fieldToCopy);
 
 		if (inexistentField) {
 			return this;
@@ -595,7 +595,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		for(int k = 0; k < paths.length; k++) {
 			String path = paths[k];
 			
-			boolean notContainsAllFields = initial.containsAllFields(path) == false;
+			boolean notContainsAllFields = false == initial.containsAllFields(path);
 			
 			if(notContainsAllFields) {
 				return defaultValue;
@@ -720,7 +720,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			}
 		}
 
-		if(object instanceof Collection == false) {
+		if(false == object instanceof Collection) {
 			return new ArrayList<>();
 		}
 
@@ -774,7 +774,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	
 	private List<Object> getAsObjectList(String field) {
 		
-		boolean isNotPresent = this.containsAllFields(field) == false;
+		boolean isNotPresent = false == this.containsAllFields(field);
 		
 		if(isNotPresent) {
 			return new ArrayList<>();
@@ -870,7 +870,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 				return assertion;
 			}
 		}
-		if(assertion == false) {
+		if(false == assertion) {
 			return true;
 		}
 		return false;

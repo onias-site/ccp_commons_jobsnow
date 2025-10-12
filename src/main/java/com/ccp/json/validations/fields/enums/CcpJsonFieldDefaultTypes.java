@@ -52,6 +52,11 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 			
 			return false;
 		}
+		
+		public CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
+			CcpJsonRepresentation errors2 = CcpJsonFieldError.requiredFieldIsMissing.getErrors(errors, json, field, this);
+			return errors2;
+		}
 
 	},
 	

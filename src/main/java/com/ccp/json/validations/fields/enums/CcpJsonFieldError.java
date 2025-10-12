@@ -65,21 +65,32 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			
-			boolean hasAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
+			boolean notValidated = this.isNotValidated(field);
 			
-			if(hasAnnotationRequired) {
+			if(notValidated) {
 				return false;
 			}
-
-			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 			
-			if(hasAnnotationPrimaryKey) {
-				return false;
-			}
 			
 			String fieldName = field.getName();
 			boolean thisFieldIsNotPresent = false == json.getDynamicVersion().containsAllFields(fieldName);
 			return thisFieldIsNotPresent;
+		}
+
+		private boolean isNotValidated(Field field) {
+			boolean hasNoAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
+			
+			if(hasNoAnnotationRequired) {
+				return false;
+			}
+
+			boolean hasNoAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			
+			if(hasNoAnnotationPrimaryKey) {
+				return false;
+			}
+			
+			return true;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -94,19 +105,8 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return ruleExplanation;
 		}
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			boolean hasAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
-			
-			if(hasAnnotationRequired) {
-				return true;
-			}
-
-			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
-			
-			if(hasAnnotationPrimaryKey) {
-				return true;
-			}
-			
-			return false;
+			boolean notValidated = this.isNotValidated(field);
+			return false == notValidated;
 		}
 	},
 	

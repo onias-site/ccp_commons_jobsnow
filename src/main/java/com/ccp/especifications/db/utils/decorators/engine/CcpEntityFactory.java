@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
@@ -21,7 +22,6 @@ import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldPri
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldTransformer;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityTwin;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public class CcpEntityFactory {
 

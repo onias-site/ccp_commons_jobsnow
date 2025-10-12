@@ -154,7 +154,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			
 		    String fieldName = field.getName();
 			Long value = json.getDynamicVersion().getAsLongNumber(fieldName);
-			boolean isAllowed = allowedValues.contains(value);
+			boolean isAllowed = false == allowedValues.contains(value);
 			return isAllowed;
 		}
 
@@ -388,19 +388,17 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	doubleNumberMinValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
-		    Integer number = this.getValidationParameter(field, type);
+		    Double number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
 			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 		    return value < number;
 		}
 
-		@SuppressWarnings("unchecked")
-		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Double getValidationParameter(Field field, CcpJsonFieldType type) {
 		    CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
 		    Double value = annotation.minValue();
  
-		    return (T) value;
+		    return value;
 		}
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -426,19 +424,21 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	doubleNumberExactValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+			if(false == this.hasRuleExplanation(field, type)) {
+				return false;
+			}
+			
 			Double number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
 			Double value = json.getDynamicVersion().getAsDoubleNumber(fieldName);
 		    return value != number;
 		}
 
-		@SuppressWarnings("unchecked")
-		
-		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
+		Double getValidationParameter(Field field, CcpJsonFieldType type) {
 		    CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
 		    Double value = annotation.exactValue();
  
-		    return (T) value;
+		    return value;
 		}
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -942,7 +942,9 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	timeExactValueBeforeCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			
+			if(false == this.hasRuleExplanation(field, type)) {
+				return false;
+			}
 			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions.before);
 			
 			return hasError;
@@ -960,8 +962,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			return boundValue != Integer.MAX_VALUE;
+			Integer boundValue = annotation.exactValue();
+			return boundValue < Integer.MAX_VALUE;
 		}
 	},
 	timeMinValueBeforeCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1263,11 +1265,16 @@ enum TimeValueExtractorFromAnnotation{
 	}
 	
 	public final boolean hasError(CcpJsonRepresentation json, Field field, TimeOptions timeOptions) {
-		Long enlapsedTime = timeOptions.getEnlapsedTime(json, field);
 		
-		Long validationParameter = this.getValueFromAnnotationInMilliseconds(json, field);
+		Long valueFromAnnotationInMilliseconds = this.getValueFromAnnotationInMilliseconds(json, field);
 		
-		return enlapsedTime > validationParameter;
+		CcpJsonRepresentation put = json.getDynamicVersion().put(field.getName(), valueFromAnnotationInMilliseconds);
+		
+		Long enlapsedTime = timeOptions.getEnlapsedTime(put, field);
+		
+		long subtractNumber = timeOptions.subtractNumber(valueFromAnnotationInMilliseconds);
+		
+		return enlapsedTime > subtractNumber;
 	}
 	
 	public final String getErrorMessage(CcpJsonRepresentation json, Field field, TimeOptions timeOptions) {

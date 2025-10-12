@@ -1,6 +1,6 @@
 package com.ccp.flow;
 
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
+import com.ccp.business.CcpBusiness;
 
 public final class CcpBeginThisStatement {
 	protected CcpBeginThisStatement() {

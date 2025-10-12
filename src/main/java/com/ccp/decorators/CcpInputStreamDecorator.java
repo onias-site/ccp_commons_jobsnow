@@ -60,7 +60,9 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	}
 	
 	public InputStream file() {
-		if(new CcpStringDecorator(this.content).file().exists() == false) {
+		CcpFileDecorator file = new CcpStringDecorator(this.content).file();
+		boolean notExists = false == file.exists();
+		if(notExists) {
 			throw new CcpErrorInputStreamMissing(this.content);
 		}
 		try {

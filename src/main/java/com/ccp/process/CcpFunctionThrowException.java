@@ -1,9 +1,9 @@
 package com.ccp.process;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
+import com.ccp.business.CcpBusiness;
 
-public class CcpFunctionThrowException implements  CcpBusiness{
+public class CcpFunctionThrowException implements CcpBusiness{
 
 	private final RuntimeException exception;
 	

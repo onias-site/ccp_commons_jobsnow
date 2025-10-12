@@ -2,6 +2,7 @@ package com.ccp.especifications.mensageria.receiver;
 
 import java.util.function.Consumer;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
 

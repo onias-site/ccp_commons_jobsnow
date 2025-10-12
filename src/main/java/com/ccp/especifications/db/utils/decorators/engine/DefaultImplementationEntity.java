@@ -1,10 +1,14 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
@@ -13,7 +17,6 @@ import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 final class DefaultImplementationEntity implements CcpEntity{
@@ -96,7 +99,30 @@ final class DefaultImplementationEntity implements CcpEntity{
 			String featureName = step.getClass().getName();
 			Class<?> jsonValidationClass = step.getJsonValidationClass();
 			CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, result, featureName);
-			result = step.apply(result);
+			try {
+				result = step.apply(result);
+			} catch (Exception e) {
+				result = this.catchException(result, e);
+			}
+		}
+		return result;
+	}
+
+	private CcpJsonRepresentation catchException(CcpJsonRepresentation result, Exception e) {
+		CcpEntitySpecifications annotation = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
+		List<CcpBusiness> collect = Arrays.asList(annotation.flow())
+		.stream().filter(f -> f.whenThrowing().equals(e.getClass()))
+		.map(f -> new CcpReflectionConstructorDecorator(f.thenExecute()))
+		.map(x -> (CcpBusiness)x.newInstance()).collect(Collectors.toList())
+		;
+		Set<Class<?>> set = new HashSet<Class<?>>();
+		for (CcpBusiness ccpBusiness : collect) {
+			Class<? extends CcpBusiness> class1 = ccpBusiness.getClass();
+			boolean alreadyAdded = false == set.add(class1);
+			if(alreadyAdded) {
+				continue;
+			}
+			result = ccpBusiness.apply(result);
 		}
 		return result;
 	}

@@ -104,17 +104,17 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(this.content);
 		boolean find = matcher.find();
 		
-		if(find == false) {
+		if(false == find) {
 			return false;
 		}
 		
 		String domain = split[1];
 		String[] split2 = domain.split("\\.");
 		String last = split2[split2.length - 1];
-		if(last.toLowerCase().startsWith("com") && last.toLowerCase().equalsIgnoreCase("com") == false) {
+		if(last.toLowerCase().startsWith("com") && false == last.toLowerCase().equalsIgnoreCase("com")) {
 			return false;
 		}
-		if(last.toLowerCase().startsWith("br") && last.toLowerCase().equalsIgnoreCase("br") == false) {
+		if(last.toLowerCase().startsWith("br") && false == last.toLowerCase().equalsIgnoreCase("br")) {
 			return false;
 		}
 		

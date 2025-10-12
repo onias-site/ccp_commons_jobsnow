@@ -165,7 +165,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	public CcpTextDecorator removeStartingCharacters( char c) {
 		
 		
-		if(this.content.startsWith("" + c) == false) {
+		if(false == this.content.startsWith("" + c)) {
 			return this;
 		}
 		
@@ -174,10 +174,9 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		return removeStartingCharacters;
 	}
 
-	//StringDecorator removeEndingCharacters()
 	public CcpTextDecorator removeEndingCharacters(char c) {
 
-		if(this.content.endsWith("" + c) == false) {
+		if(false == this.content.endsWith("" + c)) {
 			return this;
 		}
 

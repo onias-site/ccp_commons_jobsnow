@@ -55,7 +55,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 		
 		for (Object object : this.content) {
 			CcpStringDecorator t = new CcpStringDecorator("" + object);
-			boolean failed = predicate.test(t) == false;
+			boolean failed = false ==  predicate.test(t);
 			if(failed) {
 				return false;
 			}
@@ -85,7 +85,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getExclusiveList(Collection<T> listToCompare){
-		Predicate<? super Object> p = x -> listToCompare.contains(x) == false;
+		Predicate<? super Object> p = x ->  false == listToCompare.contains(x);
 		List<Object> collect = new ArrayList<Object>(this.content.stream().filter(p).collect(Collectors.toList()));
 		return (List<T>)collect;
 	}
@@ -99,7 +99,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	public <T> boolean hasIntersect(Collection<T> listToCompare) {
 		List<T> intersectList = this.getIntersectList(listToCompare);
-		return intersectList.isEmpty() == false;
+		return false == intersectList.isEmpty();
 	}
 	
 	public CcpCollectionDecorator getSubCollection(int start, int end) {

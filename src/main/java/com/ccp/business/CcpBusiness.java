@@ -1,4 +1,4 @@
-package com.ccp.especifications.mensageria.receiver;
+package com.ccp.business;
 
 import java.util.function.Function;
 

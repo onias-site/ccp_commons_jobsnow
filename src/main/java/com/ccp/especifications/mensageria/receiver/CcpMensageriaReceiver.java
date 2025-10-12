@@ -2,6 +2,7 @@ package com.ccp.especifications.mensageria.receiver;
 
 import java.util.function.Consumer;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;

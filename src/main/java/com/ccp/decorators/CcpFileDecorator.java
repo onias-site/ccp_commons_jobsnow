@@ -102,7 +102,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
     }
 	public  String getStringContent() {
 		File file = tryToCreateFolder();
-		boolean fileIsMissing = file.exists() == false;
+		boolean fileIsMissing = false == file.exists();
 		if(fileIsMissing) {
 			throw new CcpErrorFolderParentIsMissing(this);
 		}
@@ -125,7 +125,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	public CcpFileDecorator append(String content) {
 		try {
 			File file = new File(this.content);
-			if (file.exists() == false) {
+			if (false == file.exists()) {
 				file.createNewFile();
 			}
 			byte[] bytes = (content + "\n").getBytes();
@@ -201,7 +201,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return file.exists();
 	}
 	public boolean isFile() {
-		if(this.exists() == false) {
+		if(false == this.exists()) {
 			return false;
 		}
 		File file = new File(this.content);

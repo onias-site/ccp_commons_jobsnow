@@ -3,9 +3,9 @@ package com.ccp.especifications.db.crud;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public interface CcpHandleWithSearchResultsInTheEntity<T> {
 

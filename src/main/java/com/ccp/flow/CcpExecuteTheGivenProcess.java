@@ -1,7 +1,7 @@
 package com.ccp.flow;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.mensageria.receiver.CcpBusiness;
 
 public final class CcpExecuteTheGivenProcess {
 
