@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 public @interface CcpEntityTwin {
 
 	String twinEntityName();
-	Class[] afterInactivate();
-	Class[] afterReactivate();
+	Class[] afterRecordBeenTransportedFromMainToTwinEntity();
+	Class[] afterRecordBeenTransportedFromTwinToMainEntity();
 
 }

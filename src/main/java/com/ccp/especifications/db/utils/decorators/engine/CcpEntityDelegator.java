@@ -225,4 +225,11 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		Class<?> jsonValidationClass = this.entity.getJsonValidationClass();
 		return jsonValidationClass;
 	}
+
+	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonBeforeOperation(json, operation);
+		return transformedJsonBeforeOperation;
+	}
+	
+	
 }

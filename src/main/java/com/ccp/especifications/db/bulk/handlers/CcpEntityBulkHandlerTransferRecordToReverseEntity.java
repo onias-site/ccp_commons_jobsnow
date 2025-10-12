@@ -2,6 +2,7 @@ package com.ccp.especifications.db.bulk.handlers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,10 +40,7 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 
 	//LATER NO CASO DO LOGOUT FAZER UM TESTE DE TOKEN NAO ENCONTRADO
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		CcpEntity twinEntity = this.getEntityToSearch().getTwinEntity();
-		CcpBulkItem itemTo = twinEntity.getMainBulkItem(json, CcpEntityBulkOperationType.create);
-		List<CcpBulkItem> asList = Arrays.asList(itemTo);
-		return asList;
+		return new ArrayList<>();
 	}
 
 	public CcpEntity getEntityToSearch() {
@@ -58,7 +56,7 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 	}
 	
 	public List<CcpBusiness> doAfterSavingIfRecordIsFound() {
-		List<CcpBusiness> functions = this.getFunctions("after" + this.transferType);
+		List<CcpBusiness> functions = this.getFunctions(this.transferType.callBack);
 		return functions;
 	}
 	

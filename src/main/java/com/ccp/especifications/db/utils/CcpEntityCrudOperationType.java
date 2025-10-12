@@ -29,6 +29,13 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			Class<?> jsonValidationClass = entity.getJsonValidationClass();
 			return jsonValidationClass;
 		}
+
+		public List<CcpBusiness> getStepsBefore(Class<?> entityClass) {
+			CcpEntitySpecifications especifications = super.getEspecifications(entityClass);
+			Class<?>[] callBacks = especifications.beforeSaveRecord();
+			List<CcpBusiness> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
+			return collect;
+		}
 	},
 	delete {
 
@@ -43,6 +50,10 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			List<CcpBusiness> collect = Arrays.asList(callBacks).stream().map(x -> instanciateFunction(x)).collect(Collectors.toList());
 			return  collect;
 		}
+
+		public List<CcpBusiness> getStepsBefore(Class<?> entityClass) {
+			return new ArrayList<>();
+		}
 	}
 	,
 	
@@ -52,16 +63,20 @@ public enum CcpEntityCrudOperationType implements CcpDbUtilJsonValidation
 			return json;
 		}
 
-
 		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
 			return new ArrayList<>();
 		}
 
+		public List<CcpBusiness> getStepsBefore(Class<?> entityClass) {
+			return new ArrayList<>();
+		}
 	}
 	
 	;
 
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
+
+	public abstract List<CcpBusiness> getStepsBefore(Class<?> entityClass);
 
 	public abstract List<CcpBusiness> getStepsAfter(Class<?> entityClass);
 

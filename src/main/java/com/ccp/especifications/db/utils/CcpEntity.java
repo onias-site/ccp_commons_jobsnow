@@ -188,12 +188,13 @@ public interface CcpEntity{
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String entityName = this.getEntityName();
 		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
+		this.validateJson(json);
 		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
-		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(handledJson);
-		this.validateJson(onlyExistingFields);
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
+		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
 		crud.createOrUpdate(entityName, onlyExistingFields, id);
-		CcpJsonRepresentation transformedJson = this.getTransformedJsonAfterOperation(handledJson, CcpEntityCrudOperationType.save);
-		return transformedJson;
+		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
+		return transformedJsonAfterOperation;
 	}
 
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
@@ -309,6 +310,8 @@ public interface CcpEntity{
 	}
 	
 	CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json);
+
+	CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation);
 
 	CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation);
 	

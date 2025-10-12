@@ -79,12 +79,24 @@ final class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
-		List<CcpBusiness> stepsAfter = operation.getStepsAfter(this.entityClass);
+		List<CcpBusiness> steps = operation.getStepsAfter(this.entityClass);
+		CcpJsonRepresentation result = this.getSteps(json, steps);
+		return result;
+	}
+
+	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
+		List<CcpBusiness> steps = operation.getStepsAfter(this.entityClass);
+		CcpJsonRepresentation result = this.getSteps(json, steps);
+		return result;
+	}
+
+	private CcpJsonRepresentation getSteps(CcpJsonRepresentation json, List<CcpBusiness> steps) {
 		CcpJsonRepresentation result = json;
-		for (CcpBusiness function : stepsAfter) {
-			String featureName = function.getClass().getName();
-			CcpJsonValidatorEngine.INSTANCE.validateJson(function.getJsonValidationClass(), result, featureName);
-			result = function.apply(result);
+		for (CcpBusiness step : steps) {
+			String featureName = step.getClass().getName();
+			Class<?> jsonValidationClass = step.getJsonValidationClass();
+			CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, result, featureName);
+			result = step.apply(result);
 		}
 		return result;
 	}

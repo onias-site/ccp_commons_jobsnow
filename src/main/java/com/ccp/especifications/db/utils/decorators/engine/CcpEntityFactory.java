@@ -53,7 +53,7 @@ public class CcpEntityFactory {
 		String twinEntityName = annotation.twinEntityName();
 		
 		CcpEntity original = this.getEntityInstance(configurationClass);
-		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Inactivate);
+		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Reactivate);
 		
 		DecoratorTwinEntity entity = new DecoratorTwinEntity(original, twin);
 		return entity;
@@ -66,7 +66,7 @@ public class CcpEntityFactory {
 		int indexOf = snackCase.indexOf("entity");
 		String entityName = snackCase.substring(indexOf + 7);
 	
-		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, CcpEntityTransferType.Reactivate);
+		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, CcpEntityTransferType.Inactivate);
 		return entity;
 	}
 
@@ -156,7 +156,7 @@ public class CcpEntityFactory {
 			try {
 				object = field.get(null);
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				continue;
 			}
 			boolean skipThisField = false == object instanceof CcpJsonFieldName;
 			
@@ -165,7 +165,7 @@ public class CcpEntityFactory {
 			}
 			
 			String name = ((CcpJsonFieldName)object).name();
-			CcpBusiness transformer = this.getEntityFieldTransformer(name, field);
+			CcpBusiness transformer = this.getEntityFieldTransformer(name, field, configurationClass);
 			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 			CcpEntityField entityField = new CcpEntityField(name, primaryKey, transformer);
 			list.add(entityField);
@@ -176,7 +176,7 @@ public class CcpEntityFactory {
 		return fields;
 	}
 	
-	private CcpBusiness getEntityFieldTransformer(String name, Field field){
+	private CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
 		boolean hasCustomEntityFieldTransformer = field.isAnnotationPresent(CcpEntityFieldTransformer.class);
 		if(hasCustomEntityFieldTransformer) {
 			CcpEntityFieldTransformer annotation = field.getAnnotation(CcpEntityFieldTransformer.class);
@@ -186,7 +186,7 @@ public class CcpEntityFactory {
 			return transformer;
 		}
 		
-		CcpEntitySpecifications annotation = this.configurationClass.getAnnotation(CcpEntitySpecifications.class);
+		CcpEntitySpecifications annotation = configurationClass.getAnnotation(CcpEntitySpecifications.class);
 		Class<?> enumWithDefaultJsonTransformers = annotation.entityFieldsTransformers();
 		Field declaredField;
 		CcpJsonTransformersDefaultEntityField defaultEntityField;

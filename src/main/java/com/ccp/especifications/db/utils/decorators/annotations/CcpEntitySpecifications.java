@@ -12,6 +12,7 @@ public @interface CcpEntitySpecifications {
 
 	Class[] afterDeleteRecord();
 	Class[] afterSaveRecord();
+	Class[] beforeSaveRecord();
 	boolean cacheableEntity();
 	Class<?> entityValidation();
 	Class<?> entityFieldsTransformers();
