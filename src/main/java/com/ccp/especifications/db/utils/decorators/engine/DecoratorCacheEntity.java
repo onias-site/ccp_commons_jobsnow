@@ -131,17 +131,6 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		return delete;
 	}
 
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
-
-		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json, id);
-		
-		CcpCacheDecorator cache = this.getCache(json);
-		
-		cache.put(createOrUpdate, this.cacheExpires);
-		
-		return createOrUpdate;
-	}
-
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);

@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
+import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
@@ -88,7 +90,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
-		List<CcpBusiness> steps = operation.getStepsAfter(this.entityClass);
+		List<CcpBusiness> steps = operation.getStepsBefore(this.entityClass);
 		CcpJsonRepresentation result = this.getSteps(json, steps);
 		return result;
 	}
@@ -116,6 +118,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		.map(x -> (CcpBusiness)x.newInstance()).collect(Collectors.toList())
 		;
 		Set<Class<?>> set = new HashSet<Class<?>>();
+		boolean found = false;
 		for (CcpBusiness ccpBusiness : collect) {
 			Class<? extends CcpBusiness> class1 = ccpBusiness.getClass();
 			boolean alreadyAdded = false == set.add(class1);
@@ -123,8 +126,14 @@ final class DefaultImplementationEntity implements CcpEntity{
 				continue;
 			}
 			result = ccpBusiness.apply(result);
+			found = true;
 		}
-		return result;
+		
+		if(found) {
+			return result;
+		}
+		
+		throw new RuntimeException(e);
 	}
 
 	public CcpEntity validateJson(CcpJsonRepresentation json) {
@@ -143,7 +152,20 @@ final class DefaultImplementationEntity implements CcpEntity{
 		return this.entityClass;
 	}
 
-	
+	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
+		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
+		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
+		this.validateJson(handledJson.putAll(json));
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
+		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
+		String id = this.calculateId(json);
+		String entityName = this.getEntityName();
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		crud.createOrUpdate(entityName, onlyExistingFields, id);
+		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
+		return transformedJsonAfterOperation;
+	}
+
 	
 	
 }

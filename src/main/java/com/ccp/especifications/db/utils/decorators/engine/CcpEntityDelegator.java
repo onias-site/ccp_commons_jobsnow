@@ -94,11 +94,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return exists;
 	}
 
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
-		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json);
-		return createOrUpdate;
-	}
-
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		CcpJsonRepresentation delete = this.entity.delete(json);
 		return delete;
@@ -107,11 +102,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	public boolean delete(String id) {
 		boolean delete = this.entity.delete(id);
 		return delete;
-	}
-
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
-		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json, id);
-		return createOrUpdate;
 	}
 
 	public CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
@@ -229,6 +219,11 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
 		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonBeforeOperation(json, operation);
 		return transformedJsonBeforeOperation;
+	}
+
+	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
+		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json);
+		return createOrUpdate;
 	}
 	
 	

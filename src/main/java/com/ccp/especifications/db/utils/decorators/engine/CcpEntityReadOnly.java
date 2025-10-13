@@ -18,10 +18,6 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 	public boolean create(CcpJsonRepresentation json) {
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
-
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
-		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
-	}
 	
 	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");

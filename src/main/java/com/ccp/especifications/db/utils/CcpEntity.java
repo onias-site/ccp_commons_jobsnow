@@ -178,24 +178,7 @@ public interface CcpEntity{
 		return exists;
 	}
 	
-	default CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
-		String id = this.calculateId(json);
-		CcpJsonRepresentation createOrUpdate = this.createOrUpdate(json, id);
-		return createOrUpdate;
-	}
-
-	default CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json, String id) {
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		String entityName = this.getEntityName();
-		this.validateJson(json);
-		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
-		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
-		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
-		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
-		crud.createOrUpdate(entityName, onlyExistingFields, id);
-		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
-		return transformedJsonAfterOperation;
-	}
+	CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json);
 
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
