@@ -2,7 +2,7 @@ package com.ccp.especifications.db.utils.decorators.engine;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.business.CcpBusiness;
 
 public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
@@ -31,7 +31,7 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
 	
-	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
+	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
 		return json -> operation.execute(this, json);
 	}
 

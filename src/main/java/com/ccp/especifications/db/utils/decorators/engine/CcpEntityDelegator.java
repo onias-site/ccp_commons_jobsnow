@@ -11,7 +11,7 @@ import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 
 
@@ -149,7 +149,7 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return onlyExistingFieldsAndHandledJson;
 	}
 
-	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation) {
+	public CcpBusiness getOperationCallback(CcpEntityOperationType operation) {
 		CcpBusiness operationCallback = this.entity.getOperationCallback(operation);
 		return operationCallback;
 	}
@@ -175,7 +175,7 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json,
-			CcpEntityCrudOperationType operation) {
+			CcpEntityOperationType operation) {
 		CcpJsonRepresentation transformedJsonAfterOperation = this.entity.getTransformedJsonAfterOperation(json, operation);
 		return transformedJsonAfterOperation;
 	}
@@ -200,7 +200,7 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return jsonValidationClass;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
+	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
 		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonBeforeOperation(json, operation);
 		return transformedJsonBeforeOperation;
 	}

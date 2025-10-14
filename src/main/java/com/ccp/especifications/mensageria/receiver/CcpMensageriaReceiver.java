@@ -8,7 +8,7 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
 
 public abstract class CcpMensageriaReceiver {
@@ -40,7 +40,7 @@ public abstract class CcpMensageriaReceiver {
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
 		String operation = json.getDynamicVersion().getAsString(this.operationFieldName);
-		CcpEntityCrudOperationType valueOf = CcpEntityCrudOperationType.valueOf(operation);
+		CcpEntityOperationType valueOf = CcpEntityOperationType.valueOf(operation);
 		CcpBusiness topicHandler = valueOf.getTopicHandler(entity, executeBulkOperation, functionToDeleteKeysInTheCache);
 		return topicHandler;
 	}

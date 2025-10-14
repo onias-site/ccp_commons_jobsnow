@@ -1,15 +1,20 @@
 package com.ccp.especifications.db.utils.decorators.engine;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.bulk.CcpDbBulkExecutor;
+import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
@@ -27,12 +32,12 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 	}
 	
 	public DecoratorTwinEntity(CcpEntity entity, CcpEntity twin) {
-		super(new DecoratorTwinEntity(entity));
-		this.twin =  new DecoratorTwinEntity(twin);
+		super(entity);
+		this.twin =   new DecoratorTwinEntity(twin);
 	}
 
 	public CcpEntity getTwinEntity() {
-		DecoratorTwinEntity twin = new DecoratorTwinEntity(new DecoratorTwinEntity(this.twin), new DecoratorTwinEntity(this));
+		DecoratorTwinEntity twin = new DecoratorTwinEntity(this.twin, this);
 		return twin;
 	}
 	
@@ -105,16 +110,23 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return oneById;
 	}
 	
-	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		this.delete(json);
-		CcpEntity twinEntity = this.getTwinEntity();
-		twinEntity.save(json);
-		return json;
-	}
-	
-	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
+	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
 		return json -> operation.execute(this, json);
 	}
 
+	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
+		CcpEntity twinEntity = this.getTwinEntity();
+		List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpEntityBulkOperationType.create);
+		List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpEntityBulkOperationType.delete);
+		List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
+		items.addAll(mainBulkItems);
+		CcpDbBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpDbBulkExecutor.class);
+		
+		for (CcpBulkItem item : items) {
+			dbBulkExecutor = dbBulkExecutor.addRecord(item);
+		}
+		dbBulkExecutor.getBulkOperationResult();
+		return json;
+	}
 
 }

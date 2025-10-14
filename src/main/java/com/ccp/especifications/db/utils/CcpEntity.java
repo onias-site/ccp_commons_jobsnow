@@ -17,6 +17,7 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.bulk.CcpDbBulkExecutor;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
@@ -170,11 +171,11 @@ public interface CcpEntity{
 	default CcpJsonRepresentation save(CcpJsonRepresentation json) {
 		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
 		this.validateJson(handledJson.putAll(json));
-		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityOperationType.save);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
 		String id = this.calculateId(json);
 		this.save(onlyExistingFields, id);
-		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
+		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityOperationType.save);
 		return transformedJsonAfterOperation;
 	}
 	
@@ -191,7 +192,7 @@ public interface CcpEntity{
 		String calculateId = this.calculateId(json);
 		String entityName = this.getEntityName();
 		crud.delete(entityName, calculateId);
-		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(json, CcpEntityCrudOperationType.delete);
+		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(json, CcpEntityOperationType.delete);
 		return transformedJsonAfterOperation;
 	}
 
@@ -278,7 +279,7 @@ public interface CcpEntity{
 	}
 
 	
-	default CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
+	default CcpBusiness getOperationCallback(CcpEntityOperationType operation){
 		return json -> operation.execute(this, json);
 	}
 	
@@ -293,9 +294,9 @@ public interface CcpEntity{
 	
 	CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json);
 
-	CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation);
+	CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityOperationType operation);
 
-	CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation);
+	CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityOperationType operation);
 	
 	CcpEntity validateJson(CcpJsonRepresentation json);
 	
@@ -305,15 +306,23 @@ public interface CcpEntity{
 	
 	default Class<?> getJsonValidationClass(){
 		Class<?> configurationClass = this.getConfigurationClass();
-		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(configurationClass);
+		CcpEntitySpecifications especifications = CcpEntityOperationType.getEspecifications(configurationClass);
 		Class<?> classWithFieldsValidationsRules = especifications.entityValidation();
 		return classWithFieldsValidationsRules;
 	}
 	
 	default CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		this.delete(json);
 		CcpEntity twinEntity = this.getTwinEntity();
-		twinEntity.save(json);
+		List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpEntityBulkOperationType.create);
+		List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpEntityBulkOperationType.delete);
+		List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
+		items.addAll(mainBulkItems);
+		CcpDbBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpDbBulkExecutor.class);
+		
+		for (CcpBulkItem item : items) {
+			dbBulkExecutor = dbBulkExecutor.addRecord(item);
+		}
+		dbBulkExecutor.getBulkOperationResult();
 		return json;
 	}
 }

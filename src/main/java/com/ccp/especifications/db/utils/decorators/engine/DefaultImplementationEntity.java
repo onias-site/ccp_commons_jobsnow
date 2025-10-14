@@ -13,7 +13,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
@@ -81,13 +81,13 @@ final class DefaultImplementationEntity implements CcpEntity{
 		return result;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
+	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
 		List<CcpBusiness> steps = operation.getStepsAfter(this.entityClass);
 		CcpJsonRepresentation result = this.getSteps(json, steps);
 		return result;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityCrudOperationType operation) {
+	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
 		List<CcpBusiness> steps = operation.getStepsBefore(this.entityClass);
 		CcpJsonRepresentation result = this.getSteps(json, steps);
 		return result;
@@ -135,7 +135,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public CcpEntity validateJson(CcpJsonRepresentation json) {
-		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(this.entityClass);
+		CcpEntitySpecifications especifications = CcpEntityOperationType.getEspecifications(this.entityClass);
 		Class<?> jsonValidationClass = especifications.entityValidation();
 		String featureName = this.entityClass.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);

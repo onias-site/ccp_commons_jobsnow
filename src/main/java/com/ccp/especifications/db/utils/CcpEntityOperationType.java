@@ -14,7 +14,7 @@ import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 
-public enum CcpEntityCrudOperationType
+public enum CcpEntityOperationType
 {
 	save {
 		

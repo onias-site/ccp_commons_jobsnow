@@ -13,7 +13,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
+import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityTwin;
 
 public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
@@ -77,7 +77,7 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 
 			List<Class<?>> asList = Arrays.asList(invoke);
 			
-			List<CcpBusiness> functions = asList.stream().map(x -> CcpEntityCrudOperationType.instanciateFunction(x)).collect(Collectors.toList());
+			List<CcpBusiness> functions = asList.stream().map(x -> CcpEntityOperationType.instanciateFunction(x)).collect(Collectors.toList());
 			
 			return functions;
 			
