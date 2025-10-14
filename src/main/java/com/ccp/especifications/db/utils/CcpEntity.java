@@ -31,13 +31,6 @@ public interface CcpEntity{
 		entity, id, entityName, primaryKeyNames, _entities
 	}
 
-	default CcpBulkItem toBulkItemToCreateOrDelete(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		boolean presentInThisUnionAll = this.isPresentInThisUnionAll(unionAll, json);
-		CcpEntityBulkOperationType operation = presentInThisUnionAll ? CcpEntityBulkOperationType.delete : CcpEntityBulkOperationType.create;
-		CcpBulkItem mainBulkItem = this.getMainBulkItem(json, operation);
-		return mainBulkItem;
-	}
-
 	default CcpBulkItem getMainBulkItem(CcpJsonRepresentation json, CcpEntityBulkOperationType operation) {
 		CcpBulkItem bulkItem = this.toBulkItems(json, operation).stream().filter(x -> x.entity == this).findFirst().get();
 		return bulkItem;
@@ -98,7 +91,7 @@ public interface CcpEntity{
 		
 		List<String> onlyPrimaryKeyNames = this.getPrimaryKeyNames();
 	
-		boolean primaryKeyMissing = json.containsAllFields(onlyPrimaryKeyNames) == false;
+		boolean primaryKeyMissing = false == json.containsAllFields(onlyPrimaryKeyNames);
 		
 		if(primaryKeyMissing) {
 			throw new CcpErrorEntityPrimaryKeyIsMissing(this, json);
@@ -109,10 +102,6 @@ public interface CcpEntity{
 		
 		CcpJsonRepresentation jsonPiece = transformedJson.getJsonPiece(onlyPrimaryKeyNames);
 		return jsonPiece;
-	}
-	
-	default CcpBulkItem getRecordCopyToBulkOperation(CcpJsonRepresentation json, CcpEntityBulkOperationType operation) {
-		throw new UnsupportedOperationException();
 	}
 	
 	CcpEntityField[] getFields();
@@ -178,7 +167,7 @@ public interface CcpEntity{
 		return exists;
 	}
 	
-	CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json);
+	CcpJsonRepresentation save(CcpJsonRepresentation json);
 
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -190,13 +179,6 @@ public interface CcpEntity{
 		return transformedJsonAfterOperation;
 	}
 	
-	default boolean delete(String id) {
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		String entityName = this.getEntityName();
-		boolean remove = crud.delete(entityName, id);
-		return remove;
-	}
-
 	default CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
 		CcpEntityField[] fields = this.getFields();
 		CcpJsonRepresentation subMap = json.getJsonPiece(fields);
@@ -217,7 +199,7 @@ public interface CcpEntity{
 	
 	default CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
-		boolean notFound = this.isPresentInThisUnionAll(unionAll, json) == false;
+		boolean notFound = false == this.isPresentInThisUnionAll(unionAll, json);
 
 		if(notFound) {
 			throw new CcpErrorBulkEntityRecordNotFound(this, json);
@@ -239,7 +221,8 @@ public interface CcpEntity{
 
 	default boolean isPresentInThisJsonInMainEntity(CcpJsonRepresentation json) {
 		CcpJsonRepresentation innerJsonFromPath = json.getInnerJsonFromPath(JsonFieldNames._entities, this.getEntityName());
-		return innerJsonFromPath.isEmpty() == false;
+		boolean empty = innerJsonFromPath.isEmpty();
+		return false == empty;
 	}
 
 	default CcpJsonRepresentation getInnerJsonFromMainAndTwinEntities(CcpJsonRepresentation json) {
@@ -309,5 +292,9 @@ public interface CcpEntity{
 		CcpEntitySpecifications especifications = CcpEntityCrudOperationType.getEspecifications(configurationClass);
 		Class<?> classWithFieldsValidationsRules = especifications.entityValidation();
 		return classWithFieldsValidationsRules;
+	}
+	
+	default CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
+		throw new UnsupportedOperationException();
 	}
 }

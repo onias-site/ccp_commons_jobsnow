@@ -87,7 +87,7 @@ abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 		}
 		
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.query, value).put(JsonFieldNames.boost, boost);
-		if(operator != null && operator.trim().isEmpty() == false) {
+		if(operator != null && false == operator.trim().isEmpty()) {
 			put = put.put(JsonFieldNames.operator, operator);
 		}
 		Map<String, Object> map = put.getContent();
@@ -136,6 +136,6 @@ abstract class CcpDbQueryBooleanOperator extends CcpDbQueryComponent{
 	
 	
 	public boolean hasChildreen() {
-		return this.items.isEmpty() == false;
+		return false == this.items.isEmpty();
 	}
 }

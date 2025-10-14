@@ -53,11 +53,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return primaryKeyValues;
 	}
 
-	public CcpBulkItem getRecordCopyToBulkOperation(CcpJsonRepresentation json, CcpEntityBulkOperationType operation) {
-		CcpBulkItem recordCopyToBulkOperation = this.entity.getRecordCopyToBulkOperation(json, operation);
-		return recordCopyToBulkOperation;
-	}
-
 	public CcpEntityField[] getFields() {
 		CcpEntityField[] fields = this.entity.getFields();
 		return fields;
@@ -96,11 +91,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		CcpJsonRepresentation delete = this.entity.delete(json);
-		return delete;
-	}
-
-	public boolean delete(String id) {
-		boolean delete = this.entity.delete(id);
 		return delete;
 	}
 
@@ -154,18 +144,12 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return entityName;
 	}
 
-	public CcpBulkItem toBulkItemToCreateOrDelete(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpBulkItem bulkItemToCreateOrDelete = this.entity.toBulkItemToCreateOrDelete(unionAll, json);
-		return bulkItemToCreateOrDelete;
-	}
-
 	public CcpJsonRepresentation getOnlyExistingFieldsAndHandledJson(CcpJsonRepresentation json) {
 		CcpJsonRepresentation onlyExistingFieldsAndHandledJson = this.entity.getOnlyExistingFieldsAndHandledJson(json);
 		return onlyExistingFieldsAndHandledJson;
 	}
 
-	public CcpBusiness getOperationCallback(
-			CcpEntityCrudOperationType operation) {
+	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation) {
 		CcpBusiness operationCallback = this.entity.getOperationCallback(operation);
 		return operationCallback;
 	}
@@ -221,10 +205,14 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return transformedJsonBeforeOperation;
 	}
 
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
-		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json);
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
 		return createOrUpdate;
 	}
-	
+
+	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
+		CcpJsonRepresentation transferToReverseEntity = this.entity.transferToReverseEntity(json);
+		return transferToReverseEntity;
+	}
 	
 }

@@ -43,7 +43,7 @@ public class CcpRangeSize {
 		String[] apply = this.arrayProducer.apply(this.fields);
 		for (String string : apply) {
 			CcpNumberDecorator cnd = new CcpNumberDecorator(string);
-			boolean hasFailed = predicate.test(cnd) == false;
+			boolean hasFailed = false == predicate.test(cnd);
 			if(hasFailed) {
 				return false;
 			}

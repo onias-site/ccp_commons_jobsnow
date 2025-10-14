@@ -8,15 +8,14 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
 
 public abstract class CcpMensageriaReceiver {
 	
-	private final String operationTypeFieldName;
 	private final String operationFieldName;
 	
-	public CcpMensageriaReceiver(String operationTypeFieldName,  String operationFieldName) {
-		this.operationTypeFieldName = operationTypeFieldName;
+	public CcpMensageriaReceiver(String operationFieldName) {
 		this.operationFieldName = operationFieldName;
 	}
 
@@ -30,7 +29,7 @@ public abstract class CcpMensageriaReceiver {
 			return topic;
 		}
 		
-		boolean invalidTopic = newInstance instanceof CcpEntityConfigurator == false;
+		boolean invalidTopic = false == newInstance instanceof CcpEntityConfigurator;
 	
 		if(invalidTopic) {
 			throw new CcpErrorMensageriaInvalidName(processName);
@@ -38,12 +37,12 @@ public abstract class CcpMensageriaReceiver {
 		
 		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
 		CcpEntity entity = configurator.getEntity();
-		String operationType = json.getDynamicVersion().getAsString(this.operationTypeFieldName);
-		CcpMensageriaOperationType valueOf = CcpMensageriaOperationType.valueOf(operationType);
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
-		CcpBusiness jnEntityTopic = valueOf.getTopicType(entity, this.operationFieldName, executeBulkOperation, functionToDeleteKeysInTheCache);
-		return jnEntityTopic;
+		String operation = json.getDynamicVersion().getAsString(this.operationFieldName);
+		CcpEntityCrudOperationType valueOf = CcpEntityCrudOperationType.valueOf(operation);
+		CcpBusiness topicHandler = valueOf.getTopicHandler(entity, executeBulkOperation, functionToDeleteKeysInTheCache);
+		return topicHandler;
 	}
 	
 

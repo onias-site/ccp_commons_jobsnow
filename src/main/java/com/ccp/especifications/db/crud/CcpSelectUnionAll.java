@@ -30,7 +30,7 @@ public class CcpSelectUnionAll {
 	
 	public boolean isPresent(String entityName, String id) {
 		
-		boolean entityNotFound = this.condensed.getDynamicVersion().containsAllFields(entityName) == false;
+		boolean entityNotFound = false == this.condensed.getDynamicVersion().containsAllFields(entityName);
 		
 		if(entityNotFound) {
 			return false;
@@ -54,7 +54,7 @@ public class CcpSelectUnionAll {
 		
 		CcpEntity entity = handler.getEntityToSearch();
 	
-		boolean recordNotFound = entity.isPresentInThisUnionAll(this, searchParameter) == false;
+		boolean recordNotFound = false == entity.isPresentInThisUnionAll(this, searchParameter);
 		
 		if(recordNotFound) {
 			T whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(searchParameter);
@@ -74,7 +74,7 @@ public class CcpSelectUnionAll {
 	
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
 		
-		boolean indexNotFound = this.condensed.getDynamicVersion().containsAllFields(index) == false;
+		boolean indexNotFound = false == this.condensed.getDynamicVersion().containsAllFields(index);
 		
 		if(indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
@@ -82,7 +82,7 @@ public class CcpSelectUnionAll {
 		
 		CcpJsonRepresentation innerJson = this.condensed.getDynamicVersion().getInnerJson(index);
 
-		boolean idNotFound = innerJson.getDynamicVersion().containsAllFields(id) == false;
+		boolean idNotFound = false == innerJson.getDynamicVersion().containsAllFields(id);
 		
 		if(idNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;

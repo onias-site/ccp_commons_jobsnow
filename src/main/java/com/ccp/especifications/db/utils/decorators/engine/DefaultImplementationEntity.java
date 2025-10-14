@@ -152,7 +152,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		return this.entityClass;
 	}
 
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
 		//DOUBT FIELDS SENDO TRANSFORMADO DUAS VEZES???
 		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
 		this.validateJson(handledJson.putAll(json));
@@ -161,7 +161,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		String id = this.calculateId(json);
 		String entityName = this.getEntityName();
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		crud.createOrUpdate(entityName, onlyExistingFields, id);
+		crud.save(entityName, onlyExistingFields, id);
 		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
 		return transformedJsonAfterOperation;
 	}

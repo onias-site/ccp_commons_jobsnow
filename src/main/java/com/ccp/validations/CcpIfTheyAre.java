@@ -26,7 +26,7 @@ public class CcpIfTheyAre {
 			
 			String asString = this.content.getDynamicVersion().getAsString(field);
 			
-			boolean notAllowedValue = asList.contains(asString) == false;
+			boolean notAllowedValue = false == asList.contains(asString);
 			if(notAllowedValue) {
 				return false;
 			}
@@ -66,7 +66,7 @@ public class CcpIfTheyAre {
 
 			Double value = this.content.getDynamicVersion().getAsDoubleNumber(field);
 			
-			boolean notAllowedValue = asList.contains(value) == false;
+			boolean notAllowedValue = false == asList.contains(value);
 			if(notAllowedValue) {
 				return false;
 			}
@@ -89,7 +89,7 @@ public class CcpIfTheyAre {
 			CcpStringDecorator csd = new CcpStringDecorator(value);
 			CcpTextDecorator text = csd.text();
 			
-			boolean regexDoesNotMatch = text.regexMatches(regex) == false;
+			boolean regexDoesNotMatch = false == text.regexMatches(regex);
 			
 			if(regexDoesNotMatch) {
 				return false;

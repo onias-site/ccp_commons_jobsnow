@@ -92,7 +92,7 @@ public final class CcpDbQuerySimplifiedQuery  extends CcpDbQueryBooleanOperator 
 		
 		
 		public boolean hasChildreen() {
-			return this.json.content.isEmpty() == false;
+			return false == this.json.content.isEmpty();
 		}
 
 

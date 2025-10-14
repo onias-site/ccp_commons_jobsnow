@@ -53,7 +53,7 @@ public class CcpJsonValidationRulesEngine {
 		CcpJsonRepresentation rulesExplanation =  CcpOtherConstants.EMPTY_JSON;
 		
 		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(CcpJsonValidatorDefaults.values());
-		boolean skipThisClass = clazz.isAnnotationPresent(CcpJsonGlobalValidations.class) == false;
+		boolean skipThisClass = false == clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
 		if(skipThisClass) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}

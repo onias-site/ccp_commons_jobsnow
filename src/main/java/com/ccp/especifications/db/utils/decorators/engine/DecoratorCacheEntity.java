@@ -66,7 +66,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 
 		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(id), this.cacheExpires);
 		
-		boolean found = result.isEmpty() == false;
+		boolean found = false == result.isEmpty();
 		
 		if(found) {
 			return true;
@@ -89,7 +89,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		
 		boolean exists = this.entity.exists(json);
 
-		if(exists == false) {
+		if(false == exists) {
 			cache.delete();
 			return false;
 		}
@@ -98,9 +98,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		return true;
 	}
 
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
 
-		CcpJsonRepresentation createOrUpdate = this.entity.createOrUpdate(json);
+		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
@@ -120,22 +120,11 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		return delete;
 	}
 
-	public boolean delete(String id) {
-		
-		boolean delete = this.entity.delete(id);
-		
-		CcpCacheDecorator cache = this.getCache(id);
-		
-		cache.delete();
-		
-		return delete;
-	}
-
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		boolean notPresentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json) == false;
+		boolean notPresentInThisUnionAll = false == this.entity.isPresentInThisUnionAll(unionAll, json);
 		
 		if(notPresentInThisUnionAll) {
 			cache.delete();
@@ -151,7 +140,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		boolean notPresentInThisUnionAll = super.isPresentInThisUnionAll(unionAll, json) == false;
+		boolean notPresentInThisUnionAll = false == super.isPresentInThisUnionAll(unionAll, json);
 		
 		if(notPresentInThisUnionAll) {
 			cache.delete();

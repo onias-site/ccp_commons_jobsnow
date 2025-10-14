@@ -21,7 +21,7 @@ public interface CcpTransformers extends CcpBusiness {
 	}
 
 	default CcpJsonRepresentation putMinValue(CcpJsonRepresentation json, String field, int minValue) {
-		boolean isNotPresent = json.getDynamicVersion().containsAllFields(field) == false;
+		boolean isNotPresent = false == json.getDynamicVersion().containsAllFields(field);
 		if(isNotPresent) {
 			return json;
 		}

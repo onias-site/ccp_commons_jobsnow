@@ -61,7 +61,7 @@ abstract class CcpDbQueryComponent {
 	}
 	 
 	public boolean hasChildreen() {
-		return this.json.content.isEmpty() == false;
+		return false == this.json.content.isEmpty();
 	} 
 	
 	public <T extends CcpDbQueryComponent> T putProperty(String propertyName, Object propertyValue){

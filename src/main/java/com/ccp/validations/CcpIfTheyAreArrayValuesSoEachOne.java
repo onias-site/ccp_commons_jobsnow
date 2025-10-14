@@ -22,7 +22,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 	}
 	public boolean hasNonDuplicatedItems() {
 		for (String field : this.fields) {
-			boolean hasDuplicatedItems = this.content.getDynamicVersion().getAsArrayMetadata(field).hasNonDuplicatedItems() == false;
+			boolean hasDuplicatedItems = false == this.content.getDynamicVersion().getAsArrayMetadata(field).hasNonDuplicatedItems();
 			if(hasDuplicatedItems) {
 				return false;
 			}
@@ -53,7 +53,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		for (String field : this.fields) {
 			List<String> asStringList = this.content.getDynamicVersion().getAsStringList(field);
 			for (String string : asStringList) {
-				boolean notAllowedValue = asList.contains(string) == false;
+				boolean notAllowedValue = false == asList.contains(string);
 				if(notAllowedValue) {
 					return false;
 				}
@@ -77,7 +77,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 
 		for (String field : this.fields) {
 			Optional<String> findFirst = this.content.getDynamicVersion().getAsStringList(field)
-			.stream().filter(x -> new CcpStringDecorator(x).isDoubleNumber() == false).findFirst();
+			.stream().filter(x -> false == new CcpStringDecorator(x).isDoubleNumber()).findFirst();
 			boolean sameNumberIsNotDouble = findFirst.isPresent();
 			if (sameNumberIsNotDouble) {
 				return false;
@@ -88,7 +88,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 			.collect(Collectors.toList());
 			
 			for (Double number : collect) {
-				boolean notAllowedValue = asList.contains(number) == false;
+				boolean notAllowedValue = false == asList.contains(number);
 				if(notAllowedValue) {
 					return false;
 				}

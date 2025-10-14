@@ -19,7 +19,7 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
 	
-	public CcpJsonRepresentation createOrUpdate(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
 	
@@ -31,16 +31,13 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
 	
-	
-	
 	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
 		return json -> operation.execute(this, json);
 	}
 
-	
 	public CcpEntity getEntity(CcpEntity entity) {
-		CcpEntityReadOnly jnEntityVersionable = new CcpEntityReadOnly(entity);
-		return jnEntityVersionable;
+		CcpEntityReadOnly ent = new CcpEntityReadOnly(entity);
+		return ent;
 	}
 	
 }

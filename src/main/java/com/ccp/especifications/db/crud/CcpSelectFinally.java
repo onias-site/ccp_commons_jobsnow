@@ -67,7 +67,7 @@ public class CcpSelectFinally {
 		
 		for (CcpJsonRepresentation specification : specifications) {
 			
-			boolean executeFreeAction = specification.containsField(JsonFieldNames.entity) == false;
+			boolean executeFreeAction = false == specification.containsField(JsonFieldNames.entity);
 			
 			if(executeFreeAction) {
 				CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
@@ -91,7 +91,7 @@ public class CcpSelectFinally {
 			
 			if(itWasNotForeseen) {
 
-				if(wasActuallyFound == false) {
+				if(false == wasActuallyFound) {
 					continue;
 				}
 				String entityName = entity.getEntityName();
@@ -105,11 +105,11 @@ public class CcpSelectFinally {
 				}
 			}
 			
-			boolean willNotExecuteAction = specification.containsField(JsonFieldNames.action) == false;
+			boolean willNotExecuteAction = false == specification.containsField(JsonFieldNames.action);
 			
 			if(willNotExecuteAction) {
 			
-				boolean willNotThrowException = specification.containsField(JsonFieldNames.status) == false;
+				boolean willNotThrowException = false == specification.containsField(JsonFieldNames.status);
 				
 				if(willNotThrowException) {
 					continue;
@@ -134,7 +134,7 @@ public class CcpSelectFinally {
 			
 			CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
 
-			if(shouldHaveBeenFound == false) {
+			if(false == shouldHaveBeenFound) {
 				json = action.apply(json);
 				continue;
 			}

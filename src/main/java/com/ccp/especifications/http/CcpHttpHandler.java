@@ -67,7 +67,7 @@ public final class CcpHttpHandler {
 			throw httpError;
 		}
 	
-		boolean invalidSingleJson = response.isValidSingleJson() == false;
+		boolean invalidSingleJson = false == response.isValidSingleJson();
 		
 		V tranform = transformer.transform(response);
 
@@ -75,7 +75,7 @@ public final class CcpHttpHandler {
 			return tranform;
 		}
 		
-		if(tranform instanceof CcpJsonRepresentation == false) {
+		if(false == (tranform instanceof CcpJsonRepresentation)) {
 			return tranform;
 		}
 

@@ -76,7 +76,7 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 	private CcpEntity validateTwinEntity(CcpJsonRepresentation json) {
 		
 		CcpEntity twinEntity = this.getTwinEntity();
-		boolean doesNotExist = twinEntity.exists(json) == false;
+		boolean doesNotExist = false == twinEntity.exists(json);
 		
 		if(doesNotExist) {
 			return this;
@@ -99,4 +99,11 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return oneById;
 	}
 	
+	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
+		this.delete(json);
+		CcpEntity twinEntity = this.getTwinEntity();
+		twinEntity.save(json);
+		return json;
+
+	}
 }

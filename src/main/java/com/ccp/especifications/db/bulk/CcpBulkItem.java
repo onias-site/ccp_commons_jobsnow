@@ -68,19 +68,19 @@ public class CcpBulkItem {
 		try {
 			CcpBulkItem other = (CcpBulkItem)obj;
 			
-			boolean differentEntity = other.entity.equals(this.entity) == false;
+			boolean differentEntity = false == other.entity.equals(this.entity);
 			
 			if(differentEntity) {
 				return false;
 			}
 			
-			boolean differentId = other.id.equals(this.id) == false;
+			boolean differentId = false == other.id.equals(this.id);
 			
 			if(differentId) {
 				return false;
 			}
 			
-			boolean differentOperation = other.operation.equals(this.operation) == false;
+			boolean differentOperation = false == other.operation.equals(this.operation);
 			
 			if(differentOperation) {
 				return false;
@@ -91,11 +91,4 @@ public class CcpBulkItem {
 			return false;
 		}
 	}
-
-	public CcpBulkItem getSecondRecordToBulkOperation() {
-		CcpBulkItem recordToBulkOperation = this.entity.getRecordCopyToBulkOperation(this.json, this.operation);
-		return recordToBulkOperation;
-	}
-
-	
 }

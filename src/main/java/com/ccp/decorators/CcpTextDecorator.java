@@ -279,7 +279,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		CcpTextDecorator s1 = this.sanitize(delimiters);
 		CcpTextDecorator ctd = new CcpTextDecorator(phrase);
 		CcpTextDecorator s2 = ctd.sanitize(delimiters);
-		boolean notContained = s1.content.toUpperCase().contains(s2.content.toUpperCase()) == false;
+		boolean notContained = false == s1.content.toUpperCase().contains(s2.content.toUpperCase());
 		
 		if(notContained) {
 			return false;

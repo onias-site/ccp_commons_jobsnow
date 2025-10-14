@@ -17,7 +17,6 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 		this.mainEntity = mainEntity;
 	}
 	
-
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation searchParameter,	CcpJsonRepresentation recordFound) {
 		CcpBulkItem updateIntoMainEntity = this.mainEntity.getMainBulkItem(searchParameter, CcpEntityBulkOperationType.update);
 		List<CcpBulkItem> asList = Arrays.asList(updateIntoMainEntity);
@@ -33,5 +32,4 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	public CcpEntity getEntityToSearch() {
 		return this.mainEntity;
 	}
-
 }

@@ -13,8 +13,7 @@ import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferReco
 import com.ccp.especifications.db.bulk.handlers.CcpEntityTransferType;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
-import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration;
-import com.ccp.especifications.db.utils.CcpErrorEntityIncorrectClassConfiguration.IncorrectEntityClassConfigurationType;
+import com.ccp.especifications.db.utils.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.CcpJsonTransformersDefaultEntityField;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityDecorators;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityExpurgable;
@@ -35,7 +34,6 @@ public class CcpEntityFactory {
 	
 	
 	public CcpEntityFactory(Class<?> configurationClass) {
-		
 		this.hasTwinEntity = configurationClass.isAnnotationPresent(CcpEntityTwin.class);
 		this.entityFields = this.getFields(configurationClass);
 		this.entityInstance = this.getTwinEntity(configurationClass);
@@ -43,7 +41,7 @@ public class CcpEntityFactory {
 	}
 	
 	private CcpEntity getTwinEntity(Class<?> configurationClass) {
-		boolean isNotTwinEntity = configurationClass.isAnnotationPresent(CcpEntityTwin.class) == false;
+		boolean isNotTwinEntity = false == configurationClass.isAnnotationPresent(CcpEntityTwin.class);
 		
 		if(isNotTwinEntity) {
 			CcpEntity entity = this.getEntityInstance(configurationClass);
@@ -79,18 +77,12 @@ public class CcpEntityFactory {
 	
 		if(hasDecorators) {
 			CcpEntityDecorators annotation = configurationClass.getAnnotation(CcpEntityDecorators.class);
-			Class<?>[] decorators = annotation.decorators();
+			Class<?>[] decorators = annotation.value();
 			entity = getDecoratedEntity(entity, decorators);
 		}		
 
 		boolean isExpurgableEntity = configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
 		
-		boolean thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime = hasDecorators && isExpurgableEntity;
-		
-		if(thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime) {
-			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.thisClassIsAnnotedByExpurgableAndDecoratorsAtSameTime);
-
-		}
 		int cacheExpires = CcpEntityExpurgableOptions.daily.cacheExpires;
 		
 		if(isExpurgableEntity) {
@@ -139,11 +131,10 @@ public class CcpEntityFactory {
 
 	private CcpEntityField[] getFields(Class<?> configurationClass) {
 
-		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
+		boolean didNotDeclareFieldsEnum = this.didNotDeclareFieldsEnum(configurationClass);
 		
-		boolean didNotDeclareFieldsEnum = declaredClasses.length == 0;
 		if(didNotDeclareFieldsEnum) {
-			throw new CcpErrorEntityIncorrectClassConfiguration(configurationClass, IncorrectEntityClassConfigurationType.mustDeclarePublicStaticEnum);
+			throw new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
 		}
 		
 		CcpEntitySpecifications annotation = configurationClass.getAnnotation(CcpEntitySpecifications.class);
@@ -175,6 +166,40 @@ public class CcpEntityFactory {
 		
 		return fields;
 	}
+
+	private boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
+		
+		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
+		
+		boolean hasNoInternalClasses = declaredClasses.length == 0;
+		
+		if(hasNoInternalClasses) {
+			return true;
+		}
+		
+		Class<?> firstClass = declaredClasses[0];
+		
+		boolean isNotAnEnum = false == firstClass.isEnum();
+		
+		if(isNotAnEnum) {
+			return true;
+		}
+		
+		String simpleName = firstClass.getSimpleName();
+		boolean incorrectName = false == "FIELDS".equals(simpleName);
+		
+		if(incorrectName) {
+			return true;
+			
+		}
+		
+		boolean incorrectType = false == firstClass.isAssignableFrom(CcpJsonFieldName.class);
+		if(incorrectType) {
+			return true;
+		}
+		
+		return false;
+	}
 	
 	private CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
 		boolean hasCustomEntityFieldTransformer = field.isAnnotationPresent(CcpEntityFieldTransformer.class);
@@ -199,9 +224,7 @@ public class CcpEntityFactory {
 			throw new RuntimeException(e);
 		}
 
-		boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
-
-		boolean isNotPrimaryKeyField = primaryKey == false;
+		boolean isNotPrimaryKeyField = false == field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
 		 if(isNotPrimaryKeyField) {
 			 return defaultEntityField;

@@ -42,7 +42,7 @@ public class CcpAreOfTheType {
 		
 		for (String value : values) {
 			CcpStringDecorator t = new CcpStringDecorator(value);
-			boolean isFalse = predicate.test(t) == false;
+			boolean isFalse = false == predicate.test(t);
 			if(isFalse) {
 				return false;
 			}

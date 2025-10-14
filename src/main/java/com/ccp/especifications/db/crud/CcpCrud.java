@@ -40,7 +40,7 @@ public interface CcpCrud {
 	}
 
 
-	CcpJsonRepresentation createOrUpdate(String entityName, CcpJsonRepresentation json, String id);
+	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
 	boolean exists(String entityName, String id);
 
