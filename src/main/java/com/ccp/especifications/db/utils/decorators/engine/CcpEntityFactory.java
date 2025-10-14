@@ -50,7 +50,8 @@ public class CcpEntityFactory {
 		CcpEntityTwin annotation = configurationClass.getAnnotation(CcpEntityTwin.class);
 		String twinEntityName = annotation.twinEntityName();
 		
-		CcpEntity original = this.getEntityInstance(configurationClass);
+		CcpEntity entityInstance2 = this.getEntityInstance(configurationClass);
+		CcpEntity original =  new DecoratorTwinEntity(entityInstance2);
 		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Reactivate);
 		
 		DecoratorTwinEntity entity = new DecoratorTwinEntity(original, twin);
@@ -186,14 +187,14 @@ public class CcpEntityFactory {
 		}
 		
 		String simpleName = firstClass.getSimpleName();
-		boolean incorrectName = false == "FIELDS".equals(simpleName);
+		boolean incorrectName = false == "Fields".equals(simpleName);
 		
 		if(incorrectName) {
 			return true;
 			
 		}
 		
-		boolean incorrectType = false == firstClass.isAssignableFrom(CcpJsonFieldName.class);
+		boolean incorrectType = false == CcpJsonFieldName.class.isAssignableFrom(firstClass);
 		if(incorrectType) {
 			return true;
 		}

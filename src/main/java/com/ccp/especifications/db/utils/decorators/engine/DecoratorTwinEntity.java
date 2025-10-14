@@ -9,6 +9,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.CcpEntityCrudOperationType;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
@@ -19,14 +20,19 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 	}
 
 	private final CcpEntity twin;
+
+	public DecoratorTwinEntity(CcpEntity entity) {
+		super(entity);
+		this.twin = null;
+	}
 	
 	public DecoratorTwinEntity(CcpEntity entity, CcpEntity twin) {
-		super(entity);
-		this.twin = twin;
+		super(new DecoratorTwinEntity(entity));
+		this.twin =  new DecoratorTwinEntity(twin);
 	}
 
 	public CcpEntity getTwinEntity() {
-		DecoratorTwinEntity twin = new DecoratorTwinEntity(this.twin, this);
+		DecoratorTwinEntity twin = new DecoratorTwinEntity(new DecoratorTwinEntity(this.twin), new DecoratorTwinEntity(this));
 		return twin;
 	}
 	
@@ -104,6 +110,11 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		CcpEntity twinEntity = this.getTwinEntity();
 		twinEntity.save(json);
 		return json;
-
 	}
+	
+	public CcpBusiness getOperationCallback(CcpEntityCrudOperationType operation){
+		return json -> operation.execute(this, json);
+	}
+
+
 }

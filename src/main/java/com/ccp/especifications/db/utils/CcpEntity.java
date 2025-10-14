@@ -167,7 +167,23 @@ public interface CcpEntity{
 		return exists;
 	}
 	
-	CcpJsonRepresentation save(CcpJsonRepresentation json);
+	default CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
+		this.validateJson(handledJson.putAll(json));
+		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityCrudOperationType.save);
+		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
+		String id = this.calculateId(json);
+		this.save(onlyExistingFields, id);
+		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(transformedJsonBeforeOperation, CcpEntityCrudOperationType.save);
+		return transformedJsonAfterOperation;
+	}
+	
+	default CcpJsonRepresentation save(CcpJsonRepresentation onlyExistingFields, String id) {
+		String entityName = this.getEntityName();
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		CcpJsonRepresentation save = crud.save(entityName, onlyExistingFields, id);
+		return save;
+	}
 
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -178,7 +194,7 @@ public interface CcpEntity{
 		CcpJsonRepresentation transformedJsonAfterOperation = this.getTransformedJsonAfterOperation(json, CcpEntityCrudOperationType.delete);
 		return transformedJsonAfterOperation;
 	}
-	
+
 	default CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
 		CcpEntityField[] fields = this.getFields();
 		CcpJsonRepresentation subMap = json.getJsonPiece(fields);
@@ -295,6 +311,9 @@ public interface CcpEntity{
 	}
 	
 	default CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		throw new UnsupportedOperationException();
+		this.delete(json);
+		CcpEntity twinEntity = this.getTwinEntity();
+		twinEntity.save(json);
+		return json;
 	}
 }

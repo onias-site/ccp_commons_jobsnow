@@ -214,5 +214,10 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation transferToReverseEntity = this.entity.transferToReverseEntity(json);
 		return transferToReverseEntity;
 	}
+
+	public CcpJsonRepresentation save(CcpJsonRepresentation json, String id) {
+		CcpJsonRepresentation save = this.entity.save(json, id);
+		return save;
+	}
 	
 }
