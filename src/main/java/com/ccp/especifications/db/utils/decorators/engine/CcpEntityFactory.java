@@ -15,12 +15,14 @@ import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.db.utils.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.CcpJsonTransformersDefaultEntityField;
-import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityDecorators;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityExpurgable;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityFieldTransformer;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityTwin;
+import com.ccp.especifications.db.utils.decorators.annotations.CcpEntityVersionable;
 
 public class CcpEntityFactory {
 
@@ -36,25 +38,47 @@ public class CcpEntityFactory {
 	public CcpEntityFactory(Class<?> configurationClass) {
 		this.hasTwinEntity = configurationClass.isAnnotationPresent(CcpEntityTwin.class);
 		this.entityFields = this.getFields(configurationClass);
-		this.entityInstance = this.getTwinEntity(configurationClass);
+		this.entityInstance = this.tryToAddTwinBehaviorToEntity(configurationClass);
 		this.configurationClass = configurationClass;
 	}
 	
-	private CcpEntity getTwinEntity(Class<?> configurationClass) {
+	private CcpEntity tryToAddTwinBehaviorToEntity(Class<?> configurationClass) {
 		boolean isNotTwinEntity = false == configurationClass.isAnnotationPresent(CcpEntityTwin.class);
 		
 		if(isNotTwinEntity) {
 			CcpEntity entity = this.getEntityInstance(configurationClass);
-			return entity;
+			CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);
+			return asyncWriterOrReadOnlyEntity;
 		}
+		
 		CcpEntityTwin annotation = configurationClass.getAnnotation(CcpEntityTwin.class);
 		String twinEntityName = annotation.twinEntityName();
 		
-		CcpEntity entityInstance2 = this.getEntityInstance(configurationClass);
-		CcpEntity original =  new DecoratorTwinEntity(entityInstance2);
+		CcpEntity entityInstance = this.getEntityInstance(configurationClass);
+		CcpEntity original =  new DecoratorTwinEntity(entityInstance);
 		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Reactivate);
 		
 		DecoratorTwinEntity entity = new DecoratorTwinEntity(original, twin);
+		CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);
+		return asyncWriterOrReadOnlyEntity;
+	}
+
+	private CcpEntity tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
+		boolean isReadOnlyEntity = configurationClass.isAnnotationPresent(CcpEntityOlyReadable.class);
+		
+		if(isReadOnlyEntity) {
+			CcpEntityReadOnly ccpEntityReadOnly = new CcpEntityReadOnly(entity);
+			return ccpEntityReadOnly;
+		}
+		boolean isAsyncWriterEntity = configurationClass.isAnnotationPresent(CcpEntityAsyncWriter.class);
+		
+		if(isAsyncWriterEntity) {
+			CcpEntityAsyncWriter annotation = configurationClass.getAnnotation(CcpEntityAsyncWriter.class);
+			Class<?> decorator = annotation.value();
+			CcpEntity decoratedEntity = this.getDecoratedEntity(entity, decorator);
+			return decoratedEntity;
+		}		
+
 		return entity;
 	}
 	
@@ -68,35 +92,54 @@ public class CcpEntityFactory {
 		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, CcpEntityTransferType.Inactivate);
 		return entity;
 	}
+	
+	private CcpEntity tryToAddExpurgableOrVersionableBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
 
+		boolean isVersionableEntity = configurationClass.isAnnotationPresent(CcpEntityVersionable.class);
+		
+		if(isVersionableEntity) {
+			CcpEntityVersionable annotation = configurationClass.getAnnotation(CcpEntityVersionable.class);
+			Class<?> decorator = annotation.value();
+			CcpEntity decoratedEntity = this.getDecoratedEntity(entity, decorator);
+			return decoratedEntity;
+		}		
+		
+		boolean isExpurgableEntity = configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
+		
+		if(isExpurgableEntity) {
+			CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
+			
+			Class<?>decorator = annotation.expurgableEntityFactory();
+			CcpEntityExpurgableOptions longevity = annotation.expurgTime();
+			try {
+				CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
+				CcpEntityExpurgableFactory newInstance = reflection.newInstance();
+				CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
+				return expurgableEntity;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}		
+		
+		return entity;
+	}
+	
 	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, CcpEntityTransferType transferType) {
 
 		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
 		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);
 		
-		boolean hasDecorators = configurationClass.isAnnotationPresent(CcpEntityDecorators.class);
-	
-		if(hasDecorators) {
-			CcpEntityDecorators annotation = configurationClass.getAnnotation(CcpEntityDecorators.class);
-			Class<?>[] decorators = annotation.value();
-			entity = getDecoratedEntity(entity, decorators);
-		}		
+		entity = this.tryToAddExpurgableOrVersionableBehaviorToEntity(configurationClass, entity);
 
-		boolean isExpurgableEntity = configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
+		entity = this.tryToAddCacheableBehaviorToEntity(configurationClass, entity);
 		
-		int cacheExpires = CcpEntityExpurgableOptions.daily.cacheExpires;
-		
-		if(isExpurgableEntity) {
-			CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
-			
-			Class<?>expurgableEntityFactory = annotation.expurgableEntityFactory();
-			CcpEntityExpurgableOptions longevity = annotation.expurgTime();
-			cacheExpires = longevity.cacheExpires;
-			entity = getExpurgableEntity(expurgableEntityFactory, longevity, entity);
-		}		
+		return entity;
+	}
 
+	private CcpEntity tryToAddCacheableBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
 		CcpEntitySpecifications configuration = configurationClass.getAnnotation(CcpEntitySpecifications.class);
 		boolean isCacheableEntity = configuration.cacheableEntity();
+		int cacheExpires = this.getCacheExpires(configurationClass);
 		
 		if(isCacheableEntity) {
 			entity = new DecoratorCacheEntity(entity, cacheExpires);
@@ -105,26 +148,27 @@ public class CcpEntityFactory {
 		return entity;
 	}
 
-	private static CcpEntity getDecoratedEntity(CcpEntity entity, Class<?>... decorators) {
-		try {
-			for (Class<?> decorator : decorators) {
-				CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
-				CcpEntityDecoratorFactory newInstance = reflection.newInstance();
-				entity = newInstance.getEntity(entity);
-			}
-			return entity;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	
+	private int getCacheExpires(Class<?> configurationClass) {
+		
+		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
+
+		if(isNotAnExpurgableEntity) {
+			return CcpEntityExpurgableOptions.daily.cacheExpires;
 		}
+		CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
+		CcpEntityExpurgableOptions expurgTime = annotation.expurgTime();
+		return expurgTime.cacheExpires;
 	}
 
-	private static CcpEntity getExpurgableEntity(Class<?> decorator, CcpEntityExpurgableOptions longevity, CcpEntity entity) {
+	private CcpEntity getDecoratedEntity(CcpEntity entity, Class<?> decorator) {
+		
 		try {
 			CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
-			CcpEntityExpurgableFactory newInstance = reflection.newInstance();
-			CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
-			return expurgableEntity;
+			CcpEntityDecoratorFactory newInstance = reflection.newInstance();
+			entity = newInstance.getEntity(entity);
+			return entity;
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

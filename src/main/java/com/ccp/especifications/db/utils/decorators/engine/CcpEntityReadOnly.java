@@ -4,6 +4,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.business.CcpBusiness;
+//TODO ANNOTATION PARA ESSA ENTITY
 
 public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
 

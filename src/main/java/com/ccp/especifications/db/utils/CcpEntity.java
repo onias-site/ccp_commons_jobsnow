@@ -17,7 +17,6 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpDbBulkExecutor;
 import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
@@ -312,17 +311,6 @@ public interface CcpEntity{
 	}
 	
 	default CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		CcpEntity twinEntity = this.getTwinEntity();
-		List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpEntityBulkOperationType.create);
-		List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpEntityBulkOperationType.delete);
-		List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
-		items.addAll(mainBulkItems);
-		CcpDbBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpDbBulkExecutor.class);
-		
-		for (CcpBulkItem item : items) {
-			dbBulkExecutor = dbBulkExecutor.addRecord(item);
-		}
-		dbBulkExecutor.getBulkOperationResult();
-		return json;
+		throw new UnsupportedOperationException();
 	}
 }

@@ -115,18 +115,30 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 	}
 
 	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		CcpEntity twinEntity = this.getTwinEntity();
-		List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpEntityBulkOperationType.create);
-		List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpEntityBulkOperationType.delete);
-		List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
-		items.addAll(mainBulkItems);
-		CcpDbBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpDbBulkExecutor.class);
 		
-		for (CcpBulkItem item : items) {
-			dbBulkExecutor = dbBulkExecutor.addRecord(item);
+		try {
+			CcpJsonRepresentation transferToReverseEntity = this.entity.transferToReverseEntity(json);
+			return transferToReverseEntity;
+		} catch (UnsupportedOperationException e) {
+			
+			boolean doesNotExist = false == this.exists(json);
+			
+			if(doesNotExist) {
+				return json;
+			}
+			CcpEntity twinEntity = this.getTwinEntity();
+			List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpEntityBulkOperationType.create);
+			List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpEntityBulkOperationType.delete);
+			List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
+			items.addAll(mainBulkItems);
+			CcpDbBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpDbBulkExecutor.class);
+			
+			for (CcpBulkItem item : items) {
+				dbBulkExecutor = dbBulkExecutor.addRecord(item);
+			}
+			dbBulkExecutor.getBulkOperationResult();
+			return json;
 		}
-		dbBulkExecutor.getBulkOperationResult();
-		return json;
 	}
 
 }
