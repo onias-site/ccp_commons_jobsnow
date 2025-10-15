@@ -313,4 +313,8 @@ public interface CcpEntity{
 	default CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
 		throw new UnsupportedOperationException();
 	}
+	
+	default CcpEntity getWrapedEntity() {
+		return this;
+	}
 }

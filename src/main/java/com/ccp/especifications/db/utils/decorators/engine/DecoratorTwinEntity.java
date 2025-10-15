@@ -33,7 +33,7 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 	
 	public DecoratorTwinEntity(CcpEntity entity, CcpEntity twin) {
 		super(entity);
-		this.twin =   new DecoratorTwinEntity(twin);
+		this.twin = twin;
 	}
 
 	public CcpEntity getTwinEntity() {

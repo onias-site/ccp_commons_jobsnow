@@ -219,5 +219,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation save = this.entity.save(json, id);
 		return save;
 	}
-	
+	public CcpEntity getWrapedEntity() {
+		return this.entity;
+	}
+
 }

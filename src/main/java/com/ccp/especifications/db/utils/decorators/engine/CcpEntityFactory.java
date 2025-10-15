@@ -55,10 +55,9 @@ public class CcpEntityFactory {
 		String twinEntityName = annotation.twinEntityName();
 		
 		CcpEntity entityInstance = this.getEntityInstance(configurationClass);
-		CcpEntity original =  new DecoratorTwinEntity(entityInstance);
 		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Reactivate);
 		
-		DecoratorTwinEntity entity = new DecoratorTwinEntity(original, twin);
+		DecoratorTwinEntity entity = new DecoratorTwinEntity(entityInstance, twin);
 		CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);
 		return asyncWriterOrReadOnlyEntity;
 	}

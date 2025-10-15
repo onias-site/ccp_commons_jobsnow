@@ -36,7 +36,7 @@ public abstract class CcpMensageriaReceiver {
 		}
 		
 		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
-		CcpEntity entity = configurator.getEntity();
+		CcpEntity entity = configurator.getEntity().getWrapedEntity();
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
 		String operation = json.getDynamicVersion().getAsString(this.operationFieldName);
