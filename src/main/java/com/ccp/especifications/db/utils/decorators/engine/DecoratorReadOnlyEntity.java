@@ -6,13 +6,13 @@ import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.business.CcpBusiness;
 //TODO ANNOTATION PARA ESSA ENTITY
 
-public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
+final class DecoratorReadOnlyEntity extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
 
-	protected CcpEntityReadOnly(CcpEntity entity) {
+	protected DecoratorReadOnlyEntity(CcpEntity entity) {
 		super(entity);
 	}
 
-	private CcpEntityReadOnly() {
+	private DecoratorReadOnlyEntity() {
 		super(null);
 	}
 	
@@ -37,7 +37,7 @@ public final class CcpEntityReadOnly extends CcpEntityDelegator  implements CcpE
 	}
 
 	public CcpEntity getEntity(CcpEntity entity) {
-		CcpEntityReadOnly ent = new CcpEntityReadOnly(entity);
+		DecoratorReadOnlyEntity ent = new DecoratorReadOnlyEntity(entity);
 		return ent;
 	}
 	

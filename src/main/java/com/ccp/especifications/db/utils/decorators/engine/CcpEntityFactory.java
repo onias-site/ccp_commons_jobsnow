@@ -66,7 +66,7 @@ public class CcpEntityFactory {
 		boolean isReadOnlyEntity = configurationClass.isAnnotationPresent(CcpEntityOlyReadable.class);
 		
 		if(isReadOnlyEntity) {
-			CcpEntityReadOnly ccpEntityReadOnly = new CcpEntityReadOnly(entity);
+			DecoratorReadOnlyEntity ccpEntityReadOnly = new DecoratorReadOnlyEntity(entity);
 			return ccpEntityReadOnly;
 		}
 		boolean isAsyncWriterEntity = configurationClass.isAnnotationPresent(CcpEntityAsyncWriter.class);
