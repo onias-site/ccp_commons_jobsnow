@@ -3,7 +3,7 @@ package com.ccp.especifications.db.crud;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 class FunctionPutEntity implements CcpBusiness{
 	enum JsonFieldNames implements CcpJsonFieldName{

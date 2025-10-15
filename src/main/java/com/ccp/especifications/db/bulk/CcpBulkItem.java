@@ -4,8 +4,8 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityJsonTransformerError;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
 
 enum CcpBulkItemFields implements CcpJsonFieldName{
 	id,  entity, operation 
@@ -17,17 +17,17 @@ public class CcpBulkItem {
 		json
 	}
 
-	public final CcpEntityBulkOperationType operation;
+	public final CcpBulkEntityOperationType operation;
 	public final CcpJsonRepresentation json;
 	public final CcpEntity entity;
 	public final String id;
 	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpEntityBulkOperationType operation, CcpEntity entity, 
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, 
 			String id) {
 		this(json, operation, entity, id, x -> entity.getOnlyExistingFieldsAndHandledJson(x));
 	}
 	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpEntityBulkOperationType operation, CcpEntity entity, 
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, 
 			String id, CcpBusiness transformer) {
 		CcpJsonRepresentation transformedJson = json;
 		try {

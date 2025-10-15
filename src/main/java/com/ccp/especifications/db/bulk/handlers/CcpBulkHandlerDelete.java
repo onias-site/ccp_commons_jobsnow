@@ -6,9 +6,9 @@ import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
+import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
-import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
@@ -20,7 +20,7 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
-		CcpBulkItem attempts = this.entityToDelete.getMainBulkItem(json, CcpEntityBulkOperationType.delete);
+		CcpBulkItem attempts = this.entityToDelete.getMainBulkItem(json, CcpBulkEntityOperationType.delete);
 		List<CcpBulkItem> asList = Arrays.asList(attempts);
 		return asList;
 	}

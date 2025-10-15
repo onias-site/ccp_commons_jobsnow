@@ -13,9 +13,9 @@ public class CcpQueryExecutorDecorator {
 	
 	private final String[] resourcesNames;
 	
-	private final CcpDbQueryOptions elasticQuery;
+	private final CcpQueryOptions elasticQuery;
 
-	protected CcpQueryExecutorDecorator(CcpDbQueryOptions elasticQuery, String... resourcesNames) {
+	protected CcpQueryExecutorDecorator(CcpQueryOptions elasticQuery, String... resourcesNames) {
 		this.resourcesNames = resourcesNames;
 		this.elasticQuery = elasticQuery;
 	}

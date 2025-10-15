@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
-import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpErrorEntityPrimaryKeyIsMissing;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
 public interface CcpCrud {
 	CcpJsonRepresentation getOneById(String entityName, String id);

@@ -7,9 +7,9 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
-import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.especifications.db.utils.CcpEntityOperationType;
-import com.ccp.especifications.db.utils.decorators.engine.CcpEntityConfigurator;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityConfigurator;
 
 public abstract class CcpMensageriaReceiver {
 	
