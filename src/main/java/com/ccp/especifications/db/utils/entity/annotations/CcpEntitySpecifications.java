@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
 public @interface CcpEntitySpecifications {
 
 	Class[] afterSaveRecord();
-	boolean cacheableEntity();
 	CcpEntitySaveFlow[] flow();
 	Class[] beforeSaveRecord();
 	Class<?> entityValidation();

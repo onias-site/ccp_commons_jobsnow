@@ -478,8 +478,8 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return json;
 	}  
 
-	public CcpJsonRepresentation duplicateValueFromField(CcpJsonFieldName fieldToCopy, CcpJsonFieldName... array) {
-		String[] fields = this.getFields(array);
+	public CcpJsonRepresentation duplicateValueFromField(CcpJsonFieldName fieldToCopy, CcpJsonFieldName... fieldsToPaste) {
+		String[] fields = this.getFields(fieldsToPaste);
 		CcpJsonRepresentation response = this.duplicateValueFromField(fieldToCopy.getValue(), fields);
 		return response;
 	}	

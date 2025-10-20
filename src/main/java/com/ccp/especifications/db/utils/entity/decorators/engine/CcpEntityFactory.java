@@ -14,6 +14,7 @@ import com.ccp.especifications.db.bulk.handlers.CcpEntityTransferType;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityExpurgable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
@@ -136,28 +137,20 @@ public class CcpEntityFactory {
 	}
 
 	private CcpEntity tryToAddCacheableBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
-		CcpEntitySpecifications configuration = configurationClass.getAnnotation(CcpEntitySpecifications.class);
-		boolean isCacheableEntity = configuration.cacheableEntity();
-		int cacheExpires = this.getCacheExpires(configurationClass);
+		
+		boolean isCacheableEntity = false == configurationClass.isAnnotationPresent(CcpEntityCache.class);
 		
 		if(isCacheableEntity) {
-			entity = new DecoratorCacheEntity(entity, cacheExpires);
+			return entity;
 		}
+		
+		CcpEntityCache annotation = configurationClass.getAnnotation(CcpEntityCache.class);
+		
+		int cacheExpires = annotation.value();
+		
+		new DecoratorCacheEntity(entity, cacheExpires);
 		
 		return entity;
-	}
-
-	
-	private int getCacheExpires(Class<?> configurationClass) {
-		
-		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
-
-		if(isNotAnExpurgableEntity) {
-			return CcpEntityExpurgableOptions.daily.cacheExpires;
-		}
-		CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
-		CcpEntityExpurgableOptions expurgTime = annotation.expurgTime();
-		return expurgTime.cacheExpires;
 	}
 
 	private CcpEntity getDecoratedEntity(CcpEntity entity, Class<?> decorator) {
