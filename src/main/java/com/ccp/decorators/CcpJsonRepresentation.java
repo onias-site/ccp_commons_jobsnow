@@ -269,6 +269,17 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return decorator;
 	}
 	
+	public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, CcpJsonFieldName... fields) {
+		boolean anyFieldIsPresent = this.containsAnyFields(fields);
+		if(anyFieldIsPresent) {
+			return this;
+		}
+		
+		CcpJsonRepresentation apply = business.apply(this);
+		return apply;
+	
+	}
+	
 	public String getAsString(CcpJsonFieldName field) {
 		String asString = this.getAsString(field.getValue());
 		return asString;

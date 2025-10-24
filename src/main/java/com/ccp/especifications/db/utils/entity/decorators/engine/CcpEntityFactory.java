@@ -148,9 +148,9 @@ public class CcpEntityFactory {
 		
 		int cacheExpires = annotation.value();
 		
-		new DecoratorCacheEntity(entity, cacheExpires);
-		
-		return entity;
+		DecoratorCacheEntity decoratorCacheEntity = new DecoratorCacheEntity(entity, cacheExpires);
+	
+		return decoratorCacheEntity;
 	}
 
 	private CcpEntity getDecoratedEntity(CcpEntity entity, Class<?> decorator) {

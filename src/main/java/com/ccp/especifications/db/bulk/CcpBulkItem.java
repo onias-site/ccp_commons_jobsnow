@@ -22,13 +22,11 @@ public class CcpBulkItem {
 	public final CcpEntity entity;
 	public final String id;
 	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, 
-			String id) {
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this(json, operation, entity, id, x -> entity.getOnlyExistingFieldsAndHandledJson(x));
 	}
 	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, 
-			String id, CcpBusiness transformer) {
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id, CcpBusiness transformer) {
 		CcpJsonRepresentation transformedJson = json;
 		try {
 			transformedJson = transformer.apply(json);

@@ -26,8 +26,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		return ccpCacheDecorator;
 	}
 	
-	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json,
-			CcpBusiness ifNotFound) {
+	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 	
