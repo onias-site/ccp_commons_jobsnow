@@ -354,9 +354,9 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 
 	public String asUgglyJson() {
-		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		
 		try {
+			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 			String json2 = json.toJson(this.content);
 			return json2;
 			
@@ -937,7 +937,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return result;
 	}
 	
-	public CcpJsonRepresentation addToList(String field, Object value) {
+	private CcpJsonRepresentation addToList(String field, Object value) {
 		List<Object> list = this.getAsObjectList(field);
 		list = new ArrayList<>(list);
 		list.add(value);
@@ -1106,15 +1106,8 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return array;
 	}
 
-	public CcpJsonRepresentation addToItem(String completeRuleName, CcpJsonFieldName evaluatedfields,
-			Object... fields) {
-		CcpJsonRepresentation addToItem = this.addToItem(completeRuleName, evaluatedfields.getValue(), fields);
-		return addToItem;
-	}
-
-	public CcpJsonRepresentation addToItem(CcpJsonFieldName errors, String completeRuleName,
-			CcpJsonRepresentation errors2) {
-		CcpJsonRepresentation addToItem = this.addToItem(errors.getValue(), completeRuleName, errors2);
+	public CcpJsonRepresentation addToItem(CcpJsonFieldName field, String subField, CcpJsonRepresentation innerJson) {
+		CcpJsonRepresentation addToItem = this.addToItem(field.getValue(), subField, innerJson);
 		return addToItem;
 	}
 
@@ -1123,6 +1116,15 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return new CcpDynamicJsonRepresentation(this);
 	}
 	
+	public CcpJsonRepresentation addToItem(CcpJsonFieldName statis, String field, Object avg) {
+		CcpJsonRepresentation addToItem = addToItem(statis.getValue(), field, avg);
+		return addToItem;
+	}
+	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
+		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
+		return innerJsonFromPath;
+	}
+
 	
 	public static class CcpDynamicJsonRepresentation {
 		private CcpJsonRepresentation json;
@@ -1167,10 +1169,6 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 
 		public boolean containsField(String field) {
 			return this.json.containsField(field);
-		}
-
-		public boolean containsFields(boolean assertion, String... fields) {
-			return this.json.containsFields(assertion, fields);
 		}
 
 		public CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {
@@ -1249,8 +1247,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			return this.json.getOrDefault(field, defaultValue);
 		}
 
-		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field,
-				 CcpBusiness... transformers) {
+		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
 			return this.json.getTransformedJsonIfFoundTheField(field, transformers);
 		}
 
@@ -1308,14 +1305,5 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		public CcpJsonRepresentation removeField(String time) {
 			return this.json.removeField(time);
 		}
-	}
-
-	public CcpJsonRepresentation addToItem(CcpJsonFieldName statis, String field, Object avg) {
-		CcpJsonRepresentation addToItem = addToItem(statis.getValue(), field, avg);
-		return addToItem;
-	}
-	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
-		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
-		return innerJsonFromPath;
 	}
 }

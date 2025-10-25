@@ -25,13 +25,13 @@ public class CcpSelectProcedure {
 
 	public CcpSelectFoundInEntity ifThisIdIsPresentInEntity(CcpEntity entity) {
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.found, true).put(JsonFieldNames.entity, entity);
-		CcpJsonRepresentation addToList = this.statements.addToList("statements", put);
+		CcpJsonRepresentation addToList = this.statements.addToList(JsonFieldNames.statements, put);
 		return new CcpSelectFoundInEntity(this.id, addToList);
 	}
 	
 	public CcpSelectFoundInEntity ifThisIdIsNotPresentInEntity(CcpEntity entity) {
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.found, false).put(JsonFieldNames.entity, entity);
-		CcpJsonRepresentation addToList = this.statements.addToList("statements", put);
+		CcpJsonRepresentation addToList = this.statements.addToList(JsonFieldNames.statements, put);
 		return new CcpSelectFoundInEntity(this.id, addToList);
 	}
 	

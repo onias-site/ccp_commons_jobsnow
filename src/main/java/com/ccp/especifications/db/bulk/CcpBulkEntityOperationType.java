@@ -3,6 +3,7 @@ package com.ccp.especifications.db.bulk;
 
 import java.util.function.Function;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -14,7 +15,12 @@ public enum CcpBulkEntityOperationType {
 	delete(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
-	}))
+	})){
+		public CcpBusiness[] getTransformers(CcpEntity entity) {
+			return new CcpBusiness[] { x -> entity.getOnlyExistingFieldsAndHandledJson(x)};
+		}
+
+	}
 	;
 	
 	private final CcpJsonRepresentation handlers;
@@ -24,7 +30,7 @@ public enum CcpBulkEntityOperationType {
 	}
 	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem x) {
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(x.json, CcpBulkEntityOperationType.update, x.entity, x.id
-				, json -> x.entity.getOnlyExistingFields(json)
+				, json -> x.entity.validateJson(json),  json -> x.entity.getOnlyExistingFields(json)
 				);
 		return ccpBulkItem;
 	}
@@ -48,5 +54,9 @@ public enum CcpBulkEntityOperationType {
 		CcpBulkItem bulkItem = result.getBulkItem();
 		CcpBulkItem apply = handler.apply(bulkItem);
 		return apply;
+	}
+	
+	public CcpBusiness[] getTransformers(CcpEntity entity) {
+		return new CcpBusiness[] { x -> entity.validateJson(x), x -> entity.getOnlyExistingFieldsAndHandledJson(x)};
 	}
 }

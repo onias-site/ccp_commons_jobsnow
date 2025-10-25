@@ -301,7 +301,7 @@ public interface CcpEntity{
 
 	CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityOperationType operation);
 	
-	CcpEntity validateJson(CcpJsonRepresentation json);
+	CcpJsonRepresentation validateJson(CcpJsonRepresentation json);
 	
 	CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity();
 	

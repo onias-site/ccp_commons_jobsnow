@@ -134,12 +134,12 @@ final class DefaultImplementationEntity implements CcpEntity{
 		throw new RuntimeException(e);
 	}
 
-	public CcpEntity validateJson(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
 		CcpEntitySpecifications especifications = CcpEntityOperationType.getEspecifications(this.entityClass);
 		Class<?> jsonValidationClass = especifications.entityValidation();
 		String featureName = this.entityClass.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
-		return this;
+		return json;
 	}
 
 	public CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {

@@ -34,6 +34,10 @@ public class CcpDependencyInjection {
 		return (T) implementation;
 	}
 	
+	public static void removeDependecy(Class<?> interfaceClass) {
+		instances.remove(interfaceClass);
+	}
+	
 	public static <T> T getInstance(Class<CcpInstanceProvider<T>> interfaceClass) {
 		
 		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(interfaceClass);

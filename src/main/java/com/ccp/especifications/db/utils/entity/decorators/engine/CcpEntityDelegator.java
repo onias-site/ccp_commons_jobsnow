@@ -180,8 +180,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return transformedJsonAfterOperation;
 	}
 
-	public CcpEntity validateJson(CcpJsonRepresentation json) {
-		CcpEntity validateJson = this.entity.validateJson(json);
+	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
 		return validateJson;
 	}
 
