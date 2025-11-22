@@ -104,24 +104,25 @@ public class CcpEntityFactory {
 			return decoratedEntity;
 		}		
 		
-		boolean isExpurgableEntity = configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
 		
-		if(isExpurgableEntity) {
-			CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
-			
-			Class<?>decorator = annotation.expurgableEntityFactory();
-			CcpEntityExpurgableOptions longevity = annotation.expurgTime();
-			try {
-				CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
-				CcpEntityExpurgableFactory newInstance = reflection.newInstance();
-				CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
-				return expurgableEntity;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}		
+		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
+
+		if(isNotAnExpurgableEntity) {
+			return entity;
+		}
+		CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
 		
-		return entity;
+		Class<?>decorator = annotation.expurgableEntityFactory();
+		CcpEntityExpurgableOptions longevity = annotation.expurgTime();
+		try {
+			CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
+			CcpEntityExpurgableFactory newInstance = reflection.newInstance();
+			CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
+			return expurgableEntity;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, CcpEntityTransferType transferType) {

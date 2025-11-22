@@ -223,4 +223,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return this.entity;
 	}
 
+	public String calculateCacheId(CcpJsonRepresentation json) {
+		String calculateCacheId = this.entity.calculateCacheId(json);
+		return calculateCacheId;
+	}
 }

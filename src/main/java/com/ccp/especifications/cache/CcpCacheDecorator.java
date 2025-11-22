@@ -22,7 +22,7 @@ public final class CcpCacheDecorator {
 	}
 	
 	public CcpCacheDecorator(CcpEntity entity, CcpJsonRepresentation json) {
-		this(entity, entity.calculateId(json));
+		this(entity, entity.calculateCacheId(json));
 	}
 
 	

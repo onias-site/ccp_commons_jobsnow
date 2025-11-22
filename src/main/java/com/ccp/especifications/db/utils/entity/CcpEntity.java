@@ -91,6 +91,11 @@ public interface CcpEntity{
 		return hash;
 	}
 	
+	default String calculateCacheId(CcpJsonRepresentation json) {
+		String calculateId = this.calculateId(json);
+		return calculateId;
+	}
+	
 	default CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
 		
 		List<String> onlyPrimaryKeyNames = this.getPrimaryKeyNames();
