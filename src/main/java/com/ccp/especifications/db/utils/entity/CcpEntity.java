@@ -125,7 +125,7 @@ public interface CcpEntity{
 		throw new UnsupportedOperationException();
 	}
 
-	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
+	default CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		try {
 			CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 			String calculateId = this.calculateId(json);
@@ -141,7 +141,7 @@ public interface CcpEntity{
 
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		String entityName = this.getEntityName();
-		CcpJsonRepresentation md = this.getOneById(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityName), CcpProcessStatusDefault.NOT_FOUND);});
+		CcpJsonRepresentation md = this.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityName), CcpProcessStatusDefault.NOT_FOUND);});
 		return md;
 	}
 	

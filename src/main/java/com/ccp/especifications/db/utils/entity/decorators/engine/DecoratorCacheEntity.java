@@ -26,11 +26,11 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		return ccpCacheDecorator;
 	}
 	
-	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
+	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 	
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json, ifNotFound), this.cacheExpires);
+		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound), this.cacheExpires);
 		
 		return result;
 	}

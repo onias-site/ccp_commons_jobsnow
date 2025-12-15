@@ -104,9 +104,9 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return oneById;
 	}
 	
-	public final CcpJsonRepresentation getOneById(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
+	public final CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		this.validateTwinEntity(json);
-		CcpJsonRepresentation oneById = this.entity.getOneById(json, ifNotFound);
+		CcpJsonRepresentation oneById = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
 		return oneById;
 	}
 	

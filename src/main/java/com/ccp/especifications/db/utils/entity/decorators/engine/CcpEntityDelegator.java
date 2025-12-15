@@ -63,9 +63,9 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return twinEntity;
 	}
 
-	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json,
+	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json,
 			CcpBusiness ifNotFound) {
-		CcpJsonRepresentation oneById = this.entity.getOneById(json, ifNotFound);
+		CcpJsonRepresentation oneById = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
 		return oneById;
 	}
 
