@@ -194,7 +194,7 @@ public class CcpJsonValidatorEngine {
 				}
 				
 			} catch (CcpJsonFieldErrorSkipOthersValidationsToTheField e) {
-				errors = errors.putAll(e.validationResultFromField);
+				errors = errors.mergeWithAnotherJson(e.validationResultFromField);
 			}
 		}
 		return errors;

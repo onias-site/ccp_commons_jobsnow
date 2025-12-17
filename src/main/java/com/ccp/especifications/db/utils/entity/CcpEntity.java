@@ -178,7 +178,7 @@ public interface CcpEntity{
 	
 	default CcpJsonRepresentation save(CcpJsonRepresentation json) {
 		CcpJsonRepresentation handledJson = this.getTransformedJsonByEachFieldInJson(json);
-		this.validateJson(handledJson.putAll(json));
+		this.validateJson(handledJson.mergeWithAnotherJson(json));
 		CcpJsonRepresentation transformedJsonBeforeOperation = this.getTransformedJsonBeforeOperation(handledJson, CcpEntityOperationType.save);
 		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(transformedJsonBeforeOperation);
 		String id = this.calculateId(json);

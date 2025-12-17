@@ -60,7 +60,7 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		String twinEntityName = twinEntity.getEntityName();
 		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(JsonFieldNames._entities, entityName);
 		CcpJsonRepresentation j2 = json.getInnerJsonFromPath(JsonFieldNames._entities, twinEntityName);
-		CcpJsonRepresentation putAll = j1.putAll(j2);
+		CcpJsonRepresentation putAll = j1.mergeWithAnotherJson(j2);
 		return putAll;
 	}
 	

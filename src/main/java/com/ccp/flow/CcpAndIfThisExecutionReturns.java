@@ -54,7 +54,7 @@ public final class CcpAndIfThisExecutionReturns {
 				try {
 					json = nextFlow.apply(json);
 				} catch (CcpErrorFlowDisturb flowDisturb) {
-					json = flowDisturb.json.putAll(json);
+					json = flowDisturb.json.mergeWithAnotherJson(json);
 				}
 			}
 			return json;

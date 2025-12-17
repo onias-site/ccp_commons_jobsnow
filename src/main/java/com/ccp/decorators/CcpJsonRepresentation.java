@@ -816,7 +816,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 	}
 	
-	public CcpJsonRepresentation putAll(Map<String, Object> map) {
+	public CcpJsonRepresentation mergeWithAnotherJson(Map<String, Object> map) {
 		Map<String, Object> content2 = this.getContent();
 		Map<String, Object> content = new LinkedHashMap<>(content2);
 		content.putAll(map);
@@ -824,9 +824,21 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return mapDecorator;
 	}
 
-	public CcpJsonRepresentation putAll(CcpJsonRepresentation json) {
-		CcpJsonRepresentation mapDecorator = this.putAll(json.content);
+	public CcpJsonRepresentation mergeWithAnotherJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation mapDecorator = this.mergeWithAnotherJson(json.content);
 		return mapDecorator;
+	}
+	
+	
+	public CcpJsonRepresentation mergeWithAnothersJsons(CcpJsonRepresentation... jsons) {
+		
+		CcpJsonRepresentation result = this;
+		
+		for (CcpJsonRepresentation json : jsons) {
+			result = result.mergeWithAnotherJson(json);
+		}
+		
+		return result;
 	}
 	
 	public boolean containsField(CcpJsonFieldName field) {
