@@ -429,7 +429,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation transformedJsonIfFoundTheField = this.getTransformedJsonIfFoundTheField(field.getValue(), transformers);
 		return transformedJsonIfFoundTheField;
 	}
-	
+
 	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
 
 		boolean fieldNotFound = false == this.containsAllFields(field);
