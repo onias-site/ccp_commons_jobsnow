@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -227,4 +228,16 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		String calculateCacheId = this.entity.calculateCacheId(json);
 		return calculateCacheId;
 	}
+
+	public CcpJsonRepresentation getMultipleByIds(CcpJsonRepresentation... jsons) {
+		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(jsons);
+		return multipleByIds;
+	}
+
+	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
+		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(asList);
+		return multipleByIds;
+	}
+	
+	
 }

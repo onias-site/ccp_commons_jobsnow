@@ -21,6 +21,10 @@ public class CcpBulkItem {
 	public final CcpJsonRepresentation json;
 	public final CcpEntity entity;
 	public final String id;
+
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity) {
+		this(json, operation, entity, entity.calculateCacheId(json), operation.getTransformers(entity));
+	}
 	
 	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this(json, operation, entity, id, operation.getTransformers(entity));

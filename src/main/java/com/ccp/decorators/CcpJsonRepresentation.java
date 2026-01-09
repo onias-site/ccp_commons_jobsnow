@@ -285,7 +285,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		return asString;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String getAsString(String field) {
 
 		Object object = this.content.get(field);
@@ -307,6 +307,12 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		if(object instanceof CcpJsonRepresentation json) {
 			return json.toString();
 		}
+		
+		if(object instanceof Collection<?> col) {
+			List<Object> collect = col.stream().map(x -> x instanceof Map ? new CcpJsonRepresentation((Map)x) : x).collect(Collectors.toList());
+			return collect.toString();
+		}
+		
 		return ("" + object);
 	}
 

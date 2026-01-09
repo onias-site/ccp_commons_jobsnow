@@ -144,7 +144,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 			f.createNewFile();
 			return this;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("" + e);
 		}
 	}
 

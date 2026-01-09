@@ -16,12 +16,13 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpErrorBulkEntityRecordNotFound;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
@@ -325,5 +326,22 @@ public interface CcpEntity{
 	
 	default CcpEntity getWrapedEntity() {
 		return this;
+	}
+	
+	default CcpJsonRepresentation getMultipleByIds(CcpJsonRepresentation... jsons ) {
+		List<CcpJsonRepresentation> asList = Arrays.asList(jsons);
+		CcpJsonRepresentation innerJson = this.getMultipleByIds(asList);
+		return innerJson;
+	}
+
+	default CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		
+		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
+		
+		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(asList, this);
+		String entityName = this.getEntityName();
+		CcpJsonRepresentation innerJson = unionAll.condensed.getDynamicVersion().getInnerJson(entityName);
+		return innerJson;
 	}
 }

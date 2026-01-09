@@ -29,7 +29,11 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 
 			Predicate<CcpJsonRepresentation> evaluateCorrectType = type.evaluateCompatibleType(fieldName);
 			boolean incompatibleType = false == evaluateCorrectType.test(json);
-			return incompatibleType;
+			
+			if(incompatibleType) {
+				return true;
+			}
+			return false;
 		}
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {

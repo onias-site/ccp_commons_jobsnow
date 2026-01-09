@@ -271,7 +271,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 	
 	public boolean contains(String phrase) {
-		boolean contains = this.contains(CcpOtherConstants.DELIMITERS, phrase);
+		boolean contains = this.contains(CcpOtherConstants.DELIMITERS_ARRAY, phrase);
 		return contains;
 	}
 	
@@ -299,7 +299,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 	
 	public CcpTextDecorator sanitize() {
-		return this.sanitize(CcpOtherConstants.DELIMITERS);
+		return this.sanitize(CcpOtherConstants.DELIMITERS_ARRAY);
 	}
 	
 	public CcpTextDecorator sanitize(String[] delimiters) {
