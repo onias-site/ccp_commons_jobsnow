@@ -309,8 +309,20 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		}
 		
 		if(object instanceof Collection<?> col) {
+			
+			if(col.isEmpty()) {
+				return col.toString();
+			}
+
 			List<Object> collect = col.stream().map(x -> x instanceof Map ? new CcpJsonRepresentation((Map)x) : x).collect(Collectors.toList());
-			return collect.toString();
+
+			
+			if(collect.get(0) instanceof CcpJsonRepresentation) {
+				return collect.toString();
+			}
+			CcpJsonHandler dependency = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+			String json = dependency.toJson(col);
+			return json;
 		}
 		
 		return ("" + object);
