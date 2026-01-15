@@ -1157,7 +1157,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 
 	
 	public static class CcpDynamicJsonRepresentation {
-		private CcpJsonRepresentation json;
+		public final CcpJsonRepresentation json;
 
 		private CcpDynamicJsonRepresentation(CcpJsonRepresentation json) {
 			this.json = json;
