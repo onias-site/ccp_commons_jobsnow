@@ -335,6 +335,13 @@ public interface CcpEntity{
 	}
 
 	default CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
+		
+		boolean hasNoIdsToSearch = asList.isEmpty();
+		
+		if(hasNoIdsToSearch) {
+			return CcpOtherConstants.EMPTY_JSON;
+		}
+		
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
 		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
