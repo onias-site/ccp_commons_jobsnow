@@ -1,6 +1,7 @@
 package com.ccp.especifications.instant.messenger;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation;
 
 public interface CcpInstantMessenger {
 

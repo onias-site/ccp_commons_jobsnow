@@ -3,6 +3,7 @@ package com.ccp.flow;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpErrorJsonFieldNotFound;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.process.CcpProcessStatus;
 
 public final class CcpAndIfThisExecutionReturns {

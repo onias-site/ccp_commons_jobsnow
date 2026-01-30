@@ -3,6 +3,7 @@ package com.ccp.especifications.db.crud;
 import java.util.Collection;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation;
 
 public class CcpSelectNextStep {
 	private final CcpJsonRepresentation id;

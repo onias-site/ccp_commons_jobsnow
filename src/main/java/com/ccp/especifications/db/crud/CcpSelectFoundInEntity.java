@@ -5,6 +5,7 @@ import java.util.List;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.process.CcpProcessStatus;
 
 

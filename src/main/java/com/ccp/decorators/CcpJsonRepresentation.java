@@ -27,7 +27,7 @@ import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
-public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Object>>  {
+public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName>  {
 
 	public static interface CcpJsonFieldName{
 		
@@ -270,6 +270,17 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 	}
 	
 	public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, CcpJsonFieldName... fields) {
+		boolean anyFieldIsPresent = this.containsAnyFields(fields);
+		if(anyFieldIsPresent) {
+			return this;
+		}
+		
+		CcpJsonRepresentation apply = business.apply(this);
+		return apply;
+	
+	}
+
+	private CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
 		boolean anyFieldIsPresent = this.containsAnyFields(fields);
 		if(anyFieldIsPresent) {
 			return this;
@@ -1154,9 +1165,7 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;
 	}
-
-	
-	public static class CcpDynamicJsonRepresentation {
+	public static class CcpDynamicJsonRepresentation implements CcpMapDecorator<String> {
 		public final CcpJsonRepresentation json;
 
 		private CcpDynamicJsonRepresentation(CcpJsonRepresentation json) {
@@ -1304,7 +1313,6 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 
 		public CcpJsonRepresentation put(String field, Object value) {
 			return this.json.put(field, value);
-
 		}
 
 		public CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
@@ -1332,8 +1340,38 @@ public final class CcpJsonRepresentation implements CcpDecorator<Map<String, Obj
 			return this.json.getJsonPiece(fields);
 		}
 
-		public CcpJsonRepresentation removeField(String time) {
-			return this.json.removeField(time);
+		public CcpJsonRepresentation removeField(String field) {
+			return this.json.removeField(field);
+		}
+
+		public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
+			return this.json.whenFieldsAreNotFound(business, fields);
+		}
+
+		public CcpJsonRepresentation getJsonPiece(Collection<String> fields) {
+			return this.json.getJsonPiece(fields);
+		}
+
+		public CcpCollectionDecorator getAsCollectionDecorator(String field) {
+			return this.json.getAsCollectionDecorator(field);
+		}
+
+		public boolean containsAllFields(Collection<String> fields) {
+			return this.json.containsAllFields(fields);
+		}
+
+		public Set<String> getMissingFields(Collection<String> fields) {
+			return this.json.getMissingFields(fields);
+		}
+
+		public CcpJsonRepresentation getInnerJsonFromPath(String fieldName, String value) {
+			return this.json.getInnerJsonFromPath(fieldName, value);
+		}
+
+		public Map<String, Object> getContent() {
+			return this.json.content;
 		}
 	}
+
+
 }

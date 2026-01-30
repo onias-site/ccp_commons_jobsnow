@@ -1,6 +1,7 @@
 package com.ccp.especifications.http;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 
 @SuppressWarnings("serial")

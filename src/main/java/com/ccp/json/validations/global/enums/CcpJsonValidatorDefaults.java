@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.global.annotations.CcpJsonValidationFieldList;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 

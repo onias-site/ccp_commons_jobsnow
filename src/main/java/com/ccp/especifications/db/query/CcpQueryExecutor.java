@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.http.CcpHttpMethods;
 public interface CcpQueryExecutor {
 
 	CcpJsonRepresentation getTermsStatis(CcpQueryOptions elasticQuery, String[] resourcesNames, String fieldName);
 
-	CcpJsonRepresentation delete(CcpQueryOptions elasticQuery, String[] resourcesNames);
+	CcpJsonRepresentation delete(CcpQueryOptions elasticQuery, String... resourcesNames);
 	
 	CcpJsonRepresentation update(CcpQueryOptions elasticQuery, String[] resourcesNames, CcpJsonRepresentation newValues) ;
 	
