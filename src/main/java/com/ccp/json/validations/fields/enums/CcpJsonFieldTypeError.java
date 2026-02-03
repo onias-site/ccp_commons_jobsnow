@@ -12,7 +12,6 @@ import java.util.Set;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityExpurgableOptions;
 import com.ccp.decorators.CcpTimeDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;

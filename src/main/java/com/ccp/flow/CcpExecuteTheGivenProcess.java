@@ -2,7 +2,6 @@ package com.ccp.flow;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation;
 
 public final class CcpExecuteTheGivenProcess {
 

@@ -1,7 +1,6 @@
 package com.ccp.especifications.db.crud;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation;
 
 public class CcpSelectLoadDataFromEntity {
 	private final CcpJsonRepresentation id;

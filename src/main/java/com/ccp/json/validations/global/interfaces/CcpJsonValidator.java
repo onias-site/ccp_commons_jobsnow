@@ -2,7 +2,6 @@ package com.ccp.json.validations.global.interfaces;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorErrorBreakValidationsToTheClass;
 
 public interface CcpJsonValidator {

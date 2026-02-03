@@ -1,7 +1,6 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.business.CcpBusiness;

@@ -1,6 +1,8 @@
 package com.ccp.process;
 
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.flow.CcpErrorFlowDisturb;
 
 public interface CcpProcessStatus  extends CcpJsonFieldName{
 	int asNumber();
@@ -33,5 +35,10 @@ public interface CcpProcessStatus  extends CcpJsonFieldName{
 		}
 		String msg = String.format("It was expected the status name '%s' but status name '%s' was received insted", expectedStatusName, actualStatusName);
 		throw new RuntimeException(msg);
+	}
+	
+	
+	default CcpJsonRepresentation throwException(CcpJsonRepresentation json) {
+		throw new CcpErrorFlowDisturb(json, this);
 	}
 }
