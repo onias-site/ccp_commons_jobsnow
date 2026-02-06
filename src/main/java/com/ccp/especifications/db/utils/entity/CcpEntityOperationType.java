@@ -8,11 +8,13 @@ import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityConfigurator;
 
 public enum CcpEntityOperationType
 {
@@ -91,6 +93,46 @@ public enum CcpEntityOperationType
 		}
 		
 	},
+	
+	transferToAnotherEntity{
+
+		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
+			
+			CcpJsonRepresentation oneById = entity.getOneById(json);
+			
+			entity.delete(json);
+			
+			CcpJsonRepresentation mergedJson = json.mergeWithAnotherJson(oneById);
+			
+			CcpReflectionConstructorDecorator reflection = json.getAsStringDecorator(Fields.entityToTransferTheData).reflection();
+			
+			CcpEntityConfigurator clazz = reflection.newInstance();
+			
+			CcpEntity anotherEntity = clazz.getEntity();
+			
+			Class<?> forName = reflection.forName();
+			
+			List<CcpBusiness> businessWhenTransferingToAnotherEntity = entity.getBusinessWhenTransferingToAnotherEntity(forName);
+			
+			for (CcpBusiness business : businessWhenTransferingToAnotherEntity) {
+				mergedJson = business.apply(mergedJson);
+			}
+
+			anotherEntity.save(mergedJson);
+			
+			return mergedJson;
+		}
+
+		public List<CcpBusiness> getStepsBefore(Class<?> entityClass) {
+			return new ArrayList<>();
+		}
+
+		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
+			return new ArrayList<>();
+		}
+		
+	}
+	
 	;
 
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
@@ -125,5 +167,7 @@ public enum CcpEntityOperationType
 		return this.getClass();
 	}
 	
-	
+	public static enum Fields implements CcpJsonFieldName{
+		entityToTransferTheData
+	}
 }

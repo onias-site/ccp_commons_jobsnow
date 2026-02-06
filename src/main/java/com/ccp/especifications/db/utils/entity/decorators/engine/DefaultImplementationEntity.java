@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.stream.Collectors;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
+import com.ccp.especifications.db.utils.entity.annotations.CcpEntityDataTransferRule;
+import com.ccp.especifications.db.utils.entity.annotations.CcpEntityDataTransfer;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
@@ -148,5 +151,26 @@ final class DefaultImplementationEntity implements CcpEntity{
 
 	public Class<?> getConfigurationClass() {
 		return this.entityClass;
+	}
+
+	public List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity) {
+		
+		boolean hasNoRequiredAnnotation = false == this.entityClass.isAnnotationPresent(CcpEntityDataTransfer.class);
+		
+		if(hasNoRequiredAnnotation) {
+			return new ArrayList<>();
+		}
+		
+		CcpEntityDataTransfer annotation = this.entityClass.getAnnotation(CcpEntityDataTransfer.class);
+		
+		List<CcpEntityDataTransferRule> rules = Arrays.asList(annotation.rules());
+		
+		List<CcpBusiness> business = rules.stream().filter(r -> r.whenTransferingToEntity().equals(anotherEntity))
+		.map(r -> r.thenExecuteTheFollowingFlow())
+		.map(r -> Arrays.asList(r).stream().map(s ->(CcpBusiness) new CcpReflectionConstructorDecorator(s).fromNewInstance()).collect(Collectors.toList()))
+		.findFirst()
+		.orElse(new ArrayList<>());
+		
+		return business;
 	}
 }

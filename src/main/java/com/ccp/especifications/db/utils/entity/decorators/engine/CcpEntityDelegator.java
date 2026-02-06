@@ -238,6 +238,16 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(asList);
 		return multipleByIds;
 	}
+
+	public List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity) {
+		List<CcpBusiness> businessWhenTransferingToAnotherEntity = this.entity.getBusinessWhenTransferingToAnotherEntity(anotherEntity);
+		return businessWhenTransferingToAnotherEntity;
+	}
+
+	public CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
+		CcpJsonRepresentation transferDataToAnotherEntity = this.entity.transferDataToAnotherEntity(data, anotherEntity);
+		return transferDataToAnotherEntity;
+	}
 	
 	
 }

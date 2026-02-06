@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
@@ -52,10 +53,16 @@ public abstract class CcpMensageriaReceiver {
 	
 	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
 		
-		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, "mensageriaReceiver");
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, Fields.mensageriaReceiver.name());
 		
 		CcpMensageriaReceiver newInstance = reflection.newInstance();
 		
 		return newInstance;
+	}
+	
+	public static enum Fields implements CcpJsonFieldName{
+		mensageriaReceiver
+		;
+		
 	}
 }

@@ -351,4 +351,12 @@ public interface CcpEntity{
 		CcpJsonRepresentation innerJson = unionAll.condensed.getDynamicVersion().getInnerJson(entityName);
 		return innerJson;
 	}
+	
+	List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity);
+	
+	default CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
+		throw new UnsupportedOperationException();
+	}
+	
 }
+
