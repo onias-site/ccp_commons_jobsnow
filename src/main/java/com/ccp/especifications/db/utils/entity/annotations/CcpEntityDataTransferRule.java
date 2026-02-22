@@ -7,5 +7,5 @@ import java.lang.annotation.Retention;
 @Retention(RUNTIME)
 public @interface CcpEntityDataTransferRule {
 	Class<?>[] thenExecuteTheFollowingFlow();
-	Class<?> whenTransferingToEntity();
+	Class<?> whenTransferingDataToEntity();
 }

@@ -165,7 +165,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		
 		List<CcpEntityDataTransferRule> rules = Arrays.asList(annotation.rules());
 		
-		List<CcpBusiness> business = rules.stream().filter(r -> r.whenTransferingToEntity().equals(anotherEntity))
+		List<CcpBusiness> business = rules.stream().filter(r -> r.whenTransferingDataToEntity().equals(anotherEntity))
 		.map(r -> r.thenExecuteTheFollowingFlow())
 		.map(r -> Arrays.asList(r).stream().map(s ->(CcpBusiness) new CcpReflectionConstructorDecorator(s).fromNewInstance()).collect(Collectors.toList()))
 		.findFirst()
