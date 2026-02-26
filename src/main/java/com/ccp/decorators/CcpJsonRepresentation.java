@@ -876,7 +876,10 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 	}
 
 	private boolean containsField(String field) {
-		boolean containsKey = this.content.containsKey(field);
+
+		Object object = this.content.get(field);
+		
+		boolean containsKey = object != null;
 		return containsKey;
 	}
 
