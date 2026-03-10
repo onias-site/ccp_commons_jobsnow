@@ -551,12 +551,12 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	
 	arrayExactSize(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
-		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
-		    String fieldName = field.getName();
+		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			String fieldName = field.getName();
 			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Integer validationParameter = this.getValidationParameter(field, type);
 			int size = value.size();
-			return validationParameter != size;
+			return validationParameter > Integer.MIN_VALUE && validationParameter != size;
 		}
 
 		
@@ -630,7 +630,12 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	arrayNonReapeted(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
-		    String fieldName = field.getName();
+		    
+			CcpJsonFieldValidatorArray annotation = field.getAnnotation(CcpJsonFieldValidatorArray.class);
+			if(false == annotation.nonRepeatedItems()) {
+				return false;
+			}
+			String fieldName = field.getName();
 			Collection<?> value = json.getDynamicVersion().getAsObjectList(fieldName);
 			Set<?> set = new HashSet<>(value);
 			int size = set.size();
