@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CcpEmailDecorator implements  CcpDecorator<String>{
-	public static final String	EMAIL_REGEX = ("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$");
+	public static final String	EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
 //	private static Set<String> nonProfessionalDomains = new HashSet<>();
 //	

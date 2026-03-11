@@ -842,7 +842,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			}
 		    String fieldName = field.getName();
 			String value = json.getDynamicVersion().getAsString(fieldName);
-			boolean matches = value.matches(validationParameter);
+			boolean matches = false == value.matches(validationParameter);
 			return matches;
 		}
 
