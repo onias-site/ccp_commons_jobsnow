@@ -16,11 +16,13 @@ public class CcpHttpResponse {
 
 	public final String httpResponse;
 	public final int httpStatus;
+	public final String curl;
 	
 	
-	public CcpHttpResponse(String httpResponse, int httpStatus) {
+	public CcpHttpResponse(String httpResponse, int httpStatus, String curl) {
 		this.httpResponse = httpResponse;
 		this.httpStatus = httpStatus;
+		this.curl = curl;
 	}
 	
 	public boolean isValidSingleJson() {
