@@ -22,5 +22,4 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	default List<CcpBusiness> doAfterSavingIfRecordIsFound(){
 		return new ArrayList<>();
 	}
-	
 }

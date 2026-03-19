@@ -1,12 +1,11 @@
 package com.ccp.especifications.db.bulk.handlers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
@@ -20,8 +19,7 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
-		CcpBulkItem attempts = this.entityToDelete.getMainBulkItem(json, CcpBulkEntityOperationType.delete);
-		List<CcpBulkItem> asList = Arrays.asList(attempts);
+		List<CcpBulkItem> asList = this.entityToDelete.toBulkItems(json, CcpBulkEntityOperationType.delete);
 		return asList;
 	}
 
@@ -32,5 +30,4 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 	public CcpEntity getEntityToSearch() {
 		return this.entityToDelete;
 	}
-
 }

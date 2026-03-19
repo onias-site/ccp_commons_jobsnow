@@ -357,6 +357,6 @@ public interface CcpEntity{
 	default CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }
 

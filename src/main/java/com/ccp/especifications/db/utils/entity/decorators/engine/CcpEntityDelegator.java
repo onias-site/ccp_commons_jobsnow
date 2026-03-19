@@ -248,6 +248,4 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation transferDataToAnotherEntity = this.entity.transferDataToAnotherEntity(data, anotherEntity);
 		return transferDataToAnotherEntity;
 	}
-	
-	
 }
