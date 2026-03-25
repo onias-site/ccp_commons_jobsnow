@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -48,8 +47,8 @@ public class CcpSelectFinally {
 	
 	private CcpJsonRepresentation findById( 
 			String origin,
-			CcpJsonRepresentation json, Function<CcpJsonRepresentation, 
-			CcpJsonRepresentation> whenFlowError, 
+			CcpJsonRepresentation json, 
+			CcpBusiness whenFlowError, 
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
 			CcpJsonRepresentation... specifications) {
 		List<CcpEntity> keySet = Arrays.asList(specifications).stream()

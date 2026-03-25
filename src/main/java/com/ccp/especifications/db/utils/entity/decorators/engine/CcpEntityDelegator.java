@@ -160,11 +160,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return entityDetails;
 	}
 
-	public CcpBulkItem getMainBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpBulkItem mainBulkItem = this.entity.getMainBulkItem(json, operation);
-		return mainBulkItem;
-	}
-
 	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
 		return bulkItems;
@@ -247,5 +242,10 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 	public CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
 		CcpJsonRepresentation transferDataToAnotherEntity = this.entity.transferDataToAnotherEntity(data, anotherEntity);
 		return transferDataToAnotherEntity;
+	}
+
+	public CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		CcpBulkItem bulkItem = this.entity.toBulkItem(json, operation);
+		return bulkItem;
 	}
 }

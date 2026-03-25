@@ -36,11 +36,6 @@ public interface CcpEntity{
 		entity, id, entityName, primaryKeyNames, _entities
 	}
 
-	default CcpBulkItem getMainBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpBulkItem bulkItem = this.toBulkItems(json, operation).stream().filter(x -> x.entity == this).findFirst().get();
-		return bulkItem;
-	}
-	
 	default List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 		
 		String id = this.calculateId(json);
@@ -356,6 +351,11 @@ public interface CcpEntity{
 	
 	default CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
 		throw new UnsupportedOperationException();
+	}
+	
+	default CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, this);
+		return ccpBulkItem;
 	}
 
 }

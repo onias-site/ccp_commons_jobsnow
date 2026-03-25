@@ -1,6 +1,5 @@
 package com.ccp.especifications.db.bulk.handlers;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -18,14 +17,12 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	}
 	
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation searchParameter,	CcpJsonRepresentation recordFound) {
-		CcpBulkItem updateIntoMainEntity = this.mainEntity.getMainBulkItem(searchParameter, CcpBulkEntityOperationType.update);
-		List<CcpBulkItem> asList = Arrays.asList(updateIntoMainEntity);
+		List<CcpBulkItem> asList = this.mainEntity.toBulkItems(recordFound, CcpBulkEntityOperationType.update);
 		return asList;
 	}
 
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation searchParameter) {
-		CcpBulkItem createIntoMainEntity = this.mainEntity.getMainBulkItem(searchParameter, CcpBulkEntityOperationType.create);
-		List<CcpBulkItem> asList = Arrays.asList(createIntoMainEntity);
+		List<CcpBulkItem> asList = this.mainEntity.toBulkItems(searchParameter, CcpBulkEntityOperationType.create);
 		return asList;
 	}
 

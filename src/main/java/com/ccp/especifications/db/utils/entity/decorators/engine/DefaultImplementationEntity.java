@@ -50,11 +50,13 @@ final class DefaultImplementationEntity implements CcpEntity{
 	}
 	
 	protected List<CcpBulkItem> toCreateBulkItems(String... jsons){
-		List<CcpBulkItem> collect = Arrays.asList(jsons)
-		.stream().map(x -> new CcpJsonRepresentation(x))
-		.map(x -> this.getMainBulkItem(x, CcpBulkEntityOperationType.create))
-		.collect(Collectors.toList());
-		return collect;
+		var response = new ArrayList<CcpBulkItem>();
+		for (String string : jsons) {
+			CcpJsonRepresentation json = new CcpJsonRepresentation(string);	
+			List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
+			response.addAll(bulkItems);
+		}
+		return response;
 	}
 	
 	public final int hashCode() {

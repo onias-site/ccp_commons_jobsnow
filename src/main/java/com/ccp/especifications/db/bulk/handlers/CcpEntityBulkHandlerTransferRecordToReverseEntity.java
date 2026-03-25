@@ -31,10 +31,11 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 	
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity twinEntity = entityToSearch.getTwinEntity();
-		CcpBulkItem itemTo = twinEntity.getMainBulkItem(json, CcpBulkEntityOperationType.create);
-		CcpBulkItem itemFrom = entityToSearch.getMainBulkItem(json, CcpBulkEntityOperationType.delete);
-		List<CcpBulkItem> asList = Arrays.asList(itemTo, itemFrom);
-		
+		var itemTo = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
+		var itemFrom = entityToSearch.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		var asList = new ArrayList<CcpBulkItem>();
+		asList.addAll(itemTo);
+		asList.addAll(itemFrom);
 		return asList;
 	}
 
