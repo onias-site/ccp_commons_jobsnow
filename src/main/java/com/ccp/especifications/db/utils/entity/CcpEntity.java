@@ -141,28 +141,6 @@ public interface CcpEntity{
 		return md;
 	}
 	
-
-	default CcpJsonRepresentation getOneById(String id) {
-		try {
-			CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-			String entityName = this.getEntityName();
-			CcpJsonRepresentation md = crud.getOneById(entityName, id);
-			return md;
-			
-		} catch (CcpErrorBulkEntityRecordNotFound e) {
-			String entityName = this.getEntityName();
-			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.id, id).put(JsonFieldNames.entity, entityName);
-			throw new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
-		}
-	}
-	
-	default boolean exists(String id) {
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		String entityName = this.getEntityName();
-		boolean exists = crud.exists(entityName, id);
-		return exists;
-		
-	}
 	
 	default boolean exists(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -252,7 +230,7 @@ public interface CcpEntity{
 		return j1;
 	}
 	
-	default CcpJsonRepresentation getData(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	default CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
@@ -323,12 +301,6 @@ public interface CcpEntity{
 		return this;
 	}
 	
-	default CcpJsonRepresentation getMultipleByIds(CcpJsonRepresentation... jsons ) {
-		List<CcpJsonRepresentation> asList = Arrays.asList(jsons);
-		CcpJsonRepresentation innerJson = this.getMultipleByIds(asList);
-		return innerJson;
-	}
-
 	default CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
 		
 		boolean hasNoIdsToSearch = asList.isEmpty();
@@ -349,14 +321,10 @@ public interface CcpEntity{
 	
 	List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity);
 	
-	default CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
-		throw new UnsupportedOperationException();
-	}
-	
 	default CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, this);
 		return ccpBulkItem;
 	}
-
+	
 }
 

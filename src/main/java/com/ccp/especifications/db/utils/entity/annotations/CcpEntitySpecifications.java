@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 public @interface CcpEntitySpecifications {
 
 	Class[] afterSaveRecord();
-	CcpEntitySaveFlow[] flow();
+	CcpEntityExceptionsFlow[] flow();
 	Class[] beforeSaveRecord();
 	Class<?> entityValidation();
 	Class[] afterDeleteRecord();

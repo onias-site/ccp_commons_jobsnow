@@ -20,11 +20,6 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(this, json);
 		return ccpCacheDecorator;
 	}
-
-	private CcpCacheDecorator getCache(String id) {
-		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(this, id);
-		return ccpCacheDecorator;
-	}
 	
 	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		
@@ -42,38 +37,6 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json), this.cacheExpires);
 		
 		return result;
-	}
-
-	public CcpJsonRepresentation getOneById(String id) {
-
-		CcpCacheDecorator cache = this.getCache(id);
-		
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(id), this.cacheExpires);
-		
-		return result;
-	}
-
-	public boolean exists(String id) {
-
-		CcpCacheDecorator cache = this.getCache(id);
-
-		boolean exists = cache.isPresentInTheCache();
-		
-		if(exists) {
-			return true;
-		}
-
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(id), this.cacheExpires);
-		
-		boolean found = false == result.isEmpty();
-		
-		if(found) {
-			return true;
-		}
-		
-		cache.delete();
-		
-		return false;
 	}
 
 	public boolean exists(CcpJsonRepresentation json) {

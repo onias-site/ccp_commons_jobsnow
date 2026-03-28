@@ -1,8 +1,10 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpTimeDecorator;
 
@@ -37,6 +39,10 @@ public enum CcpEntityExpurgableOptions{
 		return format;
 	}
 	
+	public String getFormattedDate() {
+		String formattedDate = getFormattedDate(System.currentTimeMillis());
+		return formattedDate;
+	}	
 	public Long getNextTimeStamp() {
 		Calendar cal = new CcpTimeDecorator().getBrazilianCalendar();
 		cal.add(this.calendarField, 1);
@@ -57,10 +63,35 @@ public enum CcpEntityExpurgableOptions{
 		String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
 		return formattedDateTime;
 	}
+	
 	public String getNextDate(Long timestamp) {
 		Long nextTimeStamp = this.getNextTimeStamp(timestamp);
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
 		String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
 		return formattedDateTime;
 	}
+	
+	public static String getPastDate(String format, Long timeMillis) {
+
+		CcpEntityExpurgableOptions[] values = CcpEntityExpurgableOptions.values();
+		
+		for (CcpEntityExpurgableOptions value : values) {
+			
+			boolean formatHasNotFound = false == value.format.equals(format);
+			
+			if(formatHasNotFound) {
+				continue;
+			}
+			
+			Long timeInPast = timeMillis - value.milliseconds;
+			CcpTimeDecorator ctd = new CcpTimeDecorator(timeInPast);
+			String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
+			return formattedDateTime;
+		}
+		
+		throw new RuntimeException("The format '" + format + "' whas not found in the following list: " + Arrays.asList(values)
+				.stream().map(x -> x.format).collect(Collectors.toList())
+				);
+	}
+	
 } 

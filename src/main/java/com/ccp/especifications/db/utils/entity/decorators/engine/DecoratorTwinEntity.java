@@ -64,7 +64,7 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 		return putAll;
 	}
 	
-	public CcpJsonRepresentation getData(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		

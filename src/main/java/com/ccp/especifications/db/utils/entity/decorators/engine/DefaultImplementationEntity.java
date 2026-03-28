@@ -117,7 +117,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		CcpEntitySpecifications annotation = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
 		List<CcpBusiness> collect = Arrays.asList(annotation.flow())
 		.stream().filter(f -> f.whenThrowing().equals(e.getClass()))
-		.map(f -> new CcpReflectionConstructorDecorator(f.thenExecute()))
+		.map(f -> new CcpReflectionConstructorDecorator(f.thenExecute()[0]))
 		.map(x -> (CcpBusiness)x.newInstance()).collect(Collectors.toList())
 		;
 		Set<Class<?>> set = new HashSet<Class<?>>();

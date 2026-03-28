@@ -75,16 +75,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return oneById;
 	}
 
-	public CcpJsonRepresentation getOneById(String id) {
-		CcpJsonRepresentation oneById = this.entity.getOneById(id);
-		return oneById;
-	}
-
-	public boolean exists(String id) {
-		boolean exists = this.entity.exists(id);
-		return exists;
-	}
-
 	public boolean exists(CcpJsonRepresentation json) {
 		boolean exists = this.entity.exists(json);
 		return exists;
@@ -120,8 +110,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return innerJsonFromMainAndTwinEntities;
 	}
 
-	public CcpJsonRepresentation getData(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		CcpJsonRepresentation data = this.entity.getData(json, functionToDeleteKeysInTheCache);
+	public CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
+		CcpJsonRepresentation data = this.entity.getOneByIdAnywhere(json, functionToDeleteKeysInTheCache);
 		return data;
 	}
 
@@ -223,12 +213,6 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		String calculateCacheId = this.entity.calculateCacheId(json);
 		return calculateCacheId;
 	}
-
-	public CcpJsonRepresentation getMultipleByIds(CcpJsonRepresentation... jsons) {
-		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(jsons);
-		return multipleByIds;
-	}
-
 	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
 		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(asList);
 		return multipleByIds;
@@ -239,13 +223,9 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return businessWhenTransferingToAnotherEntity;
 	}
 
-	public CcpJsonRepresentation transferDataToAnotherEntity(CcpJsonRepresentation data, Class<?> anotherEntity) {
-		CcpJsonRepresentation transferDataToAnotherEntity = this.entity.transferDataToAnotherEntity(data, anotherEntity);
-		return transferDataToAnotherEntity;
-	}
-
 	public CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		CcpBulkItem bulkItem = this.entity.toBulkItem(json, operation);
 		return bulkItem;
 	}
+
 }

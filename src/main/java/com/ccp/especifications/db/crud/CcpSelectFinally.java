@@ -29,18 +29,18 @@ public class CcpSelectFinally {
 
 	}
 
-	public CcpSelectFinally endThisProcedure(String context, CcpBusiness whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpSelectFinally endThisProcedure(String context, CcpBusiness whenFlowError,CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
+		this.findById(context, this.id, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
 		return this; 
 	}
 
-	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, CcpBusiness whenFlowError, Consumer<String[]> functionToDeleteKeysInTheCache
+	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		CcpJsonRepresentation findById = this.findById(context, this.id, whenFlowError, functionToDeleteKeysInTheCache, array);
+		CcpJsonRepresentation findById = this.findById(context, this.id, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
 		return findById;
 	}
 
@@ -49,6 +49,7 @@ public class CcpSelectFinally {
 			String origin,
 			CcpJsonRepresentation json, 
 			CcpBusiness whenFlowError, 
+			CcpBusiness whenFlowSuccess, 
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
 			CcpJsonRepresentation... specifications) {
 		List<CcpEntity> keySet = Arrays.asList(specifications).stream()
@@ -148,8 +149,8 @@ public class CcpSelectFinally {
 		if(zeroFields) {
 			throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 		}
-		
-		CcpJsonRepresentation subMap = json.getDynamicVersion().getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
+		CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
+		CcpJsonRepresentation subMap = apply.getDynamicVersion().getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
 		return subMap;
 	}
 }

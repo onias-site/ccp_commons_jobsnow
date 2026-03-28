@@ -5,7 +5,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 
 @Retention(RUNTIME)
-public @interface CcpEntitySaveFlow {
+public @interface CcpEntityExceptionsFlow {
+	Class<?>[] thenExecute();
 	Class<?> whenThrowing();
-	Class<?> thenExecute();
 }
