@@ -1,11 +1,9 @@
 package com.ccp.especifications.db.bulk;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
 
 enum CcpBulkItemFields implements CcpJsonFieldName{
 	id,  entity, operation 
@@ -21,30 +19,22 @@ public class CcpBulkItem {
 	public final CcpJsonRepresentation json;
 	public final CcpEntity entity;
 	public final String id;
+	
+	public CcpBulkItem(CcpBulkItem other, CcpBulkEntityOperationType operation) {
+		this(other.json, operation, other.entity, other.id);
+	}
 
 	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity) {
-		this(json, operation, entity, entity.calculateCacheId(json), operation.getTransformers(entity));
+		this(json, operation, entity, entity.calculateCacheId(json));
 	}
 	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
-		this(json, operation, entity, id, operation.getTransformers(entity));
-	}
-	
-	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id, CcpBusiness... transformers) {
-		CcpJsonRepresentation transformedJson = json;
-		for (CcpBusiness transformer : transformers) {
-			try {
-				transformedJson = transformer.apply(json);
-			} catch (CcpEntityJsonTransformerError e) {
-			}
-			
-		}
-		this.json = transformedJson;
+	private CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this.operation = operation;
 		this.entity = entity;
+		this.json = json;
 		this.id = id;
 	}
-
+	
 
 	public String toString() {
 		CcpJsonRepresentation put = this.asMap();

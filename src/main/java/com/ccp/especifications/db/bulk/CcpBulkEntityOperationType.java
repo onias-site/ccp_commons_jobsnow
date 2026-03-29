@@ -7,7 +7,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-
+//FIXME TOSAVEBULKITEM ETC
 public enum CcpBulkEntityOperationType {
 
 	create(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
@@ -23,28 +23,28 @@ public enum CcpBulkEntityOperationType {
 	}
 	;
 	
+	
+	
 	private final CcpJsonRepresentation handlers;
 
 	private CcpBulkEntityOperationType(CcpJsonRepresentation handlers) {
 		this.handlers = handlers;
 	}
 	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem x) {
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(x.json, CcpBulkEntityOperationType.update, x.entity, x.id
-				, json -> x.entity.validateJson(json),  json -> x.entity.getOnlyExistingFields(json)
-				);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(x, CcpBulkEntityOperationType.update);
 		return ccpBulkItem;
 	}
 	private static CcpBulkItem replaceUpdateToCreate(CcpBulkItem x) {
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(x.json, CcpBulkEntityOperationType.create, x.entity, x.id);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(x, CcpBulkEntityOperationType.create);
 		return ccpBulkItem;
 	}
 	
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
 		int status = result.status();
-		boolean statusNotFound = false == this.handlers.getDynamicVersion().containsAllFields("" + status);
+		boolean statusNotMapped = false == this.handlers.getDynamicVersion().containsAllFields("" + status);
 		
-		if(statusNotFound) {
+		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
 			CcpBulkItem ccpBulkItem = entityToReprocess.toBulkItem(json, CcpBulkEntityOperationType.create);
 			return ccpBulkItem;

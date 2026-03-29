@@ -11,7 +11,7 @@ public interface CcpCache {
 	@SuppressWarnings("unchecked")
 	default <V> V get(String key, CcpJsonRepresentation json, Function<CcpJsonRepresentation, V> taskToGetValue, int cacheSeconds) {
 
-		Object object = this.get(key);
+		Object object = this.delete(key);
 
 		if (object != null) {
 			return (V) object;

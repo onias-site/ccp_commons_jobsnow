@@ -1,24 +1,55 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine2;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
+import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 
-public class CcpEntityDelegator implements CcpEntity2{
-	private final int decoratorPriority;
-	protected final CcpEntity2 entity;
+public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator implements CcpDecoratorEntity<CcpAnnotation>{
+	
+	private final Consumer<String[]> functionToDeleteKeysInTheCache;
+	private final CcpExecuteBulkOperation executeBulkOperation; 
+	
+	public CcpDefaultEntityDelegator(CcpEntity2 entity, int decoratorPriority, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
+		super(entity, decoratorPriority);
+		this.functionToDeleteKeysInTheCache = functionToDeleteKeysInTheCache;
+		this.executeBulkOperation = executeBulkOperation;
+	}
 	
 
-	public CcpEntityDelegator(CcpEntity2 entity, int decoratorPriority) {
-		this.decoratorPriority = decoratorPriority;
-		this.entity = entity;
+	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		this.executeBulkOperation.executeBulk(bulkItems);
+		return json;
+	}
+	
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+
+		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		List<CcpBulkItem> collect = bulkItems.stream().map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete))
+		.collect(Collectors.toList());
+		this.executeBulkOperation.executeBulk(collect);
+
+		return json;
 	}
 
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
+		this.executeBulkOperation.executeBulk(bulkItems);
+		return json;
+	}
+	
 	public String calculateId(CcpJsonRepresentation json) {
 		String calculateId = this.entity.calculateId(json);
 		return calculateId;
@@ -27,16 +58,6 @@ public class CcpEntityDelegator implements CcpEntity2{
 	public CcpEntityDetails getEntityDetails() {
 		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
 		return entityDetails;
-	}
-
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		CcpJsonRepresentation delete = this.entity.delete(json);
-		return delete;
-	}
-
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
-		CcpJsonRepresentation deleteAnyWhere = this.entity.deleteAnyWhere(json);
-		return deleteAnyWhere;
 	}
 
 	public String[] getEntitiesToSelect() {
@@ -50,8 +71,28 @@ public class CcpEntityDelegator implements CcpEntity2{
 	}
 
 	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
-		CcpJsonRepresentation oneByIdAnywhere = this.entity.getOneByIdAnyWhere(json);
-		return oneByIdAnywhere;
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		List<CcpEntity2> associatedEntities = getAssociatedEntities();
+
+
+		//FIXME
+//		CcpEntity2[] array = associatedEntities.toArray(new CcpEntity2[associatedEntities.size()]);
+//		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
+		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, (CcpEntity[])null);
+		
+		CcpJsonRepresentation result = CcpOtherConstants.EMPTY_JSON;
+		
+		for (CcpEntity2 entity : associatedEntities) {
+			String mainId = entity.calculateId(json);
+			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpJsonRepresentation record = unionAll.getEntityRow(entityDetails.entityName, mainId);
+			result = result
+					.getDynamicVersion()
+					.put(entityDetails.entityName, record);
+
+		}
+		
+		return result;
 	}
 
 	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
@@ -88,41 +129,17 @@ public class CcpEntityDelegator implements CcpEntity2{
 		return presentInThisUnionAll;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpJsonRepresentation save = this.entity.save(json);
-		return save;
-	}
-
-	
 	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
 		return bulkItems;
 	}
 
-	public String toString() {
-		String string = this.entity.toString();
-		return string;
-	}
-	
-	public boolean equals(Object obj) {
-		boolean equals = this.entity.equals(obj);
-		return equals;
-	}
-	
-	public int hashCode() {
-		int hashCode = this.entity.hashCode();
-		return hashCode;
-	}
-	
-	public final int getDecoratorPriority() {
-		return this.decoratorPriority;
-	}
 
 	public boolean exists(CcpJsonRepresentation json) {
 		boolean exists = this.entity.exists(json);
 		return exists;
 	}
-
+	
 	public <T> T throwException() {
 		T throwException = this.entity.throwException();
 		return throwException;
@@ -132,7 +149,5 @@ public class CcpEntityDelegator implements CcpEntity2{
 		List<CcpEntity2> associatedEntities = this.entity.getAssociatedEntities();
 		return associatedEntities;
 	}
-	
-	
-	
+
 }

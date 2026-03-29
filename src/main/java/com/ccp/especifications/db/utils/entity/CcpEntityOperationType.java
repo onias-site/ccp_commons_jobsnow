@@ -131,6 +131,24 @@ public enum CcpEntityOperationType
 			return new ArrayList<>();
 		}
 		
+	}, deleteAnyWhere {
+		@Override
+		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
+			// FIXME Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<CcpBusiness> getStepsBefore(Class<?> entityClass) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<CcpBusiness> getStepsAfter(Class<?> entityClass) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	;

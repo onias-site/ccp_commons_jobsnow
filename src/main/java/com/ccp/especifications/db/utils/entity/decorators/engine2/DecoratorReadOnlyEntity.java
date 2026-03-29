@@ -1,11 +1,6 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine2;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.ccp.business.CcpBusiness;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 
@@ -14,7 +9,7 @@ class DecoratorReadOnlyEntity extends CcpEntityDelegator implements CcpDecorator
 	final Class<?>  clazz;
 	
 	public DecoratorReadOnlyEntity(CcpEntity2 entity, Class<?> clazz) {
-		super(entity);
+		super(entity, 7);
 		this.clazz = clazz;
 	}
 	
@@ -23,20 +18,26 @@ class DecoratorReadOnlyEntity extends CcpEntityDelegator implements CcpDecorator
 		return annotationPresent;
 	}
 
-	public List<CcpBusiness> getFlow() {
-		return new ArrayList<>();
-	}
-
-	public Map<Class<?>, List<CcpBusiness>> getExceptionHandlers() {
-		Map<Class<?>, List<CcpBusiness>> result = new HashMap<>();
-		return result;
-	}
-
 	public CcpEntityOlyReadable getAnnotation() {
 		CcpEntityOlyReadable annotation = this.clazz.getAnnotation(CcpEntityOlyReadable.class);
 		return annotation;
 	}
 	
 	
+	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
 	
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
+	
+
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
+
 }

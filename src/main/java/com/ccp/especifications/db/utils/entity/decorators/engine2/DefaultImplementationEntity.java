@@ -24,6 +24,10 @@ public class DefaultImplementationEntity implements CcpEntity2{
 		int hashCode = entityDetails.entityClass.hashCode();
 		return hashCode;
 	}
+
+	public int getDecoratorPriority() {
+		return 0;
+	}
 	
 	
 }

@@ -45,7 +45,9 @@ public class CcpEntityFactory {
 	
 	private CcpEntity tryToAddTwinBehaviorToEntity(Class<?> configurationClass) {
 		boolean isNotTwinEntity = false == configurationClass.isAnnotationPresent(CcpEntityTwin.class);
-		
+		/*
+		 * basic, expurgable, versionable,  cacheable, async, twin, readOnly
+		 */
 		if(isNotTwinEntity) {
 			CcpEntity entity = this.getEntityInstance(configurationClass);
 			CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);

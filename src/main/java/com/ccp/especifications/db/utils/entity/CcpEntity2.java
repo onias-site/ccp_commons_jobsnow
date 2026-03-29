@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
@@ -62,10 +63,24 @@ public interface CcpEntity2 {
 		return delete;
 	}
 	
-	default String[] getEntitiesToSelect() {
+	default boolean exists(CcpJsonRepresentation json) {
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		String id = this.calculateId(json);
 		CcpEntityDetails entityDetails = this.getEntityDetails();
-		String[] resourcesNames = new String[]{entityDetails.entityName};
-		return resourcesNames;
+		boolean exists = crud.exists(entityDetails.entityName, id);
+		return exists;
+	}
+
+	default List<CcpEntity2> getAssociatedEntities(){
+		List<CcpEntity2> asList = Arrays.asList(this);
+		return asList;
+	}
+	
+	default String[] getEntitiesToSelect() {
+		List<CcpEntity2> associatedEntities = this.getAssociatedEntities();
+		List<String> collect = associatedEntities.stream().map(x -> x.getEntityDetails().entityName).collect(Collectors.toList());
+		String[] array = collect.toArray(new String[collect.size()]);
+		return array;
 	}
 
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
@@ -74,9 +89,10 @@ public interface CcpEntity2 {
 		return md;
 	}
 	
-	default CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json) {
+	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
-		return oneById;
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(this.getEntityDetails().entityName, oneById);
+		return put;
 	}
 	
 	default CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
@@ -135,8 +151,14 @@ public interface CcpEntity2 {
 		return entityRow;
 	}
 	
-	default CcpEntity getTwinEntity() {
-		throw new UnsupportedOperationException();
+	default CcpEntity2 getTwinEntity() {
+		CcpEntity2 throwException = this.throwException();
+		return throwException;
+	}
+
+	default <T>T throwException() {
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		throw new UnsupportedOperationException("The entity '" + entityDetails.entityName + "' is just to read only");
 	}
 	
 	default CcpEntity2 getWrapedEntity() {
@@ -163,19 +185,11 @@ public interface CcpEntity2 {
 		return json;
 	}
 
-	default List<CcpBulkItem> toSaveBulkItems(CcpJsonRepresentation json) {
-		String calculateId = this.calculateId(json);
+	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		//FIXME
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, null, calculateId);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, null);
 		return Arrays.asList(ccpBulkItem);
 	}
-
-	default List<CcpBulkItem> toDeleteBulkItems(CcpJsonRepresentation json) {
-		String calculateId = this.calculateId(json);
-		//FIXME
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, null, calculateId);
-		return Arrays.asList(ccpBulkItem);
-	}
-
-
+	
+	int getDecoratorPriority();
 }

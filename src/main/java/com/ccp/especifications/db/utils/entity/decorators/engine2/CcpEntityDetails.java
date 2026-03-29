@@ -65,8 +65,7 @@ public class CcpEntityDetails {
 	}
 
 	private CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		String calculateId = this.entity.calculateId(json);
-		CcpBulkItem item = new CcpBulkItem(json, operation, this.entity, calculateId);
+		CcpBulkItem item = new CcpBulkItem(json, operation, this.entity);
 		return item;
 	}
 	

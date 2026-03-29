@@ -5,16 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.ccp.business.CcpBusiness;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntityExceptionsFlow;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityBeforeSave;
 
-class DecoratorBeforeSaveEntity extends CcpEntityDelegator implements CcpDecoratorEntity<CcpEntityBeforeSave>{
+class DecoratorBeforeSaveEntity extends CcpEntityDelegator implements CcpDecoratorEntityFlow<CcpEntityBeforeSave>{
 	
 	final Class<?>  clazz;
 	
 	public DecoratorBeforeSaveEntity(CcpEntity2 entity, Class<?> clazz) {
-		super(entity);
+		super(entity, 4);
 		this.clazz = clazz;
 	}
 	
@@ -49,6 +50,9 @@ class DecoratorBeforeSaveEntity extends CcpEntityDelegator implements CcpDecorat
 		return annotation;
 	}
 	
-	
-	
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation executeFlow = this.executeFlow(json);
+		CcpJsonRepresentation delete = this.entity.save(executeFlow);
+		return delete;
+	}
 }
