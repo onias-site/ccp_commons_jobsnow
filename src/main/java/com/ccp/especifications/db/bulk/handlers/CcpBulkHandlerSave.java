@@ -17,12 +17,12 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	}
 	
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation searchParameter,	CcpJsonRepresentation recordFound) {
-		List<CcpBulkItem> asList = this.mainEntity.toBulkItems(recordFound, CcpBulkEntityOperationType.update);
+		List<CcpBulkItem> asList = this.mainEntity.getBulkItemsList(recordFound, CcpBulkEntityOperationType.update);
 		return asList;
 	}
 
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation searchParameter) {
-		List<CcpBulkItem> asList = this.mainEntity.toBulkItems(searchParameter, CcpBulkEntityOperationType.create);
+		List<CcpBulkItem> asList = this.mainEntity.getBulkItemsList(searchParameter, CcpBulkEntityOperationType.create);
 		return asList;
 	}
 

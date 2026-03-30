@@ -44,10 +44,7 @@ public interface CcpEntity2 {
 		return hash;
 	}
 
-	default CcpEntityDetails getEntityDetails() {
-		//FIXME
-		return CcpEntityDetails.getEntityDetails(null);
-	}
+	CcpEntityDetails getEntityDetails();
 	
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 
@@ -83,6 +80,10 @@ public interface CcpEntity2 {
 		return array;
 	}
 
+	default CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
+		return json;
+	}
+	
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpEntityDetails entityDetails = this.getEntityDetails();
 		CcpJsonRepresentation md = this.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);});
@@ -186,10 +187,10 @@ public interface CcpEntity2 {
 	}
 
 	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
 		//FIXME
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, null);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, null);
 		return Arrays.asList(ccpBulkItem);
 	}
-	
-	int getDecoratorPriority();
 }

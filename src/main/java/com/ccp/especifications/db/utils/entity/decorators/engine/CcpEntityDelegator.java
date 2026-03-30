@@ -150,8 +150,8 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return entityDetails;
 	}
 
-	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
+	public List<CcpBulkItem> getBulkItemsList(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		List<CcpBulkItem> bulkItems = this.entity.getBulkItemsList(json, operation);
 		return bulkItems;
 	}
 

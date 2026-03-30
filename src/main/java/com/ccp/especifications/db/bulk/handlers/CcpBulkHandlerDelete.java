@@ -19,7 +19,7 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
-		List<CcpBulkItem> asList = this.entityToDelete.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		List<CcpBulkItem> asList = this.entityToDelete.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
 		return asList;
 	}
 

@@ -6,26 +6,16 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 
-class DecoratorCacheEntity extends CcpEntityDelegator implements CcpDecoratorEntity<CcpEntityCache>{
+class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	final int cacheExpires;
-	final Class<?>  clazz;
 	
-	public DecoratorCacheEntity(CcpEntity2 entity, Class<?> clazz, int cacheExpires) {
-		super(entity, 3);
-		this.cacheExpires = cacheExpires;
-		this.clazz = clazz;
+	public DecoratorCacheEntity(CcpEntity2 entity, Class<?> clazz) {
+		super(entity);
+		CcpEntityCache annotation = clazz.getAnnotation(CcpEntityCache.class);
+		this.cacheExpires = annotation.value();
 	}
 	
-	public boolean isThisEntityDecorated(Class<CcpEntityCache> annotation) {
-		boolean annotationPresent = this.clazz.isAnnotationPresent(annotation);
-		return annotationPresent;
-	}
-
-	public CcpEntityCache getAnnotation() {
-		CcpEntityCache annotation = this.clazz.getAnnotation(CcpEntityCache.class);
-		return annotation;
-	}
 	private CcpCacheDecorator getCache(CcpJsonRepresentation json) {
 		//FIXME
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(null, json);

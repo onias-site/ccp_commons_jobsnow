@@ -16,13 +16,13 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 
-public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator implements CcpDecoratorEntity<CcpAnnotation>{
+public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator{
 	
-	private final Consumer<String[]> functionToDeleteKeysInTheCache;
-	private final CcpExecuteBulkOperation executeBulkOperation; 
+	protected final Consumer<String[]> functionToDeleteKeysInTheCache;
+	protected final CcpExecuteBulkOperation executeBulkOperation; 
 	
-	public CcpDefaultEntityDelegator(CcpEntity2 entity, int decoratorPriority, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		super(entity, decoratorPriority);
+	public CcpDefaultEntityDelegator(CcpEntity2 entity, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
+		super(entity);
 		this.functionToDeleteKeysInTheCache = functionToDeleteKeysInTheCache;
 		this.executeBulkOperation = executeBulkOperation;
 	}
@@ -129,12 +129,6 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return presentInThisUnionAll;
 	}
 
-	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
-		return bulkItems;
-	}
-
-
 	public boolean exists(CcpJsonRepresentation json) {
 		boolean exists = this.entity.exists(json);
 		return exists;
@@ -149,5 +143,11 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		List<CcpEntity2> associatedEntities = this.entity.getAssociatedEntities();
 		return associatedEntities;
 	}
+	
+	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
+		return bulkItems;
+	}
+
 
 }

@@ -10,12 +10,10 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity2;
 
 public class CcpEntityDelegator implements CcpEntity2{
-	private final int decoratorPriority;
 	protected final CcpEntity2 entity;
 	
 
-	public CcpEntityDelegator(CcpEntity2 entity, int decoratorPriority) {
-		this.decoratorPriority = decoratorPriority;
+	public CcpEntityDelegator(CcpEntity2 entity) {
 		this.entity = entity;
 	}
 
@@ -94,10 +92,6 @@ public class CcpEntityDelegator implements CcpEntity2{
 	}
 
 	
-	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
-		return bulkItems;
-	}
 
 	public String toString() {
 		String string = this.entity.toString();
@@ -114,10 +108,6 @@ public class CcpEntityDelegator implements CcpEntity2{
 		return hashCode;
 	}
 	
-	public final int getDecoratorPriority() {
-		return this.decoratorPriority;
-	}
-
 	public boolean exists(CcpJsonRepresentation json) {
 		boolean exists = this.entity.exists(json);
 		return exists;
@@ -132,7 +122,15 @@ public class CcpEntityDelegator implements CcpEntity2{
 		List<CcpEntity2> associatedEntities = this.entity.getAssociatedEntities();
 		return associatedEntities;
 	}
-	
-	
+
+	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation handledJson = this.entity.getHandledJson(json);
+		return handledJson;
+	}
+
+	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
+		return bulkItems;
+	}
 	
 }

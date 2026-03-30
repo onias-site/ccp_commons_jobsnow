@@ -15,7 +15,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityExpurgable;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDisposable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
@@ -107,12 +107,12 @@ public class CcpEntityFactory {
 		}		
 		
 		
-		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityExpurgable.class);
+		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityDisposable.class);
 
 		if(isNotAnExpurgableEntity) {
 			return entity;
 		}
-		CcpEntityExpurgable annotation = configurationClass.getAnnotation(CcpEntityExpurgable.class);
+		CcpEntityDisposable annotation = configurationClass.getAnnotation(CcpEntityDisposable.class);
 		
 		Class<?>decorator = annotation.expurgableEntityFactory();
 		CcpEntityExpurgableOptions longevity = annotation.expurgTime();

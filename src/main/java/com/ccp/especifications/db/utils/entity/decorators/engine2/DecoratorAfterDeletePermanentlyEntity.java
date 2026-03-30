@@ -15,7 +15,7 @@ class DecoratorAfterDeletePermanentlyEntity extends CcpEntityDelegator implement
 	final Class<?>  clazz;
 	
 	public DecoratorAfterDeletePermanentlyEntity(CcpEntity2 entity, Class<?> clazz) {
-		super(entity, 4);
+		super(entity);
 		this.clazz = clazz;
 	}
 	

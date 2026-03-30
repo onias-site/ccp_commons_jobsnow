@@ -15,7 +15,7 @@ class DecoratorBeforeSaveEntity extends CcpEntityDelegator implements CcpDecorat
 	final Class<?>  clazz;
 	
 	public DecoratorBeforeSaveEntity(CcpEntity2 entity, Class<?> clazz) {
-		super(entity, 4);
+		super(entity);
 		this.clazz = clazz;
 	}
 	

@@ -111,7 +111,7 @@ public interface CcpEntity{
 	
 	CcpEntityField[] getFields();
 	
-	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+	default List<CcpBulkItem> getBulkItemsList(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, this);
 		return Arrays.asList(ccpBulkItem);
 	}
@@ -324,8 +324,5 @@ public interface CcpEntity{
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, operation, this);
 		return ccpBulkItem;
 	}
-	
-	
-	
 }
 

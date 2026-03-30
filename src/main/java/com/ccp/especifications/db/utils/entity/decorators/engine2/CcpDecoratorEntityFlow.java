@@ -9,7 +9,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 
-public interface CcpDecoratorEntityFlow<CcpAnnotation> extends CcpDecoratorEntity<CcpAnnotation>{
+public interface CcpDecoratorEntityFlow<CcpAnnotation>{
 
 	Map<Class<?>, List<CcpBusiness>> getExceptionHandlers();
 	List<CcpBusiness> getFlow();

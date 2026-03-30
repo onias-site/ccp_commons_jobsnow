@@ -53,7 +53,7 @@ final class DefaultImplementationEntity implements CcpEntity{
 		var response = new ArrayList<CcpBulkItem>();
 		for (String string : jsons) {
 			CcpJsonRepresentation json = new CcpJsonRepresentation(string);	
-			List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
+			List<CcpBulkItem> bulkItems = this.getBulkItemsList(json, CcpBulkEntityOperationType.create);
 			response.addAll(bulkItems);
 		}
 		return response;

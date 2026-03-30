@@ -15,7 +15,7 @@ class DecoratorBeforeDeleteEntity extends CcpEntityDelegator implements CcpDecor
 	final Class<?>  clazz;
 	
 	public DecoratorBeforeDeleteEntity(CcpEntity2 entity, Class<?> clazz) {
-		super(entity, 4);
+		super(entity);
 		this.clazz = clazz;
 	}
 	

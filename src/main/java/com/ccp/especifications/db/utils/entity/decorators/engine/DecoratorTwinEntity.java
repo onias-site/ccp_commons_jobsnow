@@ -127,8 +127,8 @@ class DecoratorTwinEntity extends CcpEntityDelegator {
 				return json;
 			}
 			CcpEntity twinEntity = this.getTwinEntity();
-			List<CcpBulkItem> twinBulkItems = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
-			List<CcpBulkItem> mainBulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+			List<CcpBulkItem> twinBulkItems = twinEntity.getBulkItemsList(json, CcpBulkEntityOperationType.create);
+			List<CcpBulkItem> mainBulkItems = this.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
 			List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
 			items.addAll(mainBulkItems);
 			CcpBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpBulkExecutor.class);

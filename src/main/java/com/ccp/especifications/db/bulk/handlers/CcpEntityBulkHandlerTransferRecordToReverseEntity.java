@@ -19,20 +19,20 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
 	private final CcpEntityTransferType transferType;
-	
+	//FIXME TROCAR PELA ENTITY
 	private final Class<?> entityClass;
 
 	public CcpEntityBulkHandlerTransferRecordToReverseEntity(CcpEntityTransferType transferType, Class<?> entityClass) {
 		this.transferType = transferType;
 		this.entityClass = entityClass;
 	}
-
+	
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity twinEntity = entityToSearch.getTwinEntity();
-		var itemTo = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
-		var itemFrom = entityToSearch.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		var itemTo = twinEntity.getBulkItemsList(json, CcpBulkEntityOperationType.create);
+		var itemFrom = entityToSearch.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
 		var asList = new ArrayList<CcpBulkItem>();
 		asList.addAll(itemTo);
 		asList.addAll(itemFrom);
@@ -55,6 +55,7 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 			throw new RuntimeException(e);
 		}
 	}
+	//FIXME EM CASO DE VALORES SENDO TRANSFERIDOS DE UMA ENTIDADE PARA OUTRA, CURRICULO POR EXEMPLO???
 	
 	public List<CcpBusiness> doAfterSavingIfRecordIsFound() {
 		List<CcpBusiness> functions = this.getFunctions(this.transferType.callBack);

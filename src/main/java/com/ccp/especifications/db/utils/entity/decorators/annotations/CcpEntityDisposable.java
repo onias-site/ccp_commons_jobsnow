@@ -9,7 +9,7 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityExpurg
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface CcpEntityExpurgable {
+public @interface CcpEntityDisposable {
 
 	Class<?> expurgableEntityFactory();
 	CcpEntityExpurgableOptions expurgTime();

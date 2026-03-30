@@ -15,10 +15,12 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	
 	CcpEntity getEntityToSearch();
 	
+	//FIXME REMOVER
 	default List<CcpBusiness> doAfterSavingIfRecordIsNotFound(){
 		return new ArrayList<>();
 	}
-
+   
+	//FIXME REMOVER
 	default List<CcpBusiness> doAfterSavingIfRecordIsFound(){
 		return new ArrayList<>();
 	}
