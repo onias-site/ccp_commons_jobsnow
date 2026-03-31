@@ -2,7 +2,6 @@ package com.ccp.especifications.db.crud;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -17,7 +16,7 @@ public class CcpErrorCrudMultiGetSearchUnfeasible extends RuntimeException{
 
 	private static String getMessage(Collection<CcpJsonRepresentation> jsons, CcpEntity... entities) {
 		
-		List<CcpJsonRepresentation> entitiesDetails = Arrays.asList(entities)
+		var entitiesDetails = Arrays.asList(entities)
 				.stream().map(entity -> entity.getEntityDetails()).collect(Collectors.toList());
 		
 		return "No item in the following list '" + entitiesDetails + "' was able to produce a "

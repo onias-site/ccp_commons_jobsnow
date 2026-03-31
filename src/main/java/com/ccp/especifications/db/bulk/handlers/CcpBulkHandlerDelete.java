@@ -8,6 +8,7 @@ import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
@@ -19,7 +20,8 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 	
-		List<CcpBulkItem> asList = this.entityToDelete.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
+		CcpEntityDetails entityDetails = this.entityToDelete.getEntityDetails();
+		List<CcpBulkItem> asList = entityDetails.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
 		return asList;
 	}
 

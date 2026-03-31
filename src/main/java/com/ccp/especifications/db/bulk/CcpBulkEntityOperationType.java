@@ -3,7 +3,6 @@ package com.ccp.especifications.db.bulk;
 
 import java.util.function.Function;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -16,10 +15,7 @@ public enum CcpBulkEntityOperationType {
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	})){
-		public CcpBusiness[] getTransformers(CcpEntity entity) {
-			return new CcpBusiness[] { x -> entity.getOnlyExistingFieldsAndHandledJson(x)};
-		}
-
+		
 	}
 	;
 	
@@ -46,7 +42,7 @@ public enum CcpBulkEntityOperationType {
 		
 		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
-			CcpBulkItem ccpBulkItem = entityToReprocess.toBulkItem(json, CcpBulkEntityOperationType.create);
+			CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, entityToReprocess);
 			return ccpBulkItem;
 		}
 		
@@ -54,9 +50,5 @@ public enum CcpBulkEntityOperationType {
 		CcpBulkItem bulkItem = result.getBulkItem();
 		CcpBulkItem apply = handler.apply(bulkItem);
 		return apply;
-	}
-	
-	public CcpBusiness[] getTransformers(CcpEntity entity) {
-		return new CcpBusiness[] { x -> entity.validateJson(x), x -> entity.getOnlyExistingFieldsAndHandledJson(x)};
 	}
 }

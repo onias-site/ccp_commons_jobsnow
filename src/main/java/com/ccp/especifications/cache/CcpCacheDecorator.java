@@ -8,6 +8,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public final class CcpCacheDecorator {
 	
@@ -22,14 +23,14 @@ public final class CcpCacheDecorator {
 	}
 	
 	public CcpCacheDecorator(CcpEntity entity, CcpJsonRepresentation json) {
-		this(entity, entity.calculateCacheId(json));
+		this(entity, entity.calculateId(json));
 	}
 
 	
 	public CcpCacheDecorator(CcpEntity entity, String id) {
-		String entityName = entity.getEntityName();
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
-		this.key = "records.entity." + entityName + ".id." + id ;
+		this.key = "records.entity." + entityDetails.entityName + ".id." + id ;
 	}
 	
 	public CcpCacheDecorator(String key) {

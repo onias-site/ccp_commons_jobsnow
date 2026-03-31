@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public interface CcpBulkExecutor {
 	
@@ -11,7 +12,8 @@ public interface CcpBulkExecutor {
 	
 	default CcpBulkExecutor addRecord(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity) {
 		
-		List<CcpBulkItem> bulkItems =  entity.getBulkItemsList(json, operation);
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		List<CcpBulkItem> bulkItems =  entityDetails.getBulkItemsList(json, operation);
 		
 		CcpBulkExecutor addRecord = this;
 		

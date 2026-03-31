@@ -1,47 +1,20 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
-import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
-
-public abstract class CcpEntityDelegator implements CcpEntity{
-
+public class CcpEntityDelegator implements CcpEntity{
 	protected final CcpEntity entity;
+	
 
 	public CcpEntityDelegator(CcpEntity entity) {
 		this.entity = entity;
-	}
-
-	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
-		List<CcpJsonRepresentation> parametersToSearch = this.entity.getParametersToSearch(json);
-		return parametersToSearch;
-	}
-
-	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
-		return presentInThisUnionAll;
-	}
-
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, json);
-		return recordFromUnionAll;
-	}
-
-	public String getEntityName() {
-		String entityName = this.entity.getEntityName();
-		return entityName;
 	}
 
 	public String calculateId(CcpJsonRepresentation json) {
@@ -49,35 +22,9 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return calculateId;
 	}
 
-	public CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
-		CcpJsonRepresentation primaryKeyValues = this.entity.getPrimaryKeyValues(json);
-		return primaryKeyValues;
-	}
-
-	public CcpEntityField[] getFields() {
-		CcpEntityField[] fields = this.entity.getFields();
-		return fields;
-	}
-
-	public CcpEntity getTwinEntity() {
-		CcpEntity twinEntity = this.entity.getTwinEntity();
-		return twinEntity;
-	}
-
-	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json,
-			CcpBusiness ifNotFound) {
-		CcpJsonRepresentation oneById = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
-		return oneById;
-	}
-
-	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
-		CcpJsonRepresentation oneById = this.entity.getOneById(json);
-		return oneById;
-	}
-
-	public boolean exists(CcpJsonRepresentation json) {
-		boolean exists = this.entity.exists(json);
-		return exists;
+	public CcpEntityDetails getEntityDetails() {
+		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+		return entityDetails;
 	}
 
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
@@ -85,34 +32,9 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return delete;
 	}
 
-	public CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
-		CcpJsonRepresentation onlyExistingFields = this.entity.getOnlyExistingFields(json);
-		return onlyExistingFields;
-	}
-
-	public List<String> getPrimaryKeyNames() {
-		List<String> primaryKeyNames = this.entity.getPrimaryKeyNames();
-		return primaryKeyNames;
-	}
-
-	public CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-  		CcpJsonRepresentation requiredEntityRow = this.entity.getRequiredEntityRow(unionAll, json);
-		return requiredEntityRow;
-	}
-
-	public boolean isPresentInThisJsonInMainEntity(CcpJsonRepresentation json) {
-		boolean presentInThisJsonInMainEntity = this.entity.isPresentInThisJsonInMainEntity(json);
-		return presentInThisJsonInMainEntity;
-	}
-
-	public CcpJsonRepresentation getInnerJsonFromMainAndTwinEntities(CcpJsonRepresentation json) {
-		CcpJsonRepresentation innerJsonFromMainAndTwinEntities = this.entity.getInnerJsonFromMainAndTwinEntities(json);
-		return innerJsonFromMainAndTwinEntities;
-	}
-
-	public CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		CcpJsonRepresentation data = this.entity.getOneByIdAnywhere(json, functionToDeleteKeysInTheCache);
-		return data;
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation deleteAnyWhere = this.entity.deleteAnyWhere(json);
+		return deleteAnyWhere;
 	}
 
 	public String[] getEntitiesToSelect() {
@@ -120,112 +42,95 @@ public abstract class CcpEntityDelegator implements CcpEntity{
 		return entitiesToSelect;
 	}
 
-	public ArrayList<Object> getSortedPrimaryKeyValues(CcpJsonRepresentation json) {
-		ArrayList<Object> sortedPrimaryKeyValues = this.entity.getSortedPrimaryKeyValues(json);
-		return sortedPrimaryKeyValues;
+	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
+		CcpJsonRepresentation oneById = this.entity.getOneById(json);
+		return oneById;
 	}
 
-	public CcpEntity[] getThisEntityAndHisTwinEntity() {
-		CcpEntity[] thisEntityAndHisTwinEntity = this.entity.getThisEntityAndHisTwinEntity();
-		return thisEntityAndHisTwinEntity;
-	}
-	
-	public final String toString() {
-		String entityName = this.getEntityName();
-		return entityName;
+	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation oneByIdAnywhere = this.entity.getOneByIdAnyWhere(json);
+		return oneByIdAnywhere;
 	}
 
-	public CcpJsonRepresentation getOnlyExistingFieldsAndHandledJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation onlyExistingFieldsAndHandledJson = this.entity.getOnlyExistingFieldsAndHandledJson(json);
-		return onlyExistingFieldsAndHandledJson;
+	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
+		CcpJsonRepresentation oneByIdOrHandleItIfThisIdWasNotFound = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
+		return oneByIdOrHandleItIfThisIdWasNotFound;
 	}
 
-	public CcpBusiness getOperationCallback(CcpEntityOperationType operation) {
-		CcpBusiness operationCallback = this.entity.getOperationCallback(operation);
-		return operationCallback;
+	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
+		List<CcpJsonRepresentation> parametersToSearch = this.entity.getParametersToSearch(json);
+		return parametersToSearch;
 	}
 
-	public CcpJsonRepresentation getEntityDetails() {
-		CcpJsonRepresentation entityDetails = this.entity.getEntityDetails();
-		return entityDetails;
+	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, json);
+		return recordFromUnionAll;
 	}
 
-	public List<CcpBulkItem> getBulkItemsList(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		List<CcpBulkItem> bulkItems = this.entity.getBulkItemsList(json, operation);
-		return bulkItems;
+	public CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+		CcpJsonRepresentation requiredEntityRow = this.entity.getRequiredEntityRow(unionAll, json);
+		return requiredEntityRow;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonByEachFieldInJson(json);
-		return transformedJsonBeforeOperation;
+	public CcpEntity getTwinEntity() {
+		CcpEntity twinEntity = this.entity.getTwinEntity();
+		return twinEntity;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json,
-			CcpEntityOperationType operation) {
-		CcpJsonRepresentation transformedJsonAfterOperation = this.entity.getTransformedJsonAfterOperation(json, operation);
-		return transformedJsonAfterOperation;
-	}
-
-	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
-		return validateJson;
-	}
-
-	public CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
-		CcpEntityBulkHandlerTransferRecordToReverseEntity transferRecordToReverseEntity = this.entity.getTransferRecordToReverseEntity();
-		return transferRecordToReverseEntity;
-	}
-
-	public Class<?> getConfigurationClass() {
-		Class<?> configurationClass = this.entity.getConfigurationClass();
-		return configurationClass;
-	}
-
-	public Class<?> getJsonValidationClass() {
-		Class<?> jsonValidationClass = this.entity.getJsonValidationClass();
-		return jsonValidationClass;
-	}
-
-	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
-		CcpJsonRepresentation transformedJsonBeforeOperation = this.entity.getTransformedJsonBeforeOperation(json, operation);
-		return transformedJsonBeforeOperation;
-	}
-
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
-		return createOrUpdate;
-	}
-
-	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transferToReverseEntity = this.entity.transferToReverseEntity(json);
-		return transferToReverseEntity;
-	}
-
-	public CcpJsonRepresentation save(CcpJsonRepresentation json, String id) {
-		CcpJsonRepresentation save = this.entity.save(json, id);
-		return save;
-	}
 	public CcpEntity getWrapedEntity() {
 		return this.entity;
 	}
 
-	public String calculateCacheId(CcpJsonRepresentation json) {
-		String calculateCacheId = this.entity.calculateCacheId(json);
-		return calculateCacheId;
-	}
-	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
-		CcpJsonRepresentation multipleByIds = this.entity.getMultipleByIds(asList);
-		return multipleByIds;
+	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
+		return presentInThisUnionAll;
 	}
 
-	public List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity) {
-		List<CcpBusiness> businessWhenTransferingToAnotherEntity = this.entity.getBusinessWhenTransferingToAnotherEntity(anotherEntity);
-		return businessWhenTransferingToAnotherEntity;
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation save = this.entity.save(json);
+		return save;
 	}
 
-	public CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpBulkItem bulkItem = this.entity.toBulkItem(json, operation);
-		return bulkItem;
+	
+
+	public String toString() {
+		String string = this.entity.toString();
+		return string;
+	}
+	
+	public boolean equals(Object obj) {
+		boolean equals = this.entity.equals(obj);
+		return equals;
+	}
+	
+	public int hashCode() {
+		int hashCode = this.entity.hashCode();
+		return hashCode;
+	}
+	
+	public boolean exists(CcpJsonRepresentation json) {
+		boolean exists = this.entity.exists(json);
+		return exists;
 	}
 
+	public <T> T throwException() {
+		T throwException = this.entity.throwException();
+		return throwException;
+	}
+
+	public List<CcpEntity> getAssociatedEntities() {
+		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
+		return associatedEntities;
+	}
+
+	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation handledJson = this.entity.getHandledJson(json);
+		return handledJson;
+	}
+
+	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
+		return bulkItems;
+	}
+	
 }

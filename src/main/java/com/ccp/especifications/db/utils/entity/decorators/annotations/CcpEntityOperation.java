@@ -5,13 +5,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.ccp.especifications.db.utils.entity.annotations.CcpEntityExceptionsFlow;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityStepType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface CcpEntityBeforeDeletePermanently {
+public @interface CcpEntityOperation {
 	
-	CcpEntityExceptionsFlow[] exceptionHandlers();
+	CcpExceptionFlow[] operationHandlers();
+	
+	CcpEntityType entityType();
+
+	CcpEntityStepType when();
+
 	@SuppressWarnings("rawtypes")
-	Class[] flow();
+	Class[] execute();
+	
 }

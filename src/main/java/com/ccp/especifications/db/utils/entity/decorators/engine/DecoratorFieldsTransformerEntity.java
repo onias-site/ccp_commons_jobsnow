@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine2;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
 
@@ -6,13 +6,13 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
-import com.ccp.especifications.db.utils.entity.CcpEntity2;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
 
 class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	
-	public DecoratorFieldsTransformerEntity(CcpEntity2 entity, Class<?> clazz) {
+	public DecoratorFieldsTransformerEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 	}
 	

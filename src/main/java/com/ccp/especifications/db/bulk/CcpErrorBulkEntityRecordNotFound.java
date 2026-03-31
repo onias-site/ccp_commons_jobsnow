@@ -2,6 +2,7 @@ package com.ccp.especifications.db.bulk;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 @SuppressWarnings("serial")
 public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
@@ -25,13 +26,13 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 
 	private static String getErrorMessage(CcpEntity entity, CcpJsonRepresentation json) {
 
-		CcpJsonRepresentation primaryKeyValues = entity.getPrimaryKeyValues(json);
-		String entityName = entity.getEntityName();
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(json);
 		String id = entity.calculateId(json);
 		
 		String errorMessage = String.format("Does not exist an id '%s' registered in the entity '%s'. Values to compose this id are: %s ", 
 				id,
-				entityName,
+				entityDetails.entityName,
 				primaryKeyValues);
 
 		return errorMessage;

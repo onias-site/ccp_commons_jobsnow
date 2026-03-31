@@ -7,6 +7,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public class CcpSelectUnionAll {
 
@@ -62,7 +63,8 @@ public class CcpSelectUnionAll {
 		}
 		
 		CcpJsonRepresentation requiredEntityRow = entity.getRequiredEntityRow(this, searchParameter);
-		CcpJsonRepresentation onlyExistingFieldsAndHandledJson = entity.getOnlyExistingFieldsAndHandledJson(searchParameter);
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpJsonRepresentation onlyExistingFieldsAndHandledJson = entityDetails.getOnlyExistingFields(searchParameter);
 		CcpJsonRepresentation recordFound = onlyExistingFieldsAndHandledJson.mergeWithAnotherJson(requiredEntityRow);
 		
 		CcpJsonRepresentation apply = recordFound.mergeWithAnotherJson(searchParameter);

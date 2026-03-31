@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine2;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -14,14 +14,13 @@ import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntity2;
 
 public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator{
 	
 	protected final Consumer<String[]> functionToDeleteKeysInTheCache;
 	protected final CcpExecuteBulkOperation executeBulkOperation; 
 	
-	public CcpDefaultEntityDelegator(CcpEntity2 entity, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpDefaultEntityDelegator(CcpEntity entity, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		super(entity);
 		this.functionToDeleteKeysInTheCache = functionToDeleteKeysInTheCache;
 		this.executeBulkOperation = executeBulkOperation;
@@ -72,7 +71,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 
 	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		List<CcpEntity2> associatedEntities = getAssociatedEntities();
+		List<CcpEntity> associatedEntities = getAssociatedEntities();
 
 
 		//FIXME
@@ -82,7 +81,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		
 		CcpJsonRepresentation result = CcpOtherConstants.EMPTY_JSON;
 		
-		for (CcpEntity2 entity : associatedEntities) {
+		for (CcpEntity entity : associatedEntities) {
 			String mainId = entity.calculateId(json);
 			CcpEntityDetails entityDetails = entity.getEntityDetails();
 			CcpJsonRepresentation record = unionAll.getEntityRow(entityDetails.entityName, mainId);
@@ -115,12 +114,12 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return requiredEntityRow;
 	}
 
-	public CcpEntity2 getTwinEntity() {
-		CcpEntity2 twinEntity = this.entity.getTwinEntity();
+	public CcpEntity getTwinEntity() {
+		CcpEntity twinEntity = this.entity.getTwinEntity();
 		return twinEntity;
 	}
 
-	public CcpEntity2 getWrapedEntity() {
+	public CcpEntity getWrapedEntity() {
 		return this.entity;
 	}
 
@@ -139,8 +138,8 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return throwException;
 	}
 
-	public List<CcpEntity2> getAssociatedEntities() {
-		List<CcpEntity2> associatedEntities = this.entity.getAssociatedEntities();
+	public List<CcpEntity> getAssociatedEntities() {
+		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
 		return associatedEntities;
 	}
 	

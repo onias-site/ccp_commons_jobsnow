@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine2;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.utils.entity.CcpEntity2;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
@@ -23,7 +23,7 @@ public final class CcpEntityDetails {
 	public final Class<?>  configurationClass; 
 	public final List<String> primaryKeyNames;
 	public final CcpEntityField[] allFields;
-	private final CcpEntity2 entity;
+	private final CcpEntity entity;
 	public final String entityName;
 	
 	CcpEntityDetails(Class<?> configurationClass, Function<Class<?>, String> entntyNameProducer){
@@ -39,7 +39,7 @@ public final class CcpEntityDetails {
 		this.entity = null;
 	}
 
-	CcpEntityDetails(Class<?> configurationClass, List<String> primaryKeyNames, CcpEntityField[] allFields,	String entityName, CcpEntity2 entity) {
+	CcpEntityDetails(Class<?> configurationClass, List<String> primaryKeyNames, CcpEntityField[] allFields,	String entityName, CcpEntity entity) {
 		this.configurationClass = configurationClass;
 		this.primaryKeyNames = primaryKeyNames;
 		this.entityName = entityName;
@@ -51,7 +51,7 @@ public final class CcpEntityDetails {
 		try {
 			Field field = this.configurationClass.getDeclaredField("ENTITY");
 			Object object = field.get(null);
-			CcpEntity2 entity = (CcpEntity2) object;
+			CcpEntity entity = (CcpEntity) object;
 			
 			return new CcpEntityDetails(this.configurationClass, this.primaryKeyNames, this.allFields, this.entityName, entity);
 			

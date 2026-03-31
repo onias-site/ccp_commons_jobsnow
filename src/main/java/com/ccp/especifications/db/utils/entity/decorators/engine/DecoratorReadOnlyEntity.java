@@ -2,42 +2,27 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
-import com.ccp.business.CcpBusiness;
 
-final class DecoratorReadOnlyEntity extends CcpEntityDelegator  implements CcpEntityDecoratorFactory {
-
-	protected DecoratorReadOnlyEntity(CcpEntity entity) {
+class DecoratorReadOnlyEntity extends CcpEntityDelegator {
+	
+	public DecoratorReadOnlyEntity(CcpEntity entity) {
 		super(entity);
-	}
-
-	private DecoratorReadOnlyEntity() {
-		super(null);
-	}
-	
-	public boolean create(CcpJsonRepresentation json) {
-		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
-	}
-	
-	public CcpJsonRepresentation save(CcpJsonRepresentation json, CcpJsonRepresentation onlyExistingFields) {
-		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
 	}
 	
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
-	}
-
-	public boolean delete(String id) {
-		throw new UnsupportedOperationException("The entity '" + this.entity.getEntityName() + "' is just to read only");
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
 	}
 	
-	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
-		return json -> operation.execute(this, json);
-	}
-
-	public CcpEntity getEntity(CcpEntity entity) {
-		DecoratorReadOnlyEntity ent = new DecoratorReadOnlyEntity(entity);
-		return ent;
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
 	}
 	
+
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
+
 }

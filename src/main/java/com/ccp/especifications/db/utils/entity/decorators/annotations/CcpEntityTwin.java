@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 @SuppressWarnings("rawtypes")
 public @interface CcpEntityTwin {
 
+	Class functionToDeleteKeysInTheCacheClass ();
+	Class bulkExecutorClass ();
 	String twinEntityName();
-	Class[] afterRecordBeenTransportedFromMainToTwinEntity();
-	Class[] afterRecordBeenTransportedFromTwinToMainEntity();
 
 }

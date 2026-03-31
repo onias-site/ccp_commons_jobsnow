@@ -1,9 +1,5 @@
 package com.ccp.especifications.db.crud;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
@@ -15,13 +11,4 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	
 	CcpEntity getEntityToSearch();
 	
-	//FIXME REMOVER
-	default List<CcpBusiness> doAfterSavingIfRecordIsNotFound(){
-		return new ArrayList<>();
-	}
-   
-	//FIXME REMOVER
-	default List<CcpBusiness> doAfterSavingIfRecordIsFound(){
-		return new ArrayList<>();
-	}
 }

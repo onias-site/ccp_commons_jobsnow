@@ -4,141 +4,111 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
-import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpBulkExecutor;
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
+import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.crud.CcpCrud;
-import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerSaveTwinEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
-
-class DecoratorTwinEntity extends CcpEntityDelegator {
-	enum JsonFieldNames implements CcpJsonFieldName{
-		_entities
-	}
-
-	private final CcpEntity twin;
-
-	public DecoratorTwinEntity(CcpEntity entity) {
-		super(entity);
-		this.twin = null;
-	}
+class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	
-	public DecoratorTwinEntity(CcpEntity entity, CcpEntity twin) {
-		super(entity);
+	private final CcpEntity twin;
+	private final Class<?>  clazz;
+
+	public DecoratorTwinEntity(CcpEntity entity, Class<?> clazz) {
+		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
+		this.twin = CcpEntityFactory.getEntity(clazz, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
+		this.clazz = clazz;
+	}
+
+	private DecoratorTwinEntity(CcpEntity entity, Class<?> clazz, CcpEntity twin) {
+		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
+		this.clazz = clazz;
 		this.twin = twin;
 	}
+	
+	private static Consumer<String[]> instanciateFunctionToDeleteKeysInTheCache(Class<?> clazz) {
+		CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
+		Class<?> clz = annotation.functionToDeleteKeysInTheCacheClass();
+		CcpReflectionConstructorDecorator ccpReflectionConstructorDecorator = new CcpReflectionConstructorDecorator(clz);
+		Consumer<String[]> newInstance = ccpReflectionConstructorDecorator.newInstance();
+		return newInstance;
+	}
 
+	private static CcpExecuteBulkOperation instanciateBulkExecutor(Class<?> clazz) {
+		CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
+		Class<?> clz = annotation.bulkExecutorClass();
+		CcpReflectionConstructorDecorator ccpReflectionConstructorDecorator = new CcpReflectionConstructorDecorator(clz);
+		CcpExecuteBulkOperation newInstance = ccpReflectionConstructorDecorator.newInstance();
+		return newInstance;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+		var transfer = new CcpEntityBulkHandlerTransferRecordToReverseEntity(this);
+		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
+		return json;
+	}
+	
+	public List<CcpEntity> getAssociatedEntities() {
+		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
+		ArrayList<CcpEntity> result = new ArrayList<CcpEntity>(associatedEntities);
+		result.add(this.twin);
+		return result;
+	}
+
+	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
+		
+		CcpJsonRepresentation oneByIdAnyWhere = super.getOneByIdAnyWhere(json);
+		CcpDynamicJsonRepresentation dynamicVersion = oneByIdAnyWhere.getDynamicVersion();
+		{
+			CcpEntityDetails entityDetails = this.getEntityDetails();
+			boolean foundInMainEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
+			
+			if(foundInMainEntity) {
+				CcpJsonRepresentation innerJson = dynamicVersion.getInnerJson(entityDetails.entityName);
+				return innerJson;
+			}
+		}
+		CcpEntityDetails entityDetails = this.twin.getEntityDetails();
+		boolean foundInTwinEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
+		
+		if(foundInTwinEntity) {
+			String id = this.twin.calculateId(json);
+			String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this,  this.twin);
+			throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new String[0]);
+		}
+
+		CcpJsonRepresentation oneById =  this.entity.getOneById(json);
+		return oneById;
+	}
+	
 	public CcpEntity getTwinEntity() {
-		DecoratorTwinEntity twin = new DecoratorTwinEntity(this.twin, this);
+		DecoratorTwinEntity twin = new DecoratorTwinEntity(this.twin, this.clazz, this);
 		return twin;
 	}
-	
-	public String[] getEntitiesToSelect() {
-		CcpEntity twinEntity = this.getTwinEntity();
-		String twinName = twinEntity.getEntityName();
-		String entityName = this.getEntityName();
-		String[] resourcesNames = new String[]{entityName, twinName};
-		return resourcesNames;
-	}
-	
-	public CcpEntity[] getThisEntityAndHisTwinEntity() {
-		CcpEntity twinEntity = this.getTwinEntity();
-		CcpEntity[] ccpEntities = new CcpEntity[] {this, twinEntity};
-		return ccpEntities;
-	}
-	public CcpJsonRepresentation getInnerJsonFromMainAndTwinEntities(CcpJsonRepresentation json) {
-		String entityName = this.getEntityName();
-		CcpEntity twinEntity = this.getTwinEntity();
-		String twinEntityName = twinEntity.getEntityName();
-		CcpJsonRepresentation j1 = json.getInnerJsonFromPath(JsonFieldNames._entities, entityName);
-		CcpJsonRepresentation j2 = json.getInnerJsonFromPath(JsonFieldNames._entities, twinEntityName);
-		CcpJsonRepresentation putAll = j1.mergeWithAnotherJson(j2);
-		return putAll;
-	}
-	
-	public CcpJsonRepresentation getOneByIdAnywhere(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		
-		CcpSelectUnionAll searchResults = crud.unionBetweenMainAndTwinEntities(json, functionToDeleteKeysInTheCache, this);
-		
-		CcpEntity twinEntity = this.getTwinEntity();
 
-		boolean inactive = twinEntity.isPresentInThisUnionAll(searchResults, json);
-		
-		if(inactive) {
-			CcpJsonRepresentation requiredEntityRow = twinEntity.getRequiredEntityRow(searchResults, json);
-			throw new CcpErrorFlowDisturb(requiredEntityRow, CcpProcessStatusDefault.INACTIVE_RECORD);
-		}
-		
-		CcpJsonRepresentation requiredEntityRow = this.getRequiredEntityRow(searchResults, json);
-
-		return requiredEntityRow;
+	@SuppressWarnings("unchecked")
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+		var transfer = new CcpEntityBulkHandlerSaveTwinEntity(this);
+		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
+		return json;
 	}
 	
-	private CcpEntity validateTwinEntity(CcpJsonRepresentation json) {
-		
-		CcpEntity twinEntity = this.getTwinEntity();
-		boolean doesNotExist = false == twinEntity.exists(json);
-		
-		if(doesNotExist) {
-			return this;
-		}
-		
-		String id = twinEntity.calculateId(json);
-		String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this, twinEntity);
-		throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new String[0]);
-	}
-	
-	public final CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
-		this.validateTwinEntity(json);
-		CcpJsonRepresentation oneById = this.entity.getOneById(json);
-		return oneById;
-	}
-	
-	public final CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
-		this.validateTwinEntity(json);
-		CcpJsonRepresentation oneById = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
-		return oneById;
-	}
-	
-	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
-		return json -> operation.execute(this, json);
-	}
-
-	public CcpJsonRepresentation transferToReverseEntity(CcpJsonRepresentation json) {
-		
-		try {
-			CcpJsonRepresentation transferToReverseEntity = this.entity.transferToReverseEntity(json);
-			return transferToReverseEntity;
-		} catch (UnsupportedOperationException e) {
-			
-			boolean doesNotExist = false == this.exists(json);
-			
-			if(doesNotExist) {
-				return json;
-			}
-			CcpEntity twinEntity = this.getTwinEntity();
-			List<CcpBulkItem> twinBulkItems = twinEntity.getBulkItemsList(json, CcpBulkEntityOperationType.create);
-			List<CcpBulkItem> mainBulkItems = this.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
-			List<CcpBulkItem> items = new ArrayList<>(twinBulkItems);
-			items.addAll(mainBulkItems);
-			CcpBulkExecutor dbBulkExecutor = CcpDependencyInjection.getDependency(CcpBulkExecutor.class);
-			
-			for (CcpBulkItem item : items) {
-				dbBulkExecutor = dbBulkExecutor.addRecord(item);
-			}
-			dbBulkExecutor.getBulkOperationResult();
-			return json;
-		}
+	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
+		ArrayList<CcpBulkItem> items = new ArrayList<>(bulkItems);
+		var expurgableToBulkOperation = this.twin.toBulkItems(json, operation);
+		items.addAll(expurgableToBulkOperation);
+		return items;
 	}
 
 }

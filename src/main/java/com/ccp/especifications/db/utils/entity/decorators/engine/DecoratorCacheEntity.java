@@ -1,44 +1,49 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
-import com.ccp.business.CcpBusiness;
-import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 
-class DecoratorCacheEntity extends CcpEntityDelegator{
-
-	private final int cacheExpires;
-
-	public DecoratorCacheEntity(CcpEntity entity, int cacheExpires) {
+class DecoratorCacheEntity extends CcpEntityDelegator {
+	
+	final int cacheExpires;
+	
+	public DecoratorCacheEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
-		this.cacheExpires = cacheExpires;
+		CcpEntityCache annotation = clazz.getAnnotation(CcpEntityCache.class);
+		this.cacheExpires = annotation.value();
 	}
-
+	
 	private CcpCacheDecorator getCache(CcpJsonRepresentation json) {
-		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(this, json);
+		//FIXME
+		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(null, json);
 		return ccpCacheDecorator;
 	}
-	
-	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
-		
-		CcpCacheDecorator cache = this.getCache(json);
-	
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound), this.cacheExpires);
-		
-		return result;
-	}
 
-	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+		
+		CcpJsonRepresentation delete = this.entity.delete(json);
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json), this.cacheExpires);
+		cache.delete();
 		
-		return result;
+		return delete;
 	}
 
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		
+		CcpJsonRepresentation delete = this.entity.deleteAnyWhere(json);
+		
+		CcpCacheDecorator cache = this.getCache(json);
+		
+		cache.delete();
+		
+		return delete;
+	}
+	
 	public boolean exists(CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
@@ -59,29 +64,25 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		cache.put(oneById, this.cacheExpires);
 		return true;
 	}
-
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-
-		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
+	
+	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		cache.put(createOrUpdate, this.cacheExpires);
+		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json), this.cacheExpires);
 		
-		return createOrUpdate;
+		return result;
 	}
 
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		
-		CcpJsonRepresentation delete = this.entity.delete(json);
+	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		cache.delete();
+		CcpJsonRepresentation result = cache.get(x -> this.entity.getRecordFromUnionAll(unionAll, json), this.cacheExpires);
 		
-		return delete;
+		return result;
 	}
-
+	
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
 		CcpCacheDecorator cache = this.getCache(json);
@@ -97,20 +98,15 @@ class DecoratorCacheEntity extends CcpEntityDelegator{
 		cache.put(requiredEntityRow, this.cacheExpires);
 		return true;
 	}
-	
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+
+	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+
+		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
 		
 		CcpCacheDecorator cache = this.getCache(json);
 		
-		boolean notPresentInThisUnionAll = false == super.isPresentInThisUnionAll(unionAll, json);
+		cache.put(createOrUpdate, this.cacheExpires);
 		
-		if(notPresentInThisUnionAll) {
-			cache.delete();
-			return CcpOtherConstants.EMPTY_JSON;
-		}
-		
-		CcpJsonRepresentation recordFromUnionAll = super.getRecordFromUnionAll(unionAll, json);
-		cache.put(recordFromUnionAll, this.cacheExpires);
-		return recordFromUnionAll;
+		return createOrUpdate;
 	}
 }

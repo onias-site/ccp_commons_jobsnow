@@ -18,7 +18,8 @@ public interface CcpEntityConfigurator {
 		var response = new ArrayList<CcpBulkItem>();
 		for (String string : jsons) {
 			CcpJsonRepresentation json = new CcpJsonRepresentation(string);
-			List<CcpBulkItem> bulkItems = entity.getBulkItemsList(json, CcpBulkEntityOperationType.create);
+			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			List<CcpBulkItem> bulkItems = entityDetails.getBulkItemsList(json, CcpBulkEntityOperationType.create);
 			response.addAll(bulkItems);
 		}
 		return response;

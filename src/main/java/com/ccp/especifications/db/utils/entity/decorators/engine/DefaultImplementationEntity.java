@@ -1,178 +1,43 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.ccp.business.CcpBusiness;
-import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
-import com.ccp.especifications.db.utils.entity.annotations.CcpEntityDataTransferRule;
-import com.ccp.especifications.db.utils.entity.annotations.CcpEntityDataTransfer;
-import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
-import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
-import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
-import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
-final class DefaultImplementationEntity implements CcpEntity{
-
-	final CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity;
-	final CcpEntityField[] fields;
-	final Class<?> entityClass;
-	final String entityName;
-
-	public DefaultImplementationEntity(String entityName, Class<?> entityClass, CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity, CcpEntityField... fields) {
-		this.entityTransferRecordToReverseEntity = entityTransferRecordToReverseEntity;
-		this.entityClass = entityClass;
-		this.entityName = entityName;
-		this.fields = fields;
-	}
-
-	public String getEntityName() {
-		return this.entityName;
-	}
-
-	public final CcpEntityField[] getFields() {
-		return this.fields;
+class DefaultImplementationEntity implements CcpEntity{
+	final CcpEntityDetails entityDetails;
+	
+	public DefaultImplementationEntity(CcpEntityDetails entityDetails) {
+		this.entityDetails = entityDetails;
 	}
 
 	public String toString() {
-		String entityName = this.getEntityName();
-		return entityName;
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		return entityDetails.entityName;
 	}
 	
-	protected List<CcpBulkItem> toCreateBulkItems(String... jsons){
-		var response = new ArrayList<CcpBulkItem>();
-		for (String string : jsons) {
-			CcpJsonRepresentation json = new CcpJsonRepresentation(string);	
-			List<CcpBulkItem> bulkItems = this.getBulkItemsList(json, CcpBulkEntityOperationType.create);
-			response.addAll(bulkItems);
-		}
-		return response;
-	}
-	
-	public final int hashCode() {
-		String entityName = this.getEntityName();
-		return entityName.hashCode();
-	}
-	
-	public final boolean equals(Object obj) {
-		try {
-			String entityName = ((DefaultImplementationEntity)obj).getEntityName();
-			String entityName2 = this.getEntityName();
-			boolean equals = entityName.equals(entityName2);
+	public boolean equals(Object obj) {
+		if(obj instanceof CcpEntity other) {
+			CcpEntityDetails entityDetails = this.getEntityDetails();
+			CcpEntityDetails entityDetails2 = other.getEntityDetails();
+			boolean equals = entityDetails.entityName.equals(entityDetails2.entityName);
 			return equals;
-		} catch (Exception e) {
-			return false;
 		}
+		return false;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonByEachFieldInJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation result = json;
-		for (CcpEntityField field : this.fields) {
-			try {
-				result = field.transformer.apply(result);
-			} catch (CcpEntityJsonTransformerError e) {
-			}
-		}
-		return result;
+	public int hashCode() {
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		int hashCode = entityDetails.entityName.hashCode();
+		return hashCode;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonAfterOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
-		List<CcpBusiness> steps = operation.getStepsAfter(this.entityClass);
-		CcpJsonRepresentation result = this.getSteps(json, steps);
-		return result;
+	public int getDecoratorPriority() {
+		return 0;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonBeforeOperation(CcpJsonRepresentation json, CcpEntityOperationType operation) {
-		List<CcpBusiness> steps = operation.getStepsBefore(this.entityClass);
-		CcpJsonRepresentation result = this.getSteps(json, steps);
-		return result;
+	public CcpEntityDetails getEntityDetails() {
+		CcpEntityDetails addEntity = this.entityDetails.associateEntity();
+		return addEntity;
 	}
-
-	private CcpJsonRepresentation getSteps(CcpJsonRepresentation json, List<CcpBusiness> steps) {
-		CcpJsonRepresentation result = json;
-		for (CcpBusiness step : steps) {
-			String featureName = step.getClass().getName();
-			Class<?> jsonValidationClass = step.getJsonValidationClass();
-			CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, result, featureName);
-			try {
-				result = step.apply(result);
-			} catch (Exception e) {
-				result = this.catchException(result, e);
-			}
-		}
-		return result;
-	}
-
-	private CcpJsonRepresentation catchException(CcpJsonRepresentation result, Exception e) {
-		CcpEntitySpecifications annotation = this.entityClass.getAnnotation(CcpEntitySpecifications.class);
-		List<CcpBusiness> collect = Arrays.asList(annotation.flow())
-		.stream().filter(f -> f.whenThrowing().equals(e.getClass()))
-		.map(f -> new CcpReflectionConstructorDecorator(f.thenExecute()[0]))
-		.map(x -> (CcpBusiness)x.newInstance()).collect(Collectors.toList())
-		;
-		Set<Class<?>> set = new HashSet<Class<?>>();
-		boolean found = false;
-		for (CcpBusiness ccpBusiness : collect) {
-			Class<? extends CcpBusiness> class1 = ccpBusiness.getClass();
-			boolean alreadyAdded = false == set.add(class1);
-			if(alreadyAdded) {
-				continue;
-			}
-			result = ccpBusiness.apply(result);
-			found = true;
-		}
-		
-		if(found) {
-			return result;
-		}
-		
-		throw new RuntimeException(e);
-	}
-
-	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
-		CcpEntitySpecifications especifications = CcpEntityOperationType.getEspecifications(this.entityClass);
-		Class<?> jsonValidationClass = especifications.entityValidation();
-		String featureName = this.entityClass.getName();
-		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
-		return json;
-	}
-
-	public CcpEntityBulkHandlerTransferRecordToReverseEntity getTransferRecordToReverseEntity() {
-		return this.entityTransferRecordToReverseEntity;
-	}
-
-	public Class<?> getConfigurationClass() {
-		return this.entityClass;
-	}
-
-	public List<CcpBusiness> getBusinessWhenTransferingToAnotherEntity(Class<?> anotherEntity) {
-		
-		boolean hasNoRequiredAnnotation = false == this.entityClass.isAnnotationPresent(CcpEntityDataTransfer.class);
-		
-		if(hasNoRequiredAnnotation) {
-			return new ArrayList<>();
-		}
-		
-		CcpEntityDataTransfer annotation = this.entityClass.getAnnotation(CcpEntityDataTransfer.class);
-		
-		List<CcpEntityDataTransferRule> rules = Arrays.asList(annotation.rules());
-		
-		List<CcpBusiness> business = rules.stream().filter(r -> r.whenTransferingDataToEntity().equals(anotherEntity))
-		.map(r -> r.thenExecuteTheFollowingFlow())
-		.map(r -> Arrays.asList(r).stream().map(s ->(CcpBusiness) new CcpReflectionConstructorDecorator(s).fromNewInstance()).collect(Collectors.toList()))
-		.findFirst()
-		.orElse(new ArrayList<>());
-		
-		return business;
-	}
+	
+	
 }

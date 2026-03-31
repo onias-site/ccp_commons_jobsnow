@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine;
+package com.ccp.especifications.db.utils.entity.decorators.enums;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;

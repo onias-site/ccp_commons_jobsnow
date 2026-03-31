@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.crud.CcpCrud;
@@ -41,12 +40,12 @@ public interface CcpExecuteBulkOperation {
 			boolean presentInThisUnionAll = entityToSearch.isPresentInThisUnionAll(unionAll, data);
 			
 			if(presentInThisUnionAll) {
-				List<CcpBusiness> doAfterSavingIfRecordIsFound = handler.doAfterSavingIfRecordIsFound();
-				data = data.getTransformedJson(doAfterSavingIfRecordIsFound);
+//				List<CcpBusiness> doAfterSavingIfRecordIsFound = handler.doAfterSavingIfRecordIsFound();
+//				data = data.getTransformedJson(doAfterSavingIfRecordIsFound);
 				continue;
 			}
-			List<CcpBusiness> doAfterSavingIfRecordIsNotFound = handler.doAfterSavingIfRecordIsNotFound();
-			data = data.getTransformedJson(doAfterSavingIfRecordIsNotFound);
+//			List<CcpBusiness> doAfterSavingIfRecordIsNotFound = handler.doAfterSavingIfRecordIsNotFound();
+//			data = data.getTransformedJson(doAfterSavingIfRecordIsNotFound);
 		}
 		
 		return unionAll;

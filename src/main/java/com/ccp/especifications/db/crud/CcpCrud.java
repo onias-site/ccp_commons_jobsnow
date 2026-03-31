@@ -15,12 +15,6 @@ public interface CcpCrud {
 	CcpJsonRepresentation getOneById(String entityName, String id);
 
 	CcpUnionAllExecutor getUnionAllExecutor();
-	//FIXME REMOVER
-	default CcpSelectUnionAll unionBetweenMainAndTwinEntities(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity entity) {
-		CcpEntity[] thisEntityAndHisTwinEntity = entity.getThisEntityAndHisTwinEntity();
-		CcpSelectUnionAll unionAll = this.unionAll(json, functionToDeleteKeysInTheCache, thisEntityAndHisTwinEntity);
-		return unionAll;
-	}
 	
 	default CcpSelectUnionAll unionAll(CcpJsonRepresentation[] jsons, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		this.deleteKeysInCache(jsons, functionToDeleteKeysInTheCache,  entities);

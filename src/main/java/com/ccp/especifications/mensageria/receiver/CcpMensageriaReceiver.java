@@ -29,7 +29,6 @@ public abstract class CcpMensageriaReceiver {
 		if(newInstance instanceof CcpBusiness topic) {
 			return topic;
 		}
-		
 		boolean invalidTopic = false == newInstance instanceof CcpEntityConfigurator;
 	
 		if(invalidTopic) {

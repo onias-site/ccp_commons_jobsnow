@@ -2,23 +2,20 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
-import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
-import com.ccp.especifications.db.bulk.handlers.CcpEntityTransferType;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.annotations.CcpEntitySpecifications;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDisposable;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefaultEntityField;
@@ -27,158 +24,57 @@ import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityField
 
 public class CcpEntityFactory {
 
+	private static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
+		String simpleName = clazz.getSimpleName();
+		String snackCase = new CcpStringDecorator(simpleName).text().toSnakeCase().content;
+		int indexOf = snackCase.indexOf("entity");
+		String substring = snackCase.substring(indexOf + 7);
+		return substring;
+	};
+
 	public final CcpEntityField[] entityFields;
-
 	public final Class<?> configurationClass;
-
 	public final CcpEntity entityInstance;
-
 	public final boolean hasTwinEntity;
-	
+
 	
 	public CcpEntityFactory(Class<?> configurationClass) {
 		this.hasTwinEntity = configurationClass.isAnnotationPresent(CcpEntityTwin.class);
-		this.entityFields = this.getFields(configurationClass);
-		this.entityInstance = this.tryToAddTwinBehaviorToEntity(configurationClass);
+		this.entityInstance = getMainEntity(configurationClass);
+		this.entityFields = getFields(configurationClass);
 		this.configurationClass = configurationClass;
 	}
 	
-	private CcpEntity tryToAddTwinBehaviorToEntity(Class<?> configurationClass) {
-		boolean isNotTwinEntity = false == configurationClass.isAnnotationPresent(CcpEntityTwin.class);
-		/*
-		 * basic, expurgable, versionable,  cacheable, async, twin, readOnly
-		 */
-		if(isNotTwinEntity) {
-			CcpEntity entity = this.getEntityInstance(configurationClass);
-			CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);
-			return asyncWriterOrReadOnlyEntity;
-		}
-		
-		CcpEntityTwin annotation = configurationClass.getAnnotation(CcpEntityTwin.class);
-		String twinEntityName = annotation.twinEntityName();
-		
-		CcpEntity entityInstance = this.getEntityInstance(configurationClass);
-		CcpEntity twin = this.getEntityInstance(configurationClass, twinEntityName, CcpEntityTransferType.Reactivate);
-		
-		DecoratorTwinEntity entity = new DecoratorTwinEntity(entityInstance, twin);
-		CcpEntity asyncWriterOrReadOnlyEntity = this.tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(configurationClass, entity);
-		return asyncWriterOrReadOnlyEntity;
-	}
-
-	private CcpEntity tryToAddAsyncWriterOrReadOnlyBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
-		boolean isReadOnlyEntity = configurationClass.isAnnotationPresent(CcpEntityOlyReadable.class);
-		
-		if(isReadOnlyEntity) {
-			DecoratorReadOnlyEntity ccpEntityReadOnly = new DecoratorReadOnlyEntity(entity);
-			return ccpEntityReadOnly;
-		}
-		boolean isAsyncWriterEntity = configurationClass.isAnnotationPresent(CcpEntityAsyncWriter.class);
-		
-		if(isAsyncWriterEntity) {
-			CcpEntityAsyncWriter annotation = configurationClass.getAnnotation(CcpEntityAsyncWriter.class);
-			Class<?> decorator = annotation.value();
-			CcpEntity decoratedEntity = this.getDecoratedEntity(entity, decorator);
-			return decoratedEntity;
-		}		
-
-		return entity;
-	}
-	
-	private CcpEntity getEntityInstance(Class<?> configurationClass) {
-		
-		String simpleName = configurationClass.getSimpleName();
-		String snackCase = new CcpStringDecorator(simpleName).text().toSnakeCase().content;
-		int indexOf = snackCase.indexOf("entity");
-		String entityName = snackCase.substring(indexOf + 7);
-	
-		CcpEntity entity = this.getEntityInstance(configurationClass, entityName, CcpEntityTransferType.Inactivate);
-		return entity;
-	}
-	
-	private CcpEntity tryToAddExpurgableOrVersionableBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
-
-		boolean isVersionableEntity = configurationClass.isAnnotationPresent(CcpEntityVersionable.class);
-		
-		if(isVersionableEntity) {
-			CcpEntityVersionable annotation = configurationClass.getAnnotation(CcpEntityVersionable.class);
-			Class<?> decorator = annotation.value();
-			CcpEntity decoratedEntity = this.getDecoratedEntity(entity, decorator);
-			return decoratedEntity;
-		}		
-		
-		
-		boolean isNotAnExpurgableEntity = false == configurationClass.isAnnotationPresent(CcpEntityDisposable.class);
-
-		if(isNotAnExpurgableEntity) {
-			return entity;
-		}
-		CcpEntityDisposable annotation = configurationClass.getAnnotation(CcpEntityDisposable.class);
-		
-		Class<?>decorator = annotation.expurgableEntityFactory();
-		CcpEntityExpurgableOptions longevity = annotation.expurgTime();
-		try {
-			CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
-			CcpEntityExpurgableFactory newInstance = reflection.newInstance();
-			CcpEntity expurgableEntity = newInstance.getEntity(entity, longevity);
-			return expurgableEntity;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-	
-	private CcpEntity getEntityInstance(Class<?> configurationClass, String entityName, CcpEntityTransferType transferType) {
-
-		CcpEntityBulkHandlerTransferRecordToReverseEntity entityTransferRecordToReverseEntity = new CcpEntityBulkHandlerTransferRecordToReverseEntity(transferType, configurationClass);
-		CcpEntity entity = new DefaultImplementationEntity(entityName, configurationClass, entityTransferRecordToReverseEntity, this.entityFields);
-		
-		entity = this.tryToAddExpurgableOrVersionableBehaviorToEntity(configurationClass, entity);
-
-		entity = this.tryToAddCacheableBehaviorToEntity(configurationClass, entity);
-		
+	private static CcpEntity getMainEntity(Class<?> configurationClass) {
+		CcpEntity entity = getEntity(configurationClass, mainEntityNameProducer);
 		return entity;
 	}
 
-	private CcpEntity tryToAddCacheableBehaviorToEntity(Class<?> configurationClass, CcpEntity entity) {
+	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> function) {
 		
-		boolean isCacheableEntity = false == configurationClass.isAnnotationPresent(CcpEntityCache.class);
+		CcpEntityDetails entityDetails = new CcpEntityDetails(configurationClass, function);
 		
-		if(isCacheableEntity) {
-			return entity;
+		CcpEntity result = new DefaultImplementationEntity(entityDetails);
+		List<DecoratorEntityEnum> collect = Arrays.asList(DecoratorEntityEnum.values()).stream().filter(x -> x.isDecorated(configurationClass)).collect(Collectors.toList());
+		collect.sort((a,b) -> a.priority - b.priority);
+		
+		for (DecoratorEntityEnum decorator : collect) {
+			result = decorator.getEntity(configurationClass, result);
 		}
 		
-		CcpEntityCache annotation = configurationClass.getAnnotation(CcpEntityCache.class);
-		
-		int cacheExpires = annotation.value();
-		
-		DecoratorCacheEntity decoratorCacheEntity = new DecoratorCacheEntity(entity, cacheExpires);
+		return result;
+	}
 	
-		return decoratorCacheEntity;
-	}
-
-	private CcpEntity getDecoratedEntity(CcpEntity entity, Class<?> decorator) {
+	public static CcpEntityField[] getFields(Class<?> configurationClass) {
 		
-		try {
-			CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(decorator);
-			CcpEntityDecoratorFactory newInstance = reflection.newInstance();
-			entity = newInstance.getEntity(entity);
-			return entity;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private CcpEntityField[] getFields(Class<?> configurationClass) {
-
-		boolean didNotDeclareFieldsEnum = this.didNotDeclareFieldsEnum(configurationClass);
+		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);
 		
 		if(didNotDeclareFieldsEnum) {
 			throw new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
 		}
 		
-		CcpEntitySpecifications annotation = configurationClass.getAnnotation(CcpEntitySpecifications.class);
-		Class<?> entitySchemeValidation = annotation.entityValidation();
+		CcpEntityFieldsValidator annotation = configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
+		Class<?> entitySchemeValidation = annotation.classReferenceWithTheFields();
 		Field[] declaredFields = entitySchemeValidation.getDeclaredFields();
 		List<CcpEntityField> list = new ArrayList<>();
 		for (Field field : declaredFields) {
@@ -196,7 +92,7 @@ public class CcpEntityFactory {
 			}
 			
 			String name = ((CcpJsonFieldName)object).name();
-			CcpBusiness transformer = this.getEntityFieldTransformer(name, field, configurationClass);
+			CcpBusiness transformer = getEntityFieldTransformer(name, field, configurationClass);
 			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 			CcpEntityField entityField = new CcpEntityField(name, primaryKey, transformer);
 			list.add(entityField);
@@ -206,8 +102,8 @@ public class CcpEntityFactory {
 		
 		return fields;
 	}
-
-	private boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
+	
+	private static  boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
 		
 		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
 		
@@ -240,8 +136,15 @@ public class CcpEntityFactory {
 		
 		return false;
 	}
-	
-	private CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
+
+	private static CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
+		
+		boolean isNotDecorated = false == configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
+		
+		if(isNotDecorated) {
+			return CcpOtherConstants.DO_NOTHING;
+		}
+		
 		boolean hasCustomEntityFieldTransformer = field.isAnnotationPresent(CcpEntityFieldTransformer.class);
 		if(hasCustomEntityFieldTransformer) {
 			CcpEntityFieldTransformer annotation = field.getAnnotation(CcpEntityFieldTransformer.class);
@@ -251,12 +154,12 @@ public class CcpEntityFactory {
 			return transformer;
 		}
 		
-		CcpEntitySpecifications annotation = configurationClass.getAnnotation(CcpEntitySpecifications.class);
-		Class<?> enumWithDefaultJsonTransformers = annotation.entityFieldsTransformers();
+		CcpEntityFieldsTransformer annotation = configurationClass.getAnnotation(CcpEntityFieldsTransformer.class);
+		Class<?> classReferenceWithTheFields = annotation.classReferenceWithTheFields();
 		Field declaredField;
 		CcpJsonTransformersDefaultEntityField defaultEntityField;
 		try {
-			declaredField = enumWithDefaultJsonTransformers.getDeclaredField(name);
+			declaredField = classReferenceWithTheFields.getDeclaredField(name);
 			defaultEntityField = (CcpJsonTransformersDefaultEntityField)declaredField.get(null);
 		} catch (NoSuchFieldException e) {
 			return CcpOtherConstants.DO_NOTHING;
@@ -278,4 +181,5 @@ public class CcpEntityFactory {
 
 		 throw new RuntimeException("The field '" + defaultEntityField.name() + "' can not be a primary key");
 	}
+
 }
