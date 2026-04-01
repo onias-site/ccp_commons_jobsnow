@@ -6,6 +6,10 @@ public enum CcpEntityStepType {
 	afterDeletePermanently,
 	beforeDeletePermanently,
 	afterSave,
-	beforeSave,
+	beforeSave, 
+	afterCopyDataTo, 
+	beforeCopyDataTo, 
+	afterTransferDataTo, 
+	beforeTransferDataTo,
 
 }

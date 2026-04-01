@@ -10,8 +10,8 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 public class CcpEntityDelegator implements CcpEntity{
-	protected final CcpEntity entity;
 	
+	protected final CcpEntity entity;
 
 	public CcpEntityDelegator(CcpEntity entity) {
 		this.entity = entity;
@@ -131,6 +131,16 @@ public class CcpEntityDelegator implements CcpEntity{
 	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
 		return bulkItems;
+	}
+
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation copyDataTo = this.entity.copyDataTo(json, entities);
+		return copyDataTo;
+	}
+
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
+		return transferDataTo;
 	}
 	
 }

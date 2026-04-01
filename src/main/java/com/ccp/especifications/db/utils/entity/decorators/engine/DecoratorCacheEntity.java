@@ -16,17 +16,16 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		this.cacheExpires = annotation.value();
 	}
 	
-	private CcpCacheDecorator getCache(CcpJsonRepresentation json) {
-		//FIXME
-		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(null, json);
+	private CcpCacheDecorator getCache(String calculateId) {
+		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(this, calculateId);
 		return ccpCacheDecorator;
 	}
 
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation delete = this.entity.delete(json);
-		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		cache.delete();
 		
@@ -36,8 +35,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation delete = this.entity.deleteAnyWhere(json);
-		
-		CcpCacheDecorator cache = this.getCache(json);
+
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		cache.delete();
 		
@@ -46,7 +46,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	public boolean exists(CcpJsonRepresentation json) {
 		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 
 		boolean presentInTheCache = cache.isPresentInTheCache();
 		
@@ -67,7 +68,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json), this.cacheExpires);
 		
@@ -76,7 +78,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 
 	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		CcpJsonRepresentation result = cache.get(x -> this.entity.getRecordFromUnionAll(unionAll, json), this.cacheExpires);
 		
@@ -85,7 +88,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		boolean notPresentInThisUnionAll = false == this.entity.isPresentInThisUnionAll(unionAll, json);
 		
@@ -103,10 +107,22 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 
 		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
 		
-		CcpCacheDecorator cache = this.getCache(json);
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		cache.put(createOrUpdate, this.cacheExpires);
 		
 		return createOrUpdate;
+	}
+	
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+
+		
+		String calculateId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(calculateId);
+		cache.delete();
+		
+		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
+		return transferDataTo;
 	}
 }

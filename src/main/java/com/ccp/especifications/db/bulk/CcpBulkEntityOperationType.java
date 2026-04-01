@@ -6,7 +6,7 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-//FIXME TOSAVEBULKITEM ETC
+
 public enum CcpBulkEntityOperationType {
 
 	create(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
@@ -18,9 +18,6 @@ public enum CcpBulkEntityOperationType {
 		
 	}
 	;
-	
-	
-	
 	private final CcpJsonRepresentation handlers;
 
 	private CcpBulkEntityOperationType(CcpJsonRepresentation handlers) {
@@ -42,7 +39,8 @@ public enum CcpBulkEntityOperationType {
 		
 		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
-			CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, entityToReprocess);
+			String calculateId = entityToReprocess.calculateId(json);
+			CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, entityToReprocess, calculateId);
 			return ccpBulkItem;
 		}
 		

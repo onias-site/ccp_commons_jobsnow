@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -11,7 +12,11 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
+import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerCreate;
+import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
+import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerSave;
 import com.ccp.especifications.db.crud.CcpCrud;
+import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
@@ -42,10 +47,17 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 
 		return json;
 	}
-
+//FIXME NAO PODE ATUALIZAR O TEMPO DO DISPOSABLE
 	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
-		this.executeBulkOperation.executeBulk(bulkItems);
+		List<CcpBulkHandlerSave> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create)
+				.stream()
+				.map(x -> new CcpBulkHandlerSave(x.entity))
+				.collect(Collectors.toList())
+				;
+		
+		CcpBulkHandlerSave[] array = bulkItems.toArray(new CcpBulkHandlerSave[bulkItems.size()]);
+		
+		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
 		return json;
 	}
 	
@@ -74,10 +86,9 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		List<CcpEntity> associatedEntities = getAssociatedEntities();
 
 
-		//FIXME
-//		CcpEntity2[] array = associatedEntities.toArray(new CcpEntity2[associatedEntities.size()]);
+		CcpEntity[] array = associatedEntities.toArray(new CcpEntity[associatedEntities.size()]);
 //		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
-		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, (CcpEntity[])null);
+		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
 		
 		CcpJsonRepresentation result = CcpOtherConstants.EMPTY_JSON;
 		
@@ -148,5 +159,42 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return bulkItems;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
 
+		List<CcpBulkHandlerDelete> delete = this.toBulkItems(json, CcpBulkEntityOperationType.delete).stream()
+		.map(x -> new CcpBulkHandlerDelete(x.entity))
+		.collect(Collectors.toList());
+		
+		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>(delete);
+		
+		for (CcpEntity entity : entities) {
+			List<CcpBulkHandlerCreate> create = entity.toBulkItems(json, CcpBulkEntityOperationType.create).stream()
+					.map(x -> new CcpBulkHandlerCreate(x.entity))
+					.collect(Collectors.toList());
+		
+			all.addAll(create);
+		}
+		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[all.size()]);
+		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
+	
+		return json;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>();
+		
+		for (CcpEntity entity : entities) {
+			List<CcpBulkHandlerCreate> create = entity.toBulkItems(json, CcpBulkEntityOperationType.create).stream()
+					.map(x -> new CcpBulkHandlerCreate(x.entity))
+					.collect(Collectors.toList());
+		
+			all.addAll(create);
+		}
+		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[all.size()]);
+		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
+	
+		return json;
+	}
 }

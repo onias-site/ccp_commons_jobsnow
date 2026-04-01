@@ -16,6 +16,8 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 public interface CcpExecuteBulkOperation {
+	
+
 	@SuppressWarnings("unchecked")
 	default CcpSelectUnionAll executeSelectUnionAllThenExecuteBulkOperation(CcpJsonRepresentation json,  Consumer<String[]> functionToDeleteKeysInTheCache, CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> ... handlers) {
 		Set<CcpEntity> collect = Arrays.asList(handlers).stream().map(x -> x.getEntityToSearch()).collect(Collectors.toSet());
@@ -50,5 +52,6 @@ public interface CcpExecuteBulkOperation {
 		
 		return unionAll;
 	}
+	//FIXME INTEGRIDADE DO CACHE
 	CcpExecuteBulkOperation executeBulk(Collection<CcpBulkItem> items);
 }

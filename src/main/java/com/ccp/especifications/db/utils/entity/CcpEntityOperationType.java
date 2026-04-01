@@ -13,8 +13,8 @@ public enum CcpEntityOperationType
 	save {
 		
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			entity.save(json);
-			return json;
+			CcpJsonRepresentation save = entity.save(json);
+			return save;
 		}
 
 
@@ -22,18 +22,31 @@ public enum CcpEntityOperationType
 	delete {
 
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			entity.delete(json);
-			return json;
+			CcpJsonRepresentation delete = entity.delete(json);
+			return delete;
 		}
 	}
 	,
 	 deleteAnyWhere {
 		@Override
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			// FIXME Auto-generated method stub
-			return null;
+			CcpJsonRepresentation deleteAnyWhere = entity.deleteAnyWhere(json);
+			return deleteAnyWhere;
 		}
 	}
+	, transferDataTo {
+		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
+			// FIXME PASSAR ENTITIES POR JSON
+			return entity.transferDataTo(json, entity);
+		}
+	}
+	, copyDataTo {
+		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
+			// FIXME PASSAR ENTITIES POR JSON
+			return entity.copyDataTo(json, entity);
+		}
+	}
+
 	
 	;
 

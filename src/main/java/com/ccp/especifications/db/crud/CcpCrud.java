@@ -45,7 +45,8 @@ public interface CcpCrud {
 		for (CcpEntity entity : entities) {
 			for (CcpJsonRepresentation json : jsons) {
 				try {
-					CcpCacheDecorator cache = new CcpCacheDecorator(entity, json);
+					String calculateId = entity.calculateId(json);
+					CcpCacheDecorator cache = new CcpCacheDecorator(entity, calculateId);
 					keysToDeleteInCache.add(cache.key);
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 

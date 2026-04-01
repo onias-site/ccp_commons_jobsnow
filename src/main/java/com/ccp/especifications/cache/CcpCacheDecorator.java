@@ -22,11 +22,6 @@ public final class CcpCacheDecorator {
 		this(bulkItem.entity, bulkItem.id);
 	}
 	
-	public CcpCacheDecorator(CcpEntity entity, CcpJsonRepresentation json) {
-		this(entity, entity.calculateId(json));
-	}
-
-	
 	public CcpCacheDecorator(CcpEntity entity, String id) {
 		CcpEntityDetails entityDetails = entity.getEntityDetails();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;

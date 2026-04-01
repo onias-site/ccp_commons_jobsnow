@@ -24,12 +24,9 @@ public class CcpBulkItem {
 	public CcpBulkItem(CcpBulkItem other, CcpBulkEntityOperationType operation) {
 		this(other.json, operation, other.entity, other.id);
 	}
-	//FIXME HANDLED JSON
-	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity) {
-		this(json, operation, entity, entity.calculateId(json));
-	}
+
 	
-	private CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
+	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this.operation = operation;
 		this.entity = entity;
 		this.json = json;

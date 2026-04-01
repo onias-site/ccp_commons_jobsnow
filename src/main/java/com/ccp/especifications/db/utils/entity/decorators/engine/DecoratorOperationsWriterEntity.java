@@ -45,6 +45,20 @@ class DecoratorOperationsWriterEntity extends CcpEntityDelegator {
 		return after;
 	}
 	
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityStepType.beforeTransferDataTo);
+		CcpJsonRepresentation result = this.entity.transferDataTo(before, entities);
+		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityStepType.afterTransferDataTo);
+		return after;
+	}
+	
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityStepType.beforeCopyDataTo);
+		CcpJsonRepresentation result = this.entity.copyDataTo(before, entities);
+		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityStepType.afterCopyDataTo);
+		return after;
+	}
+	
 	private CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityStepType when) {
 		
 		CcpEntityOperations annotation = this.clazz.getAnnotation(CcpEntityOperations.class);

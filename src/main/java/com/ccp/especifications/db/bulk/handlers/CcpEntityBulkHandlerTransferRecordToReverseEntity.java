@@ -8,11 +8,9 @@ import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
-	//FIXME TROCAR PELA ENTITY
 	private final CcpEntity entity;
 
 	public CcpEntityBulkHandlerTransferRecordToReverseEntity(CcpEntity entity) {
@@ -23,10 +21,8 @@ public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHan
 	
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity twinEntity = entityToSearch.getTwinEntity();
-		CcpEntityDetails entityDetails = twinEntity.getEntityDetails();
-		var itemTo = entityDetails.getBulkItemsList(json, CcpBulkEntityOperationType.create);
-		CcpEntityDetails entityDetails2 = entityToSearch.getEntityDetails();
-		var itemFrom = entityDetails2.getBulkItemsList(json, CcpBulkEntityOperationType.delete);
+		var itemTo = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
+		var itemFrom = entityToSearch.toBulkItems(json, CcpBulkEntityOperationType.delete);
 		var asList = new ArrayList<CcpBulkItem>();
 		asList.addAll(itemTo);
 		asList.addAll(itemFrom);

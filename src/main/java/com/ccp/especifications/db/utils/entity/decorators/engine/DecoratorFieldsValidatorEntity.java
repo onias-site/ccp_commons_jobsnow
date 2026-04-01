@@ -29,4 +29,16 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 		CcpJsonRepresentation save = this.entity.save(handledJson);
 		return save;
 	}
+
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation handledJson = this.getHandledJson(json);
+		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
+		return result;
+	}
+	
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation handledJson = this.getHandledJson(json);
+		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
+		return result;
+	}
 }

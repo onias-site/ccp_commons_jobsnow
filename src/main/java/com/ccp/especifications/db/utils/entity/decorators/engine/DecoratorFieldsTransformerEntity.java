@@ -3,8 +3,6 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
@@ -72,9 +70,16 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return result;
 	}
 	
-	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.toBulkItems(transformedJsonByEachFieldInJson, operation);
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation handledJson = this.getHandledJson(json);
+		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
 		return result;
 	}
+	
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation handledJson = this.getHandledJson(json);
+		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
+		return result;
+	}
+
 }

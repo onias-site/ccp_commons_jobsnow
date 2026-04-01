@@ -47,6 +47,10 @@ public interface CcpEntity {
 		return hash;
 	}
 
+	default CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		return this.throwException();
+	}
+
 	CcpEntityDetails getEntityDetails();
 	
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
@@ -146,8 +150,7 @@ public interface CcpEntity {
 		boolean notFound = false == this.isPresentInThisUnionAll(unionAll, json);
 
 		if(notFound) {
-			//FIXME
-			throw new CcpErrorBulkEntityRecordNotFound(null, json);
+			throw new CcpErrorBulkEntityRecordNotFound(this, json);
 		}
 		
 		CcpJsonRepresentation entityRow = this.getRecordFromUnionAll(unionAll, json);
@@ -192,8 +195,13 @@ public interface CcpEntity {
 	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		CcpEntityDetails entityDetails = this.getEntityDetails();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
-		//FIXME
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, null);
+		String calculateId = this.calculateId(onlyExistingFields);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, this, calculateId);
 		return Arrays.asList(ccpBulkItem);
 	}
+	
+	default CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		return this.throwException();
+	}
+
 }

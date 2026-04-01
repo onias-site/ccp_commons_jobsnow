@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
@@ -61,8 +59,7 @@ public final class CcpEntityDetails {
 	}
 
 	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
-		//FIXME
-		return json -> operation.execute(null, json);
+		return json -> operation.execute(this.entity, json);
 	}
 
 	public CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
@@ -70,31 +67,13 @@ public final class CcpEntityDetails {
 		boolean primaryKeyMissing = false == json.containsAllFields(this.primaryKeyNames);
 		
 		if(primaryKeyMissing) {
-			//FIXME
-			throw new CcpErrorEntityPrimaryKeyIsMissing(null, json);
+			throw new CcpErrorEntityPrimaryKeyIsMissing(this.entity, json);
 		}
 		
 		CcpJsonRepresentation jsonPiece = json.getJsonPiece(this.primaryKeyNames);
 		return jsonPiece;
 	}
 
-	
-	public CcpBulkItem toSaveBulkItem(CcpJsonRepresentation json) {
-		CcpBulkItem item = this.toBulkItem(json, CcpBulkEntityOperationType.create);
-		return item;
-	}
-
-	public CcpBulkItem toDeleteBulkItem(CcpJsonRepresentation json) {
-		CcpBulkItem item = this.toBulkItem(json, CcpBulkEntityOperationType.delete);
-		return item;
-	}
-
-	private CcpBulkItem toBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		//FIXME
-		CcpBulkItem item = new CcpBulkItem(json, operation, null);
-		return item;
-	}
-	
 	public ArrayList<Object> getSortedPrimaryKeyValues(CcpJsonRepresentation json) {
 
 		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
@@ -109,13 +88,4 @@ public final class CcpEntityDetails {
 		CcpJsonRepresentation subMap = json.getJsonPiece(this.allFields);
 		return subMap;
 	}
-
-	public List<CcpBulkItem> getBulkItemsList(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpJsonRepresentation handledJson = this.entity.getHandledJson(json);
-		CcpJsonRepresentation onlyExistingFields = this.getOnlyExistingFields(handledJson);
-		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(onlyExistingFields, operation);
-		return bulkItems;
-	}
-
-	
 }

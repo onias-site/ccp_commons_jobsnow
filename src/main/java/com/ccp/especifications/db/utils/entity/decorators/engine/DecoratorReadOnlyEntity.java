@@ -25,4 +25,8 @@ class DecoratorReadOnlyEntity extends CcpEntityDelegator {
 		return throwException;
 	}
 
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
 }
