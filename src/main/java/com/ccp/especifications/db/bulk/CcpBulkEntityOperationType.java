@@ -6,21 +6,35 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public enum CcpBulkEntityOperationType {
 
-	create(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
-	update(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
-	delete(CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
+	create(false, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
+	update(true, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
+	delete(false,true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
-	})){
-		
-	}
+	})),
+	noop(false, false, CcpOtherConstants.EMPTY_JSON),
 	;
+	public final boolean createsVersionsToSameRecord;
 	private final CcpJsonRepresentation handlers;
-
-	private CcpBulkEntityOperationType(CcpJsonRepresentation handlers) {
+	public final boolean persistable;
+	
+	public boolean doesNotCreateVersionsToSameRecord(CcpEntityDetails entityDetails) {
+		
+		boolean isNotAnUpdatableEntity = entityDetails.isNotAnUpdatableEntity();
+		
+		if(isNotAnUpdatableEntity) {
+			return true;
+		}
+		
+		return false == this.createsVersionsToSameRecord;
+	} 
+	private CcpBulkEntityOperationType(boolean createsVersionsToSameRecord, boolean persistable, CcpJsonRepresentation handlers) {
+		this.createsVersionsToSameRecord = createsVersionsToSameRecord;
+		this.persistable = persistable;
 		this.handlers = handlers;
 	}
 	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem x) {

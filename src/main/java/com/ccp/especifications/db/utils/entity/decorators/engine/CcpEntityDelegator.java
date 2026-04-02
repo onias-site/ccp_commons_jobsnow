@@ -2,7 +2,6 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -37,11 +36,6 @@ public class CcpEntityDelegator implements CcpEntity{
 		return deleteAnyWhere;
 	}
 
-	public String[] getEntitiesToSelect() {
-		String[] entitiesToSelect = this.entity.getEntitiesToSelect();
-		return entitiesToSelect;
-	}
-
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.entity.getOneById(json);
 		return oneById;
@@ -50,11 +44,6 @@ public class CcpEntityDelegator implements CcpEntity{
 	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneByIdAnywhere = this.entity.getOneByIdAnyWhere(json);
 		return oneByIdAnywhere;
-	}
-
-	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
-		CcpJsonRepresentation oneByIdOrHandleItIfThisIdWasNotFound = this.entity.getOneByIdOrHandleItIfThisIdWasNotFound(json, ifNotFound);
-		return oneByIdOrHandleItIfThisIdWasNotFound;
 	}
 
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
@@ -67,10 +56,6 @@ public class CcpEntityDelegator implements CcpEntity{
 		return recordFromUnionAll;
 	}
 
-	public CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation requiredEntityRow = this.entity.getRequiredEntityRow(unionAll, json);
-		return requiredEntityRow;
-	}
 
 	public CcpEntity getTwinEntity() {
 		CcpEntity twinEntity = this.entity.getTwinEntity();

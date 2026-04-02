@@ -19,6 +19,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefaultEntityField;
+import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldNotUpdatable;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldTransformer;
 
@@ -92,9 +93,12 @@ public class CcpEntityFactory {
 			}
 			
 			String name = ((CcpJsonFieldName)object).name();
+			
+			boolean updatable = false == field.isAnnotationPresent(CcpEntityFieldNotUpdatable.class);
 			CcpBusiness transformer = getEntityFieldTransformer(name, field, configurationClass);
 			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
-			CcpEntityField entityField = new CcpEntityField(name, primaryKey, transformer);
+
+			CcpEntityField entityField = new CcpEntityField(name, primaryKey, updatable, transformer);
 			list.add(entityField);
 		}
 		

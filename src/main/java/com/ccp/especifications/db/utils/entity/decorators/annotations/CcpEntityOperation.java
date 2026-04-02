@@ -5,7 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityStepType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationStepType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,7 +17,9 @@ public @interface CcpEntityOperation {
 	
 	CcpEntityType entityType();
 
-	CcpEntityStepType when();
+	CcpEntityDecoratorOperationType operation();
+
+	CcpEntityOperationStepType when();
 
 	@SuppressWarnings("rawtypes")
 	Class[] execute();

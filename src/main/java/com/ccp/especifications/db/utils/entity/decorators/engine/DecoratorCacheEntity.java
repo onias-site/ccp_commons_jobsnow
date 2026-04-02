@@ -98,7 +98,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 			return false;
 		}
 		
-		CcpJsonRepresentation requiredEntityRow = this.entity.getRequiredEntityRow(unionAll, json);
+		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+		CcpJsonRepresentation requiredEntityRow = entityDetails.getRequiredEntityRow(unionAll, json);
 		cache.put(requiredEntityRow, this.cacheExpires);
 		return true;
 	}

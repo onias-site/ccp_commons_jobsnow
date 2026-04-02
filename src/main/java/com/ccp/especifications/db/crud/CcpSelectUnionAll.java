@@ -62,8 +62,8 @@ public class CcpSelectUnionAll {
 			return whenRecordWasNotFoundInTheEntitySearch; 
 		}
 		
-		CcpJsonRepresentation requiredEntityRow = entity.getRequiredEntityRow(this, searchParameter);
 		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpJsonRepresentation requiredEntityRow = entityDetails.getRequiredEntityRow(this, searchParameter);
 		CcpJsonRepresentation onlyExistingFieldsAndHandledJson = entityDetails.getOnlyExistingFields(searchParameter);
 		CcpJsonRepresentation recordFound = onlyExistingFieldsAndHandledJson.mergeWithAnotherJson(requiredEntityRow);
 		

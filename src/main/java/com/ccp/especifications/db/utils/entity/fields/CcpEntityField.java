@@ -6,19 +6,21 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 public class CcpEntityField implements CcpJsonFieldName{
 
-	public static final CcpEntityField TIMESTAMP = new CcpEntityField("timestamp", false, CcpOtherConstants.DO_NOTHING);
-	public static final CcpEntityField DATE = new CcpEntityField("date", false, CcpOtherConstants.DO_NOTHING);
+	public static final CcpEntityField TIMESTAMP = new CcpEntityField("timestamp", false, true, CcpOtherConstants.DO_NOTHING);
+	public static final CcpEntityField DATE = new CcpEntityField("date", false, true,  CcpOtherConstants.DO_NOTHING);
 	
 	public final CcpBusiness transformer;
 	public final boolean primaryKey;
+	public final boolean updatable;
 	public final String name;
 	
-	public CcpEntityField(String name, boolean primaryKey, CcpBusiness transformer) {
+	public CcpEntityField(String name, boolean primaryKey, boolean updatable, CcpBusiness transformer) {
 		this.transformer = transformer;
 		this.primaryKey = primaryKey;
+		this.updatable = updatable;
 		this.name = name;
 	}
-
+	
 	public String name() {
 		return this.name;
 	}

@@ -90,16 +90,15 @@ public class CcpSelectFinally {
 			
 			boolean itWasNotForeseen = wasActuallyFound != shouldHaveBeenFound;
 			
-			CcpEntityDetails entityDetails2 = entity.getEntityDetails();
+			CcpEntityDetails entityDetails = entity.getEntityDetails();
 			if(itWasNotForeseen) {
 
 				if(false == wasActuallyFound) {
 					continue;
 				}
-				CcpEntityDetails entityDetails = entityDetails2;
 				String entityName = entityDetails.entityName;
 				try {
-					CcpJsonRepresentation dataBaseRow = entity.getRequiredEntityRow(unionAll, json);
+					CcpJsonRepresentation dataBaseRow = entityDetails.getRequiredEntityRow(unionAll, json);
 					json = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 					continue;
 				} catch (Exception e) {
@@ -128,7 +127,7 @@ public class CcpSelectFinally {
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put(JsonFieldNames.flow, asList);
 				
-				String reason = "Context: " + origin + ". Entity: " + entityDetails2.entityName
+				String reason = "Context: " + origin + ". Entity: " + entityDetails.entityName
 				+ ". status: " + status
 				+ ". shouldHaveBeenFound: " + shouldHaveBeenFound + ". wasActuallyFound: " + wasActuallyFound;
 				
@@ -142,7 +141,7 @@ public class CcpSelectFinally {
 				continue;
 			}
 			String entityName = entity.getEntityDetails().entityName;
-			CcpJsonRepresentation dataBaseRow = entity.getRequiredEntityRow(unionAll, json);
+			CcpJsonRepresentation dataBaseRow = entityDetails.getRequiredEntityRow(unionAll, json);
 			CcpJsonRepresentation context = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 			json = action.apply(context);
 		} 

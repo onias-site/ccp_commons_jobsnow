@@ -31,27 +31,10 @@ public interface CcpExecuteBulkOperation {
 			List<CcpBulkItem> list =  unionAll.handleRecordInUnionAll(json, handler);
 			all.addAll(list);
 		}
-		this.executeBulk(all);
+		this.executeBulk(all, functionToDeleteKeysInTheCache);
 
-		CcpJsonRepresentation data = json;
-	
-		for (CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> handler : handlers) {
-			
-			CcpEntity entityToSearch = handler.getEntityToSearch();
-			
-			boolean presentInThisUnionAll = entityToSearch.isPresentInThisUnionAll(unionAll, data);
-			
-			if(presentInThisUnionAll) {
-//				List<CcpBusiness> doAfterSavingIfRecordIsFound = handler.doAfterSavingIfRecordIsFound();
-//				data = data.getTransformedJson(doAfterSavingIfRecordIsFound);
-				continue;
-			}
-//			List<CcpBusiness> doAfterSavingIfRecordIsNotFound = handler.doAfterSavingIfRecordIsNotFound();
-//			data = data.getTransformedJson(doAfterSavingIfRecordIsNotFound);
-		}
-		
 		return unionAll;
 	}
-	//FIXME INTEGRIDADE DO CACHE
-	CcpExecuteBulkOperation executeBulk(Collection<CcpBulkItem> items);
+
+	CcpExecuteBulkOperation executeBulk(Collection<CcpBulkItem> items,  Consumer<String[]> functionToDeleteKeysInTheCache);
 }

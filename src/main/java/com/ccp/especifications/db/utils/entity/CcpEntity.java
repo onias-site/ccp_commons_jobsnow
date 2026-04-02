@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -15,7 +13,6 @@ import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpErrorBulkEntityRecordNotFound;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
@@ -80,42 +77,23 @@ public interface CcpEntity {
 		return asList;
 	}
 	
-	default String[] getEntitiesToSelect() {
-		List<CcpEntity> associatedEntities = this.getAssociatedEntities();
-		List<String> collect = associatedEntities.stream().map(x -> x.getEntityDetails().entityName).collect(Collectors.toList());
-		String[] array = collect.toArray(new String[collect.size()]);
-		return array;
-	}
-
 	default CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
 		return json;
 	}
 	
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpEntityDetails entityDetails = this.getEntityDetails();
-		CcpJsonRepresentation md = this.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);});
+		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);});
 		return md;
 	}
 	
 	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(this.getEntityDetails().entityName, oneById);
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(entityDetails.entityName, oneById);
 		return put;
 	}
 	
-	default CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
-		try {
-			CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-			String calculateId = this.calculateId(json);
-			CcpEntityDetails entityDetails = this.getEntityDetails();
-			CcpJsonRepresentation oneById = crud.getOneById(entityDetails.entityName, calculateId);
-			return oneById;
-			
-		} catch (CcpErrorBulkEntityRecordNotFound e) {
-			CcpJsonRepresentation execute = ifNotFound.apply(json);
-			return execute;
-		}
-	}
 	default List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 		
 		String id = this.calculateId(json);
@@ -143,19 +121,6 @@ public interface CcpEntity {
 		CcpJsonRepresentation jsonValue = unionAll.getEntityRow(entityDetails.entityName, id);
 		
 		return jsonValue;
-	}
-	
-	default CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		
-		boolean notFound = false == this.isPresentInThisUnionAll(unionAll, json);
-
-		if(notFound) {
-			throw new CcpErrorBulkEntityRecordNotFound(this, json);
-		}
-		
-		CcpJsonRepresentation entityRow = this.getRecordFromUnionAll(unionAll, json);
-		
-		return entityRow;
 	}
 	
 	default CcpEntity getTwinEntity() {
