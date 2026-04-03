@@ -98,8 +98,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 			return false;
 		}
 		
-		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
-		CcpJsonRepresentation requiredEntityRow = entityDetails.getRequiredEntityRow(unionAll, json);
+		CcpJsonRepresentation requiredEntityRow = this.entity.getRecordFromUnionAll(unionAll, json);
 		cache.put(requiredEntityRow, this.cacheExpires);
 		return true;
 	}
@@ -116,7 +115,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return createOrUpdate;
 	}
 	
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 
 		
 		String calculateId = this.entity.calculateId(json);		

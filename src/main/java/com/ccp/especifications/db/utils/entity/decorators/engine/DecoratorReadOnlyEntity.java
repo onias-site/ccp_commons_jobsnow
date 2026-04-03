@@ -5,7 +5,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 class DecoratorReadOnlyEntity extends CcpEntityDelegator {
 	
-	public DecoratorReadOnlyEntity(CcpEntity entity) {
+	public DecoratorReadOnlyEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 	}
 	

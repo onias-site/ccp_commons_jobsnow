@@ -5,23 +5,25 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorTransferType;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationStepType;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface CcpEntityOperation {
+public @interface CcpEntityDataTransfer {
 	
-	CcpExceptionFlow[] operationHandlers();
+	CcpExceptionFlow[] transferHandlers();
 	
 	CcpEntityType from();
 
-	CcpEntityDecoratorOperationType operation();
+	CcpEntityDecoratorTransferType transferType();
 
 	CcpEntityOperationStepType when();
 
 	@SuppressWarnings("rawtypes")
 	Class[] execute();
+	
+	Class<?> to();
 	
 }

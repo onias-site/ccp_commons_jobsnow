@@ -1,6 +1,8 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
@@ -76,10 +78,17 @@ public class CcpEntityDelegator implements CcpEntity{
 		return save;
 	}
 
-	
-
 	public String toString() {
-		String string = this.entity.toString();
+		
+		CcpEntity wrapedEntity = this;
+		Set<String> set = new LinkedHashSet<>();
+		set.add(this.getClass().getSimpleName());
+		do {
+			
+		}while(set.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
+		String replace = set.toString().replace(" ", "").replace(",", "->");
+		CcpEntityDetails entityDetails = this.getEntityDetails();
+		String string = entityDetails.entityName + " = " + replace;
 		return string;
 	}
 	
@@ -118,14 +127,16 @@ public class CcpEntityDelegator implements CcpEntity{
 		return bulkItems;
 	}
 
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation copyDataTo = this.entity.copyDataTo(json, entities);
 		return copyDataTo;
 	}
 
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
 		return transferDataTo;
 	}
+	
+	
 	
 }

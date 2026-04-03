@@ -11,8 +11,7 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 	
 	public DecoratorFieldsValidatorEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
-		CcpEntityFieldsValidator annotation = clazz.getAnnotation(CcpEntityFieldsValidator.class);
-		this.clazz = annotation.classReferenceWithTheFields();
+		this.clazz = clazz;
 	}
 
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
@@ -30,13 +29,13 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 		return save;
 	}
 
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
 		return result;
 	}
 	
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
 		return result;

@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine;
+package com.ccp.especifications.db.utils.entity.decorators.interfaces;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

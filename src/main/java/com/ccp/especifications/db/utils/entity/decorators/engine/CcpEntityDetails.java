@@ -124,19 +124,6 @@ public final class CcpEntityDetails {
 		}
 	}
 
-	public CcpJsonRepresentation getRequiredEntityRow(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		
-		boolean notFound = false == this.entity.isPresentInThisUnionAll(unionAll, json);
-
-		if(notFound) {
-			throw new CcpErrorBulkEntityRecordNotFound(this.entity, json);
-		}
-		
-		CcpJsonRepresentation entityRow = this.entity.getRecordFromUnionAll(unionAll, json);
-		
-		return entityRow;
-	}
-	
 	public boolean isNotAnUpdatableEntity() {
 		int fieldsLength = this.allFields.length;
 		int primaryKeyNamesLength = this.primaryKeyNames.size();

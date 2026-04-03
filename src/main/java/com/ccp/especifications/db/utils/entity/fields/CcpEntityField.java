@@ -24,4 +24,8 @@ public class CcpEntityField implements CcpJsonFieldName{
 	public String name() {
 		return this.name;
 	}
+	
+	public String toString() {
+		return this.name;
+	}
 }

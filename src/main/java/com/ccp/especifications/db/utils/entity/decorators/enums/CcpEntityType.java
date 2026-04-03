@@ -7,7 +7,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public enum CcpEntityType {
-	main {
+	mainEntity {
 		public String extractEntityName(Class<?> clazz) {
 			try {
 				Field declaredField = clazz.getDeclaredField("ENTITY");
@@ -20,8 +20,7 @@ public enum CcpEntityType {
 			}
 		}
 	},	
-	twin {
-		@Override
+	twinEntity {
 		public String extractEntityName(Class<?> clazz) {
 			CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
 			boolean isNotTwinEntity = annotation == null;

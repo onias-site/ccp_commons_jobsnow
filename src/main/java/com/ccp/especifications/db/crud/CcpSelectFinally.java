@@ -98,7 +98,7 @@ public class CcpSelectFinally {
 				}
 				String entityName = entityDetails.entityName;
 				try {
-					CcpJsonRepresentation dataBaseRow = entityDetails.getRequiredEntityRow(unionAll, json);
+					CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json);
 					json = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 					continue;
 				} catch (Exception e) {
@@ -141,7 +141,7 @@ public class CcpSelectFinally {
 				continue;
 			}
 			String entityName = entity.getEntityDetails().entityName;
-			CcpJsonRepresentation dataBaseRow = entityDetails.getRequiredEntityRow(unionAll, json);
+			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json);
 			CcpJsonRepresentation context = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 			json = action.apply(context);
 		} 

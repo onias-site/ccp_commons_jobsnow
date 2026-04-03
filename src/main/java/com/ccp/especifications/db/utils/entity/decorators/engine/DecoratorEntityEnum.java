@@ -22,6 +22,7 @@ enum DecoratorEntityEnum {
 	FieldsTransformer(CcpEntityFieldsTransformer.class, x -> DecoratorFieldsTransformerEntity.class, 8),
 	FieldsValidator(CcpEntityFieldsValidator.class, x -> DecoratorFieldsValidatorEntity.class, 9),
 	Operations(CcpEntityOperations.class, x -> DecoratorOperationsWriterEntity.class, 4),
+	Transfers(CcpEntityOperations.class, x -> DecoratorTransferDataEntity.class, 4),
 	ReadOnly(CcpEntityOlyReadable.class, x -> DecoratorReadOnlyEntity.class, 7),
 	Cache(CcpEntityCache.class, x -> DecoratorCacheEntity.class, 3),
 	Twin(CcpEntityTwin.class, x -> DecoratorTwinEntity.class, 5),
@@ -47,9 +48,9 @@ enum DecoratorEntityEnum {
 		
 		try {
 			Class<?> apply = this.clazzProducer.apply(clazz);
-			Constructor<?> declaredConstructor = apply.getDeclaredConstructor(clazz.getClass(), CcpEntity.class);
+			Constructor<?> declaredConstructor = apply.getDeclaredConstructor(CcpEntity.class, clazz.getClass());
 			declaredConstructor.setAccessible(true);
-			CcpEntity newInstance = (CcpEntity)declaredConstructor.newInstance(clazz, decoratedEntity);
+			CcpEntity newInstance = (CcpEntity)declaredConstructor.newInstance(decoratedEntity, clazz);
 			return newInstance;
 			
 		} catch (Exception e) {

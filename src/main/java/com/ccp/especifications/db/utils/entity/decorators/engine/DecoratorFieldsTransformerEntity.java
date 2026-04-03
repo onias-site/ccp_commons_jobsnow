@@ -70,13 +70,13 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return result;
 	}
 	
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
 		return result;
 	}
 	
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
 		return result;

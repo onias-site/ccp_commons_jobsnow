@@ -57,15 +57,17 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 
 	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		List<CcpBulkHandlerSave> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create)
-				.stream()
-				.map(x -> new CcpBulkHandlerSave(x.entity))
-				.collect(Collectors.toList())
-				;
-		
-		CcpBulkHandlerSave[] array = bulkItems.toArray(new CcpBulkHandlerSave[bulkItems.size()]);
-		
-		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
+		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
+		int size = bulkItems.size();
+		CcpBulkHandlerSave[] array = new CcpBulkHandlerSave[size];
+		int k = 0;
+		CcpJsonRepresentation parametersToSearch = CcpOtherConstants.EMPTY_JSON;
+		for (CcpBulkItem bulkItem : bulkItems) {
+			CcpBulkHandlerSave handler = new CcpBulkHandlerSave(bulkItem.entity);
+			array[k++] = handler;
+			parametersToSearch = parametersToSearch.mergeWithAnotherJson(bulkItem.json);
+		}
+		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, array);
 		return json;
 	}
 	

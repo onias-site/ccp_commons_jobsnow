@@ -44,7 +44,7 @@ public interface CcpEntity {
 		return hash;
 	}
 
-	default CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	default CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		return this.throwException();
 	}
 
@@ -165,7 +165,7 @@ public interface CcpEntity {
 		return Arrays.asList(ccpBulkItem);
 	}
 	
-	default CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	default CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		return this.throwException();
 	}
 
