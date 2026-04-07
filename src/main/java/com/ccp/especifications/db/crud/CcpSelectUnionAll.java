@@ -56,14 +56,16 @@ public class CcpSelectUnionAll {
 	
 		boolean recordNotFound = false == entity.isPresentInThisUnionAll(this, searchParameter);
 		
+		CcpJsonRepresentation handledJson = entity.getHandledJson(searchParameter);
+
 		if(recordNotFound) {
-			T whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(searchParameter);
+			T whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(handledJson);
 			return whenRecordWasNotFoundInTheEntitySearch; 
 		}
 		
 		CcpJsonRepresentation recordFound = entity.getRecordFromUnionAll(this, searchParameter);
 		
-		CcpJsonRepresentation apply = recordFound.mergeWithAnotherJson(searchParameter);
+		CcpJsonRepresentation apply = recordFound.mergeWithAnotherJson(handledJson);
 		
 		T whenRecordWasFoundInTheEntitySearch = handler.whenRecordWasFoundInTheEntitySearch(apply, recordFound);
 		

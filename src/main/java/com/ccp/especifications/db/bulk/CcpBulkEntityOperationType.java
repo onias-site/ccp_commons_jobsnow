@@ -6,7 +6,6 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public enum CcpBulkEntityOperationType {
 
@@ -22,16 +21,7 @@ public enum CcpBulkEntityOperationType {
 	private final CcpJsonRepresentation handlers;
 	public final boolean persistable;
 	
-	public boolean doesNotCreateVersionsToSameRecord(CcpEntityDetails entityDetails) {
-		
-		boolean isNotAnUpdatableEntity = entityDetails.isNotAnUpdatableEntity();
-		
-		if(isNotAnUpdatableEntity) {
-			return true;
-		}
-		
-		return false == this.createsVersionsToSameRecord;
-	} 
+
 	private CcpBulkEntityOperationType(boolean createsVersionsToSameRecord, boolean persistable, CcpJsonRepresentation handlers) {
 		this.createsVersionsToSameRecord = createsVersionsToSameRecord;
 		this.persistable = persistable;

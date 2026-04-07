@@ -88,7 +88,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		
-		String calculateId = this.entity.calculateId(json);		
+		String calculateId = this.calculateId(json);		
 		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		boolean notPresentInThisUnionAll = false == this.entity.isPresentInThisUnionAll(unionAll, json);
@@ -98,7 +98,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 			return false;
 		}
 		
-		CcpJsonRepresentation requiredEntityRow = this.entity.getRecordFromUnionAll(unionAll, json);
+		CcpJsonRepresentation requiredEntityRow = this.getRecordFromUnionAll(unionAll, json);
 		cache.put(requiredEntityRow, this.cacheExpires);
 		return true;
 	}

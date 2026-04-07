@@ -40,12 +40,17 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 			return updatedBulkItem;
 		}
 		
+		if(false == x.operation.createsVersionsToSameRecord) {
+			return x;
+		}
 		
-		List<String> onlyUpdatableFields = entityDetails.onlyUpdatableFields;
-		CcpDynamicJsonRepresentation dynamicVersion = searchParameter.getDynamicVersion();
-		CcpJsonRepresentation updatablePiece = dynamicVersion.getJsonPiece(onlyUpdatableFields);
-		CcpJsonRepresentation mergeWithAnotherJson = recordFound.mergeWithAnotherJson(updatablePiece);
-		CcpBulkItem updatedBulkItem = new CcpBulkItem(mergeWithAnotherJson, x.operation, x.entity, x.id);
+		CcpDynamicJsonRepresentation dynamicVersion = x.json.getDynamicVersion();
+		CcpJsonRepresentation updatablePiece = dynamicVersion.getJsonPiece(entityDetails.onlyUpdatableFields);
+		CcpJsonRepresentation mergeWithAnotherJson2 = recordFound.mergeWithAnotherJson(x.json);
+		CcpJsonRepresentation mergeWithAnotherJson = mergeWithAnotherJson2.mergeWithAnotherJson(updatablePiece);
+		CcpJsonRepresentation handledJson = x.entity.getHandledJson(mergeWithAnotherJson);
+		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(handledJson);
+		CcpBulkItem updatedBulkItem = new CcpBulkItem(onlyExistingFields, x.operation, x.entity, x.id);
 
 		return updatedBulkItem;
 	}

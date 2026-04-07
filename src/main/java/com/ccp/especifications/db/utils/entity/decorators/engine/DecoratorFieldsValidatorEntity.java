@@ -20,7 +20,8 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
 		String featureName = this.clazz.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
-		return json;
+		CcpJsonRepresentation handledJson = this.entity.getHandledJson(json);
+		return handledJson;
 	}
 
 	public CcpJsonRepresentation save(CcpJsonRepresentation json) {

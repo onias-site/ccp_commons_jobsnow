@@ -112,7 +112,7 @@ public interface CcpEntity {
 		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
 		return asList;
 	}
-	
+
 	default CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
 		String id = this.calculateId(json);
@@ -161,7 +161,7 @@ public interface CcpEntity {
 		CcpEntityDetails entityDetails = this.getEntityDetails();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
 		String calculateId = this.calculateId(onlyExistingFields);
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, this, calculateId);
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, entityDetails.entity, calculateId);
 		return Arrays.asList(ccpBulkItem);
 	}
 	

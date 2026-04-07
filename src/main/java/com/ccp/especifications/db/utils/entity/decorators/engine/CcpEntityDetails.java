@@ -19,6 +19,7 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
@@ -28,7 +29,7 @@ public final class CcpEntityDetails {
 	public final Class<?>  configurationClass; 
 	public final List<String> primaryKeyNames;
 	public final CcpEntityField[] allFields;
-	private final CcpEntity entity;
+	public final CcpEntity entity;
 	public final String entityName;
 	
 	CcpEntityDetails(Class<?> configurationClass, Function<Class<?>, String> entntyNameProducer){
@@ -41,7 +42,12 @@ public final class CcpEntityDetails {
 		
 		this.primaryKeyNames = Arrays.asList(this.allFields).stream().filter(field -> field.primaryKey).map(field -> field.name()).collect(Collectors.toList());
 
-		this.onlyUpdatableFields = Arrays.asList(this.allFields).stream().filter(field -> field.updatable).map(field -> field.name()).collect(Collectors.toList());
+		this.onlyUpdatableFields = Arrays.asList(this.allFields).stream()
+				.filter(field -> false == field.primaryKey)
+				.filter(field -> field.updatable)
+				
+				.map(field -> field.name())
+				.collect(Collectors.toList());
 		
 		this.entity = null;
 	}
@@ -55,12 +61,31 @@ public final class CcpEntityDetails {
 		this.entity = entity;
 	}
 
+	boolean isTwinEntity() {
+		
+		CcpEntityTwin annotation = this.configurationClass.getAnnotation(CcpEntityTwin.class);
+		
+		if(annotation == null) {
+			return false;
+		}
+		
+		String twinEntityName = annotation.twinEntityName();
+		boolean equals = this.entityName.equals(twinEntityName);
+		return equals;
+	}
+	
+	
 	CcpEntityDetails associateEntity() {
 		try {
+			boolean twinEntity = this.isTwinEntity();
+			if(twinEntity) {
+				CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
+				return new CcpEntityDetails(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
+			}
+			
 			Field field = this.configurationClass.getDeclaredField("ENTITY");
 			Object object = field.get(null);
 			CcpEntity entity = (CcpEntity) object;
-			
 			return new CcpEntityDetails(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
 			
 		} catch (Exception e) {
@@ -125,13 +150,8 @@ public final class CcpEntityDetails {
 	}
 
 	public boolean isNotAnUpdatableEntity() {
-		int fieldsLength = this.allFields.length;
-		int primaryKeyNamesLength = this.primaryKeyNames.size();
-		int onlyUpdatableFieldsLength = this.onlyUpdatableFields.size();
-		int remainingFields = fieldsLength - primaryKeyNamesLength - onlyUpdatableFieldsLength;
-		
-		boolean isNotAnUpdatableEntity = remainingFields <= 0;
-		return isNotAnUpdatableEntity;
+		boolean empty = this.onlyUpdatableFields.isEmpty();
+		return empty;
 	}
 
 	
@@ -151,4 +171,5 @@ public final class CcpEntityDetails {
 		return innerJson;
 	}
 
+	
 }

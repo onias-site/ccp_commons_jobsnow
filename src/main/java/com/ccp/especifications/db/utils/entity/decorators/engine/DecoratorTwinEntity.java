@@ -1,17 +1,16 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
-import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerSaveTwinEntity;
-import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToReverseEntity;
+import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToTwinEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
@@ -28,16 +27,12 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
 		this.clazz = clazz;
 	}
-	
-	
 
 	private DecoratorTwinEntity(CcpEntity entity, CcpEntity twin, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
 		this.twin = twin;
 		this.clazz = clazz;
 	}
-
-
 
 	private static Consumer<String[]> instanciateFunctionToDeleteKeysInTheCache(Class<?> clazz) {
 		CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
@@ -58,7 +53,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		var transfer = new CcpEntityBulkHandlerTransferRecordToReverseEntity(this);
+		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this);
 		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
 		return json;
 	}
@@ -66,8 +61,11 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	public List<CcpEntity> getAssociatedEntities() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
 		ArrayList<CcpEntity> result = new ArrayList<CcpEntity>(associatedEntities);
-		result.add(this.getTwinEntity());
-		return result;
+		CcpEntity wrapedTwinEntity = this.getWrapedTwinEntity();
+		List<CcpEntity> associatedEntities2 = wrapedTwinEntity.getAssociatedEntities();
+		result.addAll(associatedEntities2);
+		ArrayList<CcpEntity> list = new ArrayList<>(new HashSet<>(result));
+		return list;
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
@@ -103,7 +101,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		}
 		
 		String twinEntityName = this.clazz.getAnnotation(CcpEntityTwin.class).twinEntityName();
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
 
 		boolean isNotTwin = false == entityDetails.entityName.equals(twinEntityName);
 		
@@ -128,15 +126,6 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return json;
 	}
 	
-	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
-		ArrayList<CcpBulkItem> items = new ArrayList<>(bulkItems);
-		CcpEntity wrapedTwinEntity = this.getWrapedTwinEntity();
-		var twinItems = wrapedTwinEntity.toBulkItems(json, operation);
-		items.addAll(twinItems);
-		return items;
-	}
-
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 		List<CcpJsonRepresentation> parametersToSearch =  new ArrayList<CcpJsonRepresentation>(this.entity.getParametersToSearch(json));
 		CcpEntity wrapedEntity = this.getWrapedTwinEntity();
@@ -153,7 +142,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		}
 		
 		return wrapedEntity.getWrapedEntity();
-		
 	}
+	
 	
 }

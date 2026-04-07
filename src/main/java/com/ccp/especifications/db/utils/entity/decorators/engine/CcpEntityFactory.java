@@ -25,7 +25,7 @@ import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityField
 
 public class CcpEntityFactory {
 
-	private static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
+	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
 		String simpleName = clazz.getSimpleName();
 		String snackCase = new CcpStringDecorator(simpleName).text().toSnakeCase().content;
 		int indexOf = snackCase.indexOf("entity");

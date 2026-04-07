@@ -24,15 +24,12 @@ public interface CcpCrud {
 		return unionAll;
 	}
 
-
-	
 	default CcpSelectUnionAll unionAll(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		CcpJsonRepresentation[] jsons = new CcpJsonRepresentation[] {json};
 		
 		CcpSelectUnionAll unionAll = this.unionAll(jsons, functionToDeleteKeysInTheCache, entities);
 		return unionAll;
 	}
-
 
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 

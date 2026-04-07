@@ -9,11 +9,11 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
-public class CcpEntityBulkHandlerTransferRecordToReverseEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
+public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 	
 	private final CcpEntity entity;
 
-	public CcpEntityBulkHandlerTransferRecordToReverseEntity(CcpEntity entity) {
+	public CcpEntityBulkHandlerTransferRecordToTwinEntity(CcpEntity entity) {
 		this.entity = entity;
 	}
 	
