@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
@@ -28,8 +29,6 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, Type... fields);
 
 	String getAsString(Type field);
-
-	<T> T getOrDefault(Type field, T defaultValue);
 
 	CcpJsonRepresentation getJsonPiece(Collection<String> fields);
 
@@ -126,4 +125,6 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	CcpJsonRepresentation addToItem(Type statis, String field, Object avg);
 
 	CcpJsonRepresentation getInnerJsonFromPath(Type fieldName, String value);
+	
+	<T> T getOrDefault(Type field, Supplier<T> supplier);
 }

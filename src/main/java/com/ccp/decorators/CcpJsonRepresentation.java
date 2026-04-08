@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
@@ -338,11 +339,12 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		
 		return ("" + object);
 	}
-
-	public <T> T getOrDefault(CcpJsonFieldName field, T defaultValue) {
+	public <T> T getOrDefault(CcpJsonFieldName field, Supplier<T> supplier) {
+		T defaultValue = supplier.get();
 		T orDefault = this.getOrDefault(field.getValue(), defaultValue);
 		return orDefault;
 	}
+
 	
 	@SuppressWarnings("unchecked")
 	private <T> T getOrDefault(String field, T defaultValue) {
@@ -1285,10 +1287,6 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			return this.json.getInnerJsonListFromPath(paths);
 		}
 
-		public <T> T getOrDefault(String field, T defaultValue) {
-			return this.json.getOrDefault(field, defaultValue);
-		}
-
 		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
 			return this.json.getTransformedJsonIfFoundTheField(field, transformers);
 		}
@@ -1370,6 +1368,12 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		public CcpJsonRepresentation getInnerJsonFromPath(String fieldName, String value) {
 			return this.json.getInnerJsonFromPath(fieldName, value);
 		}
+		public <T> T getOrDefault(String field, Supplier<T> supplier) {
+			T defaultValue = supplier.get();
+			T orDefault = this.json.getOrDefault(field, defaultValue);
+			return orDefault;
+		}
+
 
 		public Map<String, Object> getContent() {
 			return this.json.content;

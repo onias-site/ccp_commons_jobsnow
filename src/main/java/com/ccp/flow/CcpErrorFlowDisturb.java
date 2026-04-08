@@ -28,7 +28,7 @@ public class CcpErrorFlowDisturb extends RuntimeException{
 	}
 
 	private static String getErrorMessage(CcpJsonRepresentation json, CcpProcessStatus status) {
-		return json.getOrDefault(JsonFieldNames.reason, json.put(JsonFieldNames.statusNumber, status.asNumber()).put(JsonFieldNames.statusName, status.name()).asPrettyJson());
+		return json.getOrDefault(JsonFieldNames.reason, () -> json.put(JsonFieldNames.statusNumber, status.asNumber()).put(JsonFieldNames.statusName, status.name()).asPrettyJson());
 	}
 
 	public CcpErrorFlowDisturb(CcpJsonRepresentation json, CcpProcessStatus status, String message, String... fields) {

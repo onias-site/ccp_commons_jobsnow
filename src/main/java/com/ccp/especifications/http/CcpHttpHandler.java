@@ -59,7 +59,7 @@ public final class CcpHttpHandler {
 			String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
 		int status = response.httpStatus;
 		
-		CcpBusiness flow = this.flows.getDynamicVersion().getOrDefault("" + status, this.alternativeFlow);
+		CcpBusiness flow = this.flows.getDynamicVersion().getOrDefault("" + status, () -> this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

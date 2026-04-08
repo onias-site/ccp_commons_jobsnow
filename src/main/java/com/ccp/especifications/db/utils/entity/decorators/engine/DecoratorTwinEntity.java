@@ -9,6 +9,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
+import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerSaveTwinEntity;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToTwinEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -121,8 +122,10 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		var transfer = new CcpEntityBulkHandlerSaveTwinEntity(this);
-		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
+		CcpEntity twinEntity = this.getTwinEntity();
+		var deleteTwinEntity = new CcpBulkHandlerDelete(twinEntity);
+		var saveMainEntity = new CcpEntityBulkHandlerSaveTwinEntity(this);
+		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, saveMainEntity, deleteTwinEntity);
 		return json;
 	}
 	

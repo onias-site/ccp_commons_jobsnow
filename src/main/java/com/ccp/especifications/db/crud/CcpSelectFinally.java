@@ -117,7 +117,7 @@ public class CcpSelectFinally {
 					continue;
 				}
 				CcpProcessStatus status = specification.getAsObject(JsonFieldNames.status);
-				String message = specification.getOrDefault(JsonFieldNames.message, status.name());
+				String message = specification.getOrDefault(JsonFieldNames.message, () -> status.name());
 				CcpJsonRepresentation put = json.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.message, message)
 						.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
 				CcpJsonRepresentation apply = whenFlowError.apply(put);
