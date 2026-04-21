@@ -48,8 +48,7 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 		CcpJsonRepresentation updatablePiece = dynamicVersion.getJsonPiece(entityDetails.onlyUpdatableFields);
 		CcpJsonRepresentation mergeWithAnotherJson2 = recordFound.mergeWithAnotherJson(x.json);
 		CcpJsonRepresentation mergeWithAnotherJson = mergeWithAnotherJson2.mergeWithAnotherJson(updatablePiece);
-		CcpJsonRepresentation handledJson = x.entity.getHandledJson(mergeWithAnotherJson);
-		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(handledJson);
+		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(mergeWithAnotherJson);
 		CcpBulkItem updatedBulkItem = new CcpBulkItem(onlyExistingFields, x.operation, x.entity, x.id);
 
 		return updatedBulkItem;

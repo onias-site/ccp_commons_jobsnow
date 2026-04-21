@@ -25,14 +25,12 @@ public class CcpBulkItem {
 		this(other.json, operation, other.entity, other.id);
 	}
 
-	
 	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this.operation = operation;
 		this.entity = entity;
 		this.json = json;
 		this.id = id;
 	}
-	
 
 	public String toString() {
 		CcpJsonRepresentation put = this.asMap();
