@@ -7,6 +7,7 @@ import java.util.function.Function;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDataTransfers;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDisposable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
@@ -15,22 +16,22 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityO
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 
-enum DecoratorEntityEnum {
+public enum CcpEntityDecoratorTypes {
 	Disposable(CcpEntityDisposable.class, x -> x.getAnnotation(CcpEntityDisposable.class).expurgableEntityFactory(), 1),
 	Versionable(CcpEntityVersionable.class, x -> x.getAnnotation(CcpEntityVersionable.class).value(), 2),
 	AsyncWriter(CcpEntityAsyncWriter.class, x -> x.getAnnotation(CcpEntityAsyncWriter.class).value(), 6),
 	FieldsTransformer(CcpEntityFieldsTransformer.class, x -> DecoratorFieldsTransformerEntity.class, 8),
 	FieldsValidator(CcpEntityFieldsValidator.class, x -> DecoratorFieldsValidatorEntity.class, 9),
-	Operations(CcpEntityOperations.class, x -> DecoratorOperationsWriterEntity.class, 4),
-	Transfers(CcpEntityOperations.class, x -> DecoratorTransferDataEntity.class, 4),
-	ReadOnly(CcpEntityOlyReadable.class, x -> DecoratorReadOnlyEntity.class, 7),
-	Cache(CcpEntityCache.class, x -> DecoratorCacheEntity.class, 3),
+	WriteOperations(CcpEntityOperations.class, x -> DecoratorOperationsWriterEntity.class, 4),
+	DataTransfer(CcpEntityDataTransfers.class, x -> DecoratorTransferDataEntity.class, 4),
+	DataReadOnly(CcpEntityOlyReadable.class, x -> DecoratorReadOnlyEntity.class, 7),
+	Cacheable(CcpEntityCache.class, x -> DecoratorCacheEntity.class, 3),
 	Twin(CcpEntityTwin.class, x -> DecoratorTwinEntity.class, 5),
 	;
 
 	
 
-	private DecoratorEntityEnum(Class<? extends Annotation> annotation, Function<Class<?>, Class<?>> clazzProducer, int priority) {
+	private CcpEntityDecoratorTypes(Class<? extends Annotation> annotation, Function<Class<?>, Class<?>> clazzProducer, int priority) {
 		this.clazzProducer = clazzProducer;
 		this.annotation = annotation;
 		this.priority = priority;

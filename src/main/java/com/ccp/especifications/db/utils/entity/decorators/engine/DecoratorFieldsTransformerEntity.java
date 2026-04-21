@@ -36,10 +36,7 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 			
 			}
 		}
-		
-		CcpJsonRepresentation handledJson = this.entity.getHandledJson(result);
-		
-		return handledJson;
+		return result;
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {

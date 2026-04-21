@@ -28,6 +28,9 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	@SuppressWarnings("unchecked")
 	CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, Type... fields);
 
+	@SuppressWarnings("unchecked")
+	CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, Type... fields);
+
 	String getAsString(Type field);
 
 	CcpJsonRepresentation getJsonPiece(Collection<String> fields);
@@ -54,8 +57,6 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	CcpJsonRepresentation duplicateValueFromField(Type fieldToCopy, Type... fieldsToPaste);
 
 	CcpJsonRepresentation renameField(Type oldField, Type newField);
-
-	CcpJsonRepresentation removeField(Type field);
 
 	@SuppressWarnings("unchecked")
 	CcpJsonRepresentation removeFields(Type... fields);

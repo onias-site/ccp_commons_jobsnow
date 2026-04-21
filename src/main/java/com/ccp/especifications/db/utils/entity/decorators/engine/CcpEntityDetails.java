@@ -32,13 +32,13 @@ public final class CcpEntityDetails {
 	public final CcpEntity entity;
 	public final String entityName;
 	
-	CcpEntityDetails(Class<?> configurationClass, Function<Class<?>, String> entntyNameProducer){
+	CcpEntityDetails(Class<?> configurationClass, Function<Class<?>, String> entityNameProducer){
 		
 		this.configurationClass = configurationClass;
 				
 		this.allFields = CcpEntityFactory.getFields(configurationClass);
 		
-		this.entityName = entntyNameProducer.apply(configurationClass);
+		this.entityName = entityNameProducer.apply(configurationClass);
 		
 		this.primaryKeyNames = Arrays.asList(this.allFields).stream().filter(field -> field.primaryKey).map(field -> field.name()).collect(Collectors.toList());
 

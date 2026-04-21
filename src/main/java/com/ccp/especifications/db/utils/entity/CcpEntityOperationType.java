@@ -8,6 +8,8 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public enum CcpEntityOperationType
 	
@@ -72,7 +74,19 @@ public enum CcpEntityOperationType
 	
 
 	public Class<?> getJsonValidationClass(CcpEntity entity){
-		return this.getClass();
+		
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityFieldsValidator annotation = entityDetails.configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
+		
+		boolean entityWithoutValidation = annotation == null;
+	
+		if(entityWithoutValidation) {
+			Class<? extends CcpEntityOperationType> clazz = this.getClass();
+			return clazz;
+		}
+		
+		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
+		return jsonValidationClass;
 	}
 	
 	public static enum Fields implements CcpJsonFieldName{

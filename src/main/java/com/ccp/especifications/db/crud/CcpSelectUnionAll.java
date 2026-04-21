@@ -7,12 +7,14 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
 public class CcpSelectUnionAll {
 
 	public final CcpJsonRepresentation  condensed;
 
-	public CcpSelectUnionAll(List<CcpJsonRepresentation> results) {
+	public CcpSelectUnionAll(List<CcpJsonRepresentation> results, CcpEntity... entities) {
 		CcpJsonRepresentation  condensed = CcpOtherConstants.EMPTY_JSON;
 		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
 		
@@ -21,9 +23,22 @@ public class CcpSelectUnionAll {
 		
 		for (CcpJsonRepresentation result : results) {
 			String id = result.getDynamicVersion().getAsString(fieldNameToId);
-			String entity = result.getDynamicVersion().getAsString(fieldNameToEntity);
+			String entityName = result.getDynamicVersion().getAsString(fieldNameToEntity);
 			CcpJsonRepresentation removeKeys = result.getDynamicVersion().removeFields(fieldNameToId, fieldNameToEntity);
-			condensed = condensed.getDynamicVersion().addToItem(entity, id, removeKeys);
+			condensed = condensed.getDynamicVersion().addToItem(entityName, id, removeKeys);
+			for (CcpEntity entity : entities) {
+				try {
+					CcpEntityDetails entityDetails = entity.getEntityDetails();
+					
+					CcpJsonRepresentation explainedSearch = entityDetails.getPrimaryKeyValues(removeKeys);
+					
+					condensed = condensed.getDynamicVersion().addToItem(entityName, id + ".explainedSearch" , explainedSearch);
+
+				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
+				}
+				
+			}
+			
 		}
 		this.condensed = condensed;
 	}

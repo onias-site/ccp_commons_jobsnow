@@ -202,4 +202,10 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	
 		return json;
 	}
+	
+	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
+		return validateJson;
+	}
+
 }

@@ -9,10 +9,10 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpTimeDecorator;
 
 public enum CcpEntityExpurgableOptions{
-	yearly(Calendar.YEAR, "yyyy", 86400, 31_557_600_000L, "years")
+	yearly(Calendar.YEAR, "yyyy", 86400, 31_536_000_000L, "years")
 	,minute(Calendar.MINUTE, "ddMMyyyy HH:mm", 60, 60_000, "minutes")
 	,second(Calendar.SECOND, "ddMMyyyy HH:mm:ss", 1, 1_000, "seconds")
-	,monthly(Calendar.MONTH, "yyyyMM", 86400, 2_629_800_000L, "months")
+	,monthly(Calendar.MONTH, "yyyyMM", 86400, 2_592_000_000L, "months")
 	,daily(Calendar.DAY_OF_MONTH, "ddMMyyyy", 86400, 86_400_000, "days")
 	,hourly(Calendar.HOUR_OF_DAY, "ddMMyyyy HH", 3600, 3_600_000, "hours")
 	,millisecond(Calendar.MILLISECOND, "dd/MM/yyyy HH:mm:ss.SSS", 1, 1, "milliseconds")

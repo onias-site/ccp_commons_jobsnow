@@ -22,7 +22,7 @@ import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
 
 public interface CcpEntity {
-	enum JsonFieldNames implements CcpJsonFieldName{
+	public static enum JsonFieldNames implements CcpJsonFieldName{
 		entity, id, entityName, primaryKeyNames, _entities
 	}
 	default String calculateId(CcpJsonRepresentation json) {
@@ -105,6 +105,8 @@ public interface CcpEntity {
 		
 		CcpEntityDetails entityDetails = this.getEntityDetails();
 		
+		CcpJsonRepresentation explainedSearch = entityDetails.getPrimaryKeyValues(json);
+		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
 		.getDynamicVersion().put(fieldNameToEntity, entityDetails.entityName)
 		.getDynamicVersion().put(fieldNameToId, id)
@@ -169,4 +171,7 @@ public interface CcpEntity {
 		return this.throwException();
 	}
 
+	default CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
+		return json;
+	}
 }

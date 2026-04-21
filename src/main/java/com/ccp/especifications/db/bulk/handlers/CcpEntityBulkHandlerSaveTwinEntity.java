@@ -27,8 +27,8 @@ public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTran
 		return asList;
 	}
 
-	private ArrayList<CcpBulkItem> getBulkItemsToSave(CcpJsonRepresentation json,
-			CcpBulkEntityOperationType operation) {
+	private ArrayList<CcpBulkItem> getBulkItemsToSave(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
+		
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity wrapedEntity = entityToSearch.getWrapedEntity();
 

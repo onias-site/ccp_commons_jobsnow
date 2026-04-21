@@ -16,6 +16,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefaultEntityField;
@@ -51,15 +52,34 @@ public class CcpEntityFactory {
 		return entity;
 	}
 
-	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> function) {
+	public static CcpEntity getCustomEntity(CcpEntityConfigurator configurator, CcpEntityDecoratorTypes... decoratorsToAvoid) {
+		CcpEntity entity = configurator.getEntity();
+		CcpEntity customEntity = getCustomEntity(entity, decoratorsToAvoid);
+		return customEntity;
+	}
+
+	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorTypes... decoratorsToAvoid) {
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntity customEntity = getEntity(entityDetails.configurationClass, mainEntityNameProducer, decoratorsToAvoid);
+		return customEntity;
+	}
+	
+	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> entityNameExtractor, CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		
-		CcpEntityDetails entityDetails = new CcpEntityDetails(configurationClass, function);
+		
+		List<CcpEntityDecoratorTypes> avoidedDecorators = Arrays.asList(decoratorsToAvoid);
+		
+		CcpEntityDetails entityDetails = new CcpEntityDetails(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
-		List<DecoratorEntityEnum> collect = Arrays.asList(DecoratorEntityEnum.values()).stream().filter(x -> x.isDecorated(configurationClass)).collect(Collectors.toList());
+		List<CcpEntityDecoratorTypes> collect = Arrays.asList(CcpEntityDecoratorTypes.values()).stream()
+				.filter(x -> x.isDecorated(configurationClass))
+				.filter(x -> false == avoidedDecorators.contains(x))
+				
+				.collect(Collectors.toList());
 		collect.sort((a,b) -> a.priority - b.priority);
 		
-		for (DecoratorEntityEnum decorator : collect) {
+		for (CcpEntityDecoratorTypes decorator : collect) {
 			result = decorator.getEntity(configurationClass, result);
 		}
 		

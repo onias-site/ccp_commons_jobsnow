@@ -281,6 +281,33 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 	
 	}
 
+	public CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
+		
+		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
+		
+		if(anyFieldIsNotPresent) {
+			return this;
+		}
+		
+		CcpJsonRepresentation apply = business.apply(this);
+		return apply;
+	
+	}
+	//TODO REFATORAR ESSA DUPLICACAO DE CODIGO
+	private CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, String... fields) {
+		
+		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
+		
+		if(anyFieldIsNotPresent) {
+			return this;
+		}
+		
+		CcpJsonRepresentation apply = business.apply(this);
+		return apply;
+	
+	}
+
+	//TODO REFATORAR ESSA DUPLICACAO DE CODIGO
 	private CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
 		boolean anyFieldIsPresent = this.containsAnyFields(fields);
 		if(anyFieldIsPresent) {
@@ -560,11 +587,6 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		content.put(newField, value);
 		CcpJsonRepresentation json = new CcpJsonRepresentation(content);
 		return json;
-	}
-
-	public CcpJsonRepresentation removeField(CcpJsonFieldName field) {
-		CcpJsonRepresentation removeField = this.removeField(field.getValue());
-		return removeField;
 	}
 	
 	private CcpJsonRepresentation removeField(String field) {
@@ -1341,12 +1363,11 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			return this.json.getJsonPiece(fields);
 		}
 
-		public CcpJsonRepresentation removeField(String field) {
-			return this.json.removeField(field);
-		}
-
 		public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
 			return this.json.whenFieldsAreNotFound(business, fields);
+		}
+		public CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, String... fields) {
+			return this.json.whenFieldsAreFound(business, fields);
 		}
 
 		public CcpJsonRepresentation getJsonPiece(Collection<String> fields) {

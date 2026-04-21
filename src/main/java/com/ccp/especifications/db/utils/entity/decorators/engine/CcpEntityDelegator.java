@@ -136,4 +136,12 @@ public class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
 		return transferDataTo;
 	}
+
+	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
+		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
+		return validateJson;
+	}
+	
+	
+	
 }

@@ -17,7 +17,7 @@ class FunctionPutStatus implements CcpBusiness {
 		CcpProcessStatus stats = j.getAsObject(JsonFieldNames.status);
 		CcpJsonRepresentation put3 = j.put(JsonFieldNames.statusName, stats.name())
 				.put(JsonFieldNames.statusNumber, stats.asNumber());
-		CcpJsonRepresentation removeField = put3.removeField(JsonFieldNames.status);
+		CcpJsonRepresentation removeField = put3.removeFields(JsonFieldNames.status);
 		return removeField;
 		
 	}

@@ -30,14 +30,8 @@ class DefaultImplementationEntity implements CcpEntity{
 		return hashCode;
 	}
 
-	public int getDecoratorPriority() {
-		return 0;
-	}
-
 	public CcpEntityDetails getEntityDetails() {
 		CcpEntityDetails addEntity = this.entityDetails.associateEntity();
 		return addEntity;
 	}
-	
-	
 }

@@ -14,31 +14,30 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 		this.clazz = clazz;
 	}
 
-	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
+	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
 
 		CcpEntityFieldsValidator annotation = this.clazz.getAnnotation(CcpEntityFieldsValidator.class);
 		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
 		String featureName = this.clazz.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
-		CcpJsonRepresentation handledJson = this.entity.getHandledJson(json);
-		return handledJson;
+		return json;
 	}
 
 	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpJsonRepresentation handledJson = this.getHandledJson(json);
-		CcpJsonRepresentation save = this.entity.save(handledJson);
+		this.validateJson(json);
+		CcpJsonRepresentation save = this.entity.save(json);
 		return save;
 	}
 
 	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		CcpJsonRepresentation handledJson = this.getHandledJson(json);
-		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
+		this.validateJson(json);
+		CcpJsonRepresentation result = this.entity.transferDataTo(json, entities);
 		return result;
 	}
 	
 	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		CcpJsonRepresentation handledJson = this.getHandledJson(json);
-		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
+		this.validateJson(json);
+		CcpJsonRepresentation result = this.entity.copyDataTo(json, entities);
 		return result;
 	}
 }

@@ -28,7 +28,7 @@ public final class CcpAndIfThisExecutionReturns {
 			return responseWhenTheFlowPerformsNormally;
 		} catch (CcpErrorFlowDisturb e) {
 			CcpJsonRepresentation json = this.tryToFixTheFlow(e);
-			CcpJsonRepresentation remainingFlow = this.flow.removeField(e.status);
+			CcpJsonRepresentation remainingFlow = this.flow.removeFields(e.status);
 			CcpAndIfThisExecutionReturns andIfThisExecutionReturns = new CcpAndIfThisExecutionReturns(this.givenFinalTargetProcess, json, remainingFlow);
 			CcpJsonRepresentation endThisStatement = andIfThisExecutionReturns.endThisStatement(whatToNext);
 			return endThisStatement;
