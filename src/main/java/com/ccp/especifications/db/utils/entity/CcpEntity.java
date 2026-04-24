@@ -105,8 +105,6 @@ public interface CcpEntity {
 		
 		CcpEntityDetails entityDetails = this.getEntityDetails();
 		
-		CcpJsonRepresentation explainedSearch = entityDetails.getPrimaryKeyValues(json);
-		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
 		.getDynamicVersion().put(fieldNameToEntity, entityDetails.entityName)
 		.getDynamicVersion().put(fieldNameToId, id)

@@ -71,7 +71,7 @@ public enum CcpEntityExpurgableOptions{
 		return formattedDateTime;
 	}
 	
-	public static String getPastDate(String format, Long timeMillis) {
+	public static String getPastDate(String format, String newFormat, Long timeMillis) {
 
 		CcpEntityExpurgableOptions[] values = CcpEntityExpurgableOptions.values();
 		
@@ -85,7 +85,7 @@ public enum CcpEntityExpurgableOptions{
 			
 			Long timeInPast = timeMillis - value.milliseconds;
 			CcpTimeDecorator ctd = new CcpTimeDecorator(timeInPast);
-			String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
+			String formattedDateTime = ctd.getFormattedDateTime(newFormat);
 			return formattedDateTime;
 		}
 		
