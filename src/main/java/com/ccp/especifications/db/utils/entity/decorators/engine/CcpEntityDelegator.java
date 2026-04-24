@@ -141,6 +141,11 @@ public class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
 		return validateJson;
 	}
+
+	public CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {
+		CcpJsonRepresentation idToSearchDisposableRecord = this.entity.getIdToSearchDisposableRecord(json);
+		return idToSearchDisposableRecord;
+	}
 	
 	
 	

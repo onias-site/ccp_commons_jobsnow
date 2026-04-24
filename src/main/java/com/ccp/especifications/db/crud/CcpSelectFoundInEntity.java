@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.crud;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.ccp.business.CcpBusiness;
@@ -13,12 +14,12 @@ public class CcpSelectFoundInEntity {
 		statements
 	}
 
-	private final CcpJsonRepresentation id;
+	private final Collection<CcpJsonRepresentation>	 parametersToSearch;
 	private final CcpJsonRepresentation statements;
 
-	CcpSelectFoundInEntity(CcpJsonRepresentation id, CcpJsonRepresentation statements) {
+	CcpSelectFoundInEntity(Collection<CcpJsonRepresentation> parametersToSearch, CcpJsonRepresentation statements) {
+		this.parametersToSearch = parametersToSearch;
 		this.statements = statements;
-		this.id = id;
 	}
 
 	public CcpSelectNextStep executeAction(CcpBusiness action) {
@@ -38,7 +39,7 @@ public class CcpSelectFoundInEntity {
 		List<CcpJsonRepresentation> subList = list.subList(0, list.size() - 1);
 		subList.add(put);
 		CcpJsonRepresentation newStatements = this.statements.put(JsonFieldNames.statements, subList);
-		return new CcpSelectNextStep(this.id, newStatements);
+		return new CcpSelectNextStep(this.parametersToSearch, newStatements);
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.crud;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,6 +13,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 import com.ccp.business.*;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
@@ -20,20 +22,20 @@ public class CcpSelectFinally {
 		statements, entity, action, found, _entities, status, message, errorDetails, flow, origin
 		
 	}
-	private final CcpJsonRepresentation id;
+	private final Collection<CcpJsonRepresentation> parametersToSearch;
 	private final CcpJsonRepresentation statements;
 	private final String[] fields;
-	CcpSelectFinally(CcpJsonRepresentation id, CcpJsonRepresentation statements, String[] fields) {
-		this.id = id;
+	
+	CcpSelectFinally(Collection<CcpJsonRepresentation> parametersToSearch, CcpJsonRepresentation statements, String[] fields) {
+		this.parametersToSearch = parametersToSearch;
 		this.fields = fields;
 		this.statements = statements;
-
 	}
 
 	public CcpSelectFinally endThisProcedure(String context, CcpBusiness whenFlowError,CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		this.findById(context, this.id, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
+		this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
 		return this; 
 	}
 
@@ -41,18 +43,18 @@ public class CcpSelectFinally {
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
-		CcpJsonRepresentation findById = this.findById(context, this.id, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
+		CcpJsonRepresentation findById = this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
 		return findById;
 	}
 
 	
 	private CcpJsonRepresentation findById( 
 			String origin,
-			CcpJsonRepresentation json, 
 			CcpBusiness whenFlowError, 
 			CcpBusiness whenFlowSuccess, 
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
 			CcpJsonRepresentation... specifications) {
+		
 		List<CcpEntity> keySet = Arrays.asList(specifications).stream()
 				.filter(x -> x.containsAllFields(JsonFieldNames.entity))
 				.map(x -> (CcpEntity) x.get(JsonFieldNames.entity) ) 
@@ -64,7 +66,15 @@ public class CcpSelectFinally {
 		
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class); 
 		
-		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, entities);
+		CcpJsonRepresentation[] jsons = this.parametersToSearch.toArray(new CcpJsonRepresentation[this.parametersToSearch.size()]);
+		
+		CcpJsonRepresentation json = CcpOtherConstants.EMPTY_JSON;
+		
+		for (CcpJsonRepresentation jsn : jsons) {
+			json = json.mergeWithAnotherJson(jsn);
+		}
+		
+		CcpSelectUnionAll unionAll = crud.unionAll(jsons, functionToDeleteKeysInTheCache, entities);
 		
 		for (CcpJsonRepresentation specification : specifications) {
 			

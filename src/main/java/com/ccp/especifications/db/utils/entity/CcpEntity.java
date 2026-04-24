@@ -172,4 +172,9 @@ public interface CcpEntity {
 	default CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
 		return json;
 	}
+	
+	default CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {
+		CcpJsonRepresentation throwException = this.throwException();
+		return throwException;
+	}
 }

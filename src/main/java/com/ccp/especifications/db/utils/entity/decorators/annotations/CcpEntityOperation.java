@@ -15,7 +15,7 @@ public @interface CcpEntityOperation {
 	
 	CcpExceptionFlow[] operationHandlers();
 	
-	CcpEntityType from();
+	CcpEntityType into();
 
 	CcpEntityDecoratorOperationType operation();
 

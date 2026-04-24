@@ -1,23 +1,25 @@
 package com.ccp.especifications.db.crud;
 
+import java.util.Collection;
+
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public class CcpSelectLoadDataFromEntity {
-	private final CcpJsonRepresentation id;
+	private final Collection<CcpJsonRepresentation> parametersToSearch;
 	private final CcpJsonRepresentation statements;
 
-	CcpSelectLoadDataFromEntity(CcpJsonRepresentation id, CcpJsonRepresentation statements) {
+	CcpSelectLoadDataFromEntity(Collection<CcpJsonRepresentation> parametersToSearch, CcpJsonRepresentation statements) {
+		this.parametersToSearch = parametersToSearch;
 		this.statements = statements;
-		this.id = id;
 
 	}
 
 	public CcpSelectProcedure and() {
-		return new CcpSelectProcedure(this.id, this.statements);
+		return new CcpSelectProcedure(this.parametersToSearch, this.statements);
 	}
 	
 	public CcpSelectFinally andFinally(String... fields) {
-		return new CcpSelectFinally(this.id, this.statements, fields);
+		return new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
 	}
 	
 
