@@ -1,8 +1,8 @@
 package com.ccp.especifications.db.bulk;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -25,12 +25,14 @@ public interface CcpExecuteBulkOperation {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, array);
 		
-		Set<CcpBulkItem> all = new HashSet<>();
+		List<CcpBulkItem> all = new ArrayList<>();
 		
 		for (CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> handler : handlers) {
 			List<CcpBulkItem> list =  unionAll.handleRecordInUnionAll(json, handler);
 			all.addAll(list);
 		}
+		
+		
 		this.executeBulk(all, functionToDeleteKeysInTheCache);
 
 		return unionAll;

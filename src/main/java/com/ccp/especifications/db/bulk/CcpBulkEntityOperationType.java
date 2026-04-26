@@ -9,23 +9,22 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 public enum CcpBulkEntityOperationType {
 
-	create(false, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
-	update(true, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
-	delete(false,true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
+	create(1, false, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
+	update(2, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
+	delete(3, false, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	})),
-	noop(false, false, CcpOtherConstants.EMPTY_JSON),
+	noop(0, false, CcpOtherConstants.EMPTY_JSON),
 	;
 	public final boolean createsVersionsToSameRecord;
 	private final CcpJsonRepresentation handlers;
-	public final boolean persistable;
-	
+	public final int priority;
 
-	private CcpBulkEntityOperationType(boolean createsVersionsToSameRecord, boolean persistable, CcpJsonRepresentation handlers) {
+	private CcpBulkEntityOperationType(int priority, boolean createsVersionsToSameRecord, CcpJsonRepresentation handlers) {
 		this.createsVersionsToSameRecord = createsVersionsToSameRecord;
-		this.persistable = persistable;
 		this.handlers = handlers;
+		this.priority = priority;
 	}
 	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem x) {
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(x, CcpBulkEntityOperationType.update);

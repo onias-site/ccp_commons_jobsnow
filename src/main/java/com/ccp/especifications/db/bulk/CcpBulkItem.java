@@ -50,7 +50,7 @@ public class CcpBulkItem {
 	}
 	
 	public int hashCode() {
-		String string = this.entity + "_" + this.id + "_" + this.operation;
+		String string = this.entity + "_" + this.id ;
 		int hashCode = string.hashCode();
 		return hashCode;
 	}
@@ -68,12 +68,6 @@ public class CcpBulkItem {
 			boolean differentId = false == other.id.equals(this.id);
 			
 			if(differentId) {
-				return false;
-			}
-			
-			boolean differentOperation = false == other.operation.equals(this.operation);
-			
-			if(differentOperation) {
 				return false;
 			}
 			
