@@ -159,9 +159,9 @@ public final class CcpEntityDetails {
 		boolean hasNoIdsToSearch = asList.isEmpty();
 
 		if (hasNoIdsToSearch) {
-			return CcpOtherConstants.EMPTY_JSON;
+			return CcpOtherConstants.EMPTY_JSON; 
 		}
-
+ 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 
 		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
@@ -170,6 +170,6 @@ public final class CcpEntityDetails {
 		CcpJsonRepresentation innerJson = unionAll.condensed.getDynamicVersion().getInnerJson(this.entityName);
 		return innerJson;
 	}
-
+	
 	
 }

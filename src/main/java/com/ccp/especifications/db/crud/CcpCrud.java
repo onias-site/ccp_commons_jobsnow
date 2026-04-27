@@ -33,7 +33,7 @@ public interface CcpCrud {
 
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
-	boolean exists(String entityName, String id);
+	boolean exists(String entityName, String id); 
 
 	boolean delete(String entityName, String id); 
 	

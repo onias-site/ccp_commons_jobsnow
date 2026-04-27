@@ -29,7 +29,9 @@ import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
 public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName>  {
-
+	public static enum Fields implements CcpJsonFieldName{
+		cause, message, stackTrace, type, stackTraceHash, completeStackTrace
+	}
 	public static interface CcpJsonFieldName{
 		
 		default String getValue() {
@@ -140,10 +142,27 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			stackTrace.add(stackTraceLine); 
 		}
 		Object causeDetails = getCauseDetails(cause, st);
-		jr = jr.put("type", e.getClass().getName()).put("stackTrace", stackTrace).put("message", message).put("cause", causeDetails);
+		var completeStackTrace = getCompleteStackTrace(e).stream().map(x -> x.toString()).collect(Collectors.toList());
+		jr = jr.put(Fields.completeStackTrace, completeStackTrace).put(Fields.type, e.getClass().getName()).put(Fields.stackTrace, stackTrace).put(Fields.message, message).put(Fields.cause, causeDetails);
 		return jr;
 	}
 
+	
+	
+	private static List<StackTraceElement> getCompleteStackTrace(Throwable e){
+		if(e == null) {
+			return new ArrayList<StackTraceElement>();
+		}
+		StackTraceElement[] stackTrace = e.getStackTrace();
+		List<StackTraceElement> asList = Arrays.asList(stackTrace);
+		Throwable cause = e.getCause();
+		List<StackTraceElement> stackTraceList = getCompleteStackTrace(cause);
+		var arrayList = new ArrayList<>(stackTraceList);
+		arrayList.addAll(asList);
+		return arrayList;
+		
+	}
+	
 	private static Object getCauseDetails(Throwable cause, StackTraceElement[] st) {
 		
 		boolean hasCause = cause != null;
@@ -152,17 +171,7 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			CcpJsonRepresentation errorDetails = getErrorDetails(cause);
 			return errorDetails;
 		}
-		
-		int k = 0;
-		List<String> stack = new ArrayList<>();
-		for (StackTraceElement stackTraceElement : st) {
-			String line = getStackTraceLine(stackTraceElement);
-			stack.add(line);
-			if(k++ >= 100) {
-				break;
-			}
-		}
-		return stack; 
+		return ""; 
 	}
 
 	private static String getStackTraceLine(StackTraceElement ste) {
@@ -170,9 +179,9 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		String methodName = ste.getMethodName();
 		String fileName = ste.getFileName();
 		if(fileName == null) {
-			return "";
+			return "-";
 		}
-		String key = fileName.replace(".java", "") + "." + methodName + ":" + lineNumber+ "<BR>";
+		String key = fileName.replace(".java", "") + "." + methodName + ":" + lineNumber;
 		return key;
 	}
 
@@ -780,7 +789,7 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 				List<CcpJsonRepresentation> collect = fromJson.stream().map(json -> new CcpJsonRepresentation(json)).collect(Collectors.toList());
 				return collect;
 			} catch (ClassCastException e) {
-				return new ArrayList<>();
+				return new ArrayList<>(); 
 			}
 		}
 
@@ -860,7 +869,14 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			return new ArrayList<Object>(list);
 		}
 		
+		boolean empty = object.toString().trim().isEmpty();
+		
+		if(empty) {
+			return new ArrayList<>();
+		}
+		
 		CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+		
 		try {
 			List<Object> fromJson = jsonHandler.fromJson(object.toString());
 			return fromJson;
