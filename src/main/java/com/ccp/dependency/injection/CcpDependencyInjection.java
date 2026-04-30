@@ -3,11 +3,29 @@ package com.ccp.dependency.injection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ccp.business.CcpBusiness;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 
 public class CcpDependencyInjection {
 
 	static Map<Class<?>, Object> instances = new HashMap<>();
+	
+	@SuppressWarnings("rawtypes")
+	public static CcpJsonRepresentation replaceDependenciesTemporally(CcpJsonRepresentation json, CcpBusiness business, CcpInstanceProvider<?>... providers) {
+		
+		CcpInstanceProvider[] actuallyDependecies = new CcpInstanceProvider[providers.length];
+		int k = 0;
+		for (CcpInstanceProvider<?> provider : providers) {
+			actuallyDependecies[k++] = (CcpInstanceProvider) getDependency(provider.getClass().getInterfaces()[0]);
+		}
+		loadAllDependencies(providers);
+		
+		CcpJsonRepresentation apply = business.apply(json);
+		loadAllDependencies(actuallyDependecies);
+		return apply;
+	}
+	
 	
 	public static void loadAllDependencies(CcpInstanceProvider<?>... providers) {
 		

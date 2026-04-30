@@ -1,8 +1,5 @@
 package com.ccp.especifications.email;
 
-import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.business.CcpBusiness;
 
-public interface CcpEmailSender {
-
-	CcpJsonRepresentation send(CcpJsonRepresentation emailApiParameters) ;
-}
+public interface CcpEmailSender extends CcpBusiness {}
