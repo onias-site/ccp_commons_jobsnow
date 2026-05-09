@@ -8,6 +8,10 @@ public interface CcpInstantMessenger {
 	Long getMembersCount(CcpJsonRepresentation parameters);
 	
 	CcpJsonRepresentation sendMessage(CcpJsonRepresentation parameters);
+
+	CcpJsonRepresentation sendTextMessage(String botToken, Long chatId, Long replyTo, String message);
+	
+	
 	
 	String getFileName(CcpJsonRepresentation parameters);
 	

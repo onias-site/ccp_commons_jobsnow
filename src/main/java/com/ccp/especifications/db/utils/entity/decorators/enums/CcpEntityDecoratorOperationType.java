@@ -55,7 +55,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 				continue;
 			}
 			
-			CcpEntityType entityType = operation.into();
+			CcpEntityType entityType = operation.from();
 			String extractEntityName = entityType.extractEntityName(clazz);
 			CcpEntityDetails entityDetails = entity.getEntityDetails();
 			

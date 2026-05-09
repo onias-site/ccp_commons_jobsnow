@@ -1,9 +1,13 @@
 package com.ccp.especifications.db.crud;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpDbRequester;
@@ -126,6 +130,25 @@ public class CcpSelectUnionAll {
 
 	public String toString() {
 		return this.condensed.toString();
+	}
+	
+	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity){
+		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		String index = entityDetails.entityName;
+		CcpDynamicJsonRepresentation dynamicVersion = this.condensed.getDynamicVersion();
+		boolean indexNotFound = false == dynamicVersion.containsAllFields(index);
+		
+		if(indexNotFound) {
+			return new ArrayList<>();
+		}
+		
+		CcpJsonRepresentation innerJson = dynamicVersion.getInnerJson(index);
+		Set<String> fieldSet = innerJson.fieldSet();
+		
+		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
+		String fieldNameToId = dependency.getFieldNameToId();
+		List<CcpJsonRepresentation> collect = fieldSet.stream().map(id -> innerJson.getDynamicVersion().getInnerJson(id).getDynamicVersion().put(fieldNameToId, id)).collect(Collectors.toList());
+		return collect;
 	}
 	
 

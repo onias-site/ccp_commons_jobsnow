@@ -4,10 +4,17 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
+import com.ccp.process.CcpProcessStatusDefault;
 @SuppressWarnings("serial")
 public class CcpErrorFlowDisturb extends RuntimeException{
 	enum JsonFieldNames implements CcpJsonFieldName{
 		reason, statusNumber, statusName
+	}
+	
+	public static class CcpUnprocessableEntity extends CcpErrorFlowDisturb{
+		public CcpUnprocessableEntity(CcpJsonRepresentation json) {
+			super(json, CcpProcessStatusDefault.UNPROCESSABLE_ENTITY);
+		}
 	}
 	
 	public final CcpJsonRepresentation json;

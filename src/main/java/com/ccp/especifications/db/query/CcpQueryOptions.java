@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
 
 public class CcpQueryOptions extends CcpQueryComponent{
 	enum JsonFieldNames implements CcpJsonFieldName{
@@ -71,6 +73,18 @@ public class CcpQueryOptions extends CcpQueryComponent{
 	}
 
 	public CcpQueryExecutorDecorator selectFrom(String... resourcesNames) {
+		return new CcpQueryExecutorDecorator(this, resourcesNames);
+	}
+
+	public CcpQueryExecutorDecorator selectFrom(CcpEntity... entities) {
+		
+		
+		String[] resourcesNames = new String[entities.length];
+		int k = 0;	
+		for (CcpEntity entity : entities) {
+			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			resourcesNames[k++] = entityDetails.entityName;
+		}
 		return new CcpQueryExecutorDecorator(this, resourcesNames);
 	}
 	
