@@ -23,8 +23,8 @@ public class CcpEntityDelegator implements CcpEntity{
 		return calculateId;
 	}
 
-	public CcpEntityDetails getEntityDetails() {
-		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+	public CcpEntityMetaData getEntityMetaData() {
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
 		return entityDetails;
 	}
 
@@ -87,7 +87,7 @@ public class CcpEntityDelegator implements CcpEntity{
 			
 		}while(set.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
 		String replace = set.toString().replace(" ", "").replace(",", "->");
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		String string = entityDetails.entityName + " = " + replace;
 		return string;
 	}

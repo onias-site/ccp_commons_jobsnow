@@ -28,7 +28,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	protected final Consumer<String[]> functionToDeleteKeysInTheCache;
 	protected final CcpExecuteBulkOperation executeBulkOperation; 
 	Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch = jsn -> {
-		CcpEntityDetails entityDetails = jsn.entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = jsn.entity.getEntityMetaData();
 		throw new CcpErrorFlowDisturb(CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);
 	};
 
@@ -76,8 +76,8 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return calculateId;
 	}
 
-	public CcpEntityDetails getEntityDetails() {
-		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+	public CcpEntityMetaData getEntityMetaData() {
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
 		return entityDetails;
 	}
 
@@ -99,7 +99,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		
 		for (CcpEntity entity : associatedEntities) {
 			String mainId = entity.calculateId(json);
-			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			CcpJsonRepresentation record = unionAll.getEntityRow(entityDetails.entityName, mainId);
 			result = result
 					.getDynamicVersion()

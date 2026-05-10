@@ -8,7 +8,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public final class CcpCacheDecorator {
 	
@@ -23,7 +23,7 @@ public final class CcpCacheDecorator {
 	}
 	
 	public CcpCacheDecorator(CcpEntity entity, String id) {
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
 		this.key = "records.entity." + entityDetails.entityName + ".id." + id ;
 	}

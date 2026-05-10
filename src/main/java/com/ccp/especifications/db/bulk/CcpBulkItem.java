@@ -4,7 +4,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 enum CcpBulkItemFields implements CcpJsonFieldName{
 	id,  entity, operation 
@@ -40,7 +40,7 @@ public class CcpBulkItem {
 	}
 
 	public CcpJsonRepresentation asMap() {
-		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
 				.put(CcpBulkItemFields.operation, this.operation)
 				.put(CcpBulkItemFields.entity, entityDetails.entityName)

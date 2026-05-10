@@ -3,21 +3,21 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 class DefaultImplementationEntity implements CcpEntity{
-	final CcpEntityDetails entityDetails;
+	final CcpEntityMetaData entityDetails;
 	
-	public DefaultImplementationEntity(CcpEntityDetails entityDetails) {
+	public DefaultImplementationEntity(CcpEntityMetaData entityDetails) {
 		this.entityDetails = entityDetails;
 	}
 
 	public String toString() {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		return entityDetails.entityName;
 	}
 	
 	public boolean equals(Object obj) {
 		if(obj instanceof CcpEntity other) {
-			CcpEntityDetails entityDetails = this.getEntityDetails();
-			CcpEntityDetails entityDetails2 = other.getEntityDetails();
+			CcpEntityMetaData entityDetails = this.getEntityMetaData();
+			CcpEntityMetaData entityDetails2 = other.getEntityMetaData();
 			boolean equals = entityDetails.entityName.equals(entityDetails2.entityName);
 			return equals;
 		}
@@ -25,13 +25,13 @@ class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public int hashCode() {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		int hashCode = entityDetails.entityName.hashCode();
 		return hashCode;
 	}
 
-	public CcpEntityDetails getEntityDetails() {
-		CcpEntityDetails addEntity = this.entityDetails.associateEntity();
+	public CcpEntityMetaData getEntityMetaData() {
+		CcpEntityMetaData addEntity = this.entityDetails.associateEntity();
 		return addEntity;
 	}
 }

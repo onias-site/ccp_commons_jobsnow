@@ -6,7 +6,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDataTransfer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDataTransfers;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	transferDataTo{
@@ -48,7 +48,7 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 				continue;
 			}
 
-			CcpEntityDetails entityToTransferEntityDetails = entityToTransfer.getEntityDetails();
+			CcpEntityMetaData entityToTransferEntityDetails = entityToTransfer.getEntityMetaData();
 			Class<?> obj = transfer.to();
 			boolean wrongEntity = false == entityToTransferEntityDetails.configurationClass.equals(obj);
 			
@@ -58,7 +58,7 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 			
 			CcpEntityType entityType = transfer.from();
 			String extractEntityName = entityType.extractEntityName(clazz);
-			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			
 			boolean isNotTheEntity = false == extractEntityName.equals(entityDetails.entityName);
 			

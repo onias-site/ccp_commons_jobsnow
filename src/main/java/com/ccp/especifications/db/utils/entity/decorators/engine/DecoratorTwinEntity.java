@@ -74,7 +74,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		CcpJsonRepresentation oneByIdAnyWhere = super.getOneByIdAnyWhere(json);
 		CcpDynamicJsonRepresentation dynamicVersion = oneByIdAnyWhere.getDynamicVersion();
 		{
-			CcpEntityDetails entityDetails = this.getEntityDetails();
+			CcpEntityMetaData entityDetails = this.getEntityMetaData();
 			boolean foundInMainEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
 			
 			if(foundInMainEntity) {
@@ -82,7 +82,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 				return innerJson;
 			}
 		}
-		CcpEntityDetails entityDetails = this.getTwinEntity().getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getTwinEntity().getEntityMetaData();
 		boolean foundInTwinEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
 		
 		if(foundInTwinEntity) {
@@ -102,7 +102,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		}
 		
 		String twinEntityName = this.clazz.getAnnotation(CcpEntityTwin.class).twinEntityName();
-		CcpEntityDetails entityDetails = this.entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
 
 		boolean isNotTwin = false == entityDetails.entityName.equals(twinEntityName);
 		

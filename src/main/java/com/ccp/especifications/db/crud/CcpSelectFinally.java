@@ -11,7 +11,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.business.*;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.flow.CcpErrorFlowDisturb;
@@ -100,7 +100,7 @@ public class CcpSelectFinally {
 			
 			boolean itWasNotForeseen = wasActuallyFound != shouldHaveBeenFound;
 			
-			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			if(itWasNotForeseen) {
 
 				if(false == wasActuallyFound) {
@@ -150,7 +150,7 @@ public class CcpSelectFinally {
 				json = action.apply(json);
 				continue;
 			}
-			String entityName = entity.getEntityDetails().entityName;
+			String entityName = entity.getEntityMetaData().entityName;
 			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json);
 			CcpJsonRepresentation context = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 			json = action.apply(context);

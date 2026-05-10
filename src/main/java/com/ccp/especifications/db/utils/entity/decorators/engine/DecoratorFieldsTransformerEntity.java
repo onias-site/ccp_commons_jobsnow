@@ -28,7 +28,7 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
 		CcpJsonRepresentation result = json;
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		for (CcpEntityField field : entityDetails.allFields) {
 			try {
 				result = field.transformer.apply(result);

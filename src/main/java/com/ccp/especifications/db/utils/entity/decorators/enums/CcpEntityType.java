@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public enum CcpEntityType {
 	mainEntity {
@@ -12,7 +12,7 @@ public enum CcpEntityType {
 			try {
 				Field declaredField = clazz.getDeclaredField("ENTITY");
 				CcpEntity entity =  (CcpEntity)declaredField.get(null);
-				CcpEntityDetails entityDetails = entity.getEntityDetails();
+				CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 				return entityDetails.entityName;
 				
 			} catch (Exception e) {

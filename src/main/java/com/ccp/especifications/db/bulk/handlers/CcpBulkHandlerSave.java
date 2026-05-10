@@ -9,7 +9,7 @@ import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
@@ -31,7 +31,7 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 
 	private CcpBulkItem toUpdateRecord(CcpJsonRepresentation searchParameter, CcpJsonRepresentation recordFound , CcpBulkItem x) {
 
-		CcpEntityDetails entityDetails = x.entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = x.entity.getEntityMetaData();
 		
 		boolean isNotAnUpdatableEntity = entityDetails.isNotAnUpdatableEntity();
 		

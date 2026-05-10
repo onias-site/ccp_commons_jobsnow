@@ -16,7 +16,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
@@ -26,11 +26,12 @@ public interface CcpEntity {
 		entity, id, entityName, primaryKeyNames, _entities
 	}
 	default String calculateId(CcpJsonRepresentation json) {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		boolean hasNoPrimaryKey = entityDetails.primaryKeyNames.isEmpty();
 		
 		if(hasNoPrimaryKey) {
+			//TODO LANCAR EXCECAO NOVA
 			String string = UUID.randomUUID().toString();
 			String hash = new CcpStringDecorator(string).hash().asString(CcpHashAlgorithm.SHA1);
 			return hash;
@@ -48,13 +49,13 @@ public interface CcpEntity {
 		return this.throwException();
 	}
 
-	CcpEntityDetails getEntityDetails();
+	CcpEntityMetaData getEntityMetaData();
 	
 	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String calculateId = this.calculateId(json);
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		crud.delete(entityDetails.entityName, calculateId);
 		return json;
 	}
@@ -67,7 +68,7 @@ public interface CcpEntity {
 	default boolean exists(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String id = this.calculateId(json);
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		boolean exists = crud.exists(entityDetails.entityName, id);
 		return exists;
 	}
@@ -82,14 +83,14 @@ public interface CcpEntity {
 	}
 	
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);});
 		return md;
 	}
 	
 	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(entityDetails.entityName, oneById);
 		return put;
 	}
@@ -103,7 +104,7 @@ public interface CcpEntity {
 		String fieldNameToEntity = dependency.getFieldNameToEntity();
 		String fieldNameToId = dependency.getFieldNameToId();
 		
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
 		.getDynamicVersion().put(fieldNameToEntity, entityDetails.entityName)
@@ -116,7 +117,7 @@ public interface CcpEntity {
 	default CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
 		String id = this.calculateId(json);
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		CcpJsonRepresentation jsonValue = unionAll.getEntityRow(entityDetails.entityName, id);
 		
@@ -129,7 +130,7 @@ public interface CcpEntity {
 	}
 
 	default <T>T throwException() {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		throw new UnsupportedOperationException("The entity '" + entityDetails.entityName + "' is just to read only");
 	}
 	
@@ -139,7 +140,7 @@ public interface CcpEntity {
 	
 	default boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 	
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 	
 		String id = this.calculateId(json);
 
@@ -149,7 +150,7 @@ public interface CcpEntity {
 	}
 
 	default CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
 		String id = this.calculateId(json);
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -158,7 +159,7 @@ public interface CcpEntity {
 	}
 
 	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
-		CcpEntityDetails entityDetails = this.getEntityDetails();
+		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
 		String calculateId = this.calculateId(onlyExistingFields);
 		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, entityDetails.entity, calculateId);

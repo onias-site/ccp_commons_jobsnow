@@ -59,7 +59,7 @@ public class CcpEntityFactory {
 	}
 
 	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorTypes... decoratorsToAvoid) {
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		CcpEntity customEntity = getEntity(entityDetails.configurationClass, mainEntityNameProducer, decoratorsToAvoid);
 		return customEntity;
 	}
@@ -69,7 +69,7 @@ public class CcpEntityFactory {
 		
 		List<CcpEntityDecoratorTypes> avoidedDecorators = Arrays.asList(decoratorsToAvoid);
 		
-		CcpEntityDetails entityDetails = new CcpEntityDetails(configurationClass, entityNameExtractor);
+		CcpEntityMetaData entityDetails = new CcpEntityMetaData(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
 		List<CcpEntityDecoratorTypes> collect = Arrays.asList(CcpEntityDecoratorTypes.values()).stream()

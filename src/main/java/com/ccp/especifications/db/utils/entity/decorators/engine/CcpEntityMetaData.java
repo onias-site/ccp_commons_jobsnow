@@ -23,7 +23,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
-public final class CcpEntityDetails {
+public final class CcpEntityMetaData {
 
 	public final List<String> onlyUpdatableFields;
 	public final Class<?>  configurationClass; 
@@ -32,7 +32,7 @@ public final class CcpEntityDetails {
 	public final CcpEntity entity;
 	public final String entityName;
 	
-	CcpEntityDetails(Class<?> configurationClass, Function<Class<?>, String> entityNameProducer){
+	CcpEntityMetaData(Class<?> configurationClass, Function<Class<?>, String> entityNameProducer){
 		
 		this.configurationClass = configurationClass;
 				
@@ -52,7 +52,7 @@ public final class CcpEntityDetails {
 		this.entity = null;
 	}
 
-	CcpEntityDetails(Class<?> configurationClass, List<String> primaryKeyNames, List<String> onlyUpdatableFields, CcpEntityField[] allFields,	String entityName, CcpEntity entity) {
+	CcpEntityMetaData(Class<?> configurationClass, List<String> primaryKeyNames, List<String> onlyUpdatableFields, CcpEntityField[] allFields,	String entityName, CcpEntity entity) {
 		this.onlyUpdatableFields = onlyUpdatableFields;
 		this.configurationClass = configurationClass;
 		this.primaryKeyNames = primaryKeyNames;
@@ -75,18 +75,18 @@ public final class CcpEntityDetails {
 	}
 	
 	
-	CcpEntityDetails associateEntity() {
+	CcpEntityMetaData associateEntity() {
 		try {
 			boolean twinEntity = this.isTwinEntity();
 			if(twinEntity) {
 				CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
-				return new CcpEntityDetails(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
+				return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
 			}
 			
 			Field field = this.configurationClass.getDeclaredField("ENTITY");
 			Object object = field.get(null);
 			CcpEntity entity = (CcpEntity) object;
-			return new CcpEntityDetails(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
+			return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
 			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -131,7 +131,7 @@ public final class CcpEntityDetails {
 	
 	public String[] getEntitiesToSelect() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
-		List<String> collect = associatedEntities.stream().map(x -> x.getEntityDetails().entityName).collect(Collectors.toList());
+		List<String> collect = associatedEntities.stream().map(x -> x.getEntityMetaData().entityName).collect(Collectors.toList());
 		String[] array = collect.toArray(new String[collect.size()]);
 		return array;
 	}
@@ -171,5 +171,9 @@ public final class CcpEntityDetails {
 		return innerJson;
 	}
 	
+	public boolean isInvalidParameterToSearch(CcpJsonRepresentation parameterToSearch) {
+		boolean primaryKeyMissing = false == parameterToSearch.containsAllFields(this.primaryKeyNames);
+		return primaryKeyMissing;
+	}
 	
 }

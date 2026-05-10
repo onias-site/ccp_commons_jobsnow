@@ -9,7 +9,7 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public enum CcpEntityOperationType
 	
@@ -75,7 +75,7 @@ public enum CcpEntityOperationType
 
 	public Class<?> getJsonValidationClass(CcpEntity entity){
 		
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		CcpEntityFieldsValidator annotation = entityDetails.configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
 		
 		boolean entityWithoutValidation = annotation == null;

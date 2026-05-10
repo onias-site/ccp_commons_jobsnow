@@ -8,7 +8,7 @@ import java.util.Map;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public class CcpQueryOptions extends CcpQueryComponent{
 	enum JsonFieldNames implements CcpJsonFieldName{
@@ -82,7 +82,7 @@ public class CcpQueryOptions extends CcpQueryComponent{
 		String[] resourcesNames = new String[entities.length];
 		int k = 0;	
 		for (CcpEntity entity : entities) {
-			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			resourcesNames[k++] = entityDetails.entityName;
 		}
 		return new CcpQueryExecutorDecorator(this, resourcesNames);

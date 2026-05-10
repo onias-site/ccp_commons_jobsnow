@@ -2,7 +2,7 @@ package com.ccp.especifications.db.bulk;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 @SuppressWarnings("serial")
 public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
@@ -26,7 +26,7 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 
 	private static String getErrorMessage(CcpEntity entity, CcpJsonRepresentation json) {
 
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(json);
 		String id = entity.calculateId(json);
 		

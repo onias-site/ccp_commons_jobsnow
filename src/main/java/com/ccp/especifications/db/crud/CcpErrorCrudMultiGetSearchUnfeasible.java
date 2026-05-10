@@ -17,7 +17,7 @@ public class CcpErrorCrudMultiGetSearchUnfeasible extends RuntimeException{
 	private static String getMessage(Collection<CcpJsonRepresentation> jsons, CcpEntity... entities) {
 		
 		var entitiesDetails = Arrays.asList(entities)
-				.stream().map(entity -> entity.getEntityDetails()).collect(Collectors.toList());
+				.stream().map(entity -> entity.getEntityMetaData()).collect(Collectors.toList());
 		
 		return "No item in the following list '" + entitiesDetails + "' was able to produce a "
 				+ "valid id to searching in the database. The list of items used to form ids to searching: " + jsons + " and ";

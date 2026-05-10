@@ -6,7 +6,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOperation;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOperations;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	deleteAnyWhere{
@@ -57,7 +57,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			
 			CcpEntityType entityType = operation.from();
 			String extractEntityName = entityType.extractEntityName(clazz);
-			CcpEntityDetails entityDetails = entity.getEntityDetails();
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			
 			boolean isNotTheEntity = false == extractEntityName.equals(entityDetails.entityName);
 			

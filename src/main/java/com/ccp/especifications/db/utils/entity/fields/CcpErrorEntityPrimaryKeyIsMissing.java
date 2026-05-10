@@ -6,7 +6,7 @@ import java.util.Set;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 @SuppressWarnings("serial")
 public class CcpErrorEntityPrimaryKeyIsMissing extends RuntimeException{
@@ -16,7 +16,7 @@ public class CcpErrorEntityPrimaryKeyIsMissing extends RuntimeException{
 	}
 	
 	private static String getMessage(CcpEntity entity, CcpJsonRepresentation json) {
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		List<String> onlyPrimaryKey = entityDetails.primaryKeyNames;
 
 		Set<String> fieldSet = json.fieldSet();

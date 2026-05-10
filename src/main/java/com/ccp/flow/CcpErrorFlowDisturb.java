@@ -11,12 +11,6 @@ public class CcpErrorFlowDisturb extends RuntimeException{
 		reason, statusNumber, statusName
 	}
 	
-	public static class CcpUnprocessableEntity extends CcpErrorFlowDisturb{
-		public CcpUnprocessableEntity(CcpJsonRepresentation json) {
-			super(json, CcpProcessStatusDefault.UNPROCESSABLE_ENTITY);
-		}
-	}
-	
 	public final CcpJsonRepresentation json;
 	
 	public final CcpProcessStatus status;

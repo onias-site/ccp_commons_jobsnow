@@ -4,7 +4,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 class FunctionPutEntity implements CcpBusiness{
 	enum JsonFieldNames implements CcpJsonFieldName{
@@ -18,7 +18,7 @@ class FunctionPutEntity implements CcpBusiness{
 	public CcpJsonRepresentation apply(CcpJsonRepresentation j) {
 		
 		CcpEntity ent = j.getAsObject(JsonFieldNames.entity);
-		CcpEntityDetails entityDetails = ent.getEntityDetails();
+		CcpEntityMetaData entityDetails = ent.getEntityMetaData();
 		String entityName = entityDetails.entityName;
 		CcpJsonRepresentation put2 = j.put(JsonFieldNames.entity, entityName);
 		return put2;

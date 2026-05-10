@@ -13,7 +13,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDetails;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
@@ -33,7 +33,7 @@ public class CcpSelectUnionAll {
 		for (CcpEntity entity : entities) {
 			for (var searchParameter : searchParameters) {
 				try {
-					CcpEntityDetails entityDetails = entity.getEntityDetails();
+					CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 					CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(searchParameter);
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
@@ -133,7 +133,7 @@ public class CcpSelectUnionAll {
 	}
 	
 	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity){
-		CcpEntityDetails entityDetails = entity.getEntityDetails();
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		String index = entityDetails.entityName;
 		CcpDynamicJsonRepresentation dynamicVersion = this.condensed.getDynamicVersion();
 		boolean indexNotFound = false == dynamicVersion.containsAllFields(index);

@@ -7,7 +7,7 @@ public enum CcpProcessStatusDefault implements CcpProcessStatus{
 	BAD_REQUEST(400),
 	NOT_FOUND(404),
 	REDIRECT(301),
-	SUCCESS(200),
+	OK(200),
 	CREATED(201),
 	UPDATED(204),
 	UNPROCESSABLE_ENTITY(422)
