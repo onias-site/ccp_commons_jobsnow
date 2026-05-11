@@ -3,7 +3,6 @@ package com.ccp.decorators;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import com.ccp.business.CcpBusiness;
@@ -38,13 +37,9 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	@SuppressWarnings("unchecked")
 	CcpJsonRepresentation getJsonPiece(Type... fields);
 
-	String toString();
-
 	CcpJsonRepresentation put(Type field, CcpDecorator<?> map);
 
 	CcpJsonRepresentation put(Type field, Collection<CcpJsonRepresentation> list);
-
-	CcpJsonRepresentation getTransformedJsonIfFoundTheField(Type field, CcpBusiness... transformers);
 
 	CcpJsonRepresentation addJsonTransformer(Type field, CcpBusiness process);
 
@@ -70,11 +65,9 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	@SuppressWarnings("unchecked")
 	List<CcpJsonRepresentation> getInnerJsonListFromPath(Type... paths);
 
-	CcpJsonRepresentation getInnerJson(Type field);
+	CcpJsonRepresentation getInnerJson(Type field);//TODO REMOVER
 
 	List<CcpJsonRepresentation> getAsJsonList(Type field);
-
-	CcpCollectionDecorator getAsCollectionDecorator(String field);
 
 	@SuppressWarnings("unchecked")
 	List<String> getAsStringList(Type... fields);
@@ -112,12 +105,6 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 
 	@SuppressWarnings("unchecked")
 	CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(Type... fields);
-
-	Set<String> getMissingFields(Collection<String> fields);
-
-	int hashCode();
-
-	boolean equals(Object obj);
 
 	boolean isInnerJson(Type fieldName);
 

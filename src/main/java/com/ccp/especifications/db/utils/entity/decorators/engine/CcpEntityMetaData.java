@@ -170,10 +170,4 @@ public final class CcpEntityMetaData {
 		CcpJsonRepresentation innerJson = unionAll.condensed.getDynamicVersion().getInnerJson(this.entityName);
 		return innerJson;
 	}
-	
-	public boolean isInvalidParameterToSearch(CcpJsonRepresentation parameterToSearch) {
-		boolean primaryKeyMissing = false == parameterToSearch.containsAllFields(this.primaryKeyNames);
-		return primaryKeyMissing;
-	}
-	
 }

@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -147,8 +148,6 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		return jr;
 	}
 
-	
-	
 	private static List<StackTraceElement> getCompleteStackTrace(Throwable e){
 		if(e == null) {
 			return new ArrayList<StackTraceElement>();
@@ -492,26 +491,6 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		return transformedJson;
 	}
 
-	public CcpJsonRepresentation getTransformedJsonIfFoundTheField(CcpJsonFieldName field, CcpBusiness... transformers) {
-		CcpJsonRepresentation transformedJsonIfFoundTheField = this.getTransformedJsonIfFoundTheField(field.getValue(), transformers);
-		return transformedJsonIfFoundTheField;
-	}
-
-	private CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
-
-		boolean fieldNotFound = false == this.containsAllFields(field);
-		if(fieldNotFound) {
-			return this;
-		}
-		
-		CcpJsonRepresentation transformedJson = this;
-		
-		for (CcpBusiness transformer : transformers) {
-			transformedJson = transformer.apply(transformedJson);
-		}
-		
-		return transformedJson;
-	}
 	
 	public CcpJsonRepresentation addJsonTransformer(CcpJsonFieldName field, CcpBusiness process) {
 		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(field.getValue(), process);
@@ -650,6 +629,35 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		String[] fields = this.getFields(paths);
 		T valueFromPath = this.getValueFromPath(defaultValue, fields);
 		return valueFromPath;	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public CcpJsonRepresentation getTransformedJsonWhenAllConditionsMatch(CcpBusiness conditionsMet, CcpBusiness conditionsDoNotMet, Predicate<CcpJsonRepresentation>... conditions) {
+		for (Predicate<CcpJsonRepresentation> condition : conditions) {
+			boolean contionMets = condition.test(this);
+			if(contionMets) {
+				continue;
+			}
+			CcpJsonRepresentation apply = conditionsDoNotMet.apply(this);
+			return apply;
+		}
+		
+		CcpJsonRepresentation apply = conditionsMet.apply(this);
+		return apply;
+	}
+	
+	public CcpJsonRepresentation getTransformedJsonConsideringIfAnyOfTheConditionsIsMet(CcpBusiness conditionsMet, CcpBusiness conditionsDoNotMet, @SuppressWarnings("unchecked") Predicate<CcpJsonRepresentation>... conditions) {
+		for (Predicate<CcpJsonRepresentation> condition : conditions) {
+			boolean contionDoesNotMet = false == condition.test(this);
+			if(contionDoesNotMet) {
+				continue;
+			}
+			CcpJsonRepresentation apply = conditionsMet.apply(this);
+			return apply;
+		}
+		
+		CcpJsonRepresentation apply = conditionsDoNotMet.apply(this);
+		return apply;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1323,10 +1331,6 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 
 		public List<CcpJsonRepresentation> getInnerJsonListFromPath(String... paths) {
 			return this.json.getInnerJsonListFromPath(paths);
-		}
-
-		public CcpJsonRepresentation getTransformedJsonIfFoundTheField(String field, CcpBusiness... transformers) {
-			return this.json.getTransformedJsonIfFoundTheField(field, transformers);
 		}
 
 		public <T> T getValueFromPath(T defaultValue, String... paths) {

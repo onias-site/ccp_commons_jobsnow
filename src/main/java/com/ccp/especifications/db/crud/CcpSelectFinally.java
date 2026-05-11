@@ -132,8 +132,8 @@ public class CcpSelectFinally {
 						.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
 				CcpJsonRepresentation apply = whenFlowError.apply(put);
 				List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
-						.map(j -> j.getTransformedJsonIfFoundTheField(JsonFieldNames.entity, FunctionPutEntity.INSTANCE))
-						.map(j -> j.getTransformedJsonIfFoundTheField(JsonFieldNames.status, FunctionPutStatus.INSTANCE))
+						.map(j -> j.whenFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity))
+						.map(j -> j.whenFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status))
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put(JsonFieldNames.flow, asList);
 				
