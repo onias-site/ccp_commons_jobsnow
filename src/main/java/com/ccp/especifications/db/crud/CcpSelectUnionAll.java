@@ -3,6 +3,7 @@ package com.ccp.especifications.db.crud;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
@@ -34,7 +35,8 @@ public class CcpSelectUnionAll {
 			for (var searchParameter : searchParameters) {
 				try {
 					CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-					CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(searchParameter);
+					Supplier<CcpJsonRepresentation> supplier = searchParameter.getJsonSupplier();
+					CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(supplier);
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
 					String id = entity.calculateId(handledJson);
@@ -99,7 +101,8 @@ public class CcpSelectUnionAll {
 			return whenRecordWasNotFoundInTheEntitySearch; 
 		}
 		
-		CcpJsonRepresentation recordFound = entity.getRecordFromUnionAll(this, searchParameter);
+		Supplier<CcpJsonRepresentation> jsonSupplier = searchParameter.getJsonSupplier();
+		CcpJsonRepresentation recordFound = entity.getRecordFromUnionAll(this, jsonSupplier);
 		
 		CcpJsonRepresentation apply = recordFound.mergeWithAnotherJson(handledJson);
 		

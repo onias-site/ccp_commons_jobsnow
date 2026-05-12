@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
@@ -115,11 +116,6 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return parametersToSearch;
 	}
 
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, json);
-		return recordFromUnionAll;
-	}
-
 	public CcpEntity getTwinEntity() {
 		CcpEntity twinEntity = this.entity.getTwinEntity();
 		return twinEntity;
@@ -212,5 +208,10 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		CcpJsonRepresentation idToSearchDisposableRecord = this.entity.getIdToSearchDisposableRecord(json);
 		return idToSearchDisposableRecord;
 	}
+	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, Supplier<CcpJsonRepresentation> jsonSupplier) {
+		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
+		return recordFromUnionAll;
+	}
+	
 
 }

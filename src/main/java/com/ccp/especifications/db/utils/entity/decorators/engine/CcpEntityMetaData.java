@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
@@ -102,7 +103,7 @@ public final class CcpEntityMetaData {
 		return jsonPiece;
 	}
 
-	public CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
+	private CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
 		
 		boolean primaryKeyMissing = false == json.containsAllFields(this.primaryKeyNames);
 		
@@ -154,7 +155,6 @@ public final class CcpEntityMetaData {
 		return empty;
 	}
 
-	
 	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
 		boolean hasNoIdsToSearch = asList.isEmpty();
 
@@ -170,4 +170,14 @@ public final class CcpEntityMetaData {
 		CcpJsonRepresentation innerJson = unionAll.condensed.getDynamicVersion().getInnerJson(this.entityName);
 		return innerJson;
 	}
+	
+	public CcpJsonRepresentation getPrimaryKeyValues(Supplier<CcpJsonRepresentation> supplier) {
+		
+		CcpJsonRepresentation json = supplier.get();
+		
+		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
+		
+		return primaryKeyValues;
+	}
+
 }

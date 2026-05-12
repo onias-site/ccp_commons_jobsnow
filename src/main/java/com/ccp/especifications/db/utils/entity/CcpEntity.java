@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpHashDecorator;
@@ -114,9 +115,12 @@ public interface CcpEntity {
 		return asList;
 	}
 
-	default CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+	default CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, Supplier<CcpJsonRepresentation> jsonSupplier) {
 
+		CcpJsonRepresentation json = jsonSupplier.get();
+		
 		String id = this.calculateId(json);
+		
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		CcpJsonRepresentation jsonValue = unionAll.getEntityRow(entityDetails.entityName, id);

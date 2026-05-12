@@ -213,6 +213,11 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		}
 	}
 	
+	public Supplier<CcpJsonRepresentation> getJsonSupplier(){
+		Supplier<CcpJsonRepresentation> supplier = () -> this;
+		return supplier;
+	}
+	
 	public boolean getAsBoolean(CcpJsonFieldName field) {
 		boolean asBoolean = this.getAsBoolean(field.getValue());
 		return asBoolean;
@@ -289,7 +294,7 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 	
 	}
 
-	public CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
+	public CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
 		
 		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
 		
@@ -299,8 +304,20 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		
 		CcpJsonRepresentation apply = business.apply(this);
 		return apply;
-	
 	}
+
+	public CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
+		boolean allFieldIsNotPresent = false == this.containsAllFields(fields);
+		
+		if(allFieldIsNotPresent) {
+			return this;
+		}
+		
+		CcpJsonRepresentation apply = business.apply(this);
+		return apply;
+	}
+	
+	
 	//TODO REFATORAR ESSA DUPLICACAO DE CODIGO
 	private CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, String... fields) {
 		
@@ -629,6 +646,12 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		String[] fields = this.getFields(paths);
 		T valueFromPath = this.getValueFromPath(defaultValue, fields);
 		return valueFromPath;	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public CcpJsonRepresentation getTransformedJsonExecutingIfAndElse(Predicate<CcpJsonRepresentation> condition, CcpBusiness conditionsMet, CcpBusiness conditionsDoNotMet) {
+		CcpJsonRepresentation transformedJsonWhenAllConditionsMatch = getTransformedJsonWhenAllConditionsMatch(conditionsMet, conditionsDoNotMet, condition);
+		return transformedJsonWhenAllConditionsMatch;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1386,7 +1409,7 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
 			return this.json.whenFieldsAreNotFound(business, fields);
 		}
-		public CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, String... fields) {
+		public CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, String... fields) {
 			return this.json.whenFieldsAreFound(business, fields);
 		}
 
@@ -1415,7 +1438,16 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 			return orDefault;
 		}
 
-
+		public CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, String... fields) {
+			CcpJsonFieldName[] flds = new CcpJsonFieldName[fields.length];
+			int k = 0;
+			for (String fieldName : fields) {
+				flds[k++] = () -> fieldName;
+			}
+			CcpJsonRepresentation whenAllFieldsAreFound = this.json.whenAllFieldsAreFound(business, flds);
+			return whenAllFieldsAreFound;
+		}
+		
 		public Map<String, Object> getContent() {
 			return this.json.content;
 		}

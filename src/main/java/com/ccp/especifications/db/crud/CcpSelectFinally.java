@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -108,8 +109,11 @@ public class CcpSelectFinally {
 				}
 				String entityName = entityDetails.entityName;
 				try {
-					CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json);
-					json = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
+					{
+						Supplier<CcpJsonRepresentation> jsonSupplier = json.getJsonSupplier();
+						CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, jsonSupplier);
+						json = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
+					}
 					continue;
 				} catch (Exception e) {
 					entity.isPresentInThisUnionAll(unionAll, json);
@@ -132,8 +136,8 @@ public class CcpSelectFinally {
 						.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
 				CcpJsonRepresentation apply = whenFlowError.apply(put);
 				List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
-						.map(j -> j.whenFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity))
-						.map(j -> j.whenFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status))
+						.map(j -> j.whenAnyFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity))
+						.map(j -> j.whenAnyFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status))
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put(JsonFieldNames.flow, asList);
 				
@@ -151,7 +155,7 @@ public class CcpSelectFinally {
 				continue;
 			}
 			String entityName = entity.getEntityMetaData().entityName;
-			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json);
+			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier());
 			CcpJsonRepresentation context = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
 			json = action.apply(context);
 		} 

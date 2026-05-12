@@ -163,7 +163,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		}
 		return new CcpTextDecorator(message);
 	}
-	//StringDecorator removeStartingCharacters()
+
 	public CcpTextDecorator removeStartingCharacters( char c) {
 		
 		

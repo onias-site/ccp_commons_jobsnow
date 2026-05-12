@@ -3,6 +3,7 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
@@ -52,12 +53,6 @@ public class CcpEntityDelegator implements CcpEntity{
 		List<CcpJsonRepresentation> parametersToSearch = this.entity.getParametersToSearch(json);
 		return parametersToSearch;
 	}
-
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, json);
-		return recordFromUnionAll;
-	}
-
 
 	public CcpEntity getTwinEntity() {
 		CcpEntity twinEntity = this.entity.getTwinEntity();
@@ -146,7 +141,9 @@ public class CcpEntityDelegator implements CcpEntity{
 		CcpJsonRepresentation idToSearchDisposableRecord = this.entity.getIdToSearchDisposableRecord(json);
 		return idToSearchDisposableRecord;
 	}
-	
-	
-	
+
+	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, Supplier<CcpJsonRepresentation> jsonSupplier) {
+		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
+		return recordFromUnionAll;
+	}
 }

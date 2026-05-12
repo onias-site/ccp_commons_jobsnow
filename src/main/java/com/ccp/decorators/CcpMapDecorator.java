@@ -18,9 +18,9 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 
 	Double getAsDoubleNumber(Type field);
 
-	CcpJsonRepresentation putFilledTemplate(Type fieldToSearch, Type fieldToPut);
-
 	CcpTextDecorator getAsTextDecorator(Type field);
+	
+	CcpJsonRepresentation putFilledTemplate(Type fieldToSearch, Type fieldToPut);
 
 	CcpStringDecorator getAsStringDecorator(Type field);
 
@@ -28,7 +28,10 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 	CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, Type... fields);
 
 	@SuppressWarnings("unchecked")
-	CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, Type... fields);
+	CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, Type... fields);
+
+	@SuppressWarnings("unchecked")
+	CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, Type... fields);
 
 	String getAsString(Type field);
 

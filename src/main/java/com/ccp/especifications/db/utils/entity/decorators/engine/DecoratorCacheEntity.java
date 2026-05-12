@@ -81,7 +81,7 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		String calculateId = this.entity.calculateId(json);		
 		CcpCacheDecorator cache = this.getCache(calculateId);
 		
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getRecordFromUnionAll(unionAll, json), this.cacheExpires);
+		CcpJsonRepresentation result = cache.get(x -> this.entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier()), this.cacheExpires);
 		
 		return result;
 	}

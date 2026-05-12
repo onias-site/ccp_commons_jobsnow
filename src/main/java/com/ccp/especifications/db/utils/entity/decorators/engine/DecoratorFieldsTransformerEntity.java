@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
@@ -53,8 +54,8 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	}	
 
 	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.getRecordFromUnionAll(unionAll, transformedJsonByEachFieldInJson);
+		Supplier<CcpJsonRepresentation> jsonSupplier = () -> this.getHandledJson(json);
+		var result = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
 		return result;
 	}
 	

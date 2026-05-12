@@ -1,5 +1,7 @@
 package com.ccp.especifications.db.bulk;
 
+import java.util.function.Supplier;
+
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
@@ -27,7 +29,8 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 	private static String getErrorMessage(CcpEntity entity, CcpJsonRepresentation json) {
 
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(json);
+		Supplier<CcpJsonRepresentation> supplier = json.getJsonSupplier();
+		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(supplier);
 		String id = entity.calculateId(json);
 		
 		String errorMessage = String.format("Does not exist an id '%s' registered in the entity '%s'. Values to compose this id are: %s ", 
