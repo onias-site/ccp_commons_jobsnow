@@ -5,13 +5,15 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.process.CcpProcessStatusDefault;
 
 public enum CcpBulkEntityOperationType {
 
-	create(1, false, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("409", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
-	update(2, true, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
-	delete(3, false, CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put("404", (Function<CcpBulkItem,CcpBulkItem>) x -> 
+	create(1, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.CONFLICT.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
+	update(2, true, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
+	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> 
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	})),
@@ -37,8 +39,8 @@ public enum CcpBulkEntityOperationType {
 	
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
-		int status = result.status();
-		boolean statusNotMapped = false == this.handlers.getDynamicVersion().containsAllFields("" + status);
+		CcpJsonFieldName statusAsJsonFieldName = result.statusAsJsonFieldName();
+		boolean statusNotMapped = false == this.handlers.containsAllFields(statusAsJsonFieldName);
 		
 		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
@@ -47,7 +49,7 @@ public enum CcpBulkEntityOperationType {
 			return ccpBulkItem;
 		}
 		
-		Function<CcpBulkItem,CcpBulkItem> handler = this.handlers.getDynamicVersion().getAsObject("" + status);
+		Function<CcpBulkItem,CcpBulkItem> handler = this.handlers.getAsObject(statusAsJsonFieldName);
 		CcpBulkItem bulkItem = result.getBulkItem();
 		CcpBulkItem apply = handler.apply(bulkItem);
 		return apply;

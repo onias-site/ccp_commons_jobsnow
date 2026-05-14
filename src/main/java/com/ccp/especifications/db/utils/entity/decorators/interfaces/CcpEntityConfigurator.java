@@ -23,6 +23,14 @@ public interface CcpEntityConfigurator {
 		}
 		return response;
 	}
+	default List<CcpBulkItem> toCreateBulkItems(CcpEntity entity, CcpJsonRepresentation... jsons){
+		var response = new ArrayList<CcpBulkItem>();
+		for (CcpJsonRepresentation json : jsons) {
+			List<CcpBulkItem> bulkItems = entity.toBulkItems(json, CcpBulkEntityOperationType.create);
+			response.addAll(bulkItems);
+		}
+		return response;
+	}
 	
 	default CcpEntity getEntity() {
 		try {

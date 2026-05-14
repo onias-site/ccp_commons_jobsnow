@@ -111,10 +111,6 @@ public interface CcpMapDecorator<Type> extends CcpDecorator<Map<String, Object>>
 
 	boolean isInnerJson(Type fieldName);
 
-	CcpJsonRepresentation addToItem(Type field, String subField, CcpJsonRepresentation innerJson);
-
-	CcpJsonRepresentation addToItem(Type statis, String field, Object avg);
-
 	CcpJsonRepresentation getInnerJsonFromPath(Type fieldName, String value);
 	
 	<T> T getOrDefault(Type field, Supplier<T> supplier);

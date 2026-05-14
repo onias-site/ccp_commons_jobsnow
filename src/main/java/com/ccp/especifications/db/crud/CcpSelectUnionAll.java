@@ -55,12 +55,15 @@ public class CcpSelectUnionAll {
 		CcpJsonRepresentation  condensed = CcpOtherConstants.EMPTY_JSON;
 	
 		for (CcpJsonRepresentation result : results) {
-			String id = result.getDynamicVersion().getAsString(fieldNameToId);
-			String entityName = result.getDynamicVersion().getAsString(fieldNameToEntity);
-			CcpJsonRepresentation removeKeys = result.getDynamicVersion().removeFields(fieldNameToEntity, fieldNameToId);
+			CcpDynamicJsonRepresentation dynamicVersion = result.getDynamicVersion();
+			String id = dynamicVersion.getAsString(fieldNameToId);
+			String entityName = dynamicVersion.getAsString(fieldNameToEntity);
+			CcpJsonRepresentation removeKeys = dynamicVersion.removeFields(fieldNameToEntity, fieldNameToId);
 			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getDynamicVersion().getInnerJsonFromPath(entityName, id);
-			condensed = condensed.getDynamicVersion().addToItem(entityName, id, removeKeys);
-			condensed = condensed.getDynamicVersion().addToItem(entityName, JsonFieldNames.explainedSearch + "." + id, innerJsonFromPath);
+			CcpDynamicJsonRepresentation dynamicVersion2 = condensed.getDynamicVersion();
+			condensed = dynamicVersion2.addToItem(entityName, id, removeKeys);
+			CcpDynamicJsonRepresentation dynamicVersion22 = condensed.getDynamicVersion();
+			condensed = dynamicVersion22.addToItem(entityName, JsonFieldNames.explainedSearch + "." + id, innerJsonFromPath);
 			
 		}
 		this.condensed = condensed;
@@ -68,13 +71,14 @@ public class CcpSelectUnionAll {
 	
 	public boolean isPresent(String entityName, String id) {
 		
-		boolean entityNotFound = false == this.condensed.getDynamicVersion().containsAllFields(entityName);
+		CcpDynamicJsonRepresentation dynamicVersion = this.condensed.getDynamicVersion();
+		boolean entityNotFound = false == dynamicVersion.containsAllFields(entityName);
 		
 		if(entityNotFound) {
 			return false;
 		}
 		
-		CcpJsonRepresentation innerJson = this.condensed.getDynamicVersion().getInnerJsonFromPath(entityName, id);
+		CcpJsonRepresentation innerJson = dynamicVersion.getInnerJsonFromPath(entityName, id);
 		
 		boolean idNotFound = innerJson.isEmpty();
 		

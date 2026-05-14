@@ -1221,20 +1221,10 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		return array;
 	}
 
-	public CcpJsonRepresentation addToItem(CcpJsonFieldName field, String subField, CcpJsonRepresentation innerJson) {
-		CcpJsonRepresentation addToItem = this.addToItem(field.getValue(), subField, innerJson);
-		return addToItem;
-	}
-
-	
 	public CcpDynamicJsonRepresentation getDynamicVersion() {
 		return new CcpDynamicJsonRepresentation(this);
 	}
 	
-	public CcpJsonRepresentation addToItem(CcpJsonFieldName statis, String field, Object avg) {
-		CcpJsonRepresentation addToItem = addToItem(statis.getValue(), field, avg);
-		return addToItem;
-	}
 	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;

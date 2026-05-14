@@ -5,12 +5,13 @@ import java.util.List;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
-
+//TODO TRANSFORMAR ESTA CLASSE EM JSONFIELDNAME E BUSINESS
 public class CcpSelectFoundInEntity {
-	enum JsonFieldNames implements CcpJsonFieldName{
+	public static enum JsonFieldNames implements CcpJsonFieldName{
 		statements
 	}
 
@@ -35,7 +36,8 @@ public class CcpSelectFoundInEntity {
 	private CcpSelectNextStep addStatement(String key, Object obj) {
 		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation lastStatement = list.get(list.size() - 1);
-		CcpJsonRepresentation put = lastStatement.getDynamicVersion().put(key, obj);
+		CcpDynamicJsonRepresentation dynamicVersion = lastStatement.getDynamicVersion();
+		CcpJsonRepresentation put = dynamicVersion.put(key, obj);
 		List<CcpJsonRepresentation> subList = list.subList(0, list.size() - 1);
 		subList.add(put);
 		CcpJsonRepresentation newStatements = this.statements.put(JsonFieldNames.statements, subList);

@@ -3,6 +3,8 @@ package com.ccp.decorators;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 
@@ -11,7 +13,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	public final String content;
 
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getDynamicVersion().getAsString(key);
+		CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
+		this.content = dynamicVersion.getAsString(key);
 	}
 
 	
@@ -41,6 +44,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	
 	public CcpNumberDecorator number() {
 		return new CcpNumberDecorator(this.content);
+	}
+	
+	public CcpJsonFieldName jsonFieldName() {
+		CcpJsonFieldName ccpJsonFieldName = () -> this.content;
+		return ccpJsonFieldName;
 	}
 	
 	public CcpTextDecorator text() {

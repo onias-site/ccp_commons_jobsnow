@@ -22,10 +22,18 @@ import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.utils.CcpHashAlgorithm;
 
-public interface CcpEntity {
+public interface CcpEntity  extends CcpJsonFieldName{
 	public static enum JsonFieldNames implements CcpJsonFieldName{
-		entity, id, entityName, primaryKeyNames, _entities
+		entity,
+		_entities,
+		
 	}
+	
+	default String name() {
+		CcpEntityMetaData entityMetaData = this.getEntityMetaData();
+		return entityMetaData.entityName;
+	}
+	
 	default String calculateId(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		

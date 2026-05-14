@@ -14,6 +14,8 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpErrorBulkEntityRecordNotFound;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
@@ -178,6 +180,30 @@ public final class CcpEntityMetaData {
 		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
 		
 		return primaryKeyValues;
+	}
+
+	public String name() {
+		return this.entityName;
+	}
+	
+	public String toString() {
+		return this.entityName;
+	}
+	
+	public CcpBulkItem toCreateBulkItem(CcpJsonRepresentation json) {
+		String id = this.entity.calculateId(json);
+		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.create, this.entity, id);
+		return response;
+	}
+	public CcpBulkItem toUpdateBulkItem(CcpJsonRepresentation json) {
+		String id = this.entity.calculateId(json);
+		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.update, this.entity, id);
+		return response;
+	}
+	public CcpBulkItem toDeleteBulkItem(CcpJsonRepresentation json) {
+		String id = this.entity.calculateId(json);
+		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entity, id);
+		return response;
 	}
 
 }

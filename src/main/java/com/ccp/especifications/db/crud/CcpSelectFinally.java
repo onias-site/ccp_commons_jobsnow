@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -20,7 +21,7 @@ import com.ccp.process.CcpProcessStatus;
 
 public class CcpSelectFinally {
 	enum JsonFieldNames implements CcpJsonFieldName{
-		statements, entity, action, found, _entities, status, message, errorDetails, flow, origin
+		statements, entity, action, found, status, message, errorDetails, flow, origin
 		
 	}
 	private final Collection<CcpJsonRepresentation> parametersToSearch;
@@ -101,18 +102,18 @@ public class CcpSelectFinally {
 			
 			boolean itWasNotForeseen = wasActuallyFound != shouldHaveBeenFound;
 			
-			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
+			CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
 			if(itWasNotForeseen) {
 
 				if(false == wasActuallyFound) {
 					continue;
 				}
-				String entityName = entityDetails.entityName;
+
 				try {
 					{
 						Supplier<CcpJsonRepresentation> jsonSupplier = json.getJsonSupplier();
 						CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, jsonSupplier);
-						json = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
+						json = json.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
 					}
 					continue;
 				} catch (Exception e) {
@@ -141,7 +142,7 @@ public class CcpSelectFinally {
 						.collect(Collectors.toList());
 				CcpJsonRepresentation result = apply.put(JsonFieldNames.flow, asList);
 				
-				String reason = "Context: " + origin + ". Entity: " + entityDetails.entityName
+				String reason = "Context: " + origin + ". Entity: " + entityMetaData.entityName
 				+ ". status: " + status
 				+ ". shouldHaveBeenFound: " + shouldHaveBeenFound + ". wasActuallyFound: " + wasActuallyFound;
 				
@@ -154,9 +155,8 @@ public class CcpSelectFinally {
 				json = action.apply(json);
 				continue;
 			}
-			String entityName = entity.getEntityMetaData().entityName;
 			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier());
-			CcpJsonRepresentation context = json.addToItem(JsonFieldNames._entities, entityName, dataBaseRow);
+			CcpJsonRepresentation context = json.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
 			json = action.apply(context);
 		} 
 		
@@ -166,7 +166,9 @@ public class CcpSelectFinally {
 			throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 		}
 		CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
-		CcpJsonRepresentation subMap = apply.getDynamicVersion().getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
+		//DOUBT TRANSFORMAR FIELDS EM JSONFIELDNAMES?
+		CcpDynamicJsonRepresentation dynamicVersion = apply.getDynamicVersion();
+		CcpJsonRepresentation subMap = dynamicVersion.getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
 		return subMap;
 	}
 }
