@@ -11,7 +11,7 @@ public interface CcpInstantMessenger {
 
 	CcpJsonRepresentation sendTextMessage(String botToken, Long chatId, Long replyTo, String message);
 	
-	
+	CcpJsonRepresentation sendFile(String botToken, Long chatId, Long replyTo, String fileName, String caption, Byte[] fileContent);
 	
 	String getFileName(CcpJsonRepresentation parameters);
 	

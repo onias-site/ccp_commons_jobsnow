@@ -1,6 +1,7 @@
 package com.ccp.especifications.http;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,10 @@ public interface CcpHttpRequester {
 		url,
 	}
 	CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String body);
+	
+	CcpHttpResponse executeMultiPartHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, List<CcpHttpBodyText> bodyTexts, List<CcpHttpBodyBinary> bodyBinaries);
 
-	default CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String request,
-			Integer... numbers) {
+	default CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String request, Integer... numbers) {
 		CcpHttpResponse res = this.executeHttpRequest(url, method, headers, request);
 
 		for (int expectedStatus : numbers) {

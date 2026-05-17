@@ -1,5 +1,6 @@
 package com.ccp.decorators;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -17,13 +18,26 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		this.content = dynamicVersion.getAsString(key);
 	}
 
-	
 	public CcpStringDecorator(String content) {
 		this.content = content;
 	}
 
+	public CcpStringDecorator(InputStream is) {
+		this(readAllBytes(is));
+	}
+
 	public CcpStringDecorator(byte[] content) {
-		this.content = new String(content);
+		this(new String(content));
+	}
+
+	private static byte[] readAllBytes(InputStream is){
+		try {
+			byte[] readAllBytes = is.readAllBytes();
+			return readAllBytes;
+			
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public CcpEmailDecorator email() {
@@ -140,4 +154,16 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		return this.content;
 	}
 	
+	
+	public Byte[] getBytes() {
+		byte[] bytes = this.content.getBytes();
+		Byte[] result = new Byte[bytes.length];
+		int k = 0;
+		
+		for (Byte byte1 : bytes) {
+			result[k++] = byte1;
+		}
+		
+		return result;
+	}
 }

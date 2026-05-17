@@ -1,5 +1,6 @@
 package com.ccp.especifications.http;
 
+import java.io.InputStream;
 import java.util.List;
 
 import com.ccp.constantes.CcpOtherConstants;
@@ -19,6 +20,10 @@ public class CcpHttpResponse {
 	public final String curl;
 	
 	
+	public CcpHttpResponse(InputStream httpResponse, int httpStatus, String curl) {
+		this(new CcpStringDecorator(httpResponse).content, httpStatus, curl);
+	}
+
 	public CcpHttpResponse(String httpResponse, int httpStatus, String curl) {
 		this.httpResponse = httpResponse;
 		this.httpStatus = httpStatus;
