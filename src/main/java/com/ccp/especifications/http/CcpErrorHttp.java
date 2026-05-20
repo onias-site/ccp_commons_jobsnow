@@ -14,7 +14,7 @@ public class CcpErrorHttp extends RuntimeException {
 	}
 	private static String getMessage(CcpJsonRepresentation entity) {
 		String string = "\n\n\nTrace:{trace}\nDetails: {details}\n. All expected status: {expectedStatusList}";
-		String message = new CcpStringDecorator(string).text().getMessage(entity).content;
+		String message = new CcpStringDecorator(string).text().resolveTemplate(entity).content;
 		return message;
 	}
 	

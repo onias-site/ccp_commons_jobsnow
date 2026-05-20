@@ -253,7 +253,7 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(asString);
 		
-		String message = ccpTextDecorator.getMessage(this).content;
+		String message = ccpTextDecorator.resolveTemplate(this).content;
 		 
 		CcpJsonRepresentation put = this.put(fieldToPut, message);
 		

@@ -153,7 +153,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		return byteArrayInputStream;
 
 	}
-	public CcpTextDecorator getMessage(CcpJsonRepresentation parameters) {
+	public CcpTextDecorator resolveTemplate(CcpJsonRepresentation parameters) {
 		//TODO TRANSFORMAR EM JSONFIELDNAME
 		Map<String, Object> content = parameters.getContent();
 		Set<String> keySet = content.keySet();
