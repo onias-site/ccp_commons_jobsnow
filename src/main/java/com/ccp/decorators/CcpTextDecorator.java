@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -153,8 +154,18 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		return byteArrayInputStream;
 
 	}
+	
+	public static enum CcpTemplateFunctions implements Supplier<String>{
+		currentTimeMillis {
+			public String get() {
+				return "" + System.currentTimeMillis();
+			}
+
+			
+		};
+	}
+	
 	public CcpTextDecorator resolveTemplate(CcpJsonRepresentation parameters) {
-		//TODO TRANSFORMAR EM JSONFIELDNAME
 		Map<String, Object> content = parameters.getContent();
 		Set<String> keySet = content.keySet();
 		String message = new String(this.content);
@@ -163,6 +174,14 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 			String value = dynamicVersion.getAsString(key);
 			message = message.replace("{" + key + "}", value);
 		}
+		
+		CcpTemplateFunctions[] templateExpressions = CcpTemplateFunctions.values();
+		
+		for (CcpTemplateFunctions templateExpression : templateExpressions) {
+			String value = templateExpression.get();
+			message = message.replace("{" + templateExpression + "}", value);
+		}
+		
 		return new CcpTextDecorator(message);
 	}
 

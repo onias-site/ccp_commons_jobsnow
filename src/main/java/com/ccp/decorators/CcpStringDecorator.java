@@ -30,6 +30,10 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		this(new String(content));
 	}
 
+	public CcpStringDecorator(Byte[] content) {
+		this(readAllBytes(content));
+	}
+	
 	private static byte[] readAllBytes(InputStream is){
 		try {
 			byte[] readAllBytes = is.readAllBytes();
@@ -165,5 +169,17 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		}
 		
 		return result;
+	}
+	
+	private static byte[] readAllBytes(Byte[] bytes) {
+		byte[] result = new byte[bytes.length];
+		int k = 0;
+		
+		for (Byte byte1 : bytes) {
+			result[k++] = byte1;
+		}
+		
+		return result;
+		
 	}
 }
