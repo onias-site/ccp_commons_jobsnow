@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
-public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName>  {
+public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName>  {
 	public static enum Fields implements CcpJsonFieldName{
 		cause, message, stackTrace, type, stackTraceHash, completeStackTrace
 	}
@@ -40,6 +41,10 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		}
 		
 		String name();
+	}
+	
+	public CcpJsonRepresentation redoJson(CcpJsonRepresentation json) {
+		return new CcpJsonRepresentation(json.content);
 	}
 	
 	public final Map<String, Object> content;
@@ -184,6 +189,21 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		return key;
 	}
 
+	//TODO SUBIR PARA INTERFACE
+	@SuppressWarnings("unchecked")
+	public <T> T getAsEnum(CcpJsonFieldName field, Class<T> clazz){
+		try {
+			
+			String asString = this.getAsString(field);
+			Method met = clazz.getDeclaredMethod("valueOf", String.class);
+			Object invoke = met.invoke(null, asString);
+			return (T)invoke;
+		} catch (Exception e) {
+			//TODO EXCEPTION ESPECIFICA
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public Long getAsLongNumber(CcpJsonFieldName field) {
 		Long asLongNumber = this.getAsLongNumber(field.getValue());
 		return asLongNumber;
@@ -856,6 +876,13 @@ public final class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.deco
 		String[] fields2 = this.getFields(fields);
 		List<String> asStringList = this.getAsStringList(fields2);
 		return asStringList;
+	}
+	
+	//TODO SUBIR PARA INTERFACE
+	public String[] getAsStringArray(CcpJsonFieldName... fields) {
+		List<String> asStringList = this.getAsStringList(fields);
+		String[] array = asStringList.toArray(new String[asStringList.size()]);
+		return array;
 	}
 	
 	private List<String> getAsStringList(String... fields){

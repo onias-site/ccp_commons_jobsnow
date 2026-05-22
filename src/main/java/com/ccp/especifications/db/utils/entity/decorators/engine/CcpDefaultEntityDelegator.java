@@ -68,6 +68,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			array[k++] = handler;
 			parametersToSearch = parametersToSearch.mergeWithAnotherJson(bulkItem.json);
 		}
+		parametersToSearch = json.redoJson(parametersToSearch);
 		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, array);
 		return json;
 	}

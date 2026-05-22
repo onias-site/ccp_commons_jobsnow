@@ -179,7 +179,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		
 		for (CcpTemplateFunctions templateExpression : templateExpressions) {
 			String value = templateExpression.get();
-			message = message.replace("{" + templateExpression + "}", value);
+			message = message.replace("{" + templateExpression + "()}", value);
 		}
 		
 		return new CcpTextDecorator(message);

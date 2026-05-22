@@ -3,6 +3,7 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -26,18 +27,42 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		var result = this.entity.exists(transformedJsonByEachFieldInJson);
 		return result;
 	}
-
+	
+	private static class AlreadyTransformedJson extends CcpJsonRepresentation{
+		private AlreadyTransformedJson(CcpJsonRepresentation json) {
+			super(json.content);
+		}
+		
+		public CcpJsonRepresentation redoJson(CcpJsonRepresentation json) {
+			return new AlreadyTransformedJson(json);
+		}
+	}
+	
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
+		
+		boolean alreadyTransformedJson = json instanceof AlreadyTransformedJson;
+		
+		if(alreadyTransformedJson) {
+			return json;
+		}
+		
 		CcpJsonRepresentation result = json;
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		for (CcpEntityField field : entityDetails.allFields) {
+			
+			boolean doNothing = field.transformer == CcpOtherConstants.DO_NOTHING;
+			
+			if(doNothing) {
+				continue;
+			}
+			
 			try {
-				result = field.transformer.apply(result);
+				result = field.transformer.execute(result);
 			} catch (CcpEntityJsonTransformerError e) {
 			
 			}
 		}
-		return result;
+		return new AlreadyTransformedJson(result);
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
