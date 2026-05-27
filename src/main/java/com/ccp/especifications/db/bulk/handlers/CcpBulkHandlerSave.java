@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
@@ -44,8 +43,7 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 			return x;
 		}
 		
-		CcpDynamicJsonRepresentation dynamicVersion = x.json.getDynamicVersion();
-		CcpJsonRepresentation updatablePiece = dynamicVersion.getJsonPiece(entityDetails.onlyUpdatableFields);
+		CcpJsonRepresentation updatablePiece = x.json.getJsonPiece(entityDetails.onlyUpdatableFields);
 		CcpJsonRepresentation mergeWithAnotherJson2 = x.json.mergeWithAnotherJson(recordFound);
 		CcpJsonRepresentation mergeWithAnotherJson = mergeWithAnotherJson2.mergeWithAnotherJson(updatablePiece);
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(mergeWithAnotherJson);

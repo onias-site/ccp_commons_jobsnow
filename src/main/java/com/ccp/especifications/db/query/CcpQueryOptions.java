@@ -56,7 +56,7 @@ public class CcpQueryOptions extends CcpQueryComponent{
 
 	private CcpQueryOptions sort(String fieldName, String sortType) {
 		CcpQueryOptions copy = this.copy();
-		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(fieldName, sortType).getContent();
+		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.put(() -> fieldName, sortType).getContent();
 		
 		List<Object> asList = Arrays.asList(content);
 		if(copy.json.containsAllFields(JsonFieldNames.sort)) {

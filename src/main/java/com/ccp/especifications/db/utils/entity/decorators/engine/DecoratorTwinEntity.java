@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
@@ -72,18 +71,17 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation oneByIdAnyWhere = super.getOneByIdAnyWhere(json);
-		CcpDynamicJsonRepresentation dynamicVersion = oneByIdAnyWhere.getDynamicVersion();
 		{
 			CcpEntityMetaData entityDetails = this.getEntityMetaData();
-			boolean foundInMainEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
-			
+			boolean foundInMainEntity = oneByIdAnyWhere.containsAllFields(() -> entityDetails.entityName);
+
 			if(foundInMainEntity) {
-				CcpJsonRepresentation innerJson = dynamicVersion.getInnerJson(entityDetails.entityName);
+				CcpJsonRepresentation innerJson = oneByIdAnyWhere.getInnerJson(() -> entityDetails.entityName);
 				return innerJson;
 			}
 		}
 		CcpEntityMetaData entityDetails = this.getTwinEntity().getEntityMetaData();
-		boolean foundInTwinEntity = dynamicVersion.containsAllFields(entityDetails.entityName);
+		boolean foundInTwinEntity = oneByIdAnyWhere.containsAllFields(() -> entityDetails.entityName);
 		
 		if(foundInTwinEntity) {
 			String id = this.getTwinEntity().calculateId(json);

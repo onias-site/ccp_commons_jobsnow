@@ -2,7 +2,6 @@ package com.ccp.decorators;
 
 import java.lang.reflect.Constructor;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 
 public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 
@@ -13,8 +12,7 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	public CcpReflectionConstructorDecorator(CcpJsonRepresentation json, String field) {
-		CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
-		this.content = dynamicVersion.getAsString(field);
+		this.content = json.getAsString(() -> field);
 	}
 
 	public CcpReflectionConstructorDecorator(Class<?> clazz) {

@@ -181,10 +181,10 @@ public class CcpJsonValidatorEngine {
 				}
 				String fieldName = field.getName();
 				
-				List<Object> asObjectList = json.getDynamicVersion().getAsObjectList(fieldName);
+				List<Object> asObjectList = json.getAsObjectList(() -> fieldName);
 				
 				for (Object obj : asObjectList) {
-					CcpJsonRepresentation put = json.getDynamicVersion().put(fieldName, obj);
+					CcpJsonRepresentation put = json.put(() -> fieldName, obj);
 					boolean hasNoErrors = false == type.hasErrors(put, field, CcpJsonFieldsValidationContext.collection);
 					if(hasNoErrors) {
 						continue;

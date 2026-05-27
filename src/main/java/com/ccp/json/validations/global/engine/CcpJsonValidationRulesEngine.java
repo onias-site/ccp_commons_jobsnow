@@ -67,7 +67,7 @@ public class CcpJsonValidationRulesEngine {
 		
 		for (CcpJsonValidator globalValidation : allGlobalValidations) {
 			Object ruleExplanation = globalValidation.getRuleExplanation(clazz);
-			rulesExplanation = rulesExplanation.getDynamicVersion().addToList(clazz.getName(), ruleExplanation);
+			rulesExplanation = rulesExplanation.addToList(() -> clazz.getName(), ruleExplanation);
 		}
 		return rulesExplanation;
 	}

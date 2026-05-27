@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 
 public class CcpTextDecorator implements CcpDecorator<String> {
 	public final String content;
@@ -170,8 +169,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		Set<String> keySet = content.keySet();
 		String message = new String(this.content);
 		for (String key : keySet) {
-			CcpDynamicJsonRepresentation dynamicVersion = parameters.getDynamicVersion();
-			String value = dynamicVersion.getAsString(key);
+			String value = parameters.getAsString(() -> key);
 			message = message.replace("{" + key + "}", value);
 		}
 		

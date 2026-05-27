@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -167,8 +166,7 @@ public class CcpSelectFinally {
 		}
 		CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
 		//DOUBT TRANSFORMAR FIELDS EM JSONFIELDNAMES?
-		CcpDynamicJsonRepresentation dynamicVersion = apply.getDynamicVersion();
-		CcpJsonRepresentation subMap = dynamicVersion.getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
+		CcpJsonRepresentation subMap = apply.getJsonPiece(Arrays.asList(this.fields)).put(JsonFieldNames.origin, origin);
 		return subMap;
 	}
 }

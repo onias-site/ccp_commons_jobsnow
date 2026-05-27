@@ -30,7 +30,7 @@ import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.utils.CcpHashAlgorithm;
 import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
-public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName>  {
+public class CcpJsonRepresentation  {
 	public static enum Fields implements CcpJsonFieldName{
 		cause, message, stackTrace, type, stackTraceHash, completeStackTrace
 	}
@@ -189,7 +189,6 @@ public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators
 		return key;
 	}
 
-	//TODO SUBIR PARA INTERFACE
 	@SuppressWarnings("unchecked")
 	public <T> T getAsEnum(CcpJsonFieldName field, Class<T> clazz){
 		try {
@@ -335,33 +334,6 @@ public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators
 		
 		CcpJsonRepresentation apply = business.apply(this);
 		return apply;
-	}
-	
-	
-	//TODO REFATORAR ESSA DUPLICACAO DE CODIGO
-	private CcpJsonRepresentation whenFieldsAreFound(CcpBusiness business, String... fields) {
-		
-		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
-		
-		if(anyFieldIsNotPresent) {
-			return this;
-		}
-		
-		CcpJsonRepresentation apply = business.apply(this);
-		return apply;
-	
-	}
-
-	//TODO REFATORAR ESSA DUPLICACAO DE CODIGO
-	private CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
-		boolean anyFieldIsPresent = this.containsAnyFields(fields);
-		if(anyFieldIsPresent) {
-			return this;
-		}
-		
-		CcpJsonRepresentation apply = business.apply(this);
-		return apply;
-	
 	}
 	
 	public String getAsString(CcpJsonFieldName field) {
@@ -878,7 +850,6 @@ public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators
 		return asStringList;
 	}
 	
-	//TODO SUBIR PARA INTERFACE
 	public String[] getAsStringArray(CcpJsonFieldName... fields) {
 		List<String> asStringList = this.getAsStringList(fields);
 		String[] array = asStringList.toArray(new String[asStringList.size()]);
@@ -985,6 +956,12 @@ public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators
 		String[] array = this.toArray(fields);
 		boolean containsAllFields = this.containsAllFields(array);
 		return containsAllFields;
+	}
+
+	public boolean containsAnyFields(Collection<String> fields) {
+		String[] array = this.toArray(fields);
+		boolean containsAnyFields = this.containsAnyFields(array);
+		return containsAnyFields;
 	}
 
 	private String[] toArray(Collection<String> fields) {
@@ -1248,227 +1225,8 @@ public class CcpJsonRepresentation implements CcpMapDecorator<com.ccp.decorators
 		return array;
 	}
 
-	public CcpDynamicJsonRepresentation getDynamicVersion() {
-		return new CcpDynamicJsonRepresentation(this);
-	}
-	
 	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;
 	}
-	public static class CcpDynamicJsonRepresentation implements CcpMapDecorator<String> {
-		public final CcpJsonRepresentation json;
-
-		private CcpDynamicJsonRepresentation(CcpJsonRepresentation json) {
-			this.json = json;
-		}
-
-		public String toString() {
-			return this.json.toString();
-		}
-
-		public CcpJsonRepresentation addJsonTransformer(String field,
-				CcpBusiness process) {
-			return this.json.addJsonTransformer(field, process);
-		}
-
-		public CcpJsonRepresentation addToItem(String field, String subField, CcpJsonRepresentation value) {
-			return this.json.addToItem(field, subField, value);
-		}
-
-		public CcpJsonRepresentation addToItem(String field, String subField, Object value) {
-			return this.json.addToItem(field, subField, value);
-		}
-
-		public CcpJsonRepresentation addToList(String field, CcpJsonRepresentation value) {
-			return this.json.addToList(field, value);
-		}
-
-		public CcpJsonRepresentation addToList(String field, Object... values) {
-			return this.json.addToList(field, values);
-
-		}
-
-		public boolean containsAllFields(String... fields) {
-			return this.json.containsAllFields(fields);
-		}
-
-		public boolean containsAnyFields(String... fields) {
-			return this.json.containsAnyFields(fields);
-		}
-
-		public boolean containsField(String field) {
-			return this.json.containsField(field);
-		}
-
-		public CcpJsonRepresentation copyIfNotContains(String fieldToCopy, String fieldToPaste) {
-			return this.json.copyIfNotContains(fieldToCopy, fieldToPaste);
-		}
-
-		public CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
-			return this.json.duplicateValueFromField(fieldToCopy, fieldsToPaste);
-		}
-
-		public Object get(String field) {
-			return this.json.get(field);
-		}
-
-		public CcpCollectionDecorator getAsArrayMetadata(String field) {
-			return this.json.getAsArrayMetadata(field);
-		}
-
-		public boolean getAsBoolean(String field) {
-			return this.json.getAsBoolean(field);			
-		}
-
-		public Double getAsDoubleNumber(String field) {
-			return this.json.getAsDoubleNumber(field);			
-		}
-
-		public Integer getAsIntegerNumber(String field) {
-			return this.json.getAsIntegerNumber(field);
-		}
-
-		public List<CcpJsonRepresentation> getAsJsonList(String field) {
-			return this.json.getAsJsonList(field);			
-		}
-
-		public Long getAsLongNumber(String field) {
-			return this.json.getAsLongNumber(field);
-		}
-
-		public <T> T getAsObject(String... fields) {
-			return this.json.getAsObject(fields);
-		}
-
-		public List<Object> getAsObjectList(String field) {
-			return this.json.getAsObjectList(field);
-		}
-
-		public String getAsString(String field) {
-			return this.json.getAsString(field);
-		}
-
-		public CcpStringDecorator getAsStringDecorator(String field) {
-			return this.json.getAsStringDecorator(field);			
-		}
-
-		public List<String> getAsStringList(String... fields) {
-			return this.json.getAsStringList(fields);
-		}
-
-		public CcpTextDecorator getAsTextDecorator(String field) {
-			return this.json.getAsTextDecorator(field);			
-		}
-
-		public CcpJsonRepresentation getInnerJson(String field) {
-			return this.json.getInnerJson(field);
-		}
-
-		public CcpJsonRepresentation getInnerJsonFromPath(String... paths) {
-			return this.json.getInnerJsonFromPath(paths);
-		}
-
-		public List<CcpJsonRepresentation> getInnerJsonListFromPath(String... paths) {
-			return this.json.getInnerJsonListFromPath(paths);
-		}
-
-		public <T> T getValueFromPath(T defaultValue, String... paths) {
-			return this.json.getValueFromPath(defaultValue, paths);
-		}
-
-		public boolean isInnerJson(String fieldName) {
-			return this.json.isInnerJson(fieldName);			
-		}
-
-		public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String... fields) {
-			return this.json.itIsTrueThatTheFollowingFields(fields);
-		}
-
-		public CcpJsonRepresentation put(String field, CcpDecorator<?> map) {
-			return this.json.put(field, map);
-		}
-
-		public CcpJsonRepresentation put(String field, Collection<CcpJsonRepresentation> list) {
-			return this.json.put(field, list);
-
-		}
-
-		public CcpJsonRepresentation put(String field, Object value) {
-			return this.json.put(field, value);
-		}
-
-		public CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
-			return this.json.putFilledTemplate(fieldToSearch, fieldToPut);
-
-		}
-
-		public CcpJsonRepresentation putIfNotContains(String field, Object value) {
-			return this.json.putIfNotContains(field, value);
-		}
-
-		public CcpJsonRepresentation putSameValueInManyFields(Object value, String... fields) {
-			return this.json.putSameValueInManyFields(value, fields);
-		}
-
-		public CcpJsonRepresentation removeFields(String... fields) {
-			return this.json.removeFields(fields);
-		}
-
-		public CcpJsonRepresentation renameField(String oldField, String newField) {
-			return this.json.renameField(oldField, newField);
-		}
-
-		public CcpJsonRepresentation getJsonPiece(String... fields) {
-			return this.json.getJsonPiece(fields);
-		}
-
-		public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, String... fields) {
-			return this.json.whenFieldsAreNotFound(business, fields);
-		}
-		public CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, String... fields) {
-			return this.json.whenFieldsAreFound(business, fields);
-		}
-
-		public CcpJsonRepresentation getJsonPiece(Collection<String> fields) {
-			return this.json.getJsonPiece(fields);
-		}
-
-		public CcpCollectionDecorator getAsCollectionDecorator(String field) {
-			return this.json.getAsCollectionDecorator(field);
-		}
-
-		public boolean containsAllFields(Collection<String> fields) {
-			return this.json.containsAllFields(fields);
-		}
-
-		public Set<String> getMissingFields(Collection<String> fields) {
-			return this.json.getMissingFields(fields);
-		}
-
-		public CcpJsonRepresentation getInnerJsonFromPath(String fieldName, String value) {
-			return this.json.getInnerJsonFromPath(fieldName, value);
-		}
-		public <T> T getOrDefault(String field, Supplier<T> supplier) {
-			T defaultValue = supplier.get();
-			T orDefault = this.json.getOrDefault(field, defaultValue);
-			return orDefault;
-		}
-
-		public CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, String... fields) {
-			CcpJsonFieldName[] flds = new CcpJsonFieldName[fields.length];
-			int k = 0;
-			for (String fieldName : fields) {
-				flds[k++] = () -> fieldName;
-			}
-			CcpJsonRepresentation whenAllFieldsAreFound = this.json.whenAllFieldsAreFound(business, flds);
-			return whenAllFieldsAreFound;
-		}
-		
-		public Map<String, Object> getContent() {
-			return this.json.content;
-		}
-	}
-
-
 }

@@ -43,7 +43,7 @@ public interface CcpJsonFieldValidatorInterface {
 				.put(ErrorFields.errorName, this.name())
 				.put(ErrorFields.errorDescription, error);
 
-		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().addToList(fieldName, errorObject);
+		CcpJsonRepresentation updatedErrors = errors.addToList(() -> fieldName, errorObject);
 
 		CcpJsonFieldErrorHandleType errorHandleType = this.getErrorHandleType();
 		
@@ -69,7 +69,7 @@ public interface CcpJsonFieldValidatorInterface {
 		CcpJsonRepresentation rule = CcpOtherConstants.EMPTY_JSON
 				.put(RuleFields.ruleName, this.name())
 				.put(RuleFields.ruleDescription, ruleExplanation);
-		CcpJsonRepresentation updatedRuleExplanation = allRules.getDynamicVersion().addToList(fieldName, rule);
+		CcpJsonRepresentation updatedRuleExplanation = allRules.addToList(() -> fieldName, rule);
 		
 		return updatedRuleExplanation;
 	}

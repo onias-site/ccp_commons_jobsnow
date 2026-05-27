@@ -26,7 +26,7 @@ public interface CcpJsonValidator {
 
 		Object error = this.getErrorMessage(json, clazz);
 
-		CcpJsonRepresentation updatedErrors = errors.getDynamicVersion().addToList(className, error);
+		CcpJsonRepresentation updatedErrors = errors.addToList(() -> className, error);
 
 		boolean criticalValidation = this.isCriticalValidation(json, clazz);
 		

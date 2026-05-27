@@ -14,7 +14,7 @@ public class CcpQueryFieldRange extends CcpQueryComponent{
 	
 	private CcpQueryFieldRange putOperator(String operatorName, Object value) {
 		CcpQueryFieldRange copy = this.copy();
-		copy.json = copy.json.getDynamicVersion().put(operatorName, value);
+		copy.json = copy.json.put(() -> operatorName, value);
 		return copy;
 	}
 	

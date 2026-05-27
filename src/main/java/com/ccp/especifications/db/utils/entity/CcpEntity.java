@@ -100,7 +100,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(entityDetails.entityName, oneById);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(() -> entityDetails.entityName, oneById);
 		return put;
 	}
 	
@@ -116,8 +116,8 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
-		.getDynamicVersion().put(fieldNameToEntity, entityDetails.entityName)
-		.getDynamicVersion().put(fieldNameToId, id)
+		.put(() -> fieldNameToEntity, entityDetails.entityName)
+		.put(() -> fieldNameToId, id)
 		;
 		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
 		return asList;

@@ -24,7 +24,7 @@ public class CcpIfTheyAre {
 		
 		for (String field : this.fields) {
 			
-			String asString = this.content.getDynamicVersion().getAsString(field);
+			String asString = this.content.getAsString(() -> field);
 			
 			boolean notAllowedValue = false == asList.contains(asString);
 			if(notAllowedValue) {
@@ -46,7 +46,7 @@ public class CcpIfTheyAre {
 			String[] result = new String[fields.length];
 			int k = 0;
 			for (String field : fields) {
-				String asString = this.content.getDynamicVersion().getAsString(field);
+				String asString = this.content.getAsString(() -> field);
 				result[k++] = "" + asString.length();
 			}
 			return result;
@@ -64,7 +64,7 @@ public class CcpIfTheyAre {
 		
 		for (String field : this.fields) {
 
-			Double value = this.content.getDynamicVersion().getAsDoubleNumber(field);
+			Double value = this.content.getAsDoubleNumber(() -> field);
 			
 			boolean notAllowedValue = false == asList.contains(value);
 			if(notAllowedValue) {
@@ -85,7 +85,7 @@ public class CcpIfTheyAre {
 
 		for (String field : this.fields) {
 			
-			String value = this.content.getDynamicVersion().getAsString(field);
+			String value = this.content.getAsString(() -> field);
 			CcpStringDecorator csd = new CcpStringDecorator(value);
 			CcpTextDecorator text = csd.text();
 			

@@ -70,8 +70,8 @@ abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 			return (T)clone;
 		}
 		
-		Map<String, Object> map = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(field, value).getContent();
-		Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(key, map).getContent();
+		Map<String, Object> map = CcpOtherConstants.EMPTY_JSON.put(() -> field, value).getContent();
+		Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.put(() -> key, map).getContent();
 		
 		clone.items.addAll(this.items);
 		clone.items.add(outerMap);
@@ -91,9 +91,9 @@ abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 			put = put.put(JsonFieldNames.operator, operator);
 		}
 		Map<String, Object> map = put.getContent();
-		Map<String, Object> mapField = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(field, map).getContent();	
-		CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(key, mapField).getContent();
-		Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(key, mapField).getContent();
+		Map<String, Object> mapField = CcpOtherConstants.EMPTY_JSON.put(() -> field, map).getContent();
+		CcpOtherConstants.EMPTY_JSON.put(() -> key, mapField).getContent();
+		Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.put(() -> key, mapField).getContent();
 		
 		clone.items.addAll(this.items);
 		clone.items.add(outerMap);
@@ -111,7 +111,7 @@ abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 		CcpQueryBooleanOperator copy = this.copy();
 		copy.items.addAll(this.items);
 		Object childValue = child.getValue();
-		Map<String, Object> childContent = CcpOtherConstants.EMPTY_JSON.getDynamicVersion().put(child.name, childValue).getContent();
+		Map<String, Object> childContent = CcpOtherConstants.EMPTY_JSON.put(() -> child.name, childValue).getContent();
 		copy.items.add(childContent);
 		return (T)copy;
 	}

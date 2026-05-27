@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.utils.CcpDbRequester;
@@ -40,7 +39,7 @@ public class CcpSelectUnionAll {
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
 					String id = entity.calculateId(handledJson);
-					explainedSearch = explainedSearch.getDynamicVersion().addToItem(entityDetails.entityName, id, primaryKeyValues);
+					explainedSearch = explainedSearch.addToItem(() -> entityDetails.entityName, () -> id, primaryKeyValues);
 	
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 
@@ -55,15 +54,12 @@ public class CcpSelectUnionAll {
 		CcpJsonRepresentation  condensed = CcpOtherConstants.EMPTY_JSON;
 	
 		for (CcpJsonRepresentation result : results) {
-			CcpDynamicJsonRepresentation dynamicVersion = result.getDynamicVersion();
-			String id = dynamicVersion.getAsString(fieldNameToId);
-			String entityName = dynamicVersion.getAsString(fieldNameToEntity);
-			CcpJsonRepresentation removeKeys = dynamicVersion.removeFields(fieldNameToEntity, fieldNameToId);
-			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getDynamicVersion().getInnerJsonFromPath(entityName, id);
-			CcpDynamicJsonRepresentation dynamicVersion2 = condensed.getDynamicVersion();
-			condensed = dynamicVersion2.addToItem(entityName, id, removeKeys);
-			CcpDynamicJsonRepresentation dynamicVersion22 = condensed.getDynamicVersion();
-			condensed = dynamicVersion22.addToItem(entityName, JsonFieldNames.explainedSearch + "." + id, innerJsonFromPath);
+			String id = result.getAsString(() -> fieldNameToId);
+			String entityName = result.getAsString(() -> fieldNameToEntity);
+			CcpJsonRepresentation removeKeys = result.removeFields(() -> fieldNameToEntity, () -> fieldNameToId);
+			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getInnerJsonFromPath(() -> entityName, () -> id);
+			condensed = condensed.addToItem(() -> entityName, () -> id, removeKeys);
+			condensed = condensed.addToItem(() -> entityName, () -> JsonFieldNames.explainedSearch + "." + id, innerJsonFromPath);
 			
 		}
 		this.condensed = condensed;
@@ -71,14 +67,13 @@ public class CcpSelectUnionAll {
 	
 	public boolean isPresent(String entityName, String id) {
 		
-		CcpDynamicJsonRepresentation dynamicVersion = this.condensed.getDynamicVersion();
-		boolean entityNotFound = false == dynamicVersion.containsAllFields(entityName);
-		
+		boolean entityNotFound = false == this.condensed.containsAllFields(() -> entityName);
+
 		if(entityNotFound) {
 			return false;
 		}
-		
-		CcpJsonRepresentation innerJson = dynamicVersion.getInnerJsonFromPath(entityName, id);
+
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJsonFromPath(() -> entityName, () -> id);
 		
 		boolean idNotFound = innerJson.isEmpty();
 		
@@ -117,21 +112,21 @@ public class CcpSelectUnionAll {
 	
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
 		
-		boolean indexNotFound = false == this.condensed.getDynamicVersion().containsAllFields(index);
-		
+		boolean indexNotFound = false == this.condensed.containsAllFields(() -> index);
+
 		if(indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		
-		CcpJsonRepresentation innerJson = this.condensed.getDynamicVersion().getInnerJson(index);
 
-		boolean idNotFound = false == innerJson.getDynamicVersion().containsAllFields(id);
-		
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(() -> index);
+
+		boolean idNotFound = false == innerJson.containsAllFields(() -> id);
+
 		if(idNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		
-		CcpJsonRepresentation jsonValue = innerJson.getDynamicVersion().getInnerJson(id);
+
+		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(() -> id);
 		return jsonValue;
 	}
 
@@ -142,19 +137,18 @@ public class CcpSelectUnionAll {
 	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity){
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		String index = entityDetails.entityName;
-		CcpDynamicJsonRepresentation dynamicVersion = this.condensed.getDynamicVersion();
-		boolean indexNotFound = false == dynamicVersion.containsAllFields(index);
-		
+		boolean indexNotFound = false == this.condensed.containsAllFields(() -> index);
+
 		if(indexNotFound) {
 			return new ArrayList<>();
 		}
-		
-		CcpJsonRepresentation innerJson = dynamicVersion.getInnerJson(index);
+
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(() -> index);
 		Set<String> fieldSet = innerJson.fieldSet();
-		
+
 		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
 		String fieldNameToId = dependency.getFieldNameToId();
-		List<CcpJsonRepresentation> collect = fieldSet.stream().map(id -> innerJson.getDynamicVersion().getInnerJson(id).getDynamicVersion().put(fieldNameToId, id)).collect(Collectors.toList());
+		List<CcpJsonRepresentation> collect = fieldSet.stream().map(id -> innerJson.getInnerJson(() -> id).put(() -> fieldNameToId, id)).collect(Collectors.toList());
 		return collect;
 	}
 	

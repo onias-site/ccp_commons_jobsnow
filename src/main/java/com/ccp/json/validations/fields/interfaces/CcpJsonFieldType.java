@@ -17,7 +17,7 @@ public interface CcpJsonFieldType {
 	default boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		java.lang.String fieldName = field.getName();
 		
-		boolean thisFieldIsAbsent = false == json.getDynamicVersion().containsAllFields(fieldName);
+		boolean thisFieldIsAbsent = false == json.containsAllFields(() -> fieldName);
 		
 		if(thisFieldIsAbsent) {
 			return false;
@@ -49,7 +49,7 @@ public interface CcpJsonFieldType {
 
 		java.lang.String fieldName = field.getName();
 		
-		boolean fieldIsNotPresent = false == json.getDynamicVersion().containsAllFields(fieldName);
+		boolean fieldIsNotPresent = false == json.containsAllFields(() -> fieldName);
 		if(fieldIsNotPresent) {
 			return errors;
 		}

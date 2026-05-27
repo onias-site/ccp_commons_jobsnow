@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
@@ -14,8 +13,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	public final String content;
 
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
-		CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
-		this.content = dynamicVersion.getAsString(key);
+		this.content = json.getAsString(() -> key);
 	}
 
 	public CcpStringDecorator(String content) {

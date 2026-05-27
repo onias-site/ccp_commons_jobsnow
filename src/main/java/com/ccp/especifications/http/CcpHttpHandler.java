@@ -71,7 +71,7 @@ public final class CcpHttpHandler {
 		
 		int status = response.httpStatus;
 		
-		CcpBusiness flow = this.flows.getDynamicVersion().getOrDefault("" + status, () -> this.alternativeFlow);
+		CcpBusiness flow = this.flows.getOrDefault(() -> "" + status, () -> this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

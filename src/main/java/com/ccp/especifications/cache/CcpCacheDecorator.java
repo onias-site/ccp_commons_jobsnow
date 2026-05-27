@@ -1,11 +1,11 @@
 package com.ccp.especifications.cache;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -66,16 +66,14 @@ public final class CcpCacheDecorator {
 	
 	public CcpCacheDecorator incrementKey(String key, Object value) {
 		String _key = this.key + "." + key + "." + value;
-		CcpDynamicJsonRepresentation dynamicVersion = this.cacheParameters.getDynamicVersion();
-		CcpJsonRepresentation put = dynamicVersion.put(key, value);
+		CcpJsonRepresentation put = this.cacheParameters.put(() -> key, value);
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(put, _key);
 		return ccpCacheDecorator;
 	}
 	
 	public CcpCacheDecorator incrementKeys(CcpJsonRepresentation json, String... keys) {
 		
-		CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
-		CcpJsonRepresentation jsonPiece = dynamicVersion.getJsonPiece(keys);
+		CcpJsonRepresentation jsonPiece = json.getJsonPiece(Arrays.asList(keys));
 		
 		CcpCacheDecorator result = this.incrementKeys(jsonPiece);
 		
@@ -88,8 +86,7 @@ public final class CcpCacheDecorator {
 		Set<String> keySet = jsonPiece.fieldSet();
 		
 		for (String key : keySet) {
-			CcpDynamicJsonRepresentation dynamicVersion = jsonPiece.getDynamicVersion();
-			Object value = dynamicVersion.get(key);
+			Object value = jsonPiece.get(() -> key);
 			result = result.incrementKey(key, value);
 		}
 		return result;

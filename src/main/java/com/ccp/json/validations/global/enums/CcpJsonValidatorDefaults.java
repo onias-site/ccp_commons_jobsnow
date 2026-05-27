@@ -23,7 +23,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 				
 				String[] oneOfThem = validation.value();
 				
-				boolean hasError = false == json.getDynamicVersion().containsAnyFields(oneOfThem);
+				boolean hasError = false == json.containsAnyFields(Arrays.asList(oneOfThem));
 				
 				if(hasError) {
 					return true;
@@ -40,7 +40,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 				
 				String[] oneOfThem = validation.value();
 				
-				boolean hasNoError = json.getDynamicVersion().containsAnyFields(oneOfThem);
+				boolean hasNoError = json.containsAnyFields(Arrays.asList(oneOfThem));
 				
 				if(hasNoError) {
 					continue;
@@ -80,13 +80,13 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 				
 				String[] array = validation.value();
 
-				boolean containsNeitherOfThisFields = false == json.getDynamicVersion().containsAnyFields(array);
+				boolean containsNeitherOfThisFields = false == json.containsAnyFields(Arrays.asList(array));
 				
 				if(containsNeitherOfThisFields) {
 					continue;
 				}
 				
-				boolean isMissingAnyField = false == json.getDynamicVersion().containsAllFields(array);
+				boolean isMissingAnyField = false == json.containsAllFields(Arrays.asList(array));
 				
 				if(isMissingAnyField) {
 					return true;
@@ -106,16 +106,16 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 				
 				String[] array = validation.value();
 
-				boolean containsNeitherOfThisFields = false == json.getDynamicVersion().containsAnyFields(array);
+				boolean containsNeitherOfThisFields = false == json.containsAnyFields(Arrays.asList(array));
 				
 				if(containsNeitherOfThisFields) {
 					continue;
 				}
 				
-				boolean isMissingAnyField = false == json.getDynamicVersion().containsAllFields(array);
+				boolean isMissingAnyField = false == json.containsAllFields(Arrays.asList(array));
 				
 				if(isMissingAnyField) {
-					Set<String> presentFields = json.getDynamicVersion().getJsonPiece(array).fieldSet();
+					Set<String> presentFields = json.getJsonPiece(Arrays.asList(array)).fieldSet();
 					List<String> asList = Arrays.asList(array);
 					List<String> missingFields = new ArrayList<String>(asList);
 					missingFields.removeAll(presentFields);

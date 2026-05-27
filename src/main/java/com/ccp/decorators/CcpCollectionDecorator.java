@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpDynamicJsonRepresentation;
 
 public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Collection<Object>>{
 
@@ -26,9 +25,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	
 	public CcpCollectionDecorator(CcpJsonRepresentation json, String key) {
-		CcpDynamicJsonRepresentation dynamicVersion = json.getDynamicVersion();
-		List<Object> asObjectList = dynamicVersion.getAsObjectList(key);
-		this.content = asObjectList;
+		this.content = json.getAsObjectList(() -> key);
 	}
 
 	public boolean isLongNumberList() {
