@@ -169,7 +169,7 @@ public final class CcpEntityMetaData {
 		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
 
 		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(asList, this.entity);
-		CcpJsonRepresentation innerJson = unionAll.condensed.getInnerJson(() -> this.entityName);
+		CcpJsonRepresentation innerJson = unionAll.condensed.getInnerJson(this.entity);
 		return innerJson;
 	}
 	

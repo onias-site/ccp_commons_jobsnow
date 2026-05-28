@@ -13,9 +13,4 @@ public class CcpReflectionNewInstanceDecorator extends CcpReflectionOptionsDecor
 		super(constructor.forName());
 		this.instance = constructor.newInstance();
 	}
-	
-	protected Object getInstance() {
-		return this.instance;
-	}
-	
 }

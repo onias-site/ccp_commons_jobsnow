@@ -99,8 +99,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	
 	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
-		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(() -> entityDetails.entityName, oneById);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(this, oneById);
 		return put;
 	}
 	

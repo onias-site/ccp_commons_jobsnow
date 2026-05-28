@@ -1,8 +1,5 @@
 package com.ccp.decorators;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Class<?>> {
 
 	public final Class<?> content;
@@ -11,29 +8,9 @@ public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Clas
 		this.content = clazz;
 	}
 	
-	public CcpReflectionFieldDecorator field(String fieldName) {
-		try {
-			Field declaredField = this.content.getDeclaredField(fieldName);
-			CcpReflectionFieldDecorator decorator = new CcpReflectionFieldDecorator(declaredField, this.content);
-			return decorator;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	public CcpReflectionMethodDecorator fromDeclaredMethod(String methodName, Class<?>... parameters) {
-		try {
-			Method declaredField = this.content.getDeclaredMethod(methodName, parameters);
-			Object instance = this.getInstance();
-			CcpReflectionMethodDecorator decorator = new CcpReflectionMethodDecorator(declaredField, instance);
-			return decorator;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	public Class<?> getContent() {
 		return this.content;
 	}
 	
-	protected abstract Object getInstance();
 }

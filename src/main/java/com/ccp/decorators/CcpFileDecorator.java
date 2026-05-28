@@ -132,7 +132,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 			Files.write(Paths.get(this.content), bytes, StandardOpenOption.APPEND);
 			return this;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e); 
 		}
 	}
 	public CcpFileDecorator reset() {

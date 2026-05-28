@@ -72,16 +72,14 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		
 		CcpJsonRepresentation oneByIdAnyWhere = super.getOneByIdAnyWhere(json);
 		{
-			CcpEntityMetaData entityDetails = this.getEntityMetaData();
-			boolean foundInMainEntity = oneByIdAnyWhere.containsAllFields(() -> entityDetails.entityName);
+			boolean foundInMainEntity = oneByIdAnyWhere.containsAllFields(this);
 
 			if(foundInMainEntity) {
-				CcpJsonRepresentation innerJson = oneByIdAnyWhere.getInnerJson(() -> entityDetails.entityName);
+				CcpJsonRepresentation innerJson = oneByIdAnyWhere.getInnerJson(this);
 				return innerJson;
 			}
 		}
-		CcpEntityMetaData entityDetails = this.getTwinEntity().getEntityMetaData();
-		boolean foundInTwinEntity = oneByIdAnyWhere.containsAllFields(() -> entityDetails.entityName);
+		boolean foundInTwinEntity = oneByIdAnyWhere.containsAllFields(this);
 		
 		if(foundInTwinEntity) {
 			String id = this.getTwinEntity().calculateId(json);

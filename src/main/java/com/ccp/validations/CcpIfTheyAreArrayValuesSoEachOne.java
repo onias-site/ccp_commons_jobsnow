@@ -20,6 +20,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		this.content = content;
 		this.fields = fields;
 	}
+	
 	public boolean hasNonDuplicatedItems() {
 		for (String field : this.fields) {
 			boolean hasDuplicatedItems = false == this.content.getAsArrayMetadata(() -> field).hasNonDuplicatedItems();

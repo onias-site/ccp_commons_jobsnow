@@ -104,7 +104,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			CcpJsonRepresentation record = unionAll.getEntityRow(entityDetails.entityName, mainId);
 			result = result
-					.put(() -> entityDetails.entityName, record);
+					.put(entity, record);
 
 		}
 		

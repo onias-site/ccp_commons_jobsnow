@@ -39,7 +39,7 @@ public class CcpSelectUnionAll {
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
 					String id = entity.calculateId(handledJson);
-					explainedSearch = explainedSearch.addToItem(() -> entityDetails.entityName, () -> id, primaryKeyValues);
+					explainedSearch = explainedSearch.addToItem(entity, () -> id, primaryKeyValues);
 	
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 
@@ -135,15 +135,14 @@ public class CcpSelectUnionAll {
 	}
 	
 	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity){
-		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-		String index = entityDetails.entityName;
-		boolean indexNotFound = false == this.condensed.containsAllFields(() -> index);
+
+		boolean indexNotFound = false == this.condensed.containsAllFields(entity);
 
 		if(indexNotFound) {
 			return new ArrayList<>();
 		}
 
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(() -> index);
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(entity);
 		Set<String> fieldSet = innerJson.fieldSet();
 
 		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);

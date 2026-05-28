@@ -28,7 +28,6 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.utils.CcpHashAlgorithm;
-import com.ccp.validations.CcpItIsTrueThatTheFollowingFields;
  
 public class CcpJsonRepresentation  {
 	public static enum Fields implements CcpJsonFieldName{
@@ -44,7 +43,8 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public CcpJsonRepresentation redoJson(CcpJsonRepresentation json) {
-		return new CcpJsonRepresentation(json.content);
+		CcpJsonRepresentation redo = new CcpJsonRepresentation(json.content);
+		return redo;
 	}
 	
 	public final Map<String, Object> content;
@@ -103,7 +103,7 @@ public class CcpJsonRepresentation  {
 		this(getMap(json));
 	}
  
-	static Map<String, Object> getMap(String json) {
+	private static Map<String, Object> getMap(String json) {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		try {
 			Map<String, Object> fromJson = handler.fromJson(json);
@@ -259,24 +259,6 @@ public class CcpJsonRepresentation  {
 		} catch (Exception e) {
 			throw new CcpErrorJsonInvalidFieldFormat(object, field, "double", this);
 		}
-	}
-	
-	public CcpJsonRepresentation putFilledTemplate(CcpJsonFieldName fieldToSearch, CcpJsonFieldName fieldToPut) {
-		CcpJsonRepresentation putFilledTemplate = this.putFilledTemplate(fieldToSearch.getValue(), fieldToPut.getValue());
-		return putFilledTemplate;
-	}
-	
-	private CcpJsonRepresentation putFilledTemplate(String fieldToSearch, String fieldToPut) {
-		
-		String asString = this.getAsString(fieldToSearch);
-		
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(asString);
-		
-		String message = ccpTextDecorator.resolveTemplate(this).content;
-		 
-		CcpJsonRepresentation put = this.put(fieldToPut, message);
-		
-		return put;
 	}
 	
 	public CcpTextDecorator getAsTextDecorator(CcpJsonFieldName field) {
@@ -533,6 +515,11 @@ public class CcpJsonRepresentation  {
 	
 	public CcpJsonRepresentation put(CcpJsonFieldName field, Object value) {
 		CcpJsonRepresentation put = this.put(field.getValue(), value);
+		return put;
+	}
+	
+	public CcpJsonRepresentation put(CcpJsonFieldName field) {
+		CcpJsonRepresentation put = this.put(field, field);
 		return put;
 	}
 	
@@ -928,17 +915,6 @@ public class CcpJsonRepresentation  {
 	}
 	
 	
-	public CcpJsonRepresentation mergeWithAnothersJsons(CcpJsonRepresentation... jsons) {
-		
-		CcpJsonRepresentation result = this;
-		
-		for (CcpJsonRepresentation json : jsons) {
-			result = result.mergeWithAnotherJson(json);
-		}
-		
-		return result;
-	}
-	
 	public boolean containsField(CcpJsonFieldName field) {
 		boolean containsField = this.containsField(field.getValue());
 		return containsField;
@@ -1146,15 +1122,6 @@ public class CcpJsonRepresentation  {
 	private CcpCollectionDecorator getAsArrayMetadata(String field) {
 		CcpCollectionDecorator cccpCollectionDecorator = new CcpCollectionDecorator(this, field);
 		return cccpCollectionDecorator;
-	}
-	public CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(CcpJsonFieldName...fields) {
-		String[] fields2 = this.getFields(fields);
-		CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields = this.itIsTrueThatTheFollowingFields(fields2);
-		return itIsTrueThatTheFollowingFields;
-	}
-	
-	private CcpItIsTrueThatTheFollowingFields itIsTrueThatTheFollowingFields(String...fields) {
-		return new CcpItIsTrueThatTheFollowingFields(this, fields);
 	}
 	
 	public Set<String> getMissingFields(Collection<String> fields){

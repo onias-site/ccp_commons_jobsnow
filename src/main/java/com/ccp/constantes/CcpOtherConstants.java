@@ -2,6 +2,7 @@ package com.ccp.constantes;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 public interface CcpOtherConstants {
 
@@ -10,5 +11,6 @@ public interface CcpOtherConstants {
 	CcpJsonRepresentation EMPTY_JSON = CcpJsonRepresentation.getEmptyJson();
 	String[] DELIMITERS_ARRAY = new String[] {"/", "\\", ".","\t", "\n", ":", "," , ";", "!", "?", "[", "]", "{", "}", "<", ">", "=", "(", ")", "'", "`",  "\""};
 	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)\\ |\\'|\\\"|\\`|\\.";
+	CcpJsonFieldName EMPTY_STRING = () -> "";
 
 }

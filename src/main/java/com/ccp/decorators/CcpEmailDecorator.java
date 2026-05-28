@@ -165,9 +165,14 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		Set<String> emails = new TreeSet<>();
 
 		for (String piece : split) {
-			if (new CcpEmailDecorator(piece).isValid()) {
-				emails.add(piece.trim().toLowerCase());
+			String trim = piece.trim();
+			CcpEmailDecorator decorator = new CcpEmailDecorator(trim);
+			boolean invalid = false == decorator.isValid();
+			if (invalid) {
+				continue;
 			}
+			String lowerCase = trim.toLowerCase();
+			emails.add(lowerCase);
 		}
 
 		return emails;

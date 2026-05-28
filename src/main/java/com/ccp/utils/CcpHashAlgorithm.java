@@ -22,17 +22,21 @@ public enum CcpHashAlgorithm {
 
 	public 	MessageDigest getMessageDigest() {
 		MessageDigest messageDigest = messageDigests.get(this);
-		if(messageDigest == null) {
-			MessageDigest instance;
-			try {
-				instance = MessageDigest.getInstance(this.algorithm);
-			} catch (NoSuchAlgorithmException e) {
-				throw new CcpErrorHashAlgorithmNotFound(this.algorithm);
-			}
-			messageDigests.put(this, instance);
-			return instance;
+		
+		boolean alreadyLoaded = messageDigest != null;
+		
+		if(alreadyLoaded) {
+			return messageDigest;
 		}
-		return messageDigest;
+
+		MessageDigest instance;
+		try {
+			instance = MessageDigest.getInstance(this.algorithm);
+		} catch (NoSuchAlgorithmException e) {
+			throw new CcpErrorHashAlgorithmNotFound(this.algorithm);
+		}
+		messageDigests.put(this, instance);
+		return instance;
 	}
 	
 }

@@ -6,9 +6,4 @@ public class CcpReflectionStaticContextDecorator extends CcpReflectionOptionsDec
 	protected CcpReflectionStaticContextDecorator(CcpReflectionConstructorDecorator constructor) {
 		super(constructor.forName());
 	}
-	
-	protected Object getInstance() {
-		return null;
-	}
-	
 }

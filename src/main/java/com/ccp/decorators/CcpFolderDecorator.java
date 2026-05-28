@@ -126,12 +126,31 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		file.mkdir();
 		return new CcpFolderDecorator(completePath);
 	}
+
+	public CcpFolderDecorator createNewFolderIfNotExists() {
+		String completePath = this.getCompletePath("");
+		File file = new File(completePath);
+		file.mkdir();
+		return new CcpFolderDecorator(completePath);
+	}
 	
 	public CcpFileDecorator createNewFileIfNotExists(String fileName) {
 		String completePath = this.getCompletePath(fileName);
-		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(completePath);
-		CcpFileDecorator append = ccpFileDecorator.append("");
+		CcpFileDecorator file = new CcpFileDecorator(completePath);
+		this.createFolderIfNotExists();
+		CcpFileDecorator append = file.append("");
 		return append;
+	}
+	
+	private boolean createFolderIfNotExists() {
+		
+		boolean isNewFolder = false == this.parent.exists();
+		
+		if(isNewFolder) {
+			this.parent.createFolderIfNotExists();
+		}
+		this.createNewFolderIfNotExists();
+		return true;
 	}
 	
 	public CcpFileDecorator writeInTheFile(String fileName, String fileContent) {

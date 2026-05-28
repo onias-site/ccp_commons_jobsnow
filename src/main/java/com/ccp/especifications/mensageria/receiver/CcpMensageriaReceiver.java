@@ -14,7 +14,7 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecora
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 
-public abstract class CcpMensageriaReceiver {
+public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	
 	private final String operationFieldName;
 	
@@ -41,7 +41,7 @@ public abstract class CcpMensageriaReceiver {
 		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.AsyncWriter);
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
-		String operation = json.getAsString(() -> this.operationFieldName);
+		String operation = json.getAsString(this);
 		CcpEntityOperationType valueOf = CcpEntityOperationType.valueOf(operation);
 		CcpBusiness topicHandler = valueOf.getTopicHandler(entity, executeBulkOperation, functionToDeleteKeysInTheCache);
 		return topicHandler;
@@ -65,5 +65,8 @@ public abstract class CcpMensageriaReceiver {
 		mensageriaReceiver
 		;
 		
+	}
+	public String name() {
+		return this.operationFieldName;
 	}
 }
