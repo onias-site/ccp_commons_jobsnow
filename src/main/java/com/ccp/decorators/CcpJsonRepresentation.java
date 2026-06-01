@@ -27,7 +27,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
-import com.ccp.utils.CcpHashAlgorithm;
+import com.ccp.hash.CcpHashAlgorithm;
  
 public class CcpJsonRepresentation  {
 	public static enum Fields implements CcpJsonFieldName{

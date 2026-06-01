@@ -1,4 +1,4 @@
-package com.ccp.utils;
+package com.ccp.hash;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,13 +29,19 @@ public enum CcpHashAlgorithm {
 			return messageDigest;
 		}
 
+		String algorithm = this.algorithm;
+		MessageDigest instance = getMessageDigest(algorithm);
+		messageDigests.put(this, instance);
+		return instance;
+	}
+
+	public static MessageDigest getMessageDigest(String algorithm) {
 		MessageDigest instance;
 		try {
-			instance = MessageDigest.getInstance(this.algorithm);
+			instance = MessageDigest.getInstance(algorithm);
 		} catch (NoSuchAlgorithmException e) {
-			throw new CcpErrorHashAlgorithmNotFound(this.algorithm);
+			throw new CcpErrorHashAlgorithmNotFound(algorithm);
 		}
-		messageDigests.put(this, instance);
 		return instance;
 	}
 	

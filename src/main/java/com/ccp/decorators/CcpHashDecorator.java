@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import com.ccp.utils.CcpHashAlgorithm;
+import com.ccp.hash.CcpHashAlgorithm;
 
 public class CcpHashDecorator implements CcpDecorator<String> {
 	public final String content;

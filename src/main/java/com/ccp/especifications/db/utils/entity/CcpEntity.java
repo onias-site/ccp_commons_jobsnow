@@ -19,8 +19,8 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.flow.CcpErrorFlowDisturb;
+import com.ccp.hash.CcpHashAlgorithm;
 import com.ccp.process.CcpProcessStatusDefault;
-import com.ccp.utils.CcpHashAlgorithm;
 
 public interface CcpEntity  extends CcpJsonFieldName{
 	public static enum JsonFieldNames implements CcpJsonFieldName{
