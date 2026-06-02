@@ -17,25 +17,22 @@ public class CcpUrlDecorator implements CcpDecorator<String> {
 	}
 
 	public String asDecoded() {
-		String decode;
 		try {
-			decode = URLDecoder.decode(this.content, StandardCharsets.UTF_8.toString());
+			String decode = URLDecoder.decode(this.content, StandardCharsets.UTF_8.toString());
+			return decode;
 		} catch (UnsupportedEncodingException e) {
 			return this.content;
 		}
-		return decode;
 
 	}
 	
 	public String asEnconded() {
-		String encode;
 		try {
-			encode = URLEncoder.encode(this.content, StandardCharsets.UTF_8.toString());
+			String encode = URLEncoder.encode(this.content, StandardCharsets.UTF_8.toString());
+			return encode;
 		} catch (UnsupportedEncodingException e) {
 			return this.content;
 		}
-		return encode;
-
 	}
 
 	public String getContent() {

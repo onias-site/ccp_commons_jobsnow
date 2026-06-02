@@ -325,7 +325,7 @@ public class CcpJsonRepresentation  {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String getAsString(String field) {
-
+ 
 		Object object = this.content.get(field);
 		
 		boolean thisKeyIsNotPresent = false == this.content.containsKey(field);
@@ -871,10 +871,6 @@ public class CcpJsonRepresentation  {
 		
 		Object object = this.content.get(field);
 		
-		if(object == null) {
-			return new ArrayList<>();
-		}
-		
 		if(object instanceof Object[]) {
 			Object[] array = this.getAsObject(field);
 			List<Object> asList = Arrays.asList(array);
@@ -1122,11 +1118,6 @@ public class CcpJsonRepresentation  {
 	private CcpCollectionDecorator getAsArrayMetadata(String field) {
 		CcpCollectionDecorator cccpCollectionDecorator = new CcpCollectionDecorator(this, field);
 		return cccpCollectionDecorator;
-	}
-	
-	public Set<String> getMissingFields(Collection<String> fields){
-		Set<String> collect = fields.stream().filter(field -> this.getAsString(field).trim().isEmpty()).collect(Collectors.toSet());
-		return collect;
 	}
 	
 	public InputStream toInputStream() {
