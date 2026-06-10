@@ -154,7 +154,8 @@ public class CcpSelectFinally {
 				json = action.apply(json);
 				continue;
 			}
-			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier());
+			Supplier<CcpJsonRepresentation> jsonSupplier = json.getJsonSupplier();
+			CcpJsonRepresentation dataBaseRow = entity.getRecordFromUnionAll(unionAll, jsonSupplier);
 			CcpJsonRepresentation context = json.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
 			json = action.apply(context);
 		} 

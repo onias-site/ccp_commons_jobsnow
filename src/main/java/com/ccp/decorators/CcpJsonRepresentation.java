@@ -203,6 +203,19 @@ public class CcpJsonRepresentation  {
 		}
 	}
 	
+	
+	public <T> T getAsEnum(CcpJsonFieldName field, Class<T> clazz, T defaultValue){
+		String asString = this.getAsString(field);
+		
+		boolean hasNoEnum = asString.trim().isEmpty();
+		
+		if(hasNoEnum) {
+			return defaultValue;
+		}
+		T asEnum = this.getAsEnum(field, clazz);
+		return asEnum;
+	}
+	
 	public Long getAsLongNumber(CcpJsonFieldName field) {
 		Long asLongNumber = this.getAsLongNumber(field.getValue());
 		return asLongNumber;
@@ -515,6 +528,11 @@ public class CcpJsonRepresentation  {
 	
 	public CcpJsonRepresentation put(CcpJsonFieldName field, Object value) {
 		CcpJsonRepresentation put = this.put(field.getValue(), value);
+		return put;
+	}
+
+	public CcpJsonRepresentation put(CcpJsonFieldName field, CcpJsonRepresentation value) {
+		CcpJsonRepresentation put = this.put(field.getValue(), value.content);
 		return put;
 	}
 	

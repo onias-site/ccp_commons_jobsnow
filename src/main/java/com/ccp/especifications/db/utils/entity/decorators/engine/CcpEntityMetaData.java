@@ -200,10 +200,13 @@ public final class CcpEntityMetaData {
 		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.update, this.entity, id);
 		return response;
 	}
+	
+	
 	public CcpBulkItem toDeleteBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
 		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entity, id);
 		return response;
 	}
 
+	
 }
