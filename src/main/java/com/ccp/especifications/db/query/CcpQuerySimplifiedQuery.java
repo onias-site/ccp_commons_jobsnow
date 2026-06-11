@@ -3,6 +3,7 @@ package com.ccp.especifications.db.query;
 import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
@@ -55,7 +56,7 @@ public final class CcpQuerySimplifiedQuery  extends CcpQueryBooleanOperator {
 		 
 		 Object value = child.getValue();
 		 
-		 instanceCopy.json = instanceCopy.json.put(() -> child.name, value);
+		 instanceCopy.json = instanceCopy.json.put(new CcpFieldName(child.name), value);
 		 
 		 return instanceCopy;
 	 }
@@ -82,8 +83,8 @@ public final class CcpQuerySimplifiedQuery  extends CcpQueryBooleanOperator {
 		
 		@SuppressWarnings("unchecked")
 		protected CcpQuerySimplifiedQuery addCondition(String field, Object value, String key) {
-			Map<String, Object> map = CcpOtherConstants.EMPTY_JSON.put(() -> field, value).getContent();
-			Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.put(() -> key, map).getContent();
+			Map<String, Object> map = CcpOtherConstants.EMPTY_JSON.put(new CcpFieldName(field), value).getContent();
+			Map<String, Object> outerMap = CcpOtherConstants.EMPTY_JSON.put(new CcpFieldName(key), map).getContent();
 			
 			CcpQuerySimplifiedQuery clone = this.copy();
 			clone.json = new CcpJsonRepresentation(outerMap);

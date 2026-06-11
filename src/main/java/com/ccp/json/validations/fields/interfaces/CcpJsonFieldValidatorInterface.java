@@ -3,6 +3,7 @@ package com.ccp.json.validations.fields.interfaces;
 import java.lang.reflect.Field;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType;
@@ -43,7 +44,7 @@ public interface CcpJsonFieldValidatorInterface {
 				.put(ErrorFields.errorName, this.name())
 				.put(ErrorFields.errorDescription, error);
 
-		CcpJsonRepresentation updatedErrors = errors.addToList(() -> fieldName, errorObject);
+		CcpJsonRepresentation updatedErrors = errors.addToList(new CcpFieldName(fieldName), errorObject);
 
 		CcpJsonFieldErrorHandleType errorHandleType = this.getErrorHandleType();
 		
@@ -69,7 +70,7 @@ public interface CcpJsonFieldValidatorInterface {
 		CcpJsonRepresentation rule = CcpOtherConstants.EMPTY_JSON
 				.put(RuleFields.ruleName, this.name())
 				.put(RuleFields.ruleDescription, ruleExplanation);
-		CcpJsonRepresentation updatedRuleExplanation = allRules.addToList(() -> fieldName, rule);
+		CcpJsonRepresentation updatedRuleExplanation = allRules.addToList(new CcpFieldName(fieldName), rule);
 		
 		return updatedRuleExplanation;
 	}

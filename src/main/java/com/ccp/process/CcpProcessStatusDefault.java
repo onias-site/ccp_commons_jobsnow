@@ -1,5 +1,6 @@
 package com.ccp.process;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 public enum CcpProcessStatusDefault implements CcpProcessStatus{
@@ -28,7 +29,7 @@ public enum CcpProcessStatusDefault implements CcpProcessStatus{
 
 
 	public CcpJsonFieldName asJsonFieldName() {
-		CcpJsonFieldName ccpJsonFieldName = () -> "" + this.status;
+		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.status);
 		return ccpJsonFieldName; 
 	}
 	

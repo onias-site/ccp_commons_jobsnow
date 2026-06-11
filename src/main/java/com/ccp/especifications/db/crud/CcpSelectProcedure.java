@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -43,7 +44,7 @@ public class CcpSelectProcedure {
 	
 	private CcpSelectNextStep addStatement(String key, Object obj) {
 		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(JsonFieldNames.statements);
-		list.add(CcpOtherConstants.EMPTY_JSON.put(() -> key, obj));
+		list.add(CcpOtherConstants.EMPTY_JSON.put(new CcpFieldName(key), obj));
 		CcpJsonRepresentation newStatements = this.statements.put(JsonFieldNames.statements, list);
 		return new CcpSelectNextStep(this.parametersToSearch, newStatements);
 	}

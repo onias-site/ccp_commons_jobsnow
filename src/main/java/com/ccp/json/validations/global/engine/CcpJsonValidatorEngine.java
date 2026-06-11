@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
@@ -181,10 +182,10 @@ public class CcpJsonValidatorEngine {
 				}
 				String fieldName = field.getName();
 				
-				List<Object> asObjectList = json.getAsObjectList(() -> fieldName);
-				
+				List<Object> asObjectList = json.getAsObjectList(new CcpFieldName(fieldName));
+
 				for (Object obj : asObjectList) {
-					CcpJsonRepresentation put = json.put(() -> fieldName, obj);
+					CcpJsonRepresentation put = json.put(new CcpFieldName(fieldName), obj);
 					boolean hasNoErrors = false == type.hasErrors(put, field, CcpJsonFieldsValidationContext.collection);
 					if(hasNoErrors) {
 						continue;

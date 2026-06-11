@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
@@ -61,7 +62,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	
 	Boolean{
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isBoolean();
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isBoolean();
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -72,7 +73,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	Array(CcpJsonFieldTypeError.arrayMinSize, CcpJsonFieldTypeError.arrayExactSize, CcpJsonFieldTypeError.arrayMaxSize, CcpJsonFieldTypeError.arrayNonReapeted){
 		
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isList();
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isList();
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -83,7 +84,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	},
 	NestedJson(CcpJsonFieldTypeError.nestedJson, CcpJsonFieldTypeError.emptyJson){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isInnerJson();
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isInnerJson();
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -93,7 +94,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	}, 
 	Number(CcpJsonFieldTypeError.doubleNumberMaxValue, CcpJsonFieldTypeError.doubleNumberMinValue, CcpJsonFieldTypeError.doubleNumberExactValue, CcpJsonFieldTypeError.doubleNumberAllowed){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isDoubleNumber() ;
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isDoubleNumber() ;
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -103,7 +104,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	}, 
 	NumberInteger(CcpJsonFieldTypeError.longNumberMaxValue, CcpJsonFieldTypeError.longNumberMinValue, CcpJsonFieldTypeError.longNumberExactValue, CcpJsonFieldTypeError.longNumberAllowed){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isLongNumber() ;
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isLongNumber() ;
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -115,13 +116,13 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	NumberUnsigned(CcpJsonFieldTypeError.unsignedNumberMaxValue, CcpJsonFieldTypeError.unsignedNumberMinValue, CcpJsonFieldTypeError.unsignedNumberExactValue, CcpJsonFieldTypeError.unsignedNumberAllowed){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> {
-				boolean isNotLongNumber = false == json.getAsStringDecorator(() -> fieldName).isLongNumber();
+				boolean isNotLongNumber = false == json.getAsStringDecorator(new CcpFieldName(fieldName)).isLongNumber();
 
 				if(isNotLongNumber) {
 					return false;
 				}
 
-				Long asLongNumber = json.getAsLongNumber(() -> fieldName);
+				Long asLongNumber = json.getAsLongNumber(new CcpFieldName(fieldName));
 				return asLongNumber >= 0;
 			} ;
 		}
@@ -145,7 +146,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	}, 
 	TimeBeforeCurrentDate(CcpJsonFieldTypeError.timeMaxValueBeforeCurrentTime, CcpJsonFieldTypeError.timeExactValueBeforeCurrentTime, CcpJsonFieldTypeError.timeMinValueBeforeCurrentTime){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isLongNumber();
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isLongNumber();
 		}
 
 		public boolean hasRuleExplanation(Field field) {
@@ -155,7 +156,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	},
 	TimeAfterCurrentDate(CcpJsonFieldTypeError.timeMaxValueAfterCurrentTime, CcpJsonFieldTypeError.timeExactValueAfterCurrentTime, CcpJsonFieldTypeError.timeMinValueAfterCurrentTime){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> json.getAsStringDecorator(() -> fieldName).isLongNumber();
+			return json -> json.getAsStringDecorator(new CcpFieldName(fieldName)).isLongNumber();
 		}
 
 		public boolean hasRuleExplanation(Field field) {

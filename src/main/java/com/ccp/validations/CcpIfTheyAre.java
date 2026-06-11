@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.decorators.CcpTextDecorator;
@@ -24,7 +25,7 @@ public class CcpIfTheyAre {
 		
 		for (String field : this.fields) {
 			
-			String asString = this.content.getAsString(() -> field);
+			String asString = this.content.getAsString(new CcpFieldName(field));
 			
 			boolean notAllowedValue = false == asList.contains(asString);
 			if(notAllowedValue) {
@@ -46,7 +47,7 @@ public class CcpIfTheyAre {
 			String[] result = new String[fields.length];
 			int k = 0;
 			for (String field : fields) {
-				String asString = this.content.getAsString(() -> field);
+				String asString = this.content.getAsString(new CcpFieldName(field));
 				result[k++] = "" + asString.length();
 			}
 			return result;
@@ -64,7 +65,7 @@ public class CcpIfTheyAre {
 		
 		for (String field : this.fields) {
 
-			Double value = this.content.getAsDoubleNumber(() -> field);
+			Double value = this.content.getAsDoubleNumber(new CcpFieldName(field));
 			
 			boolean notAllowedValue = false == asList.contains(value);
 			if(notAllowedValue) {
@@ -85,7 +86,7 @@ public class CcpIfTheyAre {
 
 		for (String field : this.fields) {
 			
-			String value = this.content.getAsString(() -> field);
+			String value = this.content.getAsString(new CcpFieldName(field));
 			CcpStringDecorator csd = new CcpStringDecorator(value);
 			CcpTextDecorator text = csd.text();
 			

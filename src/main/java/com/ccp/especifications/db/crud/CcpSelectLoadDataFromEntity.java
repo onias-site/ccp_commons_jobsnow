@@ -3,6 +3,7 @@ package com.ccp.especifications.db.crud;
 import java.util.Collection;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 public class CcpSelectLoadDataFromEntity {
 	private final Collection<CcpJsonRepresentation> parametersToSearch;
@@ -18,7 +19,7 @@ public class CcpSelectLoadDataFromEntity {
 		return new CcpSelectProcedure(this.parametersToSearch, this.statements);
 	}
 	
-	public CcpSelectFinally andFinally(String... fields) {
+	public CcpSelectFinally andFinally(CcpJsonFieldName... fields) {
 		return new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
 	}
 	

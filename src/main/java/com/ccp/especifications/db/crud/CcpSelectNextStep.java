@@ -3,6 +3,7 @@ package com.ccp.especifications.db.crud;
 import java.util.Collection;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 public class CcpSelectNextStep {
 	private final Collection<CcpJsonRepresentation> parametersToSearch;
@@ -14,13 +15,13 @@ public class CcpSelectNextStep {
 	}
 	
 	public CcpSelectFinally andFinallyReturningTheseFields(Collection<String> fields) {
-		String[] array = fields.toArray(new String[fields.size()]);
+		CcpJsonFieldName[] array = fields.toArray(new CcpJsonFieldName[fields.size()]);
 		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, array);
 		return ccpSelectFinally;
 	}
 	
 	
-	public CcpSelectFinally andFinallyReturningTheseFields(String... fields) {
+	public CcpSelectFinally andFinallyReturningTheseFields(CcpJsonFieldName... fields) {
 		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
 		return ccpSelectFinally;
 	}

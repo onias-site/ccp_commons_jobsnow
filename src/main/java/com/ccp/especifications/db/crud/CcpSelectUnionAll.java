@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
@@ -39,7 +40,7 @@ public class CcpSelectUnionAll {
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
 					String id = entity.calculateId(handledJson);
-					explainedSearch = explainedSearch.addToItem(entity, () -> id, primaryKeyValues);
+					explainedSearch = explainedSearch.addToItem(entity, new CcpFieldName(id), primaryKeyValues);
 	
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 
@@ -54,12 +55,12 @@ public class CcpSelectUnionAll {
 		CcpJsonRepresentation  condensed = CcpOtherConstants.EMPTY_JSON;
 	
 		for (CcpJsonRepresentation result : results) {
-			String id = result.getAsString(() -> fieldNameToId);
-			String entityName = result.getAsString(() -> fieldNameToEntity);
-			CcpJsonRepresentation removeKeys = result.removeFields(() -> fieldNameToEntity, () -> fieldNameToId);
-			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getInnerJsonFromPath(() -> entityName, () -> id);
-			condensed = condensed.addToItem(() -> entityName, () -> id, removeKeys);
-			condensed = condensed.addToItem(() -> entityName, () -> JsonFieldNames.explainedSearch + "." + id, innerJsonFromPath);
+			String id = result.getAsString(new CcpFieldName(fieldNameToId));
+			String entityName = result.getAsString(new CcpFieldName(fieldNameToEntity));
+			CcpJsonRepresentation removeKeys = result.removeFields(new CcpFieldName(fieldNameToEntity), new CcpFieldName(fieldNameToId));
+			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getInnerJsonFromPath(new CcpFieldName(entityName), new CcpFieldName(id));
+			condensed = condensed.addToItem(new CcpFieldName(entityName), new CcpFieldName(id), removeKeys);
+			condensed = condensed.addToItem(new CcpFieldName(entityName), new CcpFieldName(JsonFieldNames.explainedSearch + "." + id), innerJsonFromPath);
 			
 		}
 		this.condensed = condensed;
@@ -67,13 +68,13 @@ public class CcpSelectUnionAll {
 	
 	public boolean isPresent(String entityName, String id) {
 		
-		boolean entityNotFound = false == this.condensed.containsAllFields(() -> entityName);
+		boolean entityNotFound = false == this.condensed.containsAllFields(new CcpFieldName(entityName));
 
 		if(entityNotFound) {
 			return false;
 		}
 
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJsonFromPath(() -> entityName, () -> id);
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJsonFromPath(new CcpFieldName(entityName), new CcpFieldName(id));
 		
 		boolean idNotFound = innerJson.isEmpty();
 		
@@ -112,21 +113,21 @@ public class CcpSelectUnionAll {
 	
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
 		
-		boolean indexNotFound = false == this.condensed.containsAllFields(() -> index);
+		boolean indexNotFound = false == this.condensed.containsAllFields(new CcpFieldName(index));
 
 		if(indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(() -> index);
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(new CcpFieldName(index));
 
-		boolean idNotFound = false == innerJson.containsAllFields(() -> id);
+		boolean idNotFound = false == innerJson.containsAllFields(new CcpFieldName(id));
 
 		if(idNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 
-		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(() -> id);
+		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(new CcpFieldName(id));
 		return jsonValue;
 	}
 
@@ -147,7 +148,7 @@ public class CcpSelectUnionAll {
 
 		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
 		String fieldNameToId = dependency.getFieldNameToId();
-		List<CcpJsonRepresentation> collect = fieldSet.stream().map(id -> innerJson.getInnerJson(() -> id).put(() -> fieldNameToId, id)).collect(Collectors.toList());
+		List<CcpJsonRepresentation> collect = fieldSet.stream().map(id -> innerJson.getInnerJson(new CcpFieldName(id)).put(new CcpFieldName(fieldNameToId), id)).collect(Collectors.toList());
 		return collect;
 	}
 	

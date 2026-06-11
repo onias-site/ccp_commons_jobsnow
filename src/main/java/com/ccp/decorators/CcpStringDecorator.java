@@ -13,7 +13,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	public final String content;
 
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getAsString(() -> key);
+		this.content = json.getAsString(new CcpFieldName(key));
 	}
 
 	public CcpStringDecorator(String content) {
@@ -63,7 +63,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 	
 	public CcpJsonFieldName jsonFieldName() {
-		CcpJsonFieldName ccpJsonFieldName = () -> this.content;
+		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.content);
 		return ccpJsonFieldName;
 	}
 	

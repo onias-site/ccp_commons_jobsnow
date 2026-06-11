@@ -2,6 +2,7 @@ package com.ccp.especifications.db.bulk;
 
 import java.util.function.Function;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.cache.CcpCacheDecorator;
@@ -30,7 +31,7 @@ public interface CcpBulkOperationResult {
 	}
 	
 	default CcpJsonFieldName statusAsJsonFieldName() {
-		CcpJsonFieldName ccpJsonFieldName = () -> "" + this.status();
+		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.status());
 		return ccpJsonFieldName;
 	}
 }

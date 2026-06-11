@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpNumberDecorator;
 
@@ -16,7 +17,7 @@ public class CcpItIsTrueThatTheFollowingFields {
 
 	public CcpItIsTrueThatTheFollowingFields(CcpJsonRepresentation content, String[] fields) {
 		this.content = content;
-		List<String> collect = Arrays.asList(fields).stream().filter(x -> content.containsField(() -> x)).collect(Collectors.toList());
+		List<String> collect = Arrays.asList(fields).stream().filter(x -> content.containsField(new CcpFieldName(x))).collect(Collectors.toList());
 		this.fields = collect.toArray(new String[collect.size()]);
 	}
 
@@ -37,7 +38,7 @@ public class CcpItIsTrueThatTheFollowingFields {
 		Function<String[], String[]> arrayProcucer = fields ->{
 			List<String> list = new ArrayList<String>();
 			for (String field : fields) {
-				List<String> asStringList = content.getAsStringList(() -> field);
+				List<String> asStringList = content.getAsStringList(new CcpFieldName(field));
 				list.addAll(asStringList);
 			}
 			String[] array = list.toArray(new String[list.size()]);
@@ -53,7 +54,7 @@ public class CcpItIsTrueThatTheFollowingFields {
 			String [] result = new String[fields.length];	
 			int k = 0;
 			for (String field : fields) {
-				String value = content.getAsString(() -> field);
+				String value = content.getAsString(new CcpFieldName(field));
 				result[k++] = value;
 			}
 			return result;

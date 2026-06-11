@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
@@ -56,7 +57,7 @@ public class CcpQueryOptions extends CcpQueryComponent{
 
 	private CcpQueryOptions sort(String fieldName, String sortType) {
 		CcpQueryOptions copy = this.copy();
-		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.put(() -> fieldName, sortType).getContent();
+		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.put(new CcpFieldName(fieldName), sortType).getContent();
 		
 		List<Object> asList = Arrays.asList(content);
 		if(copy.json.containsAllFields(JsonFieldNames.sort)) {

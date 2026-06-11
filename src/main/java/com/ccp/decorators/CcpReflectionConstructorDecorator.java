@@ -12,7 +12,7 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	public CcpReflectionConstructorDecorator(CcpJsonRepresentation json, String field) {
-		this.content = json.getAsString(() -> field);
+		this.content = json.getAsString(new CcpFieldName(field));
 	}
 
 	public CcpReflectionConstructorDecorator(Class<?> clazz) {

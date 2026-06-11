@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
@@ -93,7 +95,11 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, x -> {throw new CcpErrorFlowDisturb(x.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);});
+		CcpBusiness arara = x -> {
+			CcpJsonRepresentation put = x.put(JsonFieldNames.entity, this);
+			throw new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
+		};
+		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, arara);
 		return md;
 	}
 	
@@ -115,8 +121,8 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		
 		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
-		.put(() -> fieldNameToEntity, entityDetails.entityName)
-		.put(() -> fieldNameToId, id)
+		.put(new CcpFieldName(fieldNameToEntity), entityDetails.entityName)
+		.put(new CcpFieldName(fieldNameToId), id)
 		;
 		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
 		return asList;

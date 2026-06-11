@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -66,7 +67,7 @@ public final class CcpCacheDecorator {
 	
 	public CcpCacheDecorator incrementKey(String key, Object value) {
 		String _key = this.key + "." + key + "." + value;
-		CcpJsonRepresentation put = this.cacheParameters.put(() -> key, value);
+		CcpJsonRepresentation put = this.cacheParameters.put(new CcpFieldName(key), value);
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(put, _key);
 		return ccpCacheDecorator;
 	}
@@ -86,7 +87,7 @@ public final class CcpCacheDecorator {
 		Set<String> keySet = jsonPiece.fieldSet();
 		
 		for (String key : keySet) {
-			Object value = jsonPiece.get(() -> key);
+			Object value = jsonPiece.get(new CcpFieldName(key));
 			result = result.incrementKey(key, value);
 		}
 		return result;

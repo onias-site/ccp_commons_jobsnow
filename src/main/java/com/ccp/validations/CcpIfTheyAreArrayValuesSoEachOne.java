@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 
@@ -23,7 +24,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 	
 	public boolean hasNonDuplicatedItems() {
 		for (String field : this.fields) {
-			boolean hasDuplicatedItems = false == this.content.getAsArrayMetadata(() -> field).hasNonDuplicatedItems();
+			boolean hasDuplicatedItems = false == this.content.getAsArrayMetadata(new CcpFieldName(field)).hasNonDuplicatedItems();
 			if(hasDuplicatedItems) {
 				return false;
 			}
@@ -40,7 +41,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 			String[] result = new String[fields.length];
 			int k = 0;
 			for (String field : fields) {
-				int size = this.content.getAsObjectList(() -> field).size();
+				int size = this.content.getAsObjectList(new CcpFieldName(field)).size();
 				result[k++] = "" + size;
 			}
 			return result;
@@ -52,7 +53,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		List<String> asList = Arrays.asList(args);	
 		
 		for (String field : this.fields) {
-			List<String> asStringList = this.content.getAsStringList(() -> field);
+			List<String> asStringList = this.content.getAsStringList(new CcpFieldName(field));
 			for (String string : asStringList) {
 				boolean notAllowedValue = false == asList.contains(string);
 				if(notAllowedValue) {
@@ -77,13 +78,13 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		List<Double> asList = Arrays.asList(args);
 
 		for (String field : this.fields) {
-			Optional<String> findFirst = this.content.getAsStringList(() -> field)
+			Optional<String> findFirst = this.content.getAsStringList(new CcpFieldName(field))
 			.stream().filter(x -> false == new CcpStringDecorator(x).isDoubleNumber()).findFirst();
 			boolean sameNumberIsNotDouble = findFirst.isPresent();
 			if (sameNumberIsNotDouble) {
 				return false;
 			}
-			List<Double> collect = this.content.getAsStringList(() -> field)
+			List<Double> collect = this.content.getAsStringList(new CcpFieldName(field))
 			.stream()
 			.map(x -> Double.valueOf(x))
 			.collect(Collectors.toList());
@@ -112,7 +113,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 			List<String> list = new ArrayList<>();
 
 			for (String field : fields) {
-				List<String> asStringList = this.content.getAsStringList(() -> field);
+				List<String> asStringList = this.content.getAsStringList(new CcpFieldName(field));
 				list.addAll(asStringList.stream().map(x -> "" + x.length()).collect(Collectors.toList()));
 			}
 			
@@ -125,7 +126,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		Function<String[], String[]> arrayProducer = fields -> {
 			List<String> list = new ArrayList<String>();
 			for (String field : fields) {
-				List<String> asStringList = this.content.getAsStringList(() -> field);
+				List<String> asStringList = this.content.getAsStringList(new CcpFieldName(field));
 				list.addAll(asStringList);
 			}
 			String[] result = list.toArray(new String[list.size()]);

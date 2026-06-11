@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldError;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
@@ -17,7 +18,7 @@ public interface CcpJsonFieldType {
 	default boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		java.lang.String fieldName = field.getName();
 		
-		boolean thisFieldIsAbsent = false == json.containsAllFields(() -> fieldName);
+		boolean thisFieldIsAbsent = false == json.containsAllFields(new CcpFieldName(fieldName));
 		
 		if(thisFieldIsAbsent) {
 			return false;
@@ -49,7 +50,7 @@ public interface CcpJsonFieldType {
 
 		java.lang.String fieldName = field.getName();
 		
-		boolean fieldIsNotPresent = false == json.containsAllFields(() -> fieldName);
+		boolean fieldIsNotPresent = false == json.containsAllFields(new CcpFieldName(fieldName));
 		if(fieldIsNotPresent) {
 			return errors;
 		}

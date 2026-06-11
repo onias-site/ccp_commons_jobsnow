@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.engine.CcpJsonFieldNotValidated;
@@ -67,7 +68,7 @@ public class CcpJsonValidationRulesEngine {
 		
 		for (CcpJsonValidator globalValidation : allGlobalValidations) {
 			Object ruleExplanation = globalValidation.getRuleExplanation(clazz);
-			rulesExplanation = rulesExplanation.addToList(() -> clazz.getName(), ruleExplanation);
+			rulesExplanation = rulesExplanation.addToList(new CcpFieldName(clazz.getName()), ruleExplanation);
 		}
 		return rulesExplanation;
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
@@ -84,7 +85,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		if(foundInTwinEntity) {
 			String id = this.getTwinEntity().calculateId(json);
 			String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this,  this.getTwinEntity());
-			throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new String[0]);
+			throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new CcpJsonFieldName[0]);
 		} 
 
 		CcpJsonRepresentation oneById =  this.entity.getOneById(json);

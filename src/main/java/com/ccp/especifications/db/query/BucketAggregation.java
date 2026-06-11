@@ -3,6 +3,7 @@ package com.ccp.especifications.db.query;
 import java.util.Map;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
@@ -35,8 +36,8 @@ public final class BucketAggregation extends CcpQueryComponent {
 	private CcpQueryAggregations getStatisRequest(String p1, String p2) {
 		CcpQueryComponent copy = this.copy();
 		Map<String, Object> content = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.field, this.fieldName)
-				.put(() -> p1, this.size).getContent();
-		copy.json = copy.json.put(() -> p2, content);
+				.put(new CcpFieldName(p1), this.size).getContent();
+		copy.json = copy.json.put(new CcpFieldName(p2), content);
 		CcpQueryAggregations addChild = this.parent.addChild(copy);
 		return addChild;
 	}

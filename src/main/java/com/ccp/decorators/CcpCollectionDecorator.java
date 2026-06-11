@@ -25,7 +25,7 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	
 	public CcpCollectionDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getAsObjectList(() -> key);
+		this.content = json.getAsObjectList(new CcpFieldName(key));
 	}
 
 	public boolean isLongNumberList() {

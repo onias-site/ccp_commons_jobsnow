@@ -1,5 +1,7 @@
 package com.ccp.especifications.db.query;
 
+import com.ccp.decorators.CcpFieldName;
+
 public class CcpQueryFieldRange extends CcpQueryComponent{
 
 	CcpQueryFieldRange(CcpQueryComponent parent, String name) {
@@ -14,7 +16,7 @@ public class CcpQueryFieldRange extends CcpQueryComponent{
 	
 	private CcpQueryFieldRange putOperator(String operatorName, Object value) {
 		CcpQueryFieldRange copy = this.copy();
-		copy.json = copy.json.put(() -> operatorName, value);
+		copy.json = copy.json.put(new CcpFieldName(operatorName), value);
 		return copy;
 	}
 	

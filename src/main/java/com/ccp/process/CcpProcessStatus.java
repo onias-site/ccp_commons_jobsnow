@@ -4,7 +4,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.flow.CcpErrorFlowDisturb;
 
-public interface CcpProcessStatus  extends CcpJsonFieldName{
+public interface CcpProcessStatus extends CcpJsonFieldName{
 	int asNumber();
 	default String verifyStatus(int actualStatus, String message) {
 		int expectedStatus = this.asNumber();

@@ -3,10 +3,11 @@ package com.ccp.especifications.http;
 import java.util.List;
 import java.util.Set;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.business.CcpBusiness;
 
 
 public final class CcpHttpHandler {
@@ -71,7 +72,7 @@ public final class CcpHttpHandler {
 		
 		int status = response.httpStatus;
 		
-		CcpBusiness flow = this.flows.getOrDefault(() -> "" + status, () -> this.alternativeFlow);
+		CcpBusiness flow = this.flows.getOrDefault(new CcpFieldName(status), () -> this.alternativeFlow);
 	
 		if(flow == null) {
 			Set<String> fieldSet = this.flows.fieldSet(); 

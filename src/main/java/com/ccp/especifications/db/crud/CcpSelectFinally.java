@@ -25,22 +25,22 @@ public class CcpSelectFinally {
 	}
 	private final Collection<CcpJsonRepresentation> parametersToSearch;
 	private final CcpJsonRepresentation statements;
-	private final String[] fields;
+	private final CcpJsonFieldName[] fields;
 	
-	CcpSelectFinally(Collection<CcpJsonRepresentation> parametersToSearch, CcpJsonRepresentation statements, String[] fields) {
+	CcpSelectFinally(Collection<CcpJsonRepresentation> parametersToSearch, CcpJsonRepresentation statements, CcpJsonFieldName[] fields) {
 		this.parametersToSearch = parametersToSearch;
 		this.fields = fields;
 		this.statements = statements;
 	}
 
-	public CcpSelectFinally endThisProcedure(String context, CcpBusiness whenFlowError,CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
+	public CcpSelectFinally endThisProcedure(CcpJsonFieldName context, CcpBusiness whenFlowError,CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
 		this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
 		return this; 
 	}
 
-	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(String context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache
+	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
@@ -50,7 +50,7 @@ public class CcpSelectFinally {
 
 	
 	private CcpJsonRepresentation findById( 
-			String origin,
+			CcpJsonFieldName origin,
 			CcpBusiness whenFlowError, 
 			CcpBusiness whenFlowSuccess, 
 			Consumer<String[]> functionToDeleteKeysInTheCache, 
@@ -167,7 +167,7 @@ public class CcpSelectFinally {
 		}
 		CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
 		//DOUBT TRANSFORMAR FIELDS EM JSONFIELDNAMES?
-		CcpJsonRepresentation subMap = apply.getJsonPiece(Arrays.asList(this.fields)).put(JsonFieldNames.origin, origin);
+		CcpJsonRepresentation subMap = apply.getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
 		return subMap;
 	}
 }

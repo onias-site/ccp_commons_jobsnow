@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.query;
 
 import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
@@ -30,7 +31,7 @@ abstract class CcpQueryComponent {
 		 
 		 Object value = child.getValue();
 		 
-		 instanceCopy.json = instanceCopy.json.put(() -> child.name, value);
+		 instanceCopy.json = instanceCopy.json.put(new CcpFieldName(child.name), value);
 		 
 		 return (T)instanceCopy;
 	 }
@@ -66,7 +67,7 @@ abstract class CcpQueryComponent {
 	
 	public <T extends CcpQueryComponent> T putProperty(String propertyName, Object propertyValue){
 		T clone = this.copy();
-		clone.json = clone.json.put(() -> propertyName, propertyValue);
+		clone.json = clone.json.put(new CcpFieldName(propertyName), propertyValue);
 		return clone;
 
 	}
