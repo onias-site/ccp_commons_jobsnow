@@ -14,7 +14,7 @@ public class CcpSelectNextStep {
 		this.statements = statements;
 	}
 	
-	public CcpSelectFinally andFinallyReturningTheseFields(Collection<String> fields) {
+	public CcpSelectFinally andFinallyReturningTheseFields(Collection<CcpJsonFieldName> fields) {
 		CcpJsonFieldName[] array = fields.toArray(new CcpJsonFieldName[fields.size()]);
 		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, array);
 		return ccpSelectFinally;
