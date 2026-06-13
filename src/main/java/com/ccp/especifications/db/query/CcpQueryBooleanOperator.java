@@ -11,6 +11,10 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
+/**
+ * Base abstrata para todos os operadores booleanos de query do Elasticsearch (must, should, filter, must_not, should_not).
+ * Gerencia a coleção de condições e fornece métodos genéricos para adicionar diferentes tipos de filtro.
+ */
 abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 	enum JsonFieldNames implements CcpJsonFieldName{
 		operator, boost, query
@@ -22,41 +26,65 @@ abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 		super(parent, name);
 	}
 
+	/**
+	 * Adiciona uma condição de igualdade exata (term) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T term(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "term");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição de múltiplos valores exatos (terms) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T terms(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "terms");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição de prefixo de string (prefix) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T prefix(CcpEntityField field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "prefix");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição de correspondência textual simples (match) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T match(CcpJsonFieldName field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "match");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição de correspondência de frase (match_phrase) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T matchPhrase(CcpEntityField field, Object value) {
 		T addCondition = this.addCondition(field.name(), value, "match_phrase");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição match com boost de relevância e operador lógico (AND/OR).
+	 */
 	public <T extends CcpQueryBooleanOperator> T match(CcpEntityField field, Object value, double boost, String operator) {
 		T addCondition = this.addCondition(field.name(), value, "match", boost, operator);
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição match_phrase com boost de relevância.
+	 */
 	public <T extends CcpQueryBooleanOperator> T matchPhrase(CcpEntityField field, Object value, double boost) {
 		T addCondition = this.addCondition(field.name(), value, "match_phrase", boost, "");
 		return addCondition;
 	}
 
+	/**
+	 * Adiciona uma condição de existência de campo (exists) ao operador.
+	 */
 	public <T extends CcpQueryBooleanOperator> T exists(String field) {
 		
 		
@@ -130,12 +158,18 @@ abstract class CcpQueryBooleanOperator extends CcpQueryComponent{
 		return (T)instanceCopy;
 	}
 
+	/**
+	 * Inicia um bloco de condição de intervalo (range) dentro deste operador.
+	 */
 	public CcpQueryRange startRange() {
 		return new CcpQueryRange(this);
 	}
 
 	
 	
+	/**
+	 * Retorna true se existem condições registradas neste operador.
+	 */
 	public boolean hasChildreen() {
 		return false == this.items.isEmpty();
 	}

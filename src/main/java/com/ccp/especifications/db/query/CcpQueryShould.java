@@ -5,6 +5,11 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
 
 
+/**
+ * Representa o nó should dentro de uma query booleana do Elasticsearch.
+ * As condições adicionadas aqui são opcionais e incrementam a pontuação de relevância dos documentos que as satisfaçam.
+ * Suporta o parâmetro minimum_should_match para exigir que pelo menos N condições sejam verdadeiras.
+ */
 public final class CcpQueryShould  extends CcpQueryBooleanOperator {
 	enum JsonFieldNames implements CcpJsonFieldName{
 		minimum_should_match
@@ -26,6 +31,9 @@ public final class CcpQueryShould  extends CcpQueryBooleanOperator {
 		return copy;
 	}
 	
+	/**
+	 * Finaliza o should e retorna ao nó bool pai.
+	 */
 	public CcpQueryBool endShouldAndBackToBool() {
 		CcpQueryComponent copy = this.parent.copy();
 		CcpQueryBool addChild = copy.addChild(this);

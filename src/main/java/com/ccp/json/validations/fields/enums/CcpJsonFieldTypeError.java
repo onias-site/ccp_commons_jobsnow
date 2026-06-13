@@ -28,6 +28,11 @@ import com.ccp.json.validations.global.engine.CcpJsonValidationError;
 import com.ccp.json.validations.global.engine.CcpJsonValidationRulesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
+/**
+ * Catálogo extenso de validadores de restrições específicas por tipo (números, strings, arrays,
+ * timestamps, JSON aninhado). Cada constante valida uma restrição específica lendo os parâmetros
+ * da anotação correspondente.
+ */
 public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
 	unsignedNumberMaxValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 		

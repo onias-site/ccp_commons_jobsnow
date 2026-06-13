@@ -6,6 +6,12 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
+/**
+ * Identifica a origem de uma entidade em configurações de anotação: {@code mainEntity} (a entidade
+ * principal declarada no campo {@code ENTITY} da classe configuradora) ou {@code twinEntity}
+ * (a entidade twin definida em {@code @CcpEntityTwin}). Usada como atributo em
+ * {@code @CcpEntityOperation} e {@code @CcpEntityDataTransfer}.
+ */
 public enum CcpEntityType {
 	mainEntity {
 		public String extractEntityName(Class<?> clazz) {
@@ -34,6 +40,10 @@ public enum CcpEntityType {
 		}
 	}
 	;
+	/**
+	 * Extrai o nome da entidade (nome do índice) a partir da classe configuradora fornecida.
+	 * @param clazz a classe configuradora da entidade
+	 */
 	public abstract String extractEntityName(Class<?> clazz);
 
 }

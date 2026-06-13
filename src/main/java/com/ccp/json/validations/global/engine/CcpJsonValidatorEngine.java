@@ -35,6 +35,11 @@ import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
+/**
+ * Engine singleton principal de validação de JSONs. Orquestra as validações globais (anotações de
+ * classe) e por campo, coletando todos os erros antes de lançar {@code CcpJsonValidationError} caso
+ * haja falhas. Também inspeciona anotações de tipo de campo para determinar o validador correto.
+ */
 public class CcpJsonValidatorEngine {
 	enum JsonFields implements CcpJsonFieldName{
 		field, type
@@ -45,6 +50,13 @@ public class CcpJsonValidatorEngine {
 	
 	public static final CcpJsonValidatorEngine INSTANCE = new CcpJsonValidatorEngine();
 	
+	/**
+	 * Valida o JSON; retorna o JSON original se nenhum erro for encontrado, ou lança
+	 * {@code CcpJsonValidationError} com diagnóstico completo caso haja erros.
+	 * @param clazz a classe portadora das regras de validação
+	 * @param json o JSON de entrada a ser validado
+	 * @param featureName nome da funcionalidade para diagnóstico
+	 */
 	public CcpJsonRepresentation validateJson(Class<?> clazz, CcpJsonRepresentation json, String featureName) {
 		
 		CcpJsonRepresentation errors = this.getErrors(clazz, json);
@@ -69,6 +81,10 @@ public class CcpJsonValidatorEngine {
 		return errors;
 	}
 
+	/**
+	 * Inspeciona as anotações do campo e retorna o {@code CcpJsonFieldType} correspondente.
+	 * Lança {@code CcpJsonFieldNotValidated} se nenhuma anotação de tipo for encontrada.
+	 */
 	public CcpJsonFieldType getJsonFieldType(Field field) {
 		
 		if(field.isAnnotationPresent(CcpJsonFieldTypeBoolean.class)) {
@@ -114,6 +130,10 @@ public class CcpJsonValidatorEngine {
 		throw new CcpJsonFieldNotValidated();
 	}
 	
+	/**
+	 * Retorna o campo de referência quando {@code @CcpJsonCopyFieldValidationsFrom} está presente;
+	 * caso contrário, retorna o próprio campo.
+	 */
 	public Field getReplacedField(Field field) {
 		
 		boolean useTheSameField = false == field.isAnnotationPresent(CcpJsonCopyFieldValidationsFrom.class);

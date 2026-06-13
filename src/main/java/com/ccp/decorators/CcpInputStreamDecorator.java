@@ -6,10 +6,18 @@ import java.io.InputStream;
 import java.net.URL;
 
 
+/**
+ * Decorator sobre um identificador de recurso (nome de variável de ambiente, caminho de arquivo ou recurso no classpath)
+ * que resolve e abre um {@code InputStream} de diferentes fontes. Suporta fallback automático entre as fontes.
+ */
 public class CcpInputStreamDecorator implements CcpDecorator<String> {
-	
+
 	private final String content;
 
+	/**
+	 * Encapsula o identificador do recurso.
+	 * @param content o nome ou caminho do recurso
+	 */
 	protected CcpInputStreamDecorator(String content) {
 		this.content = content;
 	}
@@ -18,6 +26,11 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		return this.content;
 	}
 
+	/**
+	 * Lê a variável de ambiente cujo nome é o conteúdo encapsulado. Se o valor for um caminho de arquivo existente,
+	 * abre o arquivo; caso contrário, converte o valor em {@code ByteArrayInputStream}.
+	 * Lança {@code CcpErrorInputStreamMissing} se a variável não existir ou estiver vazia.
+	 */
 	public InputStream environmentVariables() {
 		
 		String getenv = System.getenv(this.content);
@@ -44,6 +57,10 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		return byteArrayInputStream;
 	}
 	
+	/**
+	 * Abre o recurso como arquivo do classpath (via {@code ClassLoader.getResource}).
+	 * Lança {@code CcpErrorInputStreamMissing} se o recurso não for encontrado.
+	 */
 	public InputStream classLoader() {
 		Class<? extends CcpInputStreamDecorator> class1 = this.getClass();
 		ClassLoader classLoader = class1.getClassLoader();
@@ -59,6 +76,10 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		}
 	}
 	
+	/**
+	 * Abre o arquivo do sistema de arquivos pelo caminho encapsulado.
+	 * Lança {@code CcpErrorInputStreamMissing} se o arquivo não existir.
+	 */
 	public InputStream file() {
 		CcpFileDecorator file = new CcpStringDecorator(this.content).file();
 		boolean notExists = false == file.exists();
@@ -73,12 +94,18 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		}
 	}
 	
+	/**
+	 * Converte o conteúdo textual diretamente em {@code ByteArrayInputStream}.
+	 */
 	public InputStream byteArray() {
 		byte[] bytes = this.content.getBytes();
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 		return byteArrayInputStream;
 	}
 	
+	/**
+	 * Tenta as três fontes em sequência (variável de ambiente → classpath → arquivo) e retorna o primeiro {@code InputStream} encontrado com sucesso.
+	 */
 	public InputStream fromEnvironmentVariablesOrClassLoaderOrFile() {
 
 		try {
@@ -98,6 +125,9 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		return is;
 	}
 
+	/**
+	 * Implementação de {@code CcpDecorator}; retorna o identificador do recurso.
+	 */
 	public String getContent() {
 		return this.content;
 	}

@@ -9,14 +9,24 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.process.CcpProcessStatusDefault;
 
+/**
+ * Enumera os tipos de operação bulk possíveis sobre uma entidade do banco ({@code create},
+ * {@code update}, {@code delete}, {@code noop}) e encapsula a lógica de reprocessamento automático
+ * para situações de conflito ou registro não encontrado — por exemplo, promovendo {@code create}
+ * para {@code update} em caso de conflito, e vice-versa.
+ */
 public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 
-	create(1, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.CONFLICT.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))), 
-	update(2, true, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))), 
-	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> 
+	/** Operação de criação; em caso de conflito (registro já existe), converte automaticamente para {@code update}. */
+	create(1, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.CONFLICT.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))),
+	/** Operação de atualização ({@code createsVersionsToSameRecord = true}); em caso de registro não encontrado, converte automaticamente para {@code create}. */
+	update(2, true, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))),
+	/** Operação de exclusão; em caso de registro não encontrado, lança {@link CcpErrorBulkEntityRecordNotFound}. */
+	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x ->
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	})),
+	/** Operação nula/sem efeito; usada para marcar registros que existem mas não precisam ser alterados. */
 	noop(0, false, CcpOtherConstants.EMPTY_JSON),
 	;
 	public final boolean createsVersionsToSameRecord;
@@ -37,6 +47,16 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 		return ccpBulkItem;
 	}
 	
+	/**
+	 * Avalia o status retornado pela operação bulk; se o status não tem handler mapeado, gera um novo
+	 * {@link CcpBulkItem} de criação via {@code reprocessJsonProducer}; caso contrário, aplica o handler
+	 * correspondente (ex.: troca create para update) e retorna o item reprocessado.
+	 *
+	 * @param reprocessJsonProducer função que produz o JSON para reprocessamento quando o status não é mapeado
+	 * @param result resultado da operação bulk original
+	 * @param entityToReprocess entidade destino do reprocessamento
+	 * @return item bulk reprocessado
+	 */
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
 		CcpJsonFieldName statusAsJsonFieldName = result.statusAsJsonFieldName();

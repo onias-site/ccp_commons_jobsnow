@@ -10,6 +10,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
+/**
+ * Validações globais padrão do framework. {@code requiredAtLeastOne} garante que ao menos um campo
+ * de cada grupo esteja presente; {@code requiresAllOrNone} garante consistência total (ou nenhum
+ * ou todos os campos do grupo devem estar presentes).
+ */
 public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 
 	requiredAtLeastOne{

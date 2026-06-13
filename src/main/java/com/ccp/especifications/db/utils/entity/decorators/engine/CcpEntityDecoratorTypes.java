@@ -16,6 +16,11 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityO
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 
+/**
+ * Cataloga todos os tipos de decorator disponíveis para entidades, associando cada um à sua
+ * anotação, à classe de decorator e a uma prioridade de encadeamento. A prioridade determina a
+ * ordem de aplicação ao construir a entidade final via {@code CcpEntityFactory}.
+ */
 public enum CcpEntityDecoratorTypes {
 	Disposable(CcpEntityDisposable.class, x -> x.getAnnotation(CcpEntityDisposable.class).expurgableEntityFactory(), 1),
 	Versionable(CcpEntityVersionable.class, x -> x.getAnnotation(CcpEntityVersionable.class).value(), 2),
@@ -40,11 +45,17 @@ public enum CcpEntityDecoratorTypes {
 	private final Class<? extends Annotation> annotation;
 	public final int priority;
 	
+	/** Retorna {@code true} se a anotação deste tipo de decorator está presente em {@code clazz}. */
 	boolean isDecorated(Class<?> clazz) {
 		boolean annotationPresent = clazz.isAnnotationPresent(this.annotation);
 		return annotationPresent;
 	}
 	
+	/**
+	 * Instancia o decorator correspondente a este tipo para a entidade informada.
+	 * @param clazz a classe configuradora da entidade (portadora das anotações)
+	 * @param decoratedEntity a entidade já decorada até este ponto da cadeia
+	 */
 	public CcpEntity getEntity(Class<?> clazz, CcpEntity decoratedEntity) {
 		
 		try {

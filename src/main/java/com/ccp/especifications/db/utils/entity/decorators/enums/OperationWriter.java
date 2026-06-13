@@ -11,8 +11,17 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
 
+/**
+ * Interface auxiliar compartilhada por {@code CcpEntityDecoratorOperationType} e
+ * {@code CcpEntityDecoratorTransferType}. Fornece a lógica de execução de negócios com suporte a
+ * tratamento de exceções configurado via {@code @CcpExceptionFlow}.
+ */
 interface OperationWriter {
-	
+
+	/**
+	 * Executa {@code business} com o JSON informado, capturando exceções previstas em
+	 * {@code exceptionHandlers} e executando os negócios de fallback correspondentes.
+	 */
 	default CcpJsonRepresentation executeBusiness(CcpJsonRepresentation json, CcpBusiness business, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
 		try {
 			CcpJsonRepresentation apply = business.apply(json);
@@ -34,6 +43,7 @@ interface OperationWriter {
 		}
 	}
 
+	/** Constrói o mapa de handlers a partir de um array de {@code @CcpExceptionFlow}. */
 	default Map<Class<?>, List<CcpBusiness>> getExceptionHandlers(CcpExceptionFlow[] flows){
 		
 		Map<Class<?>, List<CcpBusiness>> result = new HashMap<>();
@@ -52,6 +62,7 @@ interface OperationWriter {
 		return result;
 	}
 	
+	/** Instancia via reflexão a classe informada como {@code CcpBusiness}. */
 	default CcpBusiness getBusiness(Class<?> clazz) {
 		CcpReflectionConstructorDecorator ccpReflectionConstructorDecorator = new CcpReflectionConstructorDecorator(clazz);
 		CcpBusiness newInstance = ccpReflectionConstructorDecorator.newInstance();

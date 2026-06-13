@@ -29,19 +29,36 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.hash.CcpHashAlgorithm;
  
+/**
+ * Tipo central do framework jobsnow. Representa um documento JSON como um mapa imutável {@code Map<String, Object>}
+ * e é o único tipo de dado que flui entre todos os componentes de negócio. Oferece uma API fluente abrangente para
+ * leitura, escrita, transformação, comparação, navegação em profundidade e validação condicional de campos.
+ */
 public class CcpJsonRepresentation  {
+	/**
+	 * Campos padrão usados para serializar detalhes de exceções: causa, mensagem, stack trace, tipo, hash do stack trace e stack trace completo.
+	 */
 	public static enum Fields implements CcpJsonFieldName{
 		cause, message, stackTrace, type, stackTraceHash, completeStackTrace
 	}
+	/**
+	 * Contrato de identificadores de campo. Implementado por enums, lambdas ou classes; garante que nomes de campo
+	 * sejam referenciados de forma tipada (sem strings literais espalhadas pelo código).
+	 * O método padrão {@code getValue()} chama {@code name()}, suportando enums diretamente.
+	 */
 	public static interface CcpJsonFieldName{
-		
+
 		default String getValue() {
 			return this.name();
 		}
-		
+
 		String name();
 	}
 	
+	/**
+	 * Cria uma nova instância a partir do conteúdo de outro JSON (cópia de conteúdo).
+	 * @param json o JSON de origem
+	 */
 	public CcpJsonRepresentation redoJson(CcpJsonRepresentation json) {
 		CcpJsonRepresentation redo = new CcpJsonRepresentation(json.content);
 		return redo;
@@ -52,11 +69,18 @@ public class CcpJsonRepresentation  {
 	protected CcpJsonRepresentation() {
 		this.content = new HashMap<>();
 	}
-	
+
+	/**
+	 * Fábrica pública para JSON vazio.
+	 */
 	public static CcpJsonRepresentation getEmptyJson() {
 		return new CcpJsonRepresentation();
 	}
-	
+
+	/**
+	 * Lê o stream e constrói o JSON; aceita conteúdo JSON ou formato {@code Properties}.
+	 * @param is o stream de entrada
+	 */
 	public CcpJsonRepresentation(InputStream is) {
 
 		this.content = new HashMap<>();
@@ -95,10 +119,18 @@ public class CcpJsonRepresentation  {
 		return result;
 	}
 	
+	/**
+	 * Serializa os detalhes de uma exceção (mensagem, stack trace, causa) em JSON.
+	 * @param e a exceção a serializar
+	 */
 	public CcpJsonRepresentation(Throwable e) {
 		this(getErrorDetails(e).content);
 	}
 
+	/**
+	 * Desserializa uma string JSON; lança {@code CcpErrorJsonInvalid} se inválida.
+	 * @param json a string JSON a desserializar
+	 */
 	public CcpJsonRepresentation(String json) {
 		this(getMap(json));
 	}
@@ -114,6 +146,10 @@ public class CcpJsonRepresentation  {
 		}
 	}
 	
+	/**
+	 * Cria a partir de um mapa existente; lança {@code CcpErrorJsonNull} se {@code null}.
+	 * @param content o mapa de campos e valores
+	 */
 	public CcpJsonRepresentation(Map<String, Object> content) {
 		if(content == null) {
 			throw new CcpErrorJsonNull();
@@ -297,6 +333,11 @@ public class CcpJsonRepresentation  {
 		return decorator;
 	}
 	
+	/**
+	 * Executa {@code business} somente se NENHUM dos campos especificados estiver presente.
+	 * @param business a lógica a executar
+	 * @param fields os campos a verificar
+	 */
 	public CcpJsonRepresentation whenFieldsAreNotFound(CcpBusiness business, CcpJsonFieldName... fields) {
 		boolean anyFieldIsPresent = this.containsAnyFields(fields);
 		if(anyFieldIsPresent) {
@@ -308,6 +349,11 @@ public class CcpJsonRepresentation  {
 	
 	}
 
+	/**
+	 * Executa {@code business} se PELO MENOS UM dos campos estiver presente.
+	 * @param business a lógica a executar
+	 * @param fields os campos a verificar
+	 */
 	public CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
 		
 		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
@@ -320,6 +366,11 @@ public class CcpJsonRepresentation  {
 		return apply;
 	}
 
+	/**
+	 * Executa {@code business} somente se TODOS os campos estiverem presentes.
+	 * @param business a lógica a executar
+	 * @param fields os campos a verificar
+	 */
 	public CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
 		boolean allFieldIsNotPresent = false == this.containsAllFields(fields);
 		
@@ -331,6 +382,10 @@ public class CcpJsonRepresentation  {
 		return apply;
 	}
 	
+	/**
+	 * Retorna o valor do campo como string. Retorna {@code ""} se ausente ou nulo; serializa Maps e Collections corretamente.
+	 * @param field o campo a ler
+	 */
 	public String getAsString(CcpJsonFieldName field) {
 		String asString = this.getAsString(field.getValue());
 		return asString;
@@ -423,6 +478,9 @@ public class CcpJsonRepresentation  {
 		return new CcpJsonRepresentation(subMap);
 	}
 
+	/**
+	 * Serializa o JSON em formato compacto (sem formatação).
+	 */
 	public String asUgglyJson() {
 		
 		try {
@@ -435,6 +493,9 @@ public class CcpJsonRepresentation  {
 		}
 	}
 
+	/**
+	 * Serializa com indentação e quebras de linha.
+	 */
 	public String asPrettyJson() {
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		String asPrettyJson = json.asPrettyJson(this.content);
@@ -454,6 +515,9 @@ public class CcpJsonRepresentation  {
 	}
 	
 
+	/**
+	 * Retorna o conjunto de nomes de campos presentes.
+	 */
 	public Set<String> fieldSet(){
 		Set<String> keySet = this.content.keySet();
 		return keySet;
@@ -481,11 +545,19 @@ public class CcpJsonRepresentation  {
 		return put;
 	}
 	
+	/**
+	 * Aplica uma função extratora sobre este JSON e retorna o resultado.
+	 * @param extractor a função extratora
+	 */
 	public <T> T extractInformationFromJson(Function<CcpJsonRepresentation, T> extractor) {
 		T information = extractor.apply(this);
 		return information;
 	}
 	
+	/**
+	 * Aplica uma sequência de transformadores em cadeia, passando o resultado de um para o próximo.
+	 * @param transformers os transformadores a aplicar em sequência
+	 */
 	@SafeVarargs
 	public final CcpJsonRepresentation getTransformedJson(CcpBusiness... transformers) {
 		CcpJsonRepresentation transformedJson = this;
@@ -496,11 +568,21 @@ public class CcpJsonRepresentation  {
 	}
 
 	
+	/**
+	 * Associa um {@code CcpBusiness} como valor de um campo (armazenamento de transformadores para uso posterior).
+	 * @param field o campo onde o transformador será armazenado
+	 * @param process o transformador a armazenar
+	 */
 	public CcpJsonRepresentation addJsonTransformer(CcpJsonFieldName field, CcpBusiness process) {
 		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(field.getValue(), process);
 		return addJsonTransformer;
 	}
 	
+	/**
+	 * Associa um {@code CcpBusiness} como valor de um campo inteiro (índice).
+	 * @param field o índice do campo
+	 * @param process o transformador a armazenar
+	 */
 	public CcpJsonRepresentation addJsonTransformer(Integer field, CcpBusiness process) {
 		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer("" + field, process);
 		return addJsonTransformer;
@@ -510,6 +592,11 @@ public class CcpJsonRepresentation  {
 		return put;
 	}
 	
+	/**
+	 * Define o mesmo valor em múltiplos campos de uma vez.
+	 * @param value o valor a definir
+	 * @param fields os campos a preencher
+	 */
 	public CcpJsonRepresentation putSameValueInManyFields(Object value, CcpJsonFieldName... fields) {
 		String[] fields2 = this.getFields(fields);
 		CcpJsonRepresentation putSameValueInManyFields = this.putSameValueInManyFields(value, fields2);
@@ -526,16 +613,30 @@ public class CcpJsonRepresentation  {
 		return json;
 	}
 	
+	/**
+	 * Retorna uma nova instância com o campo adicionado/substituído (imutável).
+	 * @param field o campo a adicionar ou substituir
+	 * @param value o valor do campo
+	 */
 	public CcpJsonRepresentation put(CcpJsonFieldName field, Object value) {
 		CcpJsonRepresentation put = this.put(field.getValue(), value);
 		return put;
 	}
 
+	/**
+	 * Adiciona um JSON aninhado como valor do campo.
+	 * @param field o campo onde o JSON aninhado será armazenado
+	 * @param value o JSON aninhado
+	 */
 	public CcpJsonRepresentation put(CcpJsonFieldName field, CcpJsonRepresentation value) {
 		CcpJsonRepresentation put = this.put(field.getValue(), value.content);
 		return put;
 	}
 	
+	/**
+	 * Usa o {@code getValue()} do próprio enum como valor do campo (conveniente para campos auto-descritivos).
+	 * @param field o campo cujo valor será o seu próprio nome
+	 */
 	public CcpJsonRepresentation put(CcpJsonFieldName field) {
 		CcpJsonRepresentation put = this.put(field, field);
 		return put;
@@ -549,6 +650,11 @@ public class CcpJsonRepresentation  {
 		return json;
 	}  
 
+	/**
+	 * Copia o valor de um campo para um ou mais outros campos.
+	 * @param fieldToCopy o campo de origem
+	 * @param fieldsToPaste os campos de destino
+	 */
 	public CcpJsonRepresentation duplicateValueFromField(CcpJsonFieldName fieldToCopy, CcpJsonFieldName... fieldsToPaste) {
 		String[] fields = this.getFields(fieldsToPaste);
 		CcpJsonRepresentation response = this.duplicateValueFromField(fieldToCopy.getValue(), fields);
@@ -572,6 +678,11 @@ public class CcpJsonRepresentation  {
 		return newMap;
 	}
 	
+	/**
+	 * Renomeia um campo (move o valor de {@code oldField} para {@code newField}).
+	 * @param oldField o campo original
+	 * @param newField o novo nome do campo
+	 */
 	public CcpJsonRepresentation renameField(CcpJsonFieldName oldField, CcpJsonFieldName newField) {
 		CcpJsonRepresentation renameField = this.renameField(oldField.getValue(), newField.getValue());
 		return renameField;
@@ -599,6 +710,10 @@ public class CcpJsonRepresentation  {
 		return json;
 	}
 	
+	/**
+	 * Retorna nova instância sem os campos especificados.
+	 * @param fields os campos a remover
+	 */
 	public CcpJsonRepresentation removeFields(CcpJsonFieldName... fields) {
 		String[] fields2 = this.getFields(fields);
 		CcpJsonRepresentation removeFields = this.removeFields(fields2);
@@ -613,15 +728,25 @@ public class CcpJsonRepresentation  {
 		return json;
 	}
 
+	/**
+	 * Retorna o mapa interno imutável.
+	 */
 	public Map<String, Object> getContent() {
 		return this.content;
 	}
-	
+
+	/**
+	 * Cria uma cópia independente do JSON atual.
+	 */
 	public CcpJsonRepresentation copy() {
 		CcpJsonRepresentation json = new CcpJsonRepresentation(this.getContent());
 		return json;
 	}
 	
+	/**
+	 * Navega por um caminho de múltiplos campos aninhados e retorna o JSON encontrado.
+	 * @param paths o caminho de campos aninhados
+	 */
 	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName...paths) {
 		String[] fields = this.getFields(paths);
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fields);
@@ -639,6 +764,11 @@ public class CcpJsonRepresentation  {
 		}
 	}
 
+	/**
+	 * Navega pelo caminho e retorna o valor tipado; retorna {@code defaultValue} se qualquer campo do caminho estiver ausente.
+	 * @param defaultValue o valor padrão caso o caminho não exista
+	 * @param paths o caminho de campos aninhados
+	 */
 	public <T>T getValueFromPath(T defaultValue, CcpJsonFieldName... paths){
 		String[] fields = this.getFields(paths);
 		T valueFromPath = this.getValueFromPath(defaultValue, fields);

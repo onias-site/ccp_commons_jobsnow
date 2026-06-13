@@ -14,6 +14,12 @@ import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
+/**
+ * Validadores transversais de campo: tipo incompatível, campo obrigatório ausente e conflito
+ * coleção/valor único.
+ * Constantes: {@code incompatibleType} (breakFieldValidation), {@code requiredFieldIsMissing}
+ * (continueFieldValidation), {@code validateCollectionOrSigleValue} (breakFieldValidation).
+ */
 public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
 	
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {

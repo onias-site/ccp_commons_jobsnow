@@ -6,12 +6,19 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Restrições para campos inteiros long: valor mínimo, máximo, exato e lista de permitidos.
+ */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonFieldTypeNumberInteger {
+	/** Valores permitidos para o campo. */
 	long[] allowedValues() default {};
+	/** Valor mínimo permitido. */
 	long minValue() default Long.MIN_VALUE;
+	/** Valor máximo permitido. */
 	long maxValue() default Long.MAX_VALUE;
+	/** Valor exato obrigatório. */
 	long exactValue() default Long.MIN_VALUE;
 
 }

@@ -26,6 +26,12 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
+/**
+ * Contém todos os metadados de uma entidade: nome do índice, classe configuradora, campos, chave
+ * primária e campos atualizáveis. Fornece operações utilitárias para cálculo de ID, extração de
+ * campos, busca e montagem de itens bulk. Instâncias são criadas e usadas internamente por
+ * {@code CcpEntityFactory} e {@code DefaultImplementationEntity}.
+ */
 public final class CcpEntityMetaData {
 
 	public final List<String> onlyUpdatableFields;
@@ -96,10 +102,12 @@ public final class CcpEntityMetaData {
 		}
 	}
 
+	/** Retorna um {@code CcpBusiness} que executa a operação informada sobre a entidade destes metadados. */
 	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
 		return json -> operation.execute(this.entity, json);
 	}
 
+	/** Retorna um JSON contendo apenas os campos atualizáveis (não chave primária) presentes em {@code json}. */
 	public CcpJsonRepresentation getOnlyUpdatableFields(CcpJsonRepresentation json) {
 		CcpJsonRepresentation jsonPiece = json.getJsonPiece(this.onlyUpdatableFields);
 		return jsonPiece;
@@ -117,6 +125,7 @@ public final class CcpEntityMetaData {
 		return jsonPiece;
 	}
 
+	/** Retorna os valores dos campos de chave primária ordenados alfabeticamente pelo nome do campo. */
 	public ArrayList<Object> getSortedPrimaryKeyValues(CcpJsonRepresentation json) {
 
 		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
@@ -127,11 +136,13 @@ public final class CcpEntityMetaData {
 		return onlyPrimaryKeys;
 	}
 
+	/** Retorna um JSON contendo apenas os campos declarados nos metadados desta entidade. */
 	public CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
 		CcpJsonRepresentation subMap = json.getJsonPiece(this.allFields);
 		return subMap;
 	}
 	
+	/** Retorna os nomes dos índices de todas as entidades associadas (incluindo twin). */
 	public String[] getEntitiesToSelect() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
 		List<String> collect = associatedEntities.stream().map(x -> x.getEntityMetaData().entityName).collect(Collectors.toList());
@@ -139,6 +150,10 @@ public final class CcpEntityMetaData {
 		return array;
 	}
 	
+	/**
+	 * Busca o documento pelo ID calculado; se não encontrado, executa {@code ifNotFound} e retorna
+	 * seu resultado.
+	 */
 	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		try {
 			CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -152,11 +167,13 @@ public final class CcpEntityMetaData {
 		}
 	}
 
+	/** Retorna {@code true} se a entidade não possui campos atualizáveis (somente leitura efetiva). */
 	public boolean isNotAnUpdatableEntity() {
 		boolean empty = this.onlyUpdatableFields.isEmpty();
 		return empty;
 	}
 
+	/** Busca múltiplos documentos por seus IDs e retorna os resultados agrupados por esta entidade. */
 	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
 		boolean hasNoIdsToSearch = asList.isEmpty();
 

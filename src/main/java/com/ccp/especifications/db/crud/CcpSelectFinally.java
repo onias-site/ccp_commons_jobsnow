@@ -18,6 +18,12 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 
+/**
+ * Etapa final do fluent chain de busca. Executa todos os statements acumulados (verificações de
+ * presença em entidades, ações condicionais e lançamento de status de erro), coordena a busca
+ * {@code unionAll}, aplica as regras do fluxo e retorna apenas os campos especificados no resultado
+ * final. Lança {@link com.ccp.flow.CcpErrorFlowDisturb} quando uma condição de fluxo não é satisfeita.
+ */
 public class CcpSelectFinally {
 	enum JsonFieldNames implements CcpJsonFieldName{
 		statements, entity, action, found, status, message, errorDetails, flow, origin
@@ -33,6 +39,16 @@ public class CcpSelectFinally {
 		this.statements = statements;
 	}
 
+	/**
+	 * Executa o fluxo completo de busca e validação de statements, disparando {@code whenFlowError}
+	 * ou {@code whenFlowSuccess} conforme o resultado; retorna {@code this} (uso para efeito colateral).
+	 *
+	 * @param context identificador de contexto usado em mensagens de erro
+	 * @param whenFlowError business logic executada em caso de erro de fluxo
+	 * @param whenFlowSuccess business logic executada em caso de sucesso
+	 * @param functionToDeleteKeysInTheCache função para invalidar chaves de cache
+	 * @return esta instância
+	 */
 	public CcpSelectFinally endThisProcedure(CcpJsonFieldName context, CcpBusiness whenFlowError,CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statements.size()]);
@@ -40,6 +56,16 @@ public class CcpSelectFinally {
 		return this; 
 	}
 
+	/**
+	 * Igual ao {@link #endThisProcedure}, mas retorna o {@link CcpJsonRepresentation} resultante
+	 * contendo apenas os campos declarados no {@code andFinally(fields)}.
+	 *
+	 * @param context identificador de contexto usado em mensagens de erro
+	 * @param whenFlowError business logic executada em caso de erro de fluxo
+	 * @param whenFlowSuccess business logic executada em caso de sucesso
+	 * @param functionToDeleteKeysInTheCache função para invalidar chaves de cache
+	 * @return JSON resultante com apenas os campos declarados
+	 */
 	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache
 			) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);

@@ -8,6 +8,11 @@ import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpTimeDecorator;
 
+/**
+ * Granularidades de expiração para entidades descartáveis ({@code @CcpEntityDisposable}). Cada
+ * constante encapsula o campo de calendário correspondente, o formato de data, o tempo de expiração
+ * de cache em segundos e o equivalente em milissegundos.
+ */
 public enum CcpEntityExpurgableOptions{
 	yearly(Calendar.YEAR, "yyyy", 86400, 31_536_000_000L, "years")
 	,minute(Calendar.MINUTE, "ddMMyyyy HH:mm", 60, 60_000, "minutes")
@@ -32,6 +37,10 @@ public enum CcpEntityExpurgableOptions{
 		this.word = word;
 	}
 
+	/**
+	 * Formata o timestamp {@code date} (em milissegundos) usando o padrão desta granularidade.
+	 * @param date timestamp em milissegundos
+	 */
 	public String getFormattedDate(Long date) {
 		Date d = new Date();
 		d.setTime(date);
@@ -39,10 +48,13 @@ public enum CcpEntityExpurgableOptions{
 		return format;
 	}
 	
+	/** Formata o instante atual usando o padrão desta granularidade. */
 	public String getFormattedDate() {
 		String formattedDate = getFormattedDate(System.currentTimeMillis());
 		return formattedDate;
-	}	
+	}
+
+	/** Retorna o timestamp do próximo período nesta granularidade a partir do instante atual. */
 	public Long getNextTimeStamp() {
 		Calendar cal = new CcpTimeDecorator().getBrazilianCalendar();
 		cal.add(this.calendarField, 1);
@@ -50,6 +62,10 @@ public enum CcpEntityExpurgableOptions{
 		return timeInMillis;
 	}
 
+	/**
+	 * Retorna o timestamp do próximo período nesta granularidade a partir de {@code timestamp}.
+	 * @param timestamp timestamp de referência em milissegundos
+	 */
 	public Long getNextTimeStamp(Long timestamp) {
 		Calendar cal = new CcpTimeDecorator(timestamp).getBrazilianCalendar();
 		cal.add(this.calendarField, 1);
@@ -57,6 +73,7 @@ public enum CcpEntityExpurgableOptions{
 		return timeInMillis;
 	}
 	
+	/** Retorna o próximo período (a partir do instante atual) formatado como data completa. */
 	public String getNextDate() {
 		Long nextTimeStamp = this.getNextTimeStamp();
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
@@ -64,6 +81,10 @@ public enum CcpEntityExpurgableOptions{
 		return formattedDateTime;
 	}
 	
+	/**
+	 * Retorna o próximo período a partir de {@code timestamp} formatado como data completa.
+	 * @param timestamp timestamp de referência em milissegundos
+	 */
 	public String getNextDate(Long timestamp) {
 		Long nextTimeStamp = this.getNextTimeStamp(timestamp);
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
@@ -71,6 +92,13 @@ public enum CcpEntityExpurgableOptions{
 		return formattedDateTime;
 	}
 	
+	/**
+	 * Retorna a data no passado imediato correspondente ao {@code format} desta granularidade,
+	 * formatada segundo {@code newFormat}.
+	 * @param format o padrão de formato que identifica a granularidade
+	 * @param newFormat o padrão de saída desejado
+	 * @param timeMillis o timestamp de referência em milissegundos
+	 */
 	public static String getPastDate(String format, String newFormat, Long timeMillis) {
 
 		CcpEntityExpurgableOptions[] values = CcpEntityExpurgableOptions.values();

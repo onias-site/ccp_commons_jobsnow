@@ -18,6 +18,12 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityCo
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
+/**
+ * Decorator que implementa o padrão de entidade twin para entidades anotadas com
+ * {@code @CcpEntityTwin}. Gerencia a migração de registros entre o índice principal e o índice
+ * twin: {@code save} grava na entidade principal e apaga do twin; {@code delete} transfere o
+ * registro para o twin. Usa o executor bulk e a função de limpeza de cache configurados na anotação.
+ */
 class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	
 	private CcpEntity twin;

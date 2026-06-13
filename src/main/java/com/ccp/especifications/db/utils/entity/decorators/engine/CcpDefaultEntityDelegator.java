@@ -24,6 +24,12 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
+/**
+ * Especialização abstrata de {@code CcpEntityDelegator} que fornece implementações padrão de
+ * {@code save}, {@code delete}, {@code deleteAnyWhere}, {@code transferDataTo} e {@code copyDataTo}
+ * usando operações bulk. É a base para todos os decorators que precisam de operações de escrita com
+ * suporte a bulk e invalidação de cache.
+ */
 public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator{
 	
 	protected final Consumer<String[]> functionToDeleteKeysInTheCache;

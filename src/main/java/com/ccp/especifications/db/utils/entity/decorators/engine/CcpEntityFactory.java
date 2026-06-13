@@ -24,6 +24,12 @@ import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityField
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldTransformer;
 
+/**
+ * Fábrica responsável por construir a instância final de uma entidade encadeando os decorators
+ * configurados via anotações (cache, twin, versionamento, operações, etc.) em ordem de prioridade.
+ * Também extrai os campos da entidade a partir da inner class {@code Fields} declarada na classe
+ * configuradora.
+ */
 public class CcpEntityFactory {
 
 	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
@@ -52,18 +58,29 @@ public class CcpEntityFactory {
 		return entity;
 	}
 
+	/**
+	 * Constrói a entidade a partir do {@code configurator}, excluindo os tipos de decorator listados
+	 * em {@code decoratorsToAvoid}.
+	 */
 	public static CcpEntity getCustomEntity(CcpEntityConfigurator configurator, CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		CcpEntity entity = configurator.getEntity();
 		CcpEntity customEntity = getCustomEntity(entity, decoratorsToAvoid);
 		return customEntity;
 	}
 
+	/**
+	 * Constrói a entidade a partir de uma instância já existente, excluindo os decorators indicados.
+	 */
 	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		CcpEntity customEntity = getEntity(entityDetails.configurationClass, mainEntityNameProducer, decoratorsToAvoid);
 		return customEntity;
 	}
 	
+	/**
+	 * Constrói a cadeia de decorators para a classe configuradora, aplicando os tipos presentes nas
+	 * anotações em ordem de prioridade, exceto os listados em {@code decoratorsToAvoid}.
+	 */
 	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> entityNameExtractor, CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		
 		
@@ -86,6 +103,11 @@ public class CcpEntityFactory {
 		return result;
 	}
 	
+	/**
+	 * Extrai os campos da entidade a partir da inner class {@code Fields} declarada em
+	 * {@code configurationClass}, construindo um array de {@code CcpEntityField} com os metadados
+	 * de cada campo (nome, chave primária, atualizável, transformador).
+	 */
 	public static CcpEntityField[] getFields(Class<?> configurationClass) {
 		
 		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);

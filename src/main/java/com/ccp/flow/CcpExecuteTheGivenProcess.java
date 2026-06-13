@@ -3,6 +3,9 @@ package com.ccp.flow;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 
+/**
+ * Quinto elo da cadeia. Permite adicionar mais ramificações condicionais (via {@code and()}) ou encerrar o statement.
+ */
 public final class CcpExecuteTheGivenProcess {
 
 	protected final CcpBusiness givenFinalTargetProcess;

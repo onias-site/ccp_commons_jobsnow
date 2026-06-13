@@ -6,6 +6,10 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Decorator especializado em endereços de e-mail. Oferece validação robusta (com regras de negócio específicas
+ * do domínio jobsnow), normalização de acentos, extração de e-mails a partir de texto livre e cálculo de hash do endereço.
+ */
 public class CcpEmailDecorator implements  CcpDecorator<String>{
 	public static final String	EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
@@ -34,6 +38,10 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	
 	public final String content;
 
+	/**
+	 * Encapsula a string como e-mail.
+	 * @param content o endereço de e-mail
+	 */
 	protected CcpEmailDecorator(String content) {
 		this.content = content;
 	}
@@ -42,6 +50,10 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return this.content;
 	}
 
+	/**
+	 * Remove acentos do endereço. Se já for um e-mail válido, trata as partes local e domínio separadamente
+	 * para preservar o {@code @}; caso contrário, aplica normalização NFD genérica.
+	 */
 	public CcpEmailDecorator stripAccents() {
 		boolean valid = this.isValid();
 		if(valid) {
@@ -60,6 +72,10 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return ccpEmailDecorator;
 	}
 	
+	/**
+	 * Verifica se a string é um endereço de e-mail válido segundo a regex padrão e regras de negócio do domínio.
+	 * @return {@code true} se o endereço for válido
+	 */
 	public boolean isValid() {
 		String[] split = this.content.split("@");
 
@@ -123,6 +139,11 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
 		    Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
+	/**
+	 * Percorre as "palavras" obtidas ao dividir o conteúdo pelos delimitadores fornecidos e retorna
+	 * o primeiro trecho reconhecido como e-mail válido. Retorna {@code CcpEmailDecorator("")} se nenhum for encontrado.
+	 * @param delimitadores expressão de delimitadores para divisão do texto
+	 */
 	public CcpEmailDecorator findFirst(String delimitadores) {
 		
 		String[] palavras = this.content.toLowerCase().split(delimitadores);
@@ -160,6 +181,11 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return ccpEmailDecorator;
 	}
 
+	/**
+	 * Divide o texto pelo delimitador e coleta em um {@code TreeSet} todos os trechos que são e-mails válidos (em minúsculas).
+	 * @param delimiter o delimitador para divisão do texto
+	 * @return conjunto de e-mails válidos encontrados no texto
+	 */
 	public Set<String> extractFromText(String delimiter) {
 		String[] split = this.content.split(delimiter);
 		Set<String> emails = new TreeSet<>();
@@ -179,6 +205,9 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	
+	/**
+	 * Retorna a parte do domínio (após {@code @}). Retorna string vazia se o endereço não tiver exatamente um {@code @}.
+	 */
 	public String getDomain() {
 		String[] split = this.content.split("@");
 
@@ -190,9 +219,15 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return domain;
 	}
 
+	/**
+	 * Implementação de {@code CcpDecorator}; devolve o endereço.
+	 */
 	public String getContent() {
 		return this.content;
 	}
+	/**
+	 * Cria um {@code CcpHashDecorator} sobre o endereço para cálculo de hash.
+	 */
 	public CcpHashDecorator hash() {
 		return new CcpHashDecorator(this.content);
 	}

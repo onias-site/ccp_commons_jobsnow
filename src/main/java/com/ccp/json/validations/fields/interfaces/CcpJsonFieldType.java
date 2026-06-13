@@ -11,10 +11,27 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldError;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 
+/**
+ * Contrato central para tipos de campo de validação JSON. Orquestra verificação de tipo,
+ * acumulação de erros e geração de explicações de regras.
+ */
 public interface CcpJsonFieldType {
+
+	/**
+	 * Verifica se o valor do campo é compatível com o tipo esperado.
+	 * @param fieldName nome do campo a verificar
+	 * @return predicado que testa compatibilidade de tipo
+	 */
 	abstract Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName);
 
 	
+	/**
+	 * Executa validações e retorna se há erros para o campo.
+	 * @param json JSON sendo validado
+	 * @param field campo a validar
+	 * @param context contexto de validação (single ou collection)
+	 * @return true se houver erros
+	 */
 	default boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		java.lang.String fieldName = field.getName();
 		
@@ -46,6 +63,14 @@ public interface CcpJsonFieldType {
 		return false;
 	}
 	
+	/**
+	 * Acumula erros de validação no JSON de erros.
+	 * @param errors JSON de erros acumulados
+	 * @param json JSON sendo validado
+	 * @param field campo a validar
+	 * @param context contexto de validação
+	 * @return JSON de erros atualizado
+	 */
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 
 		java.lang.String fieldName = field.getName();
@@ -79,6 +104,12 @@ public interface CcpJsonFieldType {
 		return errors;
 	}
 
+	/**
+	 * Adiciona explicações de regras ao JSON de regras.
+	 * @param ruleExplanation JSON de explicações de regras
+	 * @param field campo sendo documentado
+	 * @return JSON de regras atualizado
+	 */
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation ruleExplanation, Field field) {
 		boolean hasNoRulesExplanations = false == this.hasRuleExplanation(field);
 		if(hasNoRulesExplanations) {
@@ -101,15 +132,31 @@ public interface CcpJsonFieldType {
 		return validations;
 	}
 
+	/**
+	 * Retorna os validadores padrão: {@code incompatibleType} e {@code validateCollectionOrSigleValue}.
+	 * @return lista de validadores padrão
+	 */
 	default List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
 		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>(Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.validateCollectionOrSigleValue));
 		return asList;
 	}
+	/**
+	 * Retorna os validadores específicos do tipo.
+	 * @return array de validadores específicos
+	 */
 	CcpJsonFieldValidatorInterface[] getErrorTypes();
-	
+
+	/**
+	 * Indica se há regras ativas para o campo.
+	 * @param field campo a verificar
+	 * @return true se houver regras de validação ativas
+	 */
 	abstract boolean hasRuleExplanation(Field field);
 
-
+	/**
+	 * Nome do tipo de campo.
+	 * @return nome do tipo
+	 */
 	String name();
 
 }

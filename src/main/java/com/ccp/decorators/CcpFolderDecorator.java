@@ -8,9 +8,17 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Decorator sobre um caminho de diretório no sistema de arquivos. Oferece operações de criação de subpastas e arquivos,
+ * iteração sobre conteúdo, compactação ZIP e remoção recursiva.
+ */
 public class CcpFolderDecorator implements CcpDecorator<String> {
 	public final String content;
 	public final CcpFolderDecorator parent;
+	/**
+	 * Encapsula o caminho e resolve o diretório pai.
+	 * @param content o caminho do diretório
+	 */
 	protected CcpFolderDecorator(String content) {
 		this.parent = this.getParent(content);
 		this.content = content;
@@ -27,11 +35,17 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return ccpFileDecorator;
 	}
 	
+	/**
+	 * Reinterpreta o caminho como um arquivo.
+	 */
 	public CcpFileDecorator asFile() {
 		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(this.content);
 		return ccpFileDecorator;
 	}
 
+	/**
+	 * Compacta o diretório inteiro em um arquivo {@code .zip} com o mesmo nome.
+	 */
 	public CcpFolderDecorator zip() {
 		
 		File fileToZip = new File(this.content);
@@ -46,6 +60,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		}
 	}
 
+	/**
+	 * Retorna apenas o nome do diretório (sem o caminho pai).
+	 */
 	public String getName() {
 		File file = new File(this.content);
 		String name = file.getName();
@@ -84,6 +101,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		}
     }
 	
+	/**
+	 * Itera sobre cada entrada do diretório e chama o {@code consumer} passando um {@code CcpFolderDecorator} para cada entrada.
+	 * @param consumer o callback a ser chamado para cada entrada
+	 */
 	public CcpFolderDecorator readFolders(Consumer<CcpFolderDecorator> consumer){
 		File[] files = new File(this.content).listFiles();
 		if(files == null) {
@@ -97,6 +118,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
         return this;
 	}
 	
+	/**
+	 * Itera sobre cada entrada do diretório e chama o {@code consumer} com um {@code CcpFileDecorator} para cada entrada.
+	 * @param consumer o callback a ser chamado para cada arquivo
+	 */
 	public CcpFolderDecorator readFiles(Consumer<CcpFileDecorator> consumer){
 		File[] files = new File(this.content).listFiles();
 		if(files == null) {
@@ -115,11 +140,18 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return new File(this.content).getName();
 	}
 
+	/**
+	 * Verifica se o diretório existe.
+	 */
 	public boolean exists() {
 		File file = new File(this.content);
 		return file.exists();
 	}
 
+	/**
+	 * Cria um subdiretório com o nome fornecido (se não existir) e retorna o decorator do novo diretório.
+	 * @param folderName o nome do subdiretório a criar
+	 */
 	public CcpFolderDecorator createNewFolderIfNotExists(String folderName) {
 		String completePath = this.getCompletePath(folderName);
 		File file = new File(completePath);
@@ -127,6 +159,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return new CcpFolderDecorator(completePath);
 	}
 
+	/**
+	 * Cria o próprio diretório se não existir.
+	 */
 	public CcpFolderDecorator createNewFolderIfNotExists() {
 		String completePath = this.getCompletePath("");
 		File file = new File(completePath);
@@ -134,6 +169,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return new CcpFolderDecorator(completePath);
 	}
 	
+	/**
+	 * Cria um arquivo vazio dentro do diretório (garantindo que a estrutura de pastas exista) e retorna seu decorator.
+	 * @param fileName o nome do arquivo a criar
+	 */
 	public CcpFileDecorator createNewFileIfNotExists(String fileName) {
 		String completePath = this.getCompletePath(fileName);
 		CcpFileDecorator file = new CcpFileDecorator(completePath);
@@ -153,6 +192,11 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return true;
 	}
 	
+	/**
+	 * Escreve {@code fileContent} no arquivo {@code fileName} dentro do diretório e retorna o decorator do arquivo.
+	 * @param fileName o nome do arquivo
+	 * @param fileContent o conteúdo a escrever
+	 */
 	public CcpFileDecorator writeInTheFile(String fileName, String fileContent) {
 		String completePath = this.getCompletePath(fileName);
 		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(completePath);
@@ -163,6 +207,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return this.content + File.separator + fileName;
 	}
 	
+	/**
+	 * Remove todos os arquivos do diretório e depois o próprio diretório.
+	 */
 	public CcpFolderDecorator remove() {
 		File index = new File(this.content);
 		String[]entries = index.list();
@@ -178,6 +225,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return this;
 	}
 
+	/**
+	 * Implementação de {@code CcpDecorator}; retorna o caminho do diretório.
+	 */
 	public String getContent() {
 		return this.content;
 	}

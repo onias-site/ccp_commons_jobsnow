@@ -11,10 +11,17 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
+/**
+ * Implementação base do padrão Decorator para {@code CcpEntity}. Encapsula uma entidade e delega
+ * todas as operações a ela, servindo como ponto de extensão para os decorators especializados
+ * (cache, twin, versionamento, etc.). O método {@code toString()} exibe a cadeia de decorators
+ * aplicados.
+ */
 public class CcpEntityDelegator implements CcpEntity{
-	
+
 	protected final CcpEntity entity;
 
+	/** Encapsula a entidade alvo da delegação. */
 	public CcpEntityDelegator(CcpEntity entity) {
 		this.entity = entity;
 	}

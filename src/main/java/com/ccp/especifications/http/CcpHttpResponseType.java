@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
+/**
+ * Declara constantes de transformação prontas para os tipos de retorno mais comuns de respostas HTTP:
+ * {@code listRecord}, {@code singleRecord}, {@code byteArray}, {@code listObject}, {@code string}, {@code base64}.
+ */
 public interface CcpHttpResponseType {
 	CcpHttpResponseTransform<List<CcpJsonRepresentation>> listRecord = response -> response.asListRecord();
 	CcpHttpResponseTransform<CcpJsonRepresentation> singleRecord = response -> response.asSingleJson();

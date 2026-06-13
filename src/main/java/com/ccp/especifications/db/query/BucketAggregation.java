@@ -9,6 +9,10 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
 
 
+/**
+ * Representa um bucket de agregação do Elasticsearch (terms ou histogram) dentro do builder fluent de queries.
+ * Permite configurar um agrupamento por campo e tamanho, e encerrar voltando ao nó pai de agregações.
+ */
 public final class BucketAggregation extends CcpQueryComponent {
 	enum JsonFieldNames implements CcpJsonFieldName{
 		field
@@ -23,11 +27,17 @@ public final class BucketAggregation extends CcpQueryComponent {
 		this.size = size;
 	}
 
+	/**
+	 * Finaliza o bucket como agregação do tipo terms (agrupamento por valor exato) e retorna ao contexto pai de agregações.
+	 */
 	public CcpQueryAggregations endTermsBuckedAndBackToAggregations() {
 		CcpQueryAggregations addChild = this.getStatisRequest("size", "terms");
 		return addChild;
 	}
 
+	/**
+	 * Finaliza o bucket como agregação do tipo histogram (agrupamento por intervalo numérico) e retorna ao contexto pai de agregações.
+	 */
 	public CcpQueryAggregations endHistogramBuckedAndBackToAggregations() {
 		CcpQueryAggregations addChild = this.getStatisRequest("interval", "histogram");
 		return addChild;
@@ -42,6 +52,9 @@ public final class BucketAggregation extends CcpQueryComponent {
 		return addChild;
 	}
 	
+	/**
+	 * Inicia sub-agregações aninhadas dentro deste bucket.
+	 */
 	public CcpQueryAggregations startAggregations() {
 		return new CcpQueryAggregations(this);
 	}

@@ -3,12 +3,19 @@ package com.ccp.especifications.db.query;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
+/**
+ * Representa o nó must dentro de uma query booleana do Elasticsearch.
+ * As condições adicionadas aqui são obrigatórias e impactam a pontuação de relevância dos documentos retornados.
+ */
 public final class CcpQueryMust extends CcpQueryBooleanOperator{
 
 	CcpQueryMust(CcpQueryComponent parent) {
 		super(parent, "must");
 	}
 	
+	/**
+	 * Finaliza o bloco must e retorna ao nó bool pai.
+	 */
 	public CcpQueryBool endMustAndBackToBool() {
 		return this.parent.addChild(this);
 	}

@@ -2,6 +2,10 @@ package com.ccp.especifications.db.query;
 
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
+/**
+ * Representa o nó should_not dentro de uma query booleana.
+ * As condições aqui são opcionais e penalizam a pontuação de documentos que as satisfaçam (semântica negativa opcional).
+ */
 public final class CcpQueryShouldNot  extends CcpQueryBooleanOperator {
 
 	CcpQueryShouldNot(CcpQueryComponent parent) {

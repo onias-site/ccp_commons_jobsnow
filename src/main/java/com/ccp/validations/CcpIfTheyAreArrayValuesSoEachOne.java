@@ -12,16 +12,22 @@ import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 
+/**
+ * Componente da API fluente de validação para campos cujos valores são arrays. Cada método itera
+ * sobre todos os itens de todos os campos indicados, retornando {@code true} somente se a condição
+ * for satisfeita por todos eles.
+ */
 public class CcpIfTheyAreArrayValuesSoEachOne {
 	public final CcpJsonRepresentation content;
 	public final String[] fields;
-	
-	
+
+	/** Armazena o JSON de contexto e os campos array a serem verificados. */
 	public CcpIfTheyAreArrayValuesSoEachOne(CcpJsonRepresentation content, String[] fields) {
 		this.content = content;
 		this.fields = fields;
 	}
-	
+
+	/** Retorna {@code true} se nenhum dos arrays contiver itens duplicados. */
 	public boolean hasNonDuplicatedItems() {
 		for (String field : this.fields) {
 			boolean hasDuplicatedItems = false == this.content.getAsArrayMetadata(new CcpFieldName(field)).hasNonDuplicatedItems();
@@ -31,11 +37,13 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		}
 		return true;
 	}
+	/** Retorna um {@code CcpAreOfTheType} operando sobre todos os itens concatenados dos arrays. */
 	public CcpAreOfTheType isOfTheType() {
 
 		Function<String[], String[]> arrayProducerOfArrays = CcpItIsTrueThatTheFollowingFields.getArrayProducerOfArrays(this.content);
 		return new CcpAreOfTheType(arrayProducerOfArrays, this.fields);
 	}
+	/** Retorna um {@code CcpRangeSize} cujos valores são os tamanhos (número de itens) de cada array. */
 	public CcpRangeSize hasTheSizeThatIs() {
 		Function<String[], String[]> arrayProducer = fields -> {
 			String[] result = new String[fields.length];
@@ -48,6 +56,10 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		};
 		return new CcpRangeSize(arrayProducer, this.fields);
 	}
+	/**
+	 * Retorna {@code true} se cada item textual de cada array estiver contido nos valores permitidos.
+	 * @param args valores permitidos
+	 */
 	public boolean isTextAndItIsContainedAtTheList(String...args) {
 		
 		List<String> asList = Arrays.asList(args);	
@@ -65,6 +77,10 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		return true;
 	}
 	
+	/**
+	 * Sobrecarga de {@link #isTextAndItIsContainedAtTheList(String...)} que aceita {@code Collection}.
+	 * @param args coleção de valores permitidos
+	 */
 	public <T> boolean isTextAndItIsContainedAtTheList(Collection<T> args) {
 		List<String> collect = args.stream().map(x -> x.toString()).collect(Collectors.toList());
 		String[] array = collect.toArray(new String[collect.size()]);
@@ -73,6 +89,10 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 	}
 	
 	
+	/**
+	 * Retorna {@code true} se cada item numérico de cada array estiver na lista de doubles permitidos.
+	 * @param args valores numéricos permitidos
+	 */
 	public boolean isNumberAndItIsContainedAtTheList(Double...args) {
 		
 		List<Double> asList = Arrays.asList(args);
@@ -99,6 +119,10 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 		
 		return true;
 	}
+	/**
+	 * Sobrecarga de {@link #isNumberAndItIsContainedAtTheList(Double...)} que aceita {@code Collection}.
+	 * @param args coleção de valores numéricos permitidos
+	 */
 	public boolean isNumberAndItIsContainedAtTheList(Collection<Object> args) {
 		
 		List<Double> collect = args.stream().map(x -> Double.valueOf("" + x)).collect(Collectors.toList());
@@ -108,6 +132,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 	
 	}	
 	
+	/** Retorna um {@code CcpRangeSize} com os comprimentos de cada item textual dos arrays. */
 	public CcpRangeSize isTextAndHasSizeThatIs() {
 		Function<String[], String[]> xxx = fields ->{
 			List<String> list = new ArrayList<>();
@@ -122,6 +147,7 @@ public class CcpIfTheyAreArrayValuesSoEachOne {
 	
 		return new CcpRangeSize(xxx, this.fields);
 	}
+	/** Retorna um {@code CcpRangeSize} com os valores numéricos de cada item dos arrays. */
 	public CcpRangeSize isNumberAndItIs() {
 		Function<String[], String[]> arrayProducer = fields -> {
 			List<String> list = new ArrayList<String>();

@@ -8,6 +8,12 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityO
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
+/**
+ * Define os tipos de operação com side effects que podem ser configurados para uma entidade via
+ * {@code @CcpEntityOperation}: {@code save}, {@code delete} e {@code deleteAnyWhere}. Cada constante
+ * implementa a operação sobre a entidade e executa os fluxos {@code before}/{@code after} configurados
+ * na anotação.
+ */
 public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	deleteAnyWhere{
 
@@ -32,6 +38,12 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 ;
 	abstract CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
 	
+	/**
+	 * Executa os fluxos {@code before}/{@code after} e a operação sobre a entidade informada.
+	 * @param json o JSON de entrada
+	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
+	 * @param entity a entidade alvo da operação
+	 */
 	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity... entities) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType.before, clazz, entity);
 		CcpJsonRepresentation result = this.executeEntityOperation(before, entity);

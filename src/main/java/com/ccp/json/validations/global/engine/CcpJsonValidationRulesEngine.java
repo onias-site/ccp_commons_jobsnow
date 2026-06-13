@@ -17,12 +17,22 @@ import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
+/**
+ * Engine singleton de geração de explicações de regras de validação. Percorre as anotações globais
+ * ({@code @CcpJsonGlobalValidations}) e os campos de uma classe de validação, produzindo um JSON
+ * descrevendo todas as regras ativas.
+ */
 public class CcpJsonValidationRulesEngine {
-	
+
 	private CcpJsonValidationRulesEngine() {}
-	
+
 	public static final CcpJsonValidationRulesEngine INSTANCE = new CcpJsonValidationRulesEngine();
-	
+
+	/**
+	 * Combina as explicações de regras globais e de campo da classe informada e retorna o JSON
+	 * completo de regras.
+	 * @param clazz a classe de validação a ser inspecionada
+	 */
 	public CcpJsonRepresentation getRulesExplanation(Class<?> clazz) {
 		
 		CcpJsonRepresentation rulesExplanations = this.getRulesExplanationsFromClass(clazz);

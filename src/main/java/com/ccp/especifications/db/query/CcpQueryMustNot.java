@@ -2,12 +2,19 @@ package com.ccp.especifications.db.query;
 
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
+/**
+ * Representa o nó must_not dentro de uma query booleana do Elasticsearch.
+ * As condições aqui presentes excluem documentos que as satisfaçam.
+ */
 public final class CcpQueryMustNot extends CcpQueryBooleanOperator{
 
 	 CcpQueryMustNot(CcpQueryComponent parent) {
 		super(parent, "must_not");
 	}
 	
+	/**
+	 * Finaliza o bloco must_not e retorna ao nó bool pai.
+	 */
 	public CcpQueryBool endMustNotAndBackToBool() {
 		return this.parent.addChild(this);
 	}

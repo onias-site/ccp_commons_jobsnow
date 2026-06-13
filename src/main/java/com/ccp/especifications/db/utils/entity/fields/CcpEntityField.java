@@ -4,6 +4,11 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
+/**
+ * Representa os metadados de um campo de entidade: nome, se é chave primária, se é atualizável e
+ * o transformador de valor aplicado antes das operações. Implementa {@code CcpJsonFieldName} para
+ * uso direto em acessos ao {@code CcpJsonRepresentation}.
+ */
 public class CcpEntityField implements CcpJsonFieldName{
 
 	public static final CcpEntityField TIMESTAMP = new CcpEntityField("timestamp", false, true, CcpOtherConstants.DO_NOTHING);

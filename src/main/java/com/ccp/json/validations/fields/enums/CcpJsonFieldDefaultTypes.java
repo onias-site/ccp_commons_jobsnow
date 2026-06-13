@@ -21,6 +21,13 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefo
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 
+/**
+ * Catálogo dos tipos de campo padrão do framework de validação. Cada constante encapsula
+ * compatibilidade de tipo e validadores associados.
+ * Constantes: {@code Required}, {@code Boolean}, {@code Array}, {@code NestedJson},
+ * {@code Number}, {@code NumberInteger}, {@code NumberUnsigned}, {@code String},
+ * {@code TimeBeforeCurrentDate}, {@code TimeAfterCurrentDate}.
+ */
 public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	Required{
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {

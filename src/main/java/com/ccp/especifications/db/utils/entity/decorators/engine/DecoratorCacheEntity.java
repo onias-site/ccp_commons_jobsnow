@@ -6,6 +6,11 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 
+/**
+ * Decorator que adiciona cache às operações de leitura e escrita de uma entidade anotada com
+ * {@code @CcpEntityCache}. Nas leituras retorna o resultado do cache quando disponível; nas
+ * escritas atualiza ou invalida o cache conforme a operação realizada.
+ */
 class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	final int cacheExpires;

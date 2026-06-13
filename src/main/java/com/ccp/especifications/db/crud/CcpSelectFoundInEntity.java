@@ -10,6 +10,11 @@ import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
 //TODO TRANSFORMAR ESTA CLASSE EM JSONFIELDNAME E BUSINESS
+/**
+ * Etapa intermediária do fluent chain gerada por {@link CcpSelectProcedure#ifThisIdIsPresentInEntity}
+ * ou {@link CcpSelectProcedure#ifThisIdIsNotPresentInEntity}. Permite definir o que fazer quando a
+ * condição de presença for satisfeita: executar uma ação de negócio ou retornar um status de processo.
+ */
 public class CcpSelectFoundInEntity {
 	public static enum JsonFieldNames implements CcpJsonFieldName{
 		statements
@@ -23,12 +28,26 @@ public class CcpSelectFoundInEntity {
 		this.statements = statements;
 	}
 
+	/**
+	 * Adiciona ao statement atual a ação de negócio a ser executada quando a condição se confirmar;
+	 * avança para o próximo passo do fluent chain.
+	 *
+	 * @param action ação de negócio a executar
+	 * @return próximo passo do chain
+	 */
 	public CcpSelectNextStep executeAction(CcpBusiness action) {
 		return this.addStatement("action", action);
 	}
 
 	
 	
+	/**
+	 * Adiciona ao statement atual o status de processo a ser retornado/lançado quando a condição se
+	 * confirmar; avança para o próximo passo do fluent chain.
+	 *
+	 * @param status status de processo a retornar
+	 * @return próximo passo do chain
+	 */
 	public CcpSelectNextStep returnStatus(CcpProcessStatus status) {
 		return this.addStatement("status", status);
 	}

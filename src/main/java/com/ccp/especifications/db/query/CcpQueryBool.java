@@ -1,27 +1,47 @@
 package com.ccp.especifications.db.query;
 
+/**
+ * Representa o nó bool dentro de uma query booleana do Elasticsearch.
+ * É o ponto central de composição de filtros booleanos, permitindo criar cláusulas filter, must, should, must_not e should_not.
+ */
 public final class CcpQueryBool  extends CcpQueryComponent{
 
 	 CcpQueryBool(CcpQueryComponent parent) {
 		super(parent, "bool");
 	}
 
+	/**
+	 * Inicia o bloco filter dentro do bool.
+	 */
 	public CcpQueryFilter startFilter() {
 		return new CcpQueryFilter(this);
 	}
 	
+	/**
+	 * Inicia o bloco must (condições obrigatórias que devem ser satisfeitas).
+	 */
 	public CcpQueryMust startMust() {
 		return new CcpQueryMust(this);
 	}
 
+	/**
+	 * Inicia o bloco should (condições opcionais) com mínimo de correspondências necessárias.
+	 * @param minimumShouldMatch número mínimo de condições should que devem ser satisfeitas
+	 */
 	public CcpQueryShould startShould(int minimumShouldMatch) {
 		return new CcpQueryShould(this).setMinimumShouldMatch(minimumShouldMatch);
 	}
 
+	/**
+	 * Inicia o bloco must_not (condições que não devem ser satisfeitas).
+	 */
 	public CcpQueryMustNot startMustNot() {
 		return new CcpQueryMustNot(this);
 	}
 
+	/**
+	 * Inicia o bloco should_not (condições opcionais negadas).
+	 */
 	public CcpQueryShouldNot startShouldNot() {
 		return new CcpQueryShouldNot(this);
 	}

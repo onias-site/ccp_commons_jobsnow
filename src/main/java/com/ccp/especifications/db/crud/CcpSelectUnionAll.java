@@ -18,6 +18,12 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
+/**
+ * Representa o resultado condensado de uma busca {@code unionAll} — múltiplas entidades buscadas em
+ * uma única chamada ao banco. Internamente organiza os resultados em um mapa aninhado
+ * {@code { entidade → { id → dadosDoRegistro } }} e provê métodos para verificar presença e
+ * recuperar dados de entidades específicas.
+ */
 public class CcpSelectUnionAll {
 	
 	enum JsonFieldNames implements CcpJsonFieldName{
@@ -27,6 +33,14 @@ public class CcpSelectUnionAll {
 	
 	public final CcpJsonRepresentation  condensed;
 
+	/**
+	 * Constrói o objeto condensado a partir dos parâmetros de busca, dos resultados brutos retornados
+	 * pelo banco e das entidades consultadas, organizando os dados no mapa interno.
+	 *
+	 * @param searchParameters parâmetros de busca usados na consulta
+	 * @param results resultados brutos retornados pelo banco
+	 * @param entities entidades consultadas
+	 */
 	public CcpSelectUnionAll(CcpJsonRepresentation[] searchParameters, List<CcpJsonRepresentation> results, CcpEntity... entities) {
 		
 		CcpJsonRepresentation explainedSearch = CcpOtherConstants.EMPTY_JSON;
@@ -66,6 +80,14 @@ public class CcpSelectUnionAll {
 		this.condensed = condensed;
 	}
 	
+	/**
+	 * Verifica se existe um registro com o id informado para a entidade de nome {@code entityName}
+	 * dentro do resultado condensado.
+	 *
+	 * @param entityName nome da entidade
+	 * @param id identificador do registro
+	 * @return {@code true} se o registro estiver presente
+	 */
 	public boolean isPresent(String entityName, String id) {
 		
 		boolean entityNotFound = false == this.condensed.containsAllFields(new CcpFieldName(entityName));
@@ -85,8 +107,16 @@ public class CcpSelectUnionAll {
 		return true;
 	}
 	
+	/**
+	 * Verifica se o registro está presente e delega para o callback adequado do handler
+	 * ({@code whenFound} ou {@code whenNotFound}), passando o registro encontrado quando aplicável.
+	 *
+	 * @param searchParameter parâmetros da busca
+	 * @param handler callback com lógica de found/not found
+	 * @return resultado retornado pelo handler
+	 */
 	public <T> T handleRecordInUnionAll(
-			CcpJsonRepresentation searchParameter, 
+			CcpJsonRepresentation searchParameter,
 			CcpHandleWithSearchResultsInTheEntity<T> handler
 			) {
 		

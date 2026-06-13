@@ -5,6 +5,11 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
+/**
+ * Decorator que valida o JSON de entrada antes das operações de escrita ({@code save},
+ * {@code transferDataTo}, {@code copyDataTo}) usando as regras definidas em
+ * {@code @CcpEntityFieldsValidator}. Interrompe a operação se o JSON não passar na validação.
+ */
 class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 	
 	final Class<?>  clazz;

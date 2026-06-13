@@ -7,9 +7,15 @@ import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 
+/**
+ * Interface utilitária de transformações de campos JSON. Estende {@code CcpBusiness} e fornece
+ * métodos default para truncar textos, garantir valores mínimos, adicionar valores long e exigir
+ * ao menos um campo de um grupo. Usada como base para implementações de transformadores de entidade.
+ */
 public interface CcpTransformers extends CcpBusiness {
 
 	
+	/** Trunca o valor do campo {@code field} para no máximo {@code limit} caracteres. */
 	default CcpJsonRepresentation substring(CcpJsonRepresentation json, String field, int limit) {
 		String value = json.getAsString(new CcpFieldName(field));
 		boolean isValid = value.trim().length() <= limit;
@@ -23,6 +29,7 @@ public interface CcpTransformers extends CcpBusiness {
 		return put;
 	}
 
+	/** Garante que o campo numérico {@code field} seja ao menos {@code minValue}. */
 	default CcpJsonRepresentation putMinValue(CcpJsonRepresentation json, String field, int minValue) {
 		boolean isNotPresent = false == json.containsAllFields(new CcpFieldName(field));
 		if(isNotPresent) {
@@ -39,6 +46,7 @@ public interface CcpTransformers extends CcpBusiness {
 		return put;
 	}
 
+	/** Adiciona {@code longValue} ao campo se o valor atual não for um número long válido. */
 	default CcpJsonRepresentation addLongValue(CcpJsonRepresentation json, String field, Long longValue) {
 		String value = json.getAsString(new CcpFieldName(field));
 
@@ -52,6 +60,7 @@ public interface CcpTransformers extends CcpBusiness {
 
 	}
 
+	/** Adiciona o par {@code field}/{@code value} ao JSON caso nenhum dos {@code fields} esteja presente. */
 	default CcpJsonRepresentation addRequiredAtLeastOne(CcpJsonRepresentation json, String field, Object value, String... fields) {
 		boolean containsAnyFields = json.containsAnyFields(Arrays.asList(fields));
 		if(containsAnyFields) {

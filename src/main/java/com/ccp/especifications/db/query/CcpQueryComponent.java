@@ -6,6 +6,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 
+/**
+ * Classe base de todos os nós do builder fluent de queries do Elasticsearch.
+ * Define a estrutura de árvore (parent/child), o conteúdo JSON do nó e o mecanismo de cópia imutável
+ * que garante que cada operação retorne uma nova instância sem alterar o estado original.
+ */
 abstract class CcpQueryComponent {
 
 	public CcpJsonRepresentation json = CcpOtherConstants.EMPTY_JSON;
@@ -18,12 +23,22 @@ abstract class CcpQueryComponent {
 	}
 
 
+	/**
+	 * Cada subclasse implementa este método para retornar uma nova instância de si mesma com os mesmos parâmetros construtores;
+	 * mecanismo central do padrão imutável.
+	 */
 	 protected abstract <T extends CcpQueryComponent> T getInstanceCopy() ;
 	
+	/**
+	 * Retorna o conteúdo interno (json.content) do nó para uso na serialização.
+	 */
 	 Object getValue() {
 		return this.json.content;
 	}
 	 
+	/**
+	 * Cria uma cópia deste nó e adiciona o valor do filho sob a chave child.name; permite compor a árvore de forma imutável.
+	 */
 	 @SuppressWarnings("unchecked")
 	<T extends CcpQueryComponent> T addChild(CcpQueryComponent child) {
 
@@ -52,6 +67,9 @@ abstract class CcpQueryComponent {
 	}
 	 
 	 
+	/**
+	 * Serializa o valor deste nó para JSON usando o CcpJsonHandler injetado via DI.
+	 */
 	public final String toString() {
 		 Object value = this.getValue();
 
@@ -61,10 +79,16 @@ abstract class CcpQueryComponent {
 		return _json;
 	}
 	 
+	/**
+	 * Retorna true se o JSON interno deste nó contém algum campo.
+	 */
 	public boolean hasChildreen() {
 		return false == this.json.content.isEmpty();
 	} 
 	
+	/**
+	 * Adiciona ou sobrescreve uma propriedade no JSON interno do nó e retorna uma cópia modificada.
+	 */
 	public <T extends CcpQueryComponent> T putProperty(String propertyName, Object propertyValue){
 		T clone = this.copy();
 		clone.json = clone.json.put(new CcpFieldName(propertyName), propertyValue);

@@ -6,6 +6,10 @@ import java.util.HashMap;
 
 import com.ccp.decorators.CcpErrorHashAlgorithmNotFound;
 
+/**
+ * Catálogo dos algoritmos de hash suportados pelo framework (MD5, SHA1, SHA256, SHA512).
+ * Encapsula o nome técnico de cada algoritmo e gerencia um cache de instâncias de {@code MessageDigest} para evitar re-criação.
+ */
 public enum CcpHashAlgorithm {
 	MD5("MD5"),
 	SHA1("SHA1"),
@@ -20,6 +24,10 @@ public enum CcpHashAlgorithm {
 	
 	private static HashMap<CcpHashAlgorithm, MessageDigest> messageDigests = new HashMap<>();
 
+	/**
+	 * Retorna a instância cacheada de {@code MessageDigest} para este algoritmo.
+	 * Na primeira chamada, instancia e armazena; nas seguintes, retorna do cache.
+	 */
 	public 	MessageDigest getMessageDigest() {
 		MessageDigest messageDigest = messageDigests.get(this);
 		
@@ -35,6 +43,11 @@ public enum CcpHashAlgorithm {
 		return instance;
 	}
 
+	/**
+	 * Cria e retorna um {@code MessageDigest} para um algoritmo especificado por string.
+	 * Lança {@code CcpErrorHashAlgorithmNotFound} se o algoritmo não for reconhecido pela JVM.
+	 * @param algorithm o nome do algoritmo (ex.: "SHA1", "MD5")
+	 */
 	public static MessageDigest getMessageDigest(String algorithm) {
 		MessageDigest instance;
 		try {

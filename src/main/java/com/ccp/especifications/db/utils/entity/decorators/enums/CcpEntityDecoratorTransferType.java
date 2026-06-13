@@ -8,6 +8,12 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityD
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
+/**
+ * Define os tipos de transferência de dados entre entidades configurados via
+ * {@code @CcpEntityDataTransfer}: {@code transferDataTo} (move e remove a origem) e
+ * {@code copyDataTo} (copia sem remover a origem). Executa os fluxos {@code before}/{@code after}
+ * configurados na anotação.
+ */
 public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	transferDataTo{
 		CcpJsonRepresentation executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
@@ -24,6 +30,13 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 ;
 	abstract CcpJsonRepresentation executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
 	
+	/**
+	 * Executa os fluxos {@code before}/{@code after} e a transferência entre entidades.
+	 * @param json o JSON de entrada
+	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
+	 * @param entity a entidade origem
+	 * @param entityToTransfer a entidade destino
+	 */
 	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType.before, clazz, entity, entityToTransfer);
 		CcpJsonRepresentation result = this.executeEntityTransfer(before, entity, entityToTransfer);

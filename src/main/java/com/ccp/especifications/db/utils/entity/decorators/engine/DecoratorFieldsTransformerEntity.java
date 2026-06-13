@@ -10,6 +10,11 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
 
+/**
+ * Decorator que aplica transformações de campo (definidas em {@code @CcpEntityFieldsTransformer})
+ * ao JSON antes de qualquer operação de leitura ou escrita. Usa a classe interna
+ * {@code AlreadyTransformedJson} para evitar re-transformações em chamadas recursivas.
+ */
 class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	
 	public DecoratorFieldsTransformerEntity(CcpEntity entity, Class<?> clazz) {
