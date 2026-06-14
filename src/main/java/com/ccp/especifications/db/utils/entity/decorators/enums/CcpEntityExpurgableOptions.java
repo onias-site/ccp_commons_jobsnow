@@ -117,9 +117,7 @@ public enum CcpEntityExpurgableOptions{
 			return formattedDateTime;
 		}
 		
-		throw new RuntimeException("The format '" + format + "' whas not found in the following list: " + Arrays.asList(values)
-				.stream().map(x -> x.format).collect(Collectors.toList())
-				);
-	}
+		throw new CcpExpurgableOptionNotFound(format);
+	} 
 	
 } 

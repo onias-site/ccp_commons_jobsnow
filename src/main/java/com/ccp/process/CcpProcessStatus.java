@@ -29,9 +29,7 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 		if(correctStatus) {
 			return testName;
 		}
-		
-		String msg = String.format("In the test '%s' it was expected the status '%s', but status '%s' was received. Message: " + message, testName, expectedStatus, actualStatus);
-		throw new RuntimeException(msg);
+		throw new UnexpectedProcessStatus(message, testName, expectedStatus, actualStatus);
 	}
 	
 	/**
@@ -43,7 +41,8 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	default CcpProcessStatus verifyStatusNames(int actualStatus, String actualStatusName) {
 		String expectedStatusName = this.verifyStatus(actualStatus, "");
 		
-		if(actualStatusName.trim().isEmpty()) {
+		boolean empty = actualStatusName.trim().isEmpty();
+		if(empty) {
 			return this;
 		}
 		
@@ -52,8 +51,7 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 		if(correctStatusNumberAndCorrectStatusName) {
 			return this;
 		}
-		String msg = String.format("It was expected the status name '%s' but status name '%s' was received insted", expectedStatusName, actualStatusName);
-		throw new RuntimeException(msg);
+		throw new UnexpectedProcessStatus(expectedStatusName, actualStatusName);
 	}
 	
 	

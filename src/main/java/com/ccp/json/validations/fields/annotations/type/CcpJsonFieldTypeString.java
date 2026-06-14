@@ -25,5 +25,9 @@ public @interface CcpJsonFieldTypeString {
 	String[] allowedValues() default {};
 	/** Expressão regular de validação. */
 	String regexValidation() default "";
+	
+	@SuppressWarnings("rawtypes")
+	/** Valores de enums (concatenados) permitidos. */
+	Class[] allowedValuesEnum() default {};
 
 }

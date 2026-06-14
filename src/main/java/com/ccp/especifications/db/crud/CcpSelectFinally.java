@@ -192,7 +192,6 @@ public class CcpSelectFinally {
 			throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 		}
 		CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
-		//DOUBT TRANSFORMAR FIELDS EM JSONFIELDNAMES?
 		CcpJsonRepresentation subMap = apply.getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
 		return subMap;
 	}

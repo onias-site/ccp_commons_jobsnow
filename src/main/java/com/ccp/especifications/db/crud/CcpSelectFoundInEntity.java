@@ -9,7 +9,6 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
-//TODO TRANSFORMAR ESTA CLASSE EM JSONFIELDNAME E BUSINESS
 /**
  * Etapa intermediária do fluent chain gerada por {@link CcpSelectProcedure#ifThisIdIsPresentInEntity}
  * ou {@link CcpSelectProcedure#ifThisIdIsNotPresentInEntity}. Permite definir o que fazer quando a

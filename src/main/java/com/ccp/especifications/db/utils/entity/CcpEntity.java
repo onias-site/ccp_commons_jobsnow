@@ -3,7 +3,6 @@ package com.ccp.especifications.db.utils.entity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.ccp.business.CcpBusiness;
@@ -54,10 +53,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		boolean hasNoPrimaryKey = entityDetails.primaryKeyNames.isEmpty();
 
 		if(hasNoPrimaryKey) {
-			//TODO LANCAR EXCECAO NOVA
-			String string = UUID.randomUUID().toString();
-			String hash = new CcpStringDecorator(string).hash().asString(CcpHashAlgorithm.SHA1);
-			return hash;
+			throw new CcpEntityNoDefinedPrimaryKey(this);
 		}
 
 		ArrayList<Object> sortedPrimaryKeyValues = entityDetails.getSortedPrimaryKeyValues(json);

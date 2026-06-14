@@ -234,8 +234,9 @@ public class CcpJsonRepresentation  {
 			Object invoke = met.invoke(null, asString);
 			return (T)invoke;
 		} catch (Exception e) {
-			//TODO EXCEPTION ESPECIFICA
-			throw new RuntimeException(e);
+			String value = field.getValue();
+			Object object = this.content.get(value);
+			throw new CcpErrorJsonInvalidFieldFormat(object, value, "enum", this);
 		}
 	}
 	

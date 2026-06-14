@@ -225,7 +225,7 @@ public class CcpEntityFactory {
 			 return defaultEntityField;
 		 }
 
-		 throw new RuntimeException("The field '" + defaultEntityField.name() + "' can not be a primary key");
+		 throw new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
 	}
 
 }

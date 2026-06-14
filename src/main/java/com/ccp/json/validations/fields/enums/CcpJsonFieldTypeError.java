@@ -1,10 +1,12 @@
 package com.ccp.json.validations.fields.enums;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -807,13 +809,28 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return notContains;
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		
 		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
 			String[] allowedValues = annotation.allowedValues();
 			List<String> value = Arrays.asList(allowedValues);
-			return (T)value;
+			Class[] allowedValuesEnum = annotation.allowedValuesEnum();
+			LinkedHashSet<String> set = new LinkedHashSet<String>(value);
+			for (Class class1 : allowedValuesEnum) {
+				try {
+					Method method = class1.getDeclaredMethod("values");
+					Enum<?>[] enums = (Enum<?>[])method.invoke(null);
+					for (Enum<?> enum1 : enums) {
+						String name = enum1.name();
+						set.add(name);
+					}
+				} catch (Exception e) {
+
+				}
+			}
+			List<String> list = new ArrayList<>(set);
+			return (T)list;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
