@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
@@ -18,7 +18,6 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityF
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
-import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityConfigurationFieldsIsMissing;
 import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefaultEntityField;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldNotUpdatable;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
@@ -226,6 +225,20 @@ public class CcpEntityFactory {
 		 }
 
 		 throw new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
+	}
+
+	@SuppressWarnings("serial")
+	public static class CcpEntityFieldCanNotBePrimaryKey extends RuntimeException {
+		private CcpEntityFieldCanNotBePrimaryKey(CcpJsonTransformersDefaultEntityField defaultEntityField) {
+			super("The field '" + defaultEntityField.name() + "' can not be a primary key");
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorEntityConfigurationFieldsIsMissing extends RuntimeException {
+		private CcpErrorEntityConfigurationFieldsIsMissing(Class<?> configurationClass) {
+			super("The class '" + configurationClass.getName() + "' must declare a public static enum called 'FIELDS'");
+		}
 	}
 
 }

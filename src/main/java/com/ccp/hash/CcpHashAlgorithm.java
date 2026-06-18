@@ -4,7 +4,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
-import com.ccp.decorators.CcpErrorHashAlgorithmNotFound;
 
 /**
  * Catálogo dos algoritmos de hash suportados pelo framework (MD5, SHA1, SHA256, SHA512).
@@ -57,5 +56,12 @@ public enum CcpHashAlgorithm {
 		}
 		return instance;
 	}
-	
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorHashAlgorithmNotFound extends RuntimeException {
+		private CcpErrorHashAlgorithmNotFound(String algorithm) {
+			super("Algorithm '" + algorithm + "' not found");
+		}
+	}
+
 }

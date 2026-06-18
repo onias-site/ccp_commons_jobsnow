@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.bulk.handlers;
+﻿package com.ccp.especifications.db.bulk.handlers;
 
 import java.util.List;
 import java.util.stream.Collectors;

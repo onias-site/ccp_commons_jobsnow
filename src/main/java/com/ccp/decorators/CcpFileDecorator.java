@@ -314,4 +314,11 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	public String getContent() {
 		return this.content;
 	}
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorFolderParentIsMissing extends RuntimeException {
+		private CcpErrorFolderParentIsMissing(CcpFileDecorator decorator) {
+			super("in the file " + new File(decorator.content).getParentFile().getAbsolutePath() + " is missing the file: " + decorator.content);
+		}
+	}
 }

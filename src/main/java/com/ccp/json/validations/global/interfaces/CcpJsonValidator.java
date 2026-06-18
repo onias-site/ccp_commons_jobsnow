@@ -1,9 +1,8 @@
 package com.ccp.json.validations.global.interfaces;
 
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.json.validations.global.engine.CcpJsonValidatorErrorBreakValidationsToTheClass;
 
 /**
  * Contrato para validadores de nível de classe (globais). O método default {@code getErrors}
@@ -47,9 +46,22 @@ public interface CcpJsonValidator {
 		if(criticalValidation) {
 			throw new CcpJsonValidatorErrorBreakValidationsToTheClass(updatedErrors);
 		}
-		
+
 		return updatedErrors;
 	}
 
-	
+	/**
+	 * Exceção de controle de fluxo que interrompe as validações de nível de classe quando um validador
+	 * crítico encontra um erro. Carrega o JSON de erros acumulado até o momento da interrupção.
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpJsonValidatorErrorBreakValidationsToTheClass extends RuntimeException {
+
+		public final CcpJsonRepresentation errors;
+
+		/** Armazena o JSON de erros acumulado no momento da interrupção. */
+		private CcpJsonValidatorErrorBreakValidationsToTheClass(CcpJsonRepresentation errors) {
+			this.errors = errors;
+		}
+	}
 }

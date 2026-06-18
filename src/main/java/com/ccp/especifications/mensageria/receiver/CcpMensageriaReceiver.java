@@ -100,4 +100,11 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	public String name() {
 		return this.operationFieldName;
 	}
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorMensageriaInvalidName extends RuntimeException {
+		private CcpErrorMensageriaInvalidName(String processName) {
+			super("The process '" + processName + "' is an invalid topic");
+		}
+	}
 }

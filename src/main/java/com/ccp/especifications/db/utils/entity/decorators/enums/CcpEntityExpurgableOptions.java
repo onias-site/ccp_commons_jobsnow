@@ -118,6 +118,17 @@ public enum CcpEntityExpurgableOptions{
 		}
 		
 		throw new CcpExpurgableOptionNotFound(format);
-	} 
-	
-} 
+	}
+
+	@SuppressWarnings("serial")
+	public static class CcpExpurgableOptionNotFound extends RuntimeException {
+		public final String format;
+		private CcpExpurgableOptionNotFound(String format) {
+			super("The format '" + format + "' whas not found in the following list: " + Arrays.asList(CcpEntityExpurgableOptions.values())
+			.stream().map(x -> x.format).collect(Collectors.toList())
+			);
+			this.format = format;
+		}
+	}
+
+}

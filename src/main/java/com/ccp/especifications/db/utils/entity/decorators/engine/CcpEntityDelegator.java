@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine;
+﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpGetEntityId.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**

@@ -1,6 +1,7 @@
 package com.ccp.especifications.http;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.especifications.http.CcpHttpRequester.CcpErrorHttp;
 
 /**
  * Especialização de {@link CcpErrorHttp} para erros de servidor HTTP (status 5xx).

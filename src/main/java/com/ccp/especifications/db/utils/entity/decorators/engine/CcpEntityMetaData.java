@@ -1,30 +1,31 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine;
+﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
+import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpErrorBulkEntityRecordNotFound;
 import com.ccp.especifications.db.crud.CcpCrud;
-import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpGetEntityId.CcpSelectUnionAll;
 import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
-import com.ccp.especifications.db.utils.entity.fields.CcpErrorEntityPrimaryKeyIsMissing;
 
 /**
  * Contém todos os metadados de uma entidade: nome do índice, classe configuradora, campos, chave
@@ -206,7 +207,26 @@ public final class CcpEntityMetaData {
 	public String toString() {
 		return this.entityName;
 	}
-	
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorEntityPrimaryKeyIsMissing extends RuntimeException {
+		public final CcpEntityMetaData entityMetadata;
+		private CcpErrorEntityPrimaryKeyIsMissing(CcpEntity entity, CcpJsonRepresentation json) {
+			super(getMessage(entity, json));
+			this.entityMetadata = entity.getEntityMetaData();
+		}
+		private static String getMessage(CcpEntity entity, CcpJsonRepresentation json) {
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
+			List<String> onlyPrimaryKey = entityDetails.primaryKeyNames;
+			Set<String> fieldSet = json.fieldSet();
+			CcpCollectionDecorator ccd = new CcpCollectionDecorator(onlyPrimaryKey);
+			List<String> primaryKeyMissing = ccd.getExclusiveList(fieldSet);
+			String entityName = entityDetails.entityName;
+			String message = String.format("The json %s does not provide the required keys '%s' the entity '%s'", json, primaryKeyMissing, entityName);
+			return message;
+		}
+	}
+
 	public CcpBulkItem toCreateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
 		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.create, this.entity, id);

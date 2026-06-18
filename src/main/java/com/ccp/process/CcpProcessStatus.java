@@ -63,4 +63,14 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	default CcpJsonRepresentation throwException(CcpJsonRepresentation json) {
 		throw new CcpErrorFlowDisturb(json, this);
 	}
+
+	@SuppressWarnings("serial")
+	public static class UnexpectedProcessStatus extends RuntimeException {
+		private UnexpectedProcessStatus(String message, String testName, int expectedStatus, int actualStatus) {
+			super(String.format("In the test '%s' it was expected the status '%s', but status '%s' was received. Message: " + message, testName, expectedStatus, actualStatus));
+		}
+		private UnexpectedProcessStatus(String expectedStatusName, String actualStatusName) {
+			super(String.format("It was expected the status name '%s' but status name '%s' was received insted", expectedStatusName, actualStatusName));
+		}
+	}
 }

@@ -1,11 +1,11 @@
-package com.ccp.especifications.db.utils.entity.decorators.engine;
+﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpGetEntityId.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;

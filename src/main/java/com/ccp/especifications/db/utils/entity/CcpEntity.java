@@ -1,4 +1,4 @@
-package com.ccp.especifications.db.utils.entity;
+﻿package com.ccp.especifications.db.utils.entity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.ccp.business.CcpBusiness;
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -16,7 +16,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpCrud;
-import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpGetEntityId.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.flow.CcpErrorFlowDisturb;
@@ -271,5 +271,14 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	default CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {
 		CcpJsonRepresentation throwException = this.throwException();
 		return throwException;
+	}
+
+	@SuppressWarnings("serial")
+	public static class CcpEntityNoDefinedPrimaryKey extends RuntimeException {
+		public final CcpEntity entity;
+		private CcpEntityNoDefinedPrimaryKey(CcpEntity entity) {
+			super("The entity '" + entity.getEntityMetaData().entityName + "' has no defined primary key in his mapping");
+			this.entity = entity;
+		}
 	}
 }

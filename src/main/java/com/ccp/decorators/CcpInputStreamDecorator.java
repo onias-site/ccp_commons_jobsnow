@@ -131,4 +131,11 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	public String getContent() {
 		return this.content;
 	}
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorInputStreamMissing extends RuntimeException {
+		private CcpErrorInputStreamMissing(String filePath) {
+			super("The file '" + filePath + "' is missing");
+		}
+	}
 }

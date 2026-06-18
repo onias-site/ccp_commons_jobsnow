@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.hash.CcpHashAlgorithm;
@@ -1335,5 +1335,95 @@ public class CcpJsonRepresentation  {
 	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;
+	}
+
+	/**
+	 * Exceção lançada quando se tenta acessar um campo de um {@code CcpJsonRepresentation} esperando uma lista JSON,
+	 * mas o valor real é de outro tipo incompatível (por exemplo, um {@code Long} ou {@code String} comum).
+	 */
+	@SuppressWarnings("serial")
+	public static class CCpErrorJsonFieldIsNotValidJsonList extends RuntimeException {
+		/**
+		 * Monta a mensagem de erro indicando qual caminho de campos foi acessado, qual tipo foi encontrado
+		 * e qual era o JSON completo no momento do erro.
+		 * @param json o JSON no momento do erro
+		 * @param clazz o tipo real encontrado no campo
+		 * @param path o caminho de campos acessado
+		 */
+		private CCpErrorJsonFieldIsNotValidJsonList(CcpJsonRepresentation json, Class<?> clazz, String... path) {
+			super("The field path '" + java.util.Arrays.asList(path) + "' in the json does not represent a json type, instead, it represents a '" + clazz.getName() + "' in the json " + json);
+		}
+	}
+
+	/**
+	 * Exceção lançada quando se tenta obter o valor de um campo obrigatório de um {@code CcpJsonRepresentation} e esse campo está ausente.
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorJsonFieldNotFound extends RuntimeException {
+		/**
+		 * Monta a mensagem informando qual campo estava ausente e o conteúdo completo do JSON no momento do erro.
+		 * @param field o nome do campo ausente
+		 * @param json o JSON no momento do erro
+		 */
+		private CcpErrorJsonFieldNotFound(String field, CcpJsonRepresentation json) {
+			super("The value is absent to the field " + field + " in json: " + json);
+		}
+	}
+
+	/**
+	 * Exceção lançada quando uma string não pode ser desserializada como JSON válido.
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorJsonInvalid extends RuntimeException {
+		/**
+		 * Monta a mensagem indicando a string inválida e encadeia a exceção original como causa.
+		 * @param json a string que falhou na desserialização
+		 * @param e a exceção original
+		 */
+		private CcpErrorJsonInvalid(String json, Throwable e) {
+			super("The following json is an invalid json: " + json , e);
+		}
+	}
+
+	/**
+	 * Exceção lançada quando se tenta construir um {@code CcpJsonRepresentation} a partir de um {@code Map} nulo.
+	 * Sinaliza que o JSON passado é {@code null} e portanto inválido como entrada.
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorJsonNull extends RuntimeException {
+		private CcpErrorJsonNull() {}
+	}
+
+	/**
+	 * Exceção lançada quando o valor de um campo existe no JSON, mas não pode ser convertido para o tipo esperado
+	 * (por exemplo, tentar ler {@code "abc"} como {@code long}).
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorJsonInvalidFieldFormat extends RuntimeException {
+		/**
+		 * Monta a mensagem indicando o valor encontrado, o nome do campo, o tipo esperado e o JSON completo.
+		 * @param value o valor encontrado no campo
+		 * @param fieldName o nome do campo
+		 * @param fieldType o tipo esperado
+		 * @param json o JSON no momento do erro
+		 */
+		private CcpErrorJsonInvalidFieldFormat(Object value, String fieldName, String fieldType, CcpJsonRepresentation json) {
+			super("The value '" + value + "' from the field '" + fieldName + " is not a '" + fieldType + "' in the following json: " + json);
+		}
+	}
+
+	/**
+	 * Exceção lançada quando métodos de navegação por caminho em {@code CcpJsonRepresentation} recebem um array de campos vazio,
+	 * o que indica erro de programação (caminho não informado).
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorJsonPathIsMissing extends RuntimeException {
+		/**
+		 * Monta a mensagem pedindo que o caminho seja preenchido, incluindo o JSON que recebeu a chamada.
+		 * @param json o JSON no momento do erro
+		 */
+		private CcpErrorJsonPathIsMissing(CcpJsonRepresentation json) {
+			super("The path is empty, please fill the missing path in the json: " + json);
+		}
 	}
 }

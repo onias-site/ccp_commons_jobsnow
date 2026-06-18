@@ -91,7 +91,11 @@ public class CcpDependencyInjection {
 		return instance;
 	}
 
-
-
+	@SuppressWarnings("serial")
+	public static class CcpErrorDependencyInjectionMissing extends RuntimeException {
+		private CcpErrorDependencyInjectionMissing(Class<?> interfaceClass) {
+			super("It is missing an implementation of the interface " + interfaceClass.getName());
+		}
+	}
 
 }

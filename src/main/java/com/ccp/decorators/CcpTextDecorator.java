@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 
 /**
  * Decorator especializado em operações de manipulação e análise de texto: remoção de acentos, geração de
@@ -265,7 +265,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		try {
 			new CcpJsonRepresentation(this.content);
 			return true;
-		} catch (CcpErrorJsonInvalid e) {
+		} catch (CcpJsonRepresentation.CcpErrorJsonInvalid e) {
 			return false;
 		}
 	}

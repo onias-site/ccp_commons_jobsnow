@@ -1,4 +1,4 @@
-package com.ccp.constantes;
+package com.ccp.constants;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpFieldName;

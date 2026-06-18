@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.ccp.constantes.CcpOtherConstants;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
@@ -127,7 +127,20 @@ public interface CcpHttpRequester {
 		CcpErrorHttpServer ccpHttpServerError = new CcpErrorHttpServer(entity);
 		return ccpHttpServerError;
 	}
-	
+
+	@SuppressWarnings("serial")
+	public static class CcpErrorHttp extends RuntimeException {
+		public final CcpJsonRepresentation entity;
+		protected CcpErrorHttp(CcpJsonRepresentation entity) {
+			super(getMessage(entity));
+			this.entity = entity;
+		}
+		private static String getMessage(CcpJsonRepresentation entity) {
+			String string = "\n\n\nTrace:{trace}\nDetails: {details}\n. All expected status: {expectedStatusList}";
+			String message = new com.ccp.decorators.CcpStringDecorator(string).text().resolveTemplate(entity).content;
+			return message;
+		}
+	}
 
 
 }
