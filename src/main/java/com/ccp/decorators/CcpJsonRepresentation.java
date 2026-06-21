@@ -486,7 +486,8 @@ public class CcpJsonRepresentation  {
 		
 		try {
 			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-			String json2 = json.toJson(this.content);
+			TreeMap<String, Object> md = new TreeMap<>(this.content);
+			String json2 = json.toJson(md);
 			return json2;
 			
 		} catch (Exception e) {

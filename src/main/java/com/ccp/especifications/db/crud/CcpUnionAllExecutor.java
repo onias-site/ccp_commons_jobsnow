@@ -3,7 +3,6 @@ package com.ccp.especifications.db.crud;
 import java.util.Collection;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.especifications.db.crud.CcpGetEntityId.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
