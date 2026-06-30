@@ -3,6 +3,7 @@ package com.ccp.decorators;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -175,14 +176,23 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		try {
 			f.createNewFile();
 			return this;
-		} catch (IOException e) {
-			throw new RuntimeException("" + e);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("The file '" + this.content + "' does not exist", e);
+		}catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	private File tryToCreateFolder() {
 		File f = new File(this.content);
 		File parentFile = f.getParentFile();
+		boolean hasNoParent = parentFile == null;
+		
+		if(hasNoParent) {
+			String absolutePath = f.getAbsolutePath();
+			throw new RuntimeException("The file '" + absolutePath + "' has no parent");
+		}
+		
 		boolean alreadyCreated = parentFile.exists();
 
 		if(alreadyCreated) {
