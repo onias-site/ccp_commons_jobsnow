@@ -181,7 +181,7 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return append;
 	}
 	
-	private boolean createFolderIfNotExists() {
+	public boolean createFolderIfNotExists() {
 		
 		boolean isNewFolder = false == this.parent.exists();
 		

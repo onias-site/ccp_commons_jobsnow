@@ -174,33 +174,23 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		
 		f.delete();
 		try {
+//			File parentFile = f.getParentFile();
+			//TODO CRIAR PASTAS RECURSIVAMENTE
+			
 			f.createNewFile();
 			return this;
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("The file '" + this.content + "' does not exist", e);
 		}catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("The file '" + this.content + "' has an error", e);
 		}
 	}
 
 	private File tryToCreateFolder() {
 		File f = new File(this.content);
-		File parentFile = f.getParentFile();
-		boolean hasNoParent = parentFile == null;
-		
-		if(hasNoParent) {
-			String absolutePath = f.getAbsolutePath();
-			throw new RuntimeException("The file '" + absolutePath + "' has no parent");
-		}
-		
-		boolean alreadyCreated = parentFile.exists();
-
-		if(alreadyCreated) {
-			return f;
-		}
-		
-		parentFile.mkdir();
-		
+		String parent = f.getParent();
+		CcpFolderDecorator folder = new CcpFolderDecorator(parent);
+		folder.createFolderIfNotExists();
 		return f;
 	}
 	/**
