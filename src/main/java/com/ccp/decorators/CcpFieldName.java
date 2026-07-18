@@ -13,6 +13,10 @@ public final class CcpFieldName implements CcpJsonFieldName{
 	public CcpFieldName(Object name) {
 		this.name = name;
 	}
+	
+	public CcpFieldName(String name) {
+		this((Object)name);
+	}
 
 	public String name() {
 		return "" + this.name;

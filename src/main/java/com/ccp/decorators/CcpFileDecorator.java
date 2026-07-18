@@ -59,7 +59,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public CcpFileDecorator zip() {
 		
-		File fileToZip = tryToCreateFolder();
+		File fileToZip = tryToCreateParentFolder();
 		
 		String fileName = fileToZip.getName();
 		
@@ -75,7 +75,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * Retorna apenas o nome do arquivo (sem o caminho).
 	 */
 	public String getName() {
-		File file = tryToCreateFolder();
+		File file = tryToCreateParentFolder();
 		String name = file.getName();
 		return name;
 	}
@@ -83,7 +83,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * Retorna o caminho absoluto completo do arquivo.
 	 */
 	public String getPath() {
-		File file = tryToCreateFolder();
+		File file = tryToCreateParentFolder();
 		String absolutePath = file.getAbsolutePath();
 		return absolutePath;
 	}
@@ -123,7 +123,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * Lê todo o conteúdo do arquivo como string UTF-8. Lança {@code CcpErrorFolderParentIsMissing} se o arquivo não existir.
 	 */
 	public  String getStringContent() {
-		File file = tryToCreateFolder();
+		File file = tryToCreateParentFolder();
 		boolean fileIsMissing = false == file.exists();
 		if(fileIsMissing) {
 			throw new CcpErrorFolderParentIsMissing(this);
@@ -170,13 +170,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public CcpFileDecorator reset() {
 
-		File f = this.tryToCreateFolder();
+		File f = this.tryToCreateParentFolder();
 		
 		f.delete();
 		try {
-//			File parentFile = f.getParentFile();
-			//TODO CRIAR PASTAS RECURSIVAMENTE
-			
 			f.createNewFile();
 			return this;
 		} catch (FileNotFoundException e) {
@@ -186,7 +183,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		}
 	}
 
-	private File tryToCreateFolder() {
+	private File tryToCreateParentFolder() {
 		File f = new File(this.content);
 		String parent = f.getParent();
 		CcpFolderDecorator folder = new CcpFolderDecorator(parent);
@@ -239,7 +236,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * Verifica se o arquivo existe no sistema de arquivos.
 	 */
 	public boolean exists() {
-		File file = tryToCreateFolder();
+		File file = tryToCreateParentFolder();
 		return file.exists();
 	}
 	/**
@@ -288,7 +285,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public CcpFileDecorator remove() {
 
-		File file = tryToCreateFolder();
+		File file = tryToCreateParentFolder();
 		file.delete();
 		return this;
 	}
