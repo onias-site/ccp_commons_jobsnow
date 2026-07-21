@@ -274,7 +274,9 @@ public class CcpGetEntityId {
 					String message = specification.getOrDefault(JsonFieldNames.message, () -> status.name());
 					CcpJsonRepresentation put = json.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.message, message)
 							.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
-					CcpJsonRepresentation apply = whenFlowError.apply(put);
+					CcpJsonRepresentation dataBaseRow = this.getRecordFromUnionAll(unionAll, entity);
+					CcpJsonRepresentation context = put.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
+					CcpJsonRepresentation apply = whenFlowError.apply(context);
 					List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
 							.map(j -> j.whenAnyFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity))
 							.map(j -> j.whenAnyFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status))
