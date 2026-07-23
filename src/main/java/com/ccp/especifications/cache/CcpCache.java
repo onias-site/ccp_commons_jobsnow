@@ -1,7 +1,9 @@
 package com.ccp.especifications.cache;
 
+import java.util.Map;
 import java.util.function.Function;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
@@ -20,7 +22,7 @@ public interface CcpCache {
 	 Object get(String key) ;
 
 	/**
-	 * Tenta recuperar o valor do cache pela chave; se não houver entrada (ou após deletá-la),
+	 * Tenta recuperar o valor do cache pela chave; se não houver entrada,
 	 * executa {@code taskToGetValue} para obter o valor, grava o resultado no cache com o TTL
 	 * informado e o retorna.
 	 *
@@ -30,19 +32,40 @@ public interface CcpCache {
 	 * @param cacheSeconds tempo de expiração em segundos
 	 * @return o valor obtido do cache ou produzido pela função de fallback
 	 */
-	@SuppressWarnings("unchecked")
-	default <V> V get(String key, CcpJsonRepresentation json, Function<CcpJsonRepresentation, V> taskToGetValue, int cacheSeconds) {
+		@SuppressWarnings("unchecked")
+		default <V> V get(String key, CcpJsonRepresentation json, Function<CcpJsonRepresentation, V> taskToGetValue, int cacheSeconds) {
 
-		Object object = this.delete(key);
+			Object object = this.get(key);
 
-		if (object != null) {
-			return (V) object;
+			if (object != null) {
+				return (V) object;
+			}
+			V value = taskToGetValue.apply(json);
+			this.put(key, value, cacheSeconds);
+
+			return value;
 		}
-		V value = taskToGetValue.apply(json);
-		this.put(key, value, cacheSeconds);
 
-		return value;
-	}
+		@SuppressWarnings("unchecked")
+		default CcpJsonRepresentation get(String key, CcpJsonRepresentation json, CcpBusiness taskToGetValue, int cacheSeconds) {
+
+			Object object = this.get(key);
+
+			if (object == null) {
+				CcpJsonRepresentation value = taskToGetValue.execute(json);
+				this.put(key, value.content, cacheSeconds);
+				return value;
+			}
+			
+			if(object instanceof Map map) {
+				CcpJsonRepresentation value = new CcpJsonRepresentation(map);
+				return value;
+			}
+			
+			CcpJsonRepresentation value = new CcpJsonRepresentation(object.toString());
+			return value;
+			
+		}
 	
 	
 	/**

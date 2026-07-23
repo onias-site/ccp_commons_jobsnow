@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -72,6 +73,10 @@ public final class CcpCacheDecorator {
 	 */
 	public <V> V get(Function<CcpJsonRepresentation,V> taskToGetValue, int cacheSeconds) {
 		return this.cache.get(this.key, this.cacheParameters, taskToGetValue, cacheSeconds);
+	}
+
+	public CcpJsonRepresentation get(CcpBusiness taskToGetValue, CcpJsonRepresentation json, int cacheSeconds) {
+		return this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
 	}
 
 	/**
