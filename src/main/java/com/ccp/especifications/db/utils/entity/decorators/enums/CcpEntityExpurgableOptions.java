@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpTimeDecorator;
@@ -14,21 +15,36 @@ import com.ccp.decorators.CcpTimeDecorator;
  * de cache em segundos e o equivalente em milissegundos.
  */
 public enum CcpEntityExpurgableOptions{
-	yearly(Calendar.YEAR, "yyyy", 86400, 31_536_000_000L, "years")
+	yearly(Calendar.YEAR, "yyyy", 86400, 31_536_000_000L, "years"){
+		public long getMilliseconds(Long milliSeconds) {
+			long total = getMilliseconds(milliSeconds, Calendar.DAY_OF_YEAR);
+			return total;
+		}
+
+	}
 	,minute(Calendar.MINUTE, "ddMMyyyy HH:mm", 60, 60_000, "minutes")
 	,second(Calendar.SECOND, "ddMMyyyy HH:mm:ss", 1, 1_000, "seconds")
-	,monthly(Calendar.MONTH, "yyyyMM", 86400, 2_592_000_000L, "months")
+	,monthly(Calendar.MONTH, "yyyyMM", 86400, 2_592_000_000L, "months"){
+		public long getMilliseconds(Long milliSeconds) {
+			long total = getMilliseconds(milliSeconds, Calendar.DAY_OF_MONTH);
+			return total;
+		}
+	}
 	,daily(Calendar.DAY_OF_MONTH, "ddMMyyyy", 86400, 86_400_000, "days")
 	,hourly(Calendar.HOUR_OF_DAY, "ddMMyyyy HH", 3600, 3_600_000, "hours")
 	,millisecond(Calendar.MILLISECOND, "dd/MM/yyyy HH:mm:ss.SSS", 1, 1, "milliseconds")
 	;
 	private final int calendarField;
-	public final long milliseconds;
+	private final long milliseconds;
 	public final int cacheExpires;
 	public final String format;
 	public final String word;
 	
 	
+	public long getMilliseconds(Long milliSeconds) {
+		return this.milliseconds;
+	}
+
 	private CcpEntityExpurgableOptions(int calendarField, String format, int cacheExpires, long milliseconds, String word) {
 		this.calendarField = calendarField;
 		this.cacheExpires = cacheExpires;
@@ -91,33 +107,13 @@ public enum CcpEntityExpurgableOptions{
 		String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
 		return formattedDateTime;
 	}
-	
-	/**
-	 * Retorna a data no passado imediato correspondente ao {@code format} desta granularidade,
-	 * formatada segundo {@code newFormat}.
-	 * @param format o padrão de formato que identifica a granularidade
-	 * @param newFormat o padrão de saída desejado
-	 * @param timeMillis o timestamp de referência em milissegundos
-	 */
-	public static String getPastDate(String format, String newFormat, Long timeMillis) {
 
-		CcpEntityExpurgableOptions[] values = CcpEntityExpurgableOptions.values();
-		
-		for (CcpEntityExpurgableOptions value : values) {
-			
-			boolean formatHasNotFound = false == value.format.equals(format);
-			
-			if(formatHasNotFound) {
-				continue;
-			}
-			
-			Long timeInPast = timeMillis - value.milliseconds;
-			CcpTimeDecorator ctd = new CcpTimeDecorator(timeInPast);
-			String formattedDateTime = ctd.getFormattedDateTime(newFormat);
-			return formattedDateTime;
-		}
-		
-		throw new CcpExpurgableOptionNotFound(format);
+	public final long getMilliseconds(Long milliSeconds, int field) {
+		Calendar instance = new GregorianCalendar();
+		instance.setTimeInMillis(milliSeconds);
+		int actualMaximum = instance.getActualMaximum(field);
+		long total = 86_400_000L * actualMaximum;
+		return total;
 	}
 
 	@SuppressWarnings("serial")

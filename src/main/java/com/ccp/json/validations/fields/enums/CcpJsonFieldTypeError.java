@@ -1235,7 +1235,7 @@ enum TimeOptions{
 	public Long getEnlapsedInterval(CcpJsonRepresentation json, Field field) {
 		Long enlapsedTime = this.getEnlapsedTime(json, field);
 		CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-		long enlapsedInterval = (enlapsedTime / annotation.intervalType().milliseconds) + 1;
+		long enlapsedInterval = (enlapsedTime / annotation.intervalType().getMilliseconds(System.currentTimeMillis())) + 1;
 		return enlapsedInterval;
 	}
 }
@@ -1287,7 +1287,7 @@ enum TimeValueExtractorFromAnnotation{
 	protected Long getValueFromAnnotationInMilliseconds(CcpJsonRepresentation json, Field field) {
 		CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
 		CcpEntityExpurgableOptions intervalType = annotation.intervalType();
-		Long milliseconds = intervalType.milliseconds;
+		Long milliseconds = intervalType.getMilliseconds(System.currentTimeMillis());
 		Integer value = this.getValueFromAnnotation(annotation);
 		return Long.valueOf(milliseconds * value);
 	}
