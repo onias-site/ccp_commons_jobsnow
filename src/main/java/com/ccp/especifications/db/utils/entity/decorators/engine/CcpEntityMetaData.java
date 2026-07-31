@@ -1,4 +1,4 @@
-﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -86,21 +86,17 @@ public final class CcpEntityMetaData {
 	
 	
 	CcpEntityMetaData associateEntity() {
-		try {
-			boolean twinEntity = this.isTwinEntity();
-			if(twinEntity) {
-				CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
-				return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
-			}
-			
-			Field field = this.configurationClass.getDeclaredField("ENTITY");
-			Object object = field.get(null);
-			CcpEntity entity = (CcpEntity) object;
-			return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		boolean twinEntity = this.isTwinEntity();
+		if(twinEntity) {
+			CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
+			return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
 		}
+		
+		Field field = this.configurationClass.getDeclaredField("ENTITY");
+		Object object = field.get(null);
+		CcpEntity entity = (CcpEntity) object;
+		return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
+		
 	}
 
 	/** Retorna um {@code CcpBusiness} que executa a operação informada sobre a entidade destes metadados. */

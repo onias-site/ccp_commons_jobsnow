@@ -53,13 +53,9 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	private static byte[] readAllBytes(InputStream is){
-		try {
-			byte[] readAllBytes = is.readAllBytes();
-			return readAllBytes;
+		byte[] readAllBytes = is.readAllBytes();
+		return readAllBytes;
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**

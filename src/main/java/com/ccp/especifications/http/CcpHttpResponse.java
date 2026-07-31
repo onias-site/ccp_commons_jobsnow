@@ -77,13 +77,9 @@ public class CcpHttpResponse {
 	 * @return lista de representações JSON
 	 */
 	public List<CcpJsonRepresentation> asListRecord(){
-		try {
-			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-			List<CcpJsonRepresentation> fromJson = json.fromJson(this.httpResponse);
-			return fromJson; 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+		List<CcpJsonRepresentation> fromJson = json.fromJson(this.httpResponse);
+		return fromJson; 
 	}
 
 	/**
@@ -91,13 +87,9 @@ public class CcpHttpResponse {
 	 * @return lista de objetos
 	 */
 	public List<Object> asListObject(){
-		try {
-			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-			List<Object> fromJson = json.fromJson(this.httpResponse);
-			return fromJson; 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+		List<Object> fromJson = json.fromJson(this.httpResponse);
+		return fromJson; 
 	}
 
 	/**

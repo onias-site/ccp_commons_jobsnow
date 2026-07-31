@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.ccp.aop.CcpAllowNullReturn;
+
 /**
  * Decorator sobre um caminho de diretório no sistema de arquivos. Oferece operações de criação de subpastas e arquivos,
  * iteração sobre conteúdo, compactação ZIP e remoção recursiva.
@@ -24,6 +26,7 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		this.content = content;
 	}
 
+	@CcpAllowNullReturn
 	private CcpFolderDecorator getParent(String content) {
 		File file = new File(content);
 		File parentFile = file.getParentFile();
@@ -55,8 +58,6 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		try(FileOutputStream fos = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fos);) {
 			CcpFolderDecorator zip = this.zip(fileToZip, zipOut);
 			return zip;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 	}
 
@@ -96,8 +97,6 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
                 zipOut.write(bytes, 0, length);
             }
             return this;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
     }
 	

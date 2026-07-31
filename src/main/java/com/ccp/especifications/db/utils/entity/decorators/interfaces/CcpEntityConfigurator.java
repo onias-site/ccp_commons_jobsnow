@@ -42,15 +42,11 @@ public interface CcpEntityConfigurator {
 	
 	/** Retorna a instância de {@code CcpEntity} declarada no campo estático {@code ENTITY} desta classe. */
 	default CcpEntity getEntity() {
-		try {
-			Class<? extends CcpEntityConfigurator> class1 = this.getClass();
-			Field declaredField = class1.getDeclaredField("ENTITY");
-			declaredField.setAccessible(true);
-			Object object = declaredField.get(null);
-			return (CcpEntity) object;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		Class<? extends CcpEntityConfigurator> class1 = this.getClass();
+		Field declaredField = class1.getDeclaredField("ENTITY");
+		declaredField.setAccessible(true);
+		Object object = declaredField.get(null);
+		return (CcpEntity) object;
 		
 	}
 }

@@ -114,13 +114,9 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 			return this.twin;
 		}
 		
-		try {
-			CcpEntityConfigurator cfg = new CcpReflectionConstructorDecorator(this.clazz).newInstance();
-			this.twin = cfg.getEntity();
-			return this.twin;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpEntityConfigurator cfg = new CcpReflectionConstructorDecorator(this.clazz).newInstance();
+		this.twin = cfg.getEntity();
+		return this.twin;
 	}
 
 	@SuppressWarnings("unchecked")

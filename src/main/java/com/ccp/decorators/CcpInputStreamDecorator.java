@@ -68,12 +68,8 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		if(resource == null) {
 			throw new CcpErrorInputStreamMissing(this.content);
 		}
-		try {
-			InputStream stream = resource.openStream();
-			return stream;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		InputStream stream = resource.openStream();
+		return stream;
 	}
 	
 	/**
@@ -86,12 +82,8 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		if(notExists) {
 			throw new CcpErrorInputStreamMissing(this.content);
 		}
-		try {
-			FileInputStream fileInputStream = new FileInputStream(this.content);
-			return fileInputStream;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		FileInputStream fileInputStream = new FileInputStream(this.content);
+		return fileInputStream;
 	}
 	
 	/**

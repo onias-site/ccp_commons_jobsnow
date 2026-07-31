@@ -15,15 +15,11 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 public enum CcpEntityType {
 	mainEntity {
 		public String extractEntityName(Class<?> clazz) {
-			try {
-				Field declaredField = clazz.getDeclaredField("ENTITY");
-				CcpEntity entity =  (CcpEntity)declaredField.get(null);
-				CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-				return entityDetails.entityName;
-				
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			Field declaredField = clazz.getDeclaredField("ENTITY");
+			CcpEntity entity =  (CcpEntity)declaredField.get(null);
+			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
+			return entityDetails.entityName;
+			
 		}
 	},	
 	twinEntity {

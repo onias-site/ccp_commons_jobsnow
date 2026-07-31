@@ -2,7 +2,6 @@ package com.ccp.decorators;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -23,6 +22,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.ccp.aop.CcpAllowNullParameter;
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
@@ -98,13 +98,9 @@ public class CcpJsonRepresentation  {
 
 		Properties props = new Properties();
 		
-		try {
-			byte[] bytes = result.getBytes();
-			ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
-			props.load(inStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] bytes = result.getBytes();
+		ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+		props.load(inStream);
 		
 		Set<Object> keySet = props.keySet();
 		for (Object key : keySet) {
@@ -139,6 +135,9 @@ public class CcpJsonRepresentation  {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		try {
 			Map<String, Object> fromJson = handler.fromJson(json);
+			if(fromJson == null) {
+				return new HashMap<>();
+			}
 			return fromJson;
 			
 		} catch (Exception e) {
@@ -167,6 +166,7 @@ public class CcpJsonRepresentation  {
 		this.content = Collections.unmodifiableMap(linkedHashMap);
 	}
 
+	@CcpAllowNullParameter
 	private static CcpJsonRepresentation getErrorDetails(Throwable e) {
 
 		CcpJsonRepresentation jr = CcpOtherConstants.EMPTY_JSON;
@@ -177,6 +177,9 @@ public class CcpJsonRepresentation  {
 		
 		Throwable cause = e.getCause();
 		String message = e.getMessage();
+		if(message == null) {
+			message = "";
+		}
 		StackTraceElement[] st = e.getStackTrace();
 		List<String> stackTrace = new ArrayList<>();
 		for (StackTraceElement ste : st) {
@@ -189,6 +192,7 @@ public class CcpJsonRepresentation  {
 		return jr;
 	}
 
+	@CcpAllowNullParameter
 	private static List<StackTraceElement> getCompleteStackTrace(Throwable e){
 		if(e == null) {
 			return new ArrayList<StackTraceElement>();
@@ -203,6 +207,7 @@ public class CcpJsonRepresentation  {
 		
 	}
 	
+	@CcpAllowNullParameter
 	private static Object getCauseDetails(Throwable cause, StackTraceElement[] st) {
 		
 		boolean hasCause = cause != null;
@@ -484,15 +489,11 @@ public class CcpJsonRepresentation  {
 	 */
 	public String asUgglyJson() {
 		
-		try {
-			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-			TreeMap<String, Object> md = new TreeMap<>(this.content);
-			String json2 = json.toJson(md);
-			return json2;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+		TreeMap<String, Object> md = new TreeMap<>(this.content);
+		String json2 = json.toJson(md);
+		return json2;
+		
 	}
 
 	/**
@@ -946,6 +947,9 @@ public class CcpJsonRepresentation  {
 			CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 			try {
 				List<Map<String, Object>> fromJson = jsonHandler.fromJson(object.toString());
+				if(fromJson == null) {
+					fromJson = new ArrayList<>();
+				}
 				List<CcpJsonRepresentation> collect = fromJson.stream().map(json -> new CcpJsonRepresentation(json)).collect(Collectors.toList());
 				return collect;
 			} catch (ClassCastException e) {

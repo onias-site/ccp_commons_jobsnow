@@ -29,7 +29,7 @@ public final class CcpHttpHandler {
 	 * @param url URL alvo das requisições
 	 */
 	public CcpHttpHandler(CcpJsonRepresentation flows, String url) {
-		this.alternativeFlow = null;
+		this.alternativeFlow = CcpOtherConstants.DO_NOTHING;
 		this.flows = flows;
 		this.url = url;
 		
@@ -54,7 +54,7 @@ public final class CcpHttpHandler {
 	 */
 	public CcpHttpHandler(Integer httpStatus, String url) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
-		this.alternativeFlow = null;
+		this.alternativeFlow = CcpOtherConstants.DO_NOTHING;
 		this.url = url;
 	}
 	

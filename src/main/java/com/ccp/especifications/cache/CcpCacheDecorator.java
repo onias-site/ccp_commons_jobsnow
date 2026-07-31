@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.ccp.aop.CcpAllowNullReturn;
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
@@ -125,8 +126,10 @@ public final class CcpCacheDecorator {
 	 *
 	 * @return o valor removido ou {@code null} se não havia entrada
 	 */
+	@CcpAllowNullReturn
 	public <V> V delete() {
-		return this.cache.delete(this.key);
+		V delete = this.cache.delete(this.key);
+		return delete;
 	}
 	
 	/**

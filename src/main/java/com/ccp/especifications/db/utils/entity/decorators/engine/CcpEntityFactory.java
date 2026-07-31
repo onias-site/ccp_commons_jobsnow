@@ -208,8 +208,6 @@ public class CcpEntityFactory {
 			defaultEntityField = (CcpJsonTransformersDefaultEntityField)declaredField.get(null);
 		} catch (NoSuchFieldException e) {
 			return CcpOtherConstants.DO_NOTHING;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 
 		boolean isNotPrimaryKeyField = false == field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);

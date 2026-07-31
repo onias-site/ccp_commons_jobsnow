@@ -38,9 +38,9 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	 * @param entityToTransfer a entidade destino
 	 */
 	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
-		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType.before, clazz, entity, entityToTransfer);
+		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType.depois, clazz, entity, entityToTransfer);
 		CcpJsonRepresentation result = this.executeEntityTransfer(before, entity, entityToTransfer);
-		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationStepType.after, clazz, entity, entityToTransfer);
+		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationStepType.antes, clazz, entity, entityToTransfer);
 		return after;
 
 	}

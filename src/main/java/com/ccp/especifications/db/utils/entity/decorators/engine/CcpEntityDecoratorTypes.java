@@ -58,16 +58,12 @@ public enum CcpEntityDecoratorTypes {
 	 */
 	public CcpEntity getEntity(Class<?> clazz, CcpEntity decoratedEntity) {
 		
-		try {
-			Class<?> apply = this.clazzProducer.apply(clazz);
-			Constructor<?> declaredConstructor = apply.getDeclaredConstructor(CcpEntity.class, clazz.getClass());
-			declaredConstructor.setAccessible(true);
-			CcpEntity newInstance = (CcpEntity)declaredConstructor.newInstance(decoratedEntity, clazz);
-			return newInstance;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> apply = this.clazzProducer.apply(clazz);
+		Constructor<?> declaredConstructor = apply.getDeclaredConstructor(CcpEntity.class, clazz.getClass());
+		declaredConstructor.setAccessible(true);
+		CcpEntity newInstance = (CcpEntity)declaredConstructor.newInstance(decoratedEntity, clazz);
+		return newInstance;
+		
 	}
 	
 }

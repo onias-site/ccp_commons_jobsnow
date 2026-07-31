@@ -1,4 +1,4 @@
-﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;

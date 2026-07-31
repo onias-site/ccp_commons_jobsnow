@@ -3,7 +3,6 @@ package com.ccp.decorators;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.ccp.aop.CcpAllowNullReturn;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 
@@ -39,6 +39,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		this.content = content;
 	}
 
+	@CcpAllowNullReturn
 	private CcpFileDecorator getParent(String content) {
 		
 		File file = new File(content);
@@ -66,11 +67,16 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		try(FileOutputStream fos = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fos);) {
 			CcpFileDecorator zip = this.zip(fileToZip, zipOut);
 			return zip;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		} 
+		
+		
 	}
 
+	public void x() {
+		String fileName = "";
+		FileOutputStream fos = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fos);
+	}
+	
 	/**
 	 * Retorna apenas o nome do arquivo (sem o caminho).
 	 */
@@ -115,8 +121,6 @@ public class CcpFileDecorator implements CcpDecorator<String> {
                 zipOut.write(bytes, 0, length);
             }
 			return this;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
     }
 	/**
@@ -128,14 +132,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		if(fileIsMissing) {
 			throw new CcpErrorFolderParentIsMissing(this);
 		}
-		try {
-			Path path = file.toPath();
-			byte[] fileContent = Files.readAllBytes(path);
-			String string = new String(fileContent, "UTF-8");
-			return string;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		Path path = file.toPath();
+		byte[] fileContent = Files.readAllBytes(path);
+		String string = new String(fileContent, "UTF-8");
+		return string;
 	}
 	/**
 	 * Sobrescreve o arquivo com o conteúdo fornecido (limpa antes de escrever).
@@ -153,17 +153,13 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * @param content o conteúdo a ser acrescentado
 	 */
 	public CcpFileDecorator append(String content) {
-		try {
-			File file = new File(this.content);
-			if (false == file.exists()) {
-				file.createNewFile();
-			}
-			byte[] bytes = (content + "\n").getBytes();
-			Files.write(Paths.get(this.content), bytes, StandardOpenOption.APPEND);
-			return this;
-		} catch (IOException e) {
-			throw new RuntimeException(e); 
+		File file = new File(this.content);
+		if (false == file.exists()) {
+			file.createNewFile();
 		}
+		byte[] bytes = (content + "\n").getBytes();
+		Files.write(Paths.get(this.content), bytes, StandardOpenOption.APPEND);
+		return this;
 	}
 	/**
 	 * Apaga o conteúdo do arquivo, deixando-o vazio (apaga e recria).
@@ -173,14 +169,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		File f = this.tryToCreateParentFolder();
 		
 		f.delete();
-		try {
-			f.createNewFile();
-			return this;
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("The file '" + this.content + "' does not exist", e);
-		}catch (IOException e) {
-			throw new RuntimeException("The file '" + this.content + "' has an error", e);
-		}
+		f.createNewFile();
+		return this;
 	}
 
 	private File tryToCreateParentFolder() {
@@ -201,8 +191,6 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 			while ((line = br.readLine()) != null) {
 				linesFromFile.add(line);
 			}
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
 		}
 		return linesFromFile;
 	}
@@ -222,8 +210,6 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 				reader.onRead(line, k++);
 			}
 			return this;
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
 		}
 	}
 	

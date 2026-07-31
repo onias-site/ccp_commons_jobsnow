@@ -1,4 +1,4 @@
-﻿package com.ccp.especifications.db.utils.entity;
+package com.ccp.especifications.db.utils.entity;
 
 import java.util.ArrayList;
 import java.util.Arrays;

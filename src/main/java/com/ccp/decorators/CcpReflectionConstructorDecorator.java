@@ -36,12 +36,8 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	 * Carrega e retorna o objeto {@code Class} pelo nome. Lança {@code RuntimeException} se a classe não for encontrada.
 	 */
 	public Class<?> forName(){
-		try {
-			Class<?> forName = Class.forName(this.content);
-			return forName;
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> forName = Class.forName(this.content);
+		return forName;
 	}
 
 	/**
@@ -61,15 +57,11 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance() {
-		try {
-			Class<?> forName = Class.forName(this.content);
-			Constructor<?> declaredConstructor = forName.getDeclaredConstructor();
-			declaredConstructor.setAccessible(true);
-			T newInstance = (T) declaredConstructor.newInstance();
-			return newInstance;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> forName = Class.forName(this.content);
+		Constructor<?> declaredConstructor = forName.getDeclaredConstructor();
+		declaredConstructor.setAccessible(true);
+		T newInstance = (T) declaredConstructor.newInstance();
+		return newInstance;
 
 	}
 

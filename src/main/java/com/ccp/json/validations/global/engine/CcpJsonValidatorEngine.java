@@ -149,8 +149,6 @@ public class CcpJsonValidatorEngine {
 			return declaredField;
 		} catch (NoSuchFieldException e) {
 			return field;
-		} catch(Exception e) {
-			throw new RuntimeException(e);
 		}
 	}
 	

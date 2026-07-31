@@ -1,4 +1,4 @@
-﻿package com.ccp.especifications.db.utils.entity.decorators.engine;
+package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.LinkedHashSet;
 import java.util.List;

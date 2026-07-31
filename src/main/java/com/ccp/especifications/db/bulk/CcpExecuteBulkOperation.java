@@ -1,4 +1,4 @@
-﻿package com.ccp.especifications.db.bulk;
+package com.ccp.especifications.db.bulk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
