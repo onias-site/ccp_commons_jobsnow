@@ -26,5 +26,6 @@ public aspect CcpSoftExceptionAspect {
             || execution(com.jb..*.new(..))
             || execution(com.vis..*.new(..))
         )
-        && !within(com.ccp.aop..*);
+        && 
+        !within(com.ccp.aop..*);
 }

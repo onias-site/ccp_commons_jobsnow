@@ -68,9 +68,9 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		if(resource == null) {
 			throw new CcpErrorInputStreamMissing(this.content);
 		}
-		InputStream stream = resource.openStream();
+		InputStream stream = resource.openStream(); 
 		return stream;
-	}
+	} 
 	
 	/**
 	 * Abre o arquivo do sistema de arquivos pelo caminho encapsulado.

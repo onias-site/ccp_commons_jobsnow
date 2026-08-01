@@ -54,7 +54,7 @@ public class CcpDependencyInjection {
 	/**
 	 * Retorna {@code true} se já existe uma implementação registrada para a interface {@code interfaceClass}.
 	 */
-	public static <T>boolean hasDependency(Class<T> interfaceClass) {
+	public static <T> boolean hasDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
 		return implementation != null;
 	}

@@ -133,26 +133,21 @@ public class CcpJsonRepresentation  {
  
 	private static Map<String, Object> getMap(String json) {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-		try {
-			Map<String, Object> fromJson = handler.fromJson(json);
-			if(fromJson == null) {
-				return new HashMap<>();
-			}
-			return fromJson;
-			
-		} catch (Exception e) {
-			throw new CcpErrorJsonInvalid(json , e);
+		boolean invalidJson = false ==  handler.isValidJson(json);
+		if(invalidJson) {
+			throw new CcpErrorJsonInvalid(json);
 		}
+		Map<String, Object> fromJson = handler.fromJson(json);
+		return fromJson;
+
 	}
 	
 	/**
-	 * Cria a partir de um mapa existente; lança {@code CcpErrorJsonNull} se {@code null}.
+	 * Cria a partir de um mapa existente;.
 	 * @param content o mapa de campos e valores
 	 */
 	public CcpJsonRepresentation(Map<String, Object> content) {
-		if(content == null) {
-			throw new CcpErrorJsonNull();
-		}
+		
 		LinkedHashMap<String, Object> linkedHashMap = new LinkedHashMap<String, Object>();
 		Set<String> keySet = content.keySet();
 		for (String key : keySet) {
@@ -946,9 +941,12 @@ public class CcpJsonRepresentation  {
 		if(object instanceof String) {
 			CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 			try {
-				List<Map<String, Object>> fromJson = jsonHandler.fromJson(object.toString());
-				if(fromJson == null) {
-					fromJson = new ArrayList<>();
+				
+				boolean validJsonList = jsonHandler.isValidJsonList(object.toString());
+				
+				List<Map<String, Object>> fromJson = new ArrayList<>();
+				if(validJsonList) {
+					fromJson = jsonHandler.fromJson(object.toString());
 				}
 				List<CcpJsonRepresentation> collect = fromJson.stream().map(json -> new CcpJsonRepresentation(json)).collect(Collectors.toList());
 				return collect;
@@ -1385,19 +1383,11 @@ public class CcpJsonRepresentation  {
 		 * @param json a string que falhou na desserialização
 		 * @param e a exceção original
 		 */
-		private CcpErrorJsonInvalid(String json, Throwable e) {
-			super("The following json is an invalid json: " + json , e);
+		private CcpErrorJsonInvalid(String json) {
+			super("The following json is an invalid json: " + json);
 		}
 	}
 
-	/**
-	 * Exceção lançada quando se tenta construir um {@code CcpJsonRepresentation} a partir de um {@code Map} nulo.
-	 * Sinaliza que o JSON passado é {@code null} e portanto inválido como entrada.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpErrorJsonNull extends RuntimeException {
-		private CcpErrorJsonNull() {}
-	}
 
 	/**
 	 * Exceção lançada quando o valor de um campo existe no JSON, mas não pode ser convertido para o tipo esperado

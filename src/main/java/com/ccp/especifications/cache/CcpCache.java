@@ -14,10 +14,10 @@ import com.ccp.decorators.CcpJsonRepresentation;
 public interface CcpCache {
 
 	/**
-	 * Recupera o valor armazenado para a chave informada, retornando {@code null} se não existir.
+	 * Recupera o valor armazenado para a chave informada.
 	 *
 	 * @param key a chave de cache
-	 * @return o valor armazenado ou {@code null} se ausente
+	 * @return o valor armazenado
 	 */
 	 Object get(String key) ;
 

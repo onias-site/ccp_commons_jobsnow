@@ -71,11 +71,6 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		
 		
 	}
-
-	public void x() {
-		String fileName = "";
-		FileOutputStream fos = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fos);
-	}
 	
 	/**
 	 * Retorna apenas o nome do arquivo (sem o caminho).

@@ -35,4 +35,10 @@ public interface CcpJsonHandler {
 	 */
 	boolean isValidJson(String src);
 	
+	/**
+	 * Verifica se a string é um JSON List válido.
+	 * @param src string a verificar
+	 * @return true se for JSON válido
+	 */
+	boolean isValidJsonList(String src);
 }
