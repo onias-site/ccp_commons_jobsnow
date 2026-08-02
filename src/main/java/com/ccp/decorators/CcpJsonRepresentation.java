@@ -100,7 +100,7 @@ public class CcpJsonRepresentation  {
 		
 		byte[] bytes = result.getBytes();
 		ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
-		props.load(inStream);
+		props.load(inStream);
 		
 		Set<Object> keySet = props.keySet();
 		for (Object key : keySet) {
@@ -119,6 +119,7 @@ public class CcpJsonRepresentation  {
 	 * Serializa os detalhes de uma exceção (mensagem, stack trace, causa) em JSON.
 	 * @param e a exceção a serializar
 	 */
+	@CcpAllowNullParameter
 	public CcpJsonRepresentation(Throwable e) {
 		this(getErrorDetails(e).content);
 	}
@@ -488,7 +489,7 @@ public class CcpJsonRepresentation  {
 		TreeMap<String, Object> md = new TreeMap<>(this.content);
 		String json2 = json.toJson(md);
 		return json2;
-		
+		
 	}
 
 	/**

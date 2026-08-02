@@ -12,14 +12,21 @@ public aspect CcpNullParameterAspect {
         || execution(* com.jb..*(..))
         || execution(* com.vis..*(..));
 
+    pointcut anyConstructor():
+        execution(com.ccp..new(..))
+        || execution(com.jn..new(..))
+        || execution(com.jb..new(..))
+        || execution(com.vis..new(..));
+
     pointcut excludeAopPackage():
         within(com.ccp.aop..*);
 
     pointcut excludeAnnotatedMethod():
-        execution(@CcpAllowNullParameter * *(..));
+        execution(@CcpAllowNullParameter * *(..))
+        || execution(@CcpAllowNullParameter *.new(..));
 
     pointcut monitoredMethod():
-        anyMethod()
+        (anyMethod() || anyConstructor())
         && !excludeAopPackage()
         && !excludeAnnotatedMethod()
         && !execution(* *..*lambda$*(..));

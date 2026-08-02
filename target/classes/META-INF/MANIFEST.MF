@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Build-Jdk-Spec: 17
-Class-Path: libs/aspectjrt-1.9.21.jar
-Created-By: Maven Integration for Eclipse
-
