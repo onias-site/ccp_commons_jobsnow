@@ -874,7 +874,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
 			if(annotation == null) {
-				throw new RuntimeException(field.getName() + " =  " + type);
+				throw new CcpErrorJsonFieldTypeMissingStringAnnotation(field.getName() + " =  " + type);
 			}
 			String value = annotation.regexValidation();
 			return (T)value;
@@ -1204,6 +1204,13 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 	enum JsonFieldNames implements CcpJsonFieldName {
 		fields,
+	}
+
+	@SuppressWarnings("serial")
+	private static class CcpErrorJsonFieldTypeMissingStringAnnotation extends RuntimeException {
+		private CcpErrorJsonFieldTypeMissingStringAnnotation(String message) {
+			super(message);
+		}
 	}
 }
 enum TimeOptions{

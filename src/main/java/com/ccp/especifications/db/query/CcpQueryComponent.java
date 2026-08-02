@@ -1,5 +1,6 @@
 package com.ccp.especifications.db.query;
 
+import com.ccp.aop.CcpAllowNullParameter;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -17,6 +18,7 @@ public abstract class CcpQueryComponent {
 	protected CcpQueryComponent parent;
 	protected String name;
 
+	@CcpAllowNullParameter
 	CcpQueryComponent(CcpQueryComponent parent, String name) {
 		this.parent = parent;
 		this.name = name;

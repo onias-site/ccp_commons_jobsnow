@@ -210,9 +210,13 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 			if ("false".equalsIgnoreCase(x)) {
 				return;
 			}
-			throw new RuntimeException();
+			throw new CcpErrorStringIsNotBoolean();
 		});
 		return valid;
+	}
+
+	@SuppressWarnings("serial")
+	private static class CcpErrorStringIsNotBoolean extends RuntimeException {
 	}
 
 	private boolean isValid(Consumer<String>  consumer) {

@@ -34,7 +34,7 @@ public class CcpDependencyInjection {
 		loadAllDependencies(actuallyDependecies);
 		return apply;
 	}
-
+ 
 
 	/**
 	 * Registra cada provider no mapa de dependências, associando a interface (primeiro {@code getInterfaces()[0]})
@@ -70,6 +70,10 @@ public class CcpDependencyInjection {
 			throw new CcpErrorDependencyInjectionMissing(interfaceClass);
 		}
 		return (T) implementation;
+	}
+	
+	public static void removeAllDependencies() {
+		instances.clear();
 	}
 
 	/**
