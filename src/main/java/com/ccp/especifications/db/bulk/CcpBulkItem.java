@@ -34,7 +34,10 @@ public class CcpBulkItem {
 	 * @param operation novo tipo de operação
 	 */
 	public CcpBulkItem(CcpBulkItem other, CcpBulkEntityOperationType operation) {
-		this(other.json, operation, other.entity, other.id);
+		this.operation = operation;
+		this.entity = other.entity;
+		this.json = other.json;
+		this.id = other.id;
 	}
 
 	/**

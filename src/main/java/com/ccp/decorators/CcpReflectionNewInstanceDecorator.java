@@ -21,7 +21,11 @@ public class CcpReflectionNewInstanceDecorator extends CcpReflectionOptionsDecor
 	 * Carrega a classe e cria uma nova instância via reflexão.
 	 */
 	protected CcpReflectionNewInstanceDecorator(CcpReflectionConstructorDecorator constructor) {
-		super(constructor.forName());
+		super(forName(constructor));
 		this.instance = constructor.newInstance();
+	}
+
+	private static Class<?> forName(CcpReflectionConstructorDecorator constructor) {
+		return constructor.forName();
 	}
 }

@@ -366,7 +366,11 @@ public class CcpGetEntityId {
 		}
 
 		public CcpErrorCrudMultiGetSearchFailed(CcpJsonRepresentation error) {
-			super(error.getAsString(JsonFieldNames.type) + ". Reason: " + error.getAsString(JsonFieldNames.reason));
+			super(getMessage(error));
+		}
+
+		private static String getMessage(CcpJsonRepresentation error) {
+			return error.getAsString(JsonFieldNames.type) + ". Reason: " + error.getAsString(JsonFieldNames.reason);
 		}
 	}
 
@@ -396,7 +400,11 @@ public class CcpGetEntityId {
 	public static class CcpErrorFlowFieldsToReturnNotMentioned extends RuntimeException {
 
 		public CcpErrorFlowFieldsToReturnNotMentioned(CcpJsonFieldName origin) {
-			super("at least one field must be mentioned. Origin: " + origin.name());
+			super(getMessage(origin));
+		}
+
+		private static String getMessage(CcpJsonFieldName origin) {
+			return "at least one field must be mentioned. Origin: " + origin.name();
 		}
 	}
 	

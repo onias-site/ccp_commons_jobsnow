@@ -10,6 +10,10 @@ public class CcpReflectionStaticContextDecorator extends CcpReflectionOptionsDec
 	 * Resolve a classe pelo nome usando {@code constructor.forName()}.
 	 */
 	protected CcpReflectionStaticContextDecorator(CcpReflectionConstructorDecorator constructor) {
-		super(constructor.forName());
+		super(forName(constructor));
+	}
+
+	private static Class<?> forName(CcpReflectionConstructorDecorator constructor) {
+		return constructor.forName();
 	}
 }
