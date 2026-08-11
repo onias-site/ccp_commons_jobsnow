@@ -27,11 +27,11 @@ public enum CcpEntityDecoratorTypes {
 	AsyncWriter(CcpEntityAsyncWriter.class, x -> x.getAnnotation(CcpEntityAsyncWriter.class).value(), 6),
 	FieldsTransformer(CcpEntityFieldsTransformer.class, x -> DecoratorFieldsTransformerEntity.class, 8),
 	FieldsValidator(CcpEntityFieldsValidator.class, x -> DecoratorFieldsValidatorEntity.class, 9),
-	WriteOperations(CcpEntityOperations.class, x -> DecoratorOperationsWriterEntity.class, 4),
-	DataTransfer(CcpEntityDataTransfers.class, x -> DecoratorTransferDataEntity.class, 4),
+	WriteOperations(CcpEntityOperations.class, x -> DecoratorOperationsWriterEntity.class, 5),
+	DataTransfer(CcpEntityDataTransfers.class, x -> DecoratorTransferDataEntity.class, 5),
 	DataReadOnly(CcpEntityOlyReadable.class, x -> DecoratorReadOnlyEntity.class, 7),
 	Cacheable(CcpEntityCache.class, x -> DecoratorCacheEntity.class, 3),
-	Twin(CcpEntityTwin.class, x -> DecoratorTwinEntity.class, 5),
+	Twin(CcpEntityTwin.class, x -> DecoratorTwinEntity.class, 4),
 	;
 
 	

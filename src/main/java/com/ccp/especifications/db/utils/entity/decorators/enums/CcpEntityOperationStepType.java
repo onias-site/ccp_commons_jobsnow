@@ -6,5 +6,5 @@ package com.ccp.especifications.db.utils.entity.decorators.enums;
  * {@code @CcpEntityDataTransfer}.
  */
 public enum CcpEntityOperationStepType {
-	antes, depois
+	_after, _before
 }

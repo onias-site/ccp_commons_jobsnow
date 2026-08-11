@@ -946,18 +946,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
-			boolean hasError = TimeValueExtractorFromAnnotation.max.hasError(json, field, TimeOptions.antes);
+			boolean hasError = TimeValueExtractorFromAnnotation.max.hasError(json, field, TimeOptions._before);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.max.getErrorMessage(json, field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.max.getErrorMessage(json, field, TimeOptions._before);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.max.getRuleExplanation(field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.max.getRuleExplanation(field, TimeOptions._before);
 			return errorMessage;
 		}
 
@@ -973,18 +973,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			if(false == this.hasRuleExplanation(field, type)) {
 				return false;
 			}
-			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions.antes);
+			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions._before);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.exact.getErrorMessage(json, field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.exact.getErrorMessage(json, field, TimeOptions._before);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.exact.getRuleExplanation(field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.exact.getRuleExplanation(field, TimeOptions._before);
 			return errorMessage;
 		}
 
@@ -998,18 +998,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
-			boolean hasError = TimeValueExtractorFromAnnotation.min.hasError(json, field, TimeOptions.antes);
+			boolean hasError = TimeValueExtractorFromAnnotation.min.hasError(json, field, TimeOptions._before);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.min.getErrorMessage(json, field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.min.getErrorMessage(json, field, TimeOptions._before);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.min.getRuleExplanation(field, TimeOptions.antes);
+			String errorMessage = TimeValueExtractorFromAnnotation.min.getRuleExplanation(field, TimeOptions._before);
 			return errorMessage;
 		}
 
@@ -1023,18 +1023,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
-			boolean hasError = TimeValueExtractorFromAnnotation.max.hasError(json, field, TimeOptions.depois);
+			boolean hasError = TimeValueExtractorFromAnnotation.max.hasError(json, field, TimeOptions._after);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.max.getErrorMessage(json, field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.max.getErrorMessage(json, field, TimeOptions._after);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.max.getRuleExplanation(field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.max.getRuleExplanation(field, TimeOptions._after);
 			return errorMessage;
 		}
 
@@ -1048,18 +1048,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
-			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions.depois);
+			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions._after);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.exact.getErrorMessage(json, field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.exact.getErrorMessage(json, field, TimeOptions._after);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.exact.getRuleExplanation(field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.exact.getRuleExplanation(field, TimeOptions._after);
 			return errorMessage;
 		}
 
@@ -1073,18 +1073,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
-			boolean hasError = TimeValueExtractorFromAnnotation.min.hasError(json, field, TimeOptions.depois);
+			boolean hasError = TimeValueExtractorFromAnnotation.min.hasError(json, field, TimeOptions._after);
 			
 			return hasError;
 		}
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.min.getErrorMessage(json, field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.min.getErrorMessage(json, field, TimeOptions._after);
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
-			String errorMessage = TimeValueExtractorFromAnnotation.min.getRuleExplanation(field, TimeOptions.depois);
+			String errorMessage = TimeValueExtractorFromAnnotation.min.getRuleExplanation(field, TimeOptions._after);
 			return errorMessage;
 		}
 
@@ -1214,13 +1214,13 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	}
 }
 enum TimeOptions{
-	antes {
+	_before {
 		long subtractNumber(long time) {
 			long currentTimeMillis = System.currentTimeMillis();
 			return currentTimeMillis - time;
 		}
 	},
-	depois {
+	_after {
 		long subtractNumber(long time) {
 			long currentTimeMillis = System.currentTimeMillis();
 			return time - currentTimeMillis;
