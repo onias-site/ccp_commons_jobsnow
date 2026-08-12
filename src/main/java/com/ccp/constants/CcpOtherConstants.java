@@ -3,6 +3,7 @@ package com.ccp.constants;
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpStringDecorator;
 
 /**
  * Repositório de constantes globais compartilhadas em todo o sistema.
@@ -22,4 +23,7 @@ public interface CcpOtherConstants {
 	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)\\ |\\'|\\\"|\\`|\\.";
 	/** Implementação de {@code CcpJsonFieldName} cujo valor é a string vazia. Representa ausência de nome de campo. */
 	CcpFieldName EMPTY_STRING = new CcpFieldName("");
+
+	CcpStringDecorator LETTERS_AND_NUMBERS = new CcpStringDecorator("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+
 }

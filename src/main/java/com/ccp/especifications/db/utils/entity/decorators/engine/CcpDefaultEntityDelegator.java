@@ -55,7 +55,14 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	
 	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
 
-		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		List<CcpBulkItem> bulkItems = new ArrayList<>(this.toBulkItems(json, CcpBulkEntityOperationType.delete));
+		try {
+			CcpEntity twinEntity = this.getTwinEntity();
+			List<CcpBulkItem> bulkItemsTwin = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
+			bulkItems.addAll(bulkItemsTwin);
+		} catch (UnsupportedOperationException e) {
+		}
+		
 		List<CcpBulkItem> collect = bulkItems.stream().map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete))
 		.collect(Collectors.toList());
 		this.executeBulkOperation.executeBulk(collect, this.functionToDeleteKeysInTheCache);
