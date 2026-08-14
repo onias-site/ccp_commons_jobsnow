@@ -177,9 +177,9 @@ public final class CcpTreeFlow {
 		}
 
 		private CcpJsonRepresentation tryToPerformNormally(CcpBusiness... whatToNext) {
-			CcpJsonRepresentation responseWhenTheFlowPerformsNormally = this.givenFinalTargetProcess.apply(this.givenJson);
+			CcpJsonRepresentation responseWhenTheFlowPerformsNormally = this.givenFinalTargetProcess.execute(this.givenJson);
 			for (CcpBusiness function : whatToNext) {
-				function.apply(this.givenJson);
+				function.execute(this.givenJson);
 			}
 			return responseWhenTheFlowPerformsNormally;
 		}
@@ -190,7 +190,7 @@ public final class CcpTreeFlow {
 				CcpJsonRepresentation json = this.givenJson;
 				for (CcpBusiness nextFlow : nextFlows) {
 					try {
-						json = nextFlow.apply(json);
+						json = nextFlow.execute(json);
 					} catch (CcpErrorFlowDisturb flowDisturb) {
 						json = flowDisturb.json.mergeWithAnotherJson(json);
 					}

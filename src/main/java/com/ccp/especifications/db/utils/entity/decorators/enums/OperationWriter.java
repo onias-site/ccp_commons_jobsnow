@@ -24,7 +24,7 @@ interface OperationWriter {
 	 */
 	default CcpJsonRepresentation executeBusiness(CcpJsonRepresentation json, CcpBusiness business, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
 		try {
-			CcpJsonRepresentation apply = business.apply(json);
+			CcpJsonRepresentation apply = business.execute(json);
 			return apply;
 		} catch (RuntimeException e) {
 			Class<? extends RuntimeException> clazz = e.getClass();

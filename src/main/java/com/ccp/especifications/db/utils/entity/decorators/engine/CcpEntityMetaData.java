@@ -159,7 +159,7 @@ public final class CcpEntityMetaData {
 			return oneById;
 			
 		} catch (CcpErrorBulkEntityRecordNotFound e) {
-			CcpJsonRepresentation execute = ifNotFound.apply(json);
+			CcpJsonRepresentation execute = ifNotFound.execute(json);
 			return execute;
 		}
 	}

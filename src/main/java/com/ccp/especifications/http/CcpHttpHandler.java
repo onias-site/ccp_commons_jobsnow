@@ -158,7 +158,7 @@ public final class CcpHttpHandler {
 			return tranform;
 		}
 
-		CcpJsonRepresentation execute = flow.apply((CcpJsonRepresentation)tranform);
+		CcpJsonRepresentation execute = flow.execute((CcpJsonRepresentation)tranform);
 		return (V)execute;
 	}
 	

@@ -2,6 +2,7 @@ package com.ccp.decorators;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -100,7 +101,11 @@ public class CcpJsonRepresentation  {
 		
 		byte[] bytes = result.getBytes();
 		ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
-		props.load(inStream);
+		try {
+			props.load(inStream);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		
 		Set<Object> keySet = props.keySet();
 		for (Object key : keySet) {
@@ -346,7 +351,7 @@ public class CcpJsonRepresentation  {
 			return this;
 		}
 		
-		CcpJsonRepresentation apply = business.apply(this);
+		CcpJsonRepresentation apply = business.execute(this);
 		return apply;
 	
 	}
@@ -364,7 +369,7 @@ public class CcpJsonRepresentation  {
 			return this;
 		}
 		
-		CcpJsonRepresentation apply = business.apply(this);
+		CcpJsonRepresentation apply = business.execute(this);
 		return apply;
 	}
 
@@ -380,7 +385,7 @@ public class CcpJsonRepresentation  {
 			return this;
 		}
 		
-		CcpJsonRepresentation apply = business.apply(this);
+		CcpJsonRepresentation apply = business.execute(this);
 		return apply;
 	}
 	
@@ -561,7 +566,7 @@ public class CcpJsonRepresentation  {
 	public final CcpJsonRepresentation getTransformedJson(CcpBusiness... transformers) {
 		CcpJsonRepresentation transformedJson = this;
 		for (CcpBusiness transformer : transformers) {
-			transformedJson = transformer.apply(transformedJson);
+			transformedJson = transformer.execute(transformedJson);
 		}
 		return transformedJson;
 	}
@@ -787,11 +792,11 @@ public class CcpJsonRepresentation  {
 			if(contionMets) {
 				continue;
 			}
-			CcpJsonRepresentation apply = conditionsDoNotMet.apply(this);
+			CcpJsonRepresentation apply = conditionsDoNotMet.execute(this);
 			return apply;
 		}
 		
-		CcpJsonRepresentation apply = conditionsMet.apply(this);
+		CcpJsonRepresentation apply = conditionsMet.execute(this);
 		return apply;
 	}
 	
@@ -801,11 +806,11 @@ public class CcpJsonRepresentation  {
 			if(contionDoesNotMet) {
 				continue;
 			}
-			CcpJsonRepresentation apply = conditionsMet.apply(this);
+			CcpJsonRepresentation apply = conditionsMet.execute(this);
 			return apply;
 		}
 		
-		CcpJsonRepresentation apply = conditionsDoNotMet.apply(this);
+		CcpJsonRepresentation apply = conditionsDoNotMet.execute(this);
 		return apply;
 	}
 	

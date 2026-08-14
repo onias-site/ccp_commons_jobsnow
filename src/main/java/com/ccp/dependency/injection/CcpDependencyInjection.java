@@ -30,7 +30,7 @@ public class CcpDependencyInjection {
 		}
 		loadAllDependencies(providers);
 
-		CcpJsonRepresentation apply = business.apply(json);
+		CcpJsonRepresentation apply = business.execute(json);
 		loadAllDependencies(actuallyDependecies);
 		return apply;
 	}

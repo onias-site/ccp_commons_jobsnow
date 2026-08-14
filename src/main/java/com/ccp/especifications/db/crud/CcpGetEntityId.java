@@ -241,7 +241,7 @@ public class CcpGetEntityId {
 
 				if (executeFreeAction) {
 					CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
-					json = action.apply(json);
+					json = action.execute(json);
 					continue;
 				}
 
@@ -276,7 +276,7 @@ public class CcpGetEntityId {
 							.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
 					CcpJsonRepresentation dataBaseRow = this.getRecordFromUnionAll(unionAll, entity);
 					CcpJsonRepresentation context = put.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
-					CcpJsonRepresentation apply = whenFlowError.apply(context);
+					CcpJsonRepresentation apply = whenFlowError.execute(context);
 					List<CcpJsonRepresentation> asList = Arrays.asList(specifications).stream()
 							.map(j -> j.whenAnyFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity))
 							.map(j -> j.whenAnyFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status))
@@ -293,12 +293,12 @@ public class CcpGetEntityId {
 				CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
 
 				if (false == shouldHaveBeenFound) {
-					json = action.apply(json);
+					json = action.execute(json);
 					continue;
 				}
 				CcpJsonRepresentation dataBaseRow = this.getRecordFromUnionAll(unionAll, entity);
 				CcpJsonRepresentation context = json.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
-				json = action.apply(context);
+				json = action.execute(context);
 			}
 
 			boolean zeroFields = this.fields.length <= 0;
@@ -307,7 +307,7 @@ public class CcpGetEntityId {
 				throw new CcpErrorFlowFieldsToReturnNotMentioned(origin);
 			}
 			
-			CcpJsonRepresentation apply = whenFlowSuccess.apply(json);
+			CcpJsonRepresentation apply = whenFlowSuccess.execute(json);
 			CcpJsonRepresentation subMap = apply.getJsonPiece(this.fields).put(JsonFieldNames.origin, origin);
 	
 			return subMap;

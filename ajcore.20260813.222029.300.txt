@@ -1,0 +1,680 @@
+---- AspectJ Properties ---
+AspectJ Compiler 1.9.21 built on Sunday Dec 10, 2023 at 18:55:52 PST
+---- Dump Properties ---
+Dump file: ajcore.20260813.222029.300.txt
+Dump reason: java.lang.ArrayIndexOutOfBoundsException
+Dump on exception: true
+Dump at exit condition: abort
+---- Exception Information ---
+java.lang.ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.checkForRedundantSuperinterfaces(MethodVerifier.java:320)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.computeInheritedMethods(MethodVerifier.java:540)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.verify(MethodVerifier.java:1061)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier15.verify(MethodVerifier15.java:1025)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.verify(MethodVerifier.java:1071)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding.verifyMethods(SourceTypeBinding.java:3644)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope.verifyMethods(CompilationUnitScope.java:1054)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.process(Compiler.java:916)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.processCompiledUnits(Compiler.java:575)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:475)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:426)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.performCompilation(AjBuildManager.java:1101)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.performBuild(AjBuildManager.java:275)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.batchBuild(AjBuildManager.java:188)
+	at org.aspectj.ajdt.ajc.AjdtCommand.doCommand(AjdtCommand.java:103)
+	at org.aspectj.ajdt.ajc.AjdtCommand.runCommand(AjdtCommand.java:47)
+	at org.aspectj.tools.ajc.Main.run(Main.java:374)
+	at org.aspectj.tools.ajc.Main.runMain(Main.java:253)
+	at org.codehaus.mojo.aspectj.AbstractAjcCompiler.execute(AbstractAjcCompiler.java:613)
+	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:137)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:210)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:156)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:148)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:117)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:81)
+	at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build(SingleThreadedBuilder.java:56)
+	at org.apache.maven.lifecycle.internal.LifecycleStarter.execute(LifecycleStarter.java:128)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:305)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:192)
+	at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:105)
+	at org.apache.maven.cli.MavenCli.execute(MavenCli.java:956)
+	at org.apache.maven.cli.MavenCli.doMain(MavenCli.java:288)
+	at org.apache.maven.cli.MavenCli.main(MavenCli.java:192)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced(Launcher.java:282)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:225)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode(Launcher.java:406)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.main(Launcher.java:347)
+---- System Properties ---
+java.specification.version=17
+sun.cpu.isalist=amd64
+sun.jnu.encoding=Cp1252
+java.class.path=C:/maven/boot/plexus-classworlds-2.6.0.jar
+java.vm.vendor=Oracle Corporation
+sun.arch.data.model=64
+user.variant=
+java.vendor.url=https://java.oracle.com/
+user.timezone=America/Sao_Paulo
+maven.conf=C:/maven/conf
+java.vm.specification.version=17
+os.name=Windows 11
+sun.java.launcher=SUN_STANDARD
+user.country=BR
+sun.boot.library.path=C:\Program Files\Java\jdk-17\bin
+sun.java.command=org.codehaus.plexus.classworlds.launcher.Launcher -q -o clean install -DskipTests
+jdk.debug=release
+maven.home=C:\maven
+sun.cpu.endian=little
+user.home=C:\Users\Hp Elitebook
+user.language=pt
+java.specification.vendor=Oracle Corporation
+java.version.date=2023-10-17
+java.home=C:\Program Files\Java\jdk-17
+file.separator=\
+java.vm.compressedOopsMode=Zero based
+line.separator=
+
+java.vm.specification.vendor=Oracle Corporation
+java.specification.name=Java Platform API Specification
+user.script=
+sun.management.compiler=HotSpot 64-Bit Tiered Compilers
+java.runtime.version=17.0.9+11-LTS-201
+user.name=Hp Elitebook
+path.separator=;
+os.version=10.0
+java.runtime.name=Java(TM) SE Runtime Environment
+file.encoding=Cp1252
+guice.disable.misplaced.annotation.check=true
+java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+skipTests=true
+java.vendor.url.bug=https://bugreport.java.com/bugreport/
+java.io.tmpdir=C:\Users\HPELIT~1\AppData\Local\Temp\
+java.version=17.0.9
+user.dir=C:\eclipse-workspaces\ccp\ccp_commons_jobsnow
+os.arch=amd64
+maven.multiModuleProjectDirectory=C:/eclipse-workspaces/ccp/ccp_commons_jobsnow
+java.vm.specification.name=Java Virtual Machine Specification
+sun.os.patch.level=
+org.slf4j.simpleLogger.defaultLogLevel=error
+native.encoding=Cp1252
+java.library.path=C:\Program Files\Java\jdk-17\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Users\Hp Elitebook\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\Hp Elitebook\bin;C:\Users\Hp Elitebook\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude-code\2.1.219;C:\dev\dbhomeXE\bin;C:\Program Files\Java\jdk-17\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Git\cmd;C:\maven\bin;C:\Program Files (x86)\Bitvise SSH Client;C:\Program Files\nodejs;C:\Users\Hp Elitebook\Downloads\ffmpeg-8.1.2\ffmpeg-8.1.2;C:\onias\programas;C:\Users\Hp Elitebook\bin\Sencha\Cmd;C:\Users\Hp Elitebook\AppData\Local\Microsoft\WindowsApps;C:\Users\Hp Elitebook\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin;C:\Users\Hp Elitebook\AppData\Local\GitHubDesktop\bin;C:\Users\Hp Elitebook\AppData\Roaming\npm;C:\Users\Hp Elitebook\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1.1-full_build\bin;C:\Users\Hp Elitebook\AppData\Local\Python\bin;C:\Users\Hp Elitebook\AppData\Local\Kingsoft\WPS Office\12.1.0.27458\clitool;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl;.
+java.vm.info=mixed mode, sharing
+java.vendor=Oracle Corporation
+java.vm.version=17.0.9+11-LTS-201
+classworlds.conf=C:/maven/bin/m2.conf
+sun.io.unicode.encoding=UnicodeLittle
+library.jansi.path=C:/maven/lib/jansi-native
+java.class.version=61.0
+---- Command Line ---
+-Xajruntimetarget:1.5
+-encoding
+UTF-8
+-17
+-classpath
+C:\Users\Hp Elitebook\.m2\repository\org\aspectj\aspectjrt\1.9.21\aspectjrt-1.9.21.jar;C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\target\classes
+-d
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\target\classes
+-s
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\target\generated-sources\aspectj-maven-plugin
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpAllowNullParameter.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpAllowNullReturn.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpForbiddenApplyCallAspect.aj
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpGeneratedToString.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullParameterAspect.aj
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullParameterException.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullReturnAspect.aj
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullReturnException.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpSoftExceptionAspect.aj
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToString.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringBuilder.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\business\CcpBusiness.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\constants\CcpOtherConstants.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpCollectionDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpEmailDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpFieldName.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpFileDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpFolderDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpHashDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpInputStreamDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpJsonRepresentation.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpNumberDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpPasswordDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpPropertiesDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpReflectionConstructorDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpReflectionNewInstanceDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpReflectionOptionsDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpReflectionStaticContextDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpStringDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpTextDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpTimeDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\decorators\CcpUrlDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\dependency\injection\CcpDependencyInjection.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\dependency\injection\CcpInstanceProvider.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\cache\CcpCache.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\cache\CcpCacheDecorator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpBulkEntityOperationType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpBulkExecutor.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpBulkItem.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpBulkOperationResult.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpErrorBulkEntityRecordNotFound.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\CcpExecuteBulkOperation.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpBulkHandlerCreate.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpBulkHandlerDelete.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpBulkHandlerRead.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpBulkHandlerSave.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpEntityBulkHandlerSaveTwinEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\bulk\handlers\CcpEntityBulkHandlerTransferRecordToTwinEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\crud\CcpCrud.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\crud\CcpGetEntityId.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\crud\CcpHandleWithSearchResultsInTheEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\crud\CcpSelectUnionAll.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\crud\CcpUnionAllExecutor.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\query\CcpQueryComponent.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\query\CcpQueryExecutor.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\query\CcpQueryOptions.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\CcpDbRequester.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\CcpEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\CcpEntityOperationType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityAsyncWriter.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityCache.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityDataTransfer.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityDataTransfers.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityDisposable.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityFieldsTransformer.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityFieldsValidator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityOlyReadable.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityOperation.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityOperations.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityTwin.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpEntityVersionable.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\annotations\CcpExceptionFlow.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\CcpDefaultEntityDelegator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\CcpEntityDecoratorTypes.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\CcpEntityDelegator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\CcpEntityFactory.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\CcpEntityMetaData.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorCacheEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorFieldsTransformerEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorFieldsValidatorEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorOperationsWriterEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorReadOnlyEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorTransferDataEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DecoratorTwinEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\engine\DefaultImplementationEntity.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\CcpEntityDecoratorOperationType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\CcpEntityDecoratorTransferType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\CcpEntityExpurgableOptions.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\CcpEntityOperationStepType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\CcpEntityType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\enums\OperationWriter.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\decorators\interfaces\CcpEntityConfigurator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\annotations\CcpEntityFieldNotUpdatable.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\annotations\CcpEntityFieldPrimaryKey.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\annotations\CcpEntityFieldTransformer.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\CcpEntityField.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\CcpEntityJsonTransformerError.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\CcpErrorDbUtilsIncorrectEntityFields.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\db\utils\entity\fields\CcpJsonTransformersDefaultEntityField.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\email\CcpEmailSender.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\file\bucket\CcpFileBucket.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\file\bucket\CcpFileBucketOperation.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpErrorHttpClient.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpErrorHttpServer.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpApiExecutor.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpBodyBinary.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpBodyText.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpContentType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpHandler.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpMethods.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpRequester.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpResponse.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpResponseTransform.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpResponseType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\http\CcpHttpTooManyRequests.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\instant\messenger\CcpErrorInstantMessageThisBotWasBlockedByThisUser.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\instant\messenger\CcpInstantMessenger.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\json\CcpJsonHandler.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\main\authentication\CcpAuthenticationProvider.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\mensageria\receiver\CcpMensageriaReceiver.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\mensageria\sender\CcpMensageriaSender.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\password\CcpPasswordHandler.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\especifications\text\extractor\CcpTextExtractor.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\flow\CcpErrorFlowDisturb.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\flow\CcpTreeFlow.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\hash\CcpHashAlgorithm.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\transformers\CcpTransformers.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\CcpJsonCopyFieldValidationsFrom.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\CcpJsonFieldValidatorArray.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\CcpJsonFieldValidatorRequired.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeBoolean.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeCustom.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeNestedJson.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeNumber.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeNumberInteger.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeNumberUnsigned.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeString.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeTimeAfter.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\annotations\type\CcpJsonFieldTypeTimeBefore.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\enums\CcpJsonFieldDefaultTypes.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\enums\CcpJsonFieldError.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\enums\CcpJsonFieldErrorHandleType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\enums\CcpJsonFieldsValidationContext.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\enums\CcpJsonFieldTypeError.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\interfaces\CcpJsonFieldType.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\fields\interfaces\CcpJsonFieldValidatorInterface.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\annotations\CcpJsonCopyGlobalValidationsFrom.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\annotations\CcpJsonGlobalValidations.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\annotations\CcpJsonValidationFieldList.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\engine\CcpJsonValidationRulesEngine.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\engine\CcpJsonValidatorEngine.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\enums\CcpJsonValidatorDefaults.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\json\validations\global\interfaces\CcpJsonValidator.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\process\CcpFunctionThrowException.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\process\CcpProcessStatus.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\process\CcpProcessStatusDefault.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\service\CcpCachedService.java
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\service\CcpService.java
+---- Full Classpath ---
+C:\Program Files\Java\jdk-17\lib\jrt-fs.jar(110500 bytes)
+C:\Users\Hp Elitebook\.m2\repository\org\aspectj\aspectjrt\1.9.21\aspectjrt-1.9.21.jar(127268 bytes)
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\target\classes(3 entries)
+---- Compiler Messages ---
+info Pipelining compilation
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.decorators.CcpJsonRepresentation$Fields>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkEntityOperationType>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkItemFields>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkItem$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpErrorCrudMultiGetSearchFailed$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectFinally$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectFoundInEntity$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectProcedure$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.FunctionPutEntity$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.FunctionPutStatus$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpSelectUnionAll$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$BucketAggregation$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryAggregations$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryBooleanOperator$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryShould$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.CcpEntity$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.CcpEntityOperationType$Fields>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorTransferType>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.http.CcpHttpRequester$JsonFieldNames>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.http.CcpHttpResponse$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.mensageria.receiver.CcpMensageriaReceiver$Fields>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.flow.CcpErrorFlowDisturb$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface$ErrorFields>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface$RuleFields>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldError>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldTypeError>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldTypeError$JsonFieldNames>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.engine.CcpJsonValidatorEngine$CcpJsonValidationError$ValidationErrorFields>.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.engine.CcpJsonValidatorEngine$JsonFields>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at java\lang\Enum.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.process.CcpProcessStatusDefault>.toString()
+error at java\lang\Throwable.java::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpForbiddenApplyCallAspect.aj
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullParameterAspect.aj
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullReturnAspect.aj
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpSoftExceptionAspect.aj
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.decorators.CcpJsonRepresentation$Fields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkEntityOperationType>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkItemFields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.bulk.CcpBulkItem$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpErrorCrudMultiGetSearchFailed$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectFinally$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectFoundInEntity$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpGetEntityId$CcpSelectProcedure$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.FunctionPutEntity$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.FunctionPutStatus$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.crud.CcpSelectUnionAll$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$BucketAggregation$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryAggregations$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryBooleanOperator$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$CcpQueryShould$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.query.CcpQueryOptions$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.CcpEntity$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.CcpEntityOperationType$Fields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorTransferType>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.http.CcpHttpRequester$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.http.CcpHttpResponse$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.especifications.mensageria.receiver.CcpMensageriaReceiver$Fields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.flow.CcpErrorFlowDisturb$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface$ErrorFields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface$RuleFields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldError>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldTypeError>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.fields.enums.CcpJsonFieldTypeError$JsonFieldNames>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.engine.CcpJsonValidatorEngine$CcpJsonValidationError$ValidationErrorFields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.engine.CcpJsonValidatorEngine$JsonFields>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Enum<com.ccp.process.CcpProcessStatusDefault>.toString()
+error at
+public String CcpToString.toString() {
+                          ^^^^^^^^^^
+C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringAspect.aj:40:0::0 inter-type declaration from com.ccp.aop.CcpToStringAspect conflicts with existing member: java.lang.String java.lang.Throwable.toString()
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpAllowNullParameter.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpAllowNullReturn.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpGeneratedToString.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullParameterException.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpNullReturnException.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToString.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\aop\CcpToStringBuilder.java
+info compiling C:\eclipse-workspaces\ccp\ccp_commons_jobsnow\src\main\java\com\ccp\business\CcpBusiness.java
+abort ABORT -- (ArrayIndexOutOfBoundsException) Index 2 out of bounds for length 2
+Index 2 out of bounds for length 2
+java.lang.ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 2
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.checkForRedundantSuperinterfaces(MethodVerifier.java:320)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.computeInheritedMethods(MethodVerifier.java:540)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.verify(MethodVerifier.java:1061)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier15.verify(MethodVerifier15.java:1025)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.MethodVerifier.verify(MethodVerifier.java:1071)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding.verifyMethods(SourceTypeBinding.java:3644)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope.verifyMethods(CompilationUnitScope.java:1054)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.process(Compiler.java:916)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.processCompiledUnits(Compiler.java:575)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:475)
+	at org.aspectj.org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:426)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.performCompilation(AjBuildManager.java:1101)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.performBuild(AjBuildManager.java:275)
+	at org.aspectj.ajdt.internal.core.builder.AjBuildManager.batchBuild(AjBuildManager.java:188)
+	at org.aspectj.ajdt.ajc.AjdtCommand.doCommand(AjdtCommand.java:103)
+	at org.aspectj.ajdt.ajc.AjdtCommand.runCommand(AjdtCommand.java:47)
+	at org.aspectj.tools.ajc.Main.run(Main.java:374)
+	at org.aspectj.tools.ajc.Main.runMain(Main.java:253)
+	at org.codehaus.mojo.aspectj.AbstractAjcCompiler.execute(AbstractAjcCompiler.java:613)
+	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:137)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:210)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:156)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:148)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:117)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:81)
+	at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build(SingleThreadedBuilder.java:56)
+	at org.apache.maven.lifecycle.internal.LifecycleStarter.execute(LifecycleStarter.java:128)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:305)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:192)
+	at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:105)
+	at org.apache.maven.cli.MavenCli.execute(MavenCli.java:956)
+	at org.apache.maven.cli.MavenCli.doMain(MavenCli.java:288)
+	at org.apache.maven.cli.MavenCli.main(MavenCli.java:192)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced(Launcher.java:282)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:225)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode(Launcher.java:406)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.main(Launcher.java:347)
+
