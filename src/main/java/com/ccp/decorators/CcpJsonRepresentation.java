@@ -267,6 +267,10 @@ public class CcpJsonRepresentation  {
 	private Long getAsLongNumber(String field) {
 		
 		Object object = this.content.get(field);
+		
+		if(object == null) {
+			throw new CcpErrorJsonInvalidFieldFormat("", field, "long", this);
+		}
 		try {
 			return Double.valueOf("" + object).longValue();
 		} catch (Exception e) {
@@ -281,6 +285,9 @@ public class CcpJsonRepresentation  {
 	
 	private Integer getAsIntegerNumber(String field) {
 		Object object = this.content.get(field);
+		if(object == null) {
+			throw new CcpErrorJsonInvalidFieldFormat("", field, "integer", this);
+		}
 		try {
 			return Double.valueOf("" + object).intValue();
 		} catch (Exception e) {
@@ -310,6 +317,9 @@ public class CcpJsonRepresentation  {
 	
 	private Double getAsDoubleNumber(String field) {
 		Object object = this.content.get(field);
+		if(object == null) {
+			throw new CcpErrorJsonInvalidFieldFormat("", field, "double", this);
+		}
 		try {
 			return Double.valueOf("" + object);
 		} catch (Exception e) {

@@ -28,7 +28,7 @@ class DecoratorOperationsWriterEntity extends CcpEntityDelegator {
 		CcpJsonRepresentation execute = CcpEntityDecoratorOperationType.delete.execute(json, this.clazz, this.entity);
 		return execute;
 	}
-	
+	 
 	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation execute = CcpEntityDecoratorOperationType.deleteAnyWhere.execute(json, this.clazz, this.entity);
 		return execute;
