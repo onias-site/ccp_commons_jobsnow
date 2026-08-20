@@ -61,8 +61,8 @@ public class CcpEntityDelegator implements CcpEntity{
 		return parametersToSearch;
 	}
 
-	public CcpEntity getTwinEntity() {
-		CcpEntity twinEntity = this.entity.getTwinEntity();
+	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+		CcpEntity twinEntity = this.entity.getTwinEntity(decoratorsToAvoid);
 		return twinEntity;
 	}
 

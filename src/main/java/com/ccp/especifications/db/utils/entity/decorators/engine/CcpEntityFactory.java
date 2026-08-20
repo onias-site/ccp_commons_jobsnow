@@ -88,6 +88,7 @@ public class CcpEntityFactory {
 		CcpEntityMetaData entityDetails = new CcpEntityMetaData(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
+		
 		List<CcpEntityDecoratorTypes> collect = Arrays.asList(CcpEntityDecoratorTypes.values()).stream()
 				.filter(x -> x.isDecorated(configurationClass))
 				.filter(x -> false == avoidedDecorators.contains(x))
@@ -206,7 +207,7 @@ public class CcpEntityFactory {
 		try {
 			declaredField = classReferenceWithTheFields.getDeclaredField(name);
 			defaultEntityField = (CcpJsonTransformersDefaultEntityField)declaredField.get(null);
-		} catch (NoSuchFieldException e) {
+		} catch (Exception e) {
 			return CcpOtherConstants.DO_NOTHING;
 		}
 

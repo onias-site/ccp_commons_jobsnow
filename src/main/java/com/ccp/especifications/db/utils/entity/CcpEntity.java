@@ -18,6 +18,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.hash.CcpHashAlgorithm;
@@ -191,7 +192,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	/**
 	 * Retorna a entidade twin correspondente. Por padrão lança {@code UnsupportedOperationException}.
 	 */
-	default CcpEntity getTwinEntity() {
+	default CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		CcpEntity throwException = this.throwException();
 		return throwException;
 	}

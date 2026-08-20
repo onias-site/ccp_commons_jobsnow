@@ -129,8 +129,8 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return parametersToSearch;
 	}
 
-	public CcpEntity getTwinEntity() {
-		CcpEntity twinEntity = this.entity.getTwinEntity();
+	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+		CcpEntity twinEntity = this.entity.getTwinEntity(decoratorsToAvoid);
 		return twinEntity;
 	}
 
@@ -225,6 +225,5 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
 		return recordFromUnionAll;
 	}
-	
 
 }

@@ -98,7 +98,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return oneById;
 	}
 	
-	public CcpEntity getTwinEntity() {
+	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
 		
 		if(this.twin != null) {
 			return this.twin;
@@ -110,7 +110,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		boolean isNotTwin = false == entityDetails.entityName.equals(twinEntityName);
 		
 		if(isNotTwin) {
-			this.twin = CcpEntityFactory.getEntity(this.clazz, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
+			this.twin = CcpEntityFactory.getEntity(this.clazz, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName(), decoratorsToAvoid);
 			return this.twin;
 		}
 		

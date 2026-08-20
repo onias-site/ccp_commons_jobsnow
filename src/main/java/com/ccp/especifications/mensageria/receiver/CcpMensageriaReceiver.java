@@ -12,6 +12,8 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 
 /**
@@ -51,14 +53,30 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 			throw new CcpErrorMensageriaInvalidName(processName);
 		}
 		
-		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
-		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.AsyncWriter);
+		CcpEntity entity = this.getEntity(json, newInstance);
+		
 		CcpExecuteBulkOperation executeBulkOperation = this.getExecuteBulkOperation();
 		Consumer<String[]> functionToDeleteKeysInTheCache = this.getFunctionToDeleteKeysInTheCache();
 		String operation = json.getAsString(this);
 		CcpEntityOperationType valueOf = CcpEntityOperationType.valueOf(operation);
 		CcpBusiness topicHandler = valueOf.getTopicHandler(entity, executeBulkOperation, functionToDeleteKeysInTheCache);
 		return topicHandler;
+	}
+
+	private CcpEntity getEntity(CcpJsonRepresentation json, Object newInstance) {
+		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
+		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.AsyncWriter);
+		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
+		String twinEntityName = CcpEntityType.twinEntity.extractEntityName(entityMetaData.configurationClass);
+		String entityName = json.getAsString(JsonFieldNames.entityName);
+		boolean isNotTwinEntity = false == twinEntityName.equals(entityName);
+		
+		if(isNotTwinEntity) {
+			return entity;
+		}
+		
+		CcpEntity twinEntity = entity.getTwinEntity(CcpEntityDecoratorTypes.AsyncWriter);
+		return twinEntity;
 	}
 	
 
@@ -81,15 +99,15 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	 */
 	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
 		
-		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, Fields.mensageriaReceiver.name());
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, JsonFieldNames.mensageriaReceiver.name());
 		
 		CcpMensageriaReceiver newInstance = reflection.newInstance();
 		
 		return newInstance;
 	}
 	
-	public static enum Fields implements CcpJsonFieldName{
-		mensageriaReceiver
+	public static enum JsonFieldNames implements CcpJsonFieldName{
+		mensageriaReceiver, entityName
 		;
 		
 	}
