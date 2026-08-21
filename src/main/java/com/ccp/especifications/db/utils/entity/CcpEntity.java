@@ -41,7 +41,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	 */
 	default String name() {
 		CcpEntityMetaData entityMetaData = this.getEntityMetaData();
-		return entityMetaData.entityName;
+		return entityMetaData.entityName; 
 	}
 
 	/**
@@ -90,7 +90,6 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		crud.delete(entityDetails.entityName, calculateId);
 		return json;
 	}
-
 	/**
 	 * Variante de delete sem restrições adicionais; delega para {@code delete} por padrão.
 	 */
@@ -237,7 +236,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		crud.save(entityDetails.entityName, onlyExistingFields, id);
 		return json;
-	}
+	} 
 
 	/**
 	 * Converte o JSON em itens de operação bulk para uso no executor de bulk.

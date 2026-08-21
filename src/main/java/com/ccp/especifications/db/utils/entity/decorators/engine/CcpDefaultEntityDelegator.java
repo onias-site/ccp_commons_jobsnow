@@ -60,13 +60,13 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			CcpEntity twinEntity = this.getTwinEntity();
 			List<CcpBulkItem> bulkItemsTwin = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
 			bulkItems.addAll(bulkItemsTwin);
-		} catch (UnsupportedOperationException e) {
-		}
+		} catch (UnsupportedOperationException e) { 
+		} 
 		
 		List<CcpBulkItem> collect = bulkItems.stream().map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete))
 		.collect(Collectors.toList());
 		this.executeBulkOperation.executeBulk(collect, this.functionToDeleteKeysInTheCache);
-
+ 
 		return json;
 	}
 

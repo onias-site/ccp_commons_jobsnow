@@ -38,13 +38,13 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 	 * @return o JSON resultante da execução
 	 */
 	default CcpJsonRepresentation execute(CcpJsonRepresentation json) {
-		String className = this.getClass().getName();
+		String className = this.getClass().getName(); 
 		Class<?> jsonValidationClass = this.getJsonValidationClass();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, className);
 
 		CcpJsonRepresentation apply = this.apply(json);
 		return apply;
-	}
+	}  
 	default String name() {
 		return this.getClass().getName();
 	}

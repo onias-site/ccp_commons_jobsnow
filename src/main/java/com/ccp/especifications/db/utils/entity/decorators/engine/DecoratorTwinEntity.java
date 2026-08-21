@@ -32,7 +32,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	
 	public DecoratorTwinEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
-		this.clazz = clazz;
+		this.clazz = clazz; 
 	}
 
 	private DecoratorTwinEntity(CcpEntity entity, CcpEntity twin, Class<?> clazz) {
@@ -60,8 +60,17 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this);
+		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this); 
 		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
+		return json;
+	}
+
+	//FIXME NAO ESTA PERMITINDO EXECUTAR ESTE METODO QUANDO A PK SOFRE LGPD
+	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(this, CcpEntityDecoratorTypes.Twin);
+		CcpEntity twinEntity = this.getTwinEntity(CcpEntityDecoratorTypes.Twin);
+		customEntity.delete(json);
+		twinEntity.delete(json);
 		return json;
 	}
 	
@@ -137,10 +146,15 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	}
 	
 	private CcpEntity getWrapedTwinEntity() {
-		CcpEntity twinEntity = this.getTwinEntity();
+		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(this);
+		CcpEntity twinEntity = customEntity.getTwinEntity();
 		CcpEntity wrapedEntity = twinEntity.getWrapedEntity();
 		while(false == wrapedEntity instanceof DecoratorTwinEntity) {
 			wrapedEntity = wrapedEntity.getWrapedEntity();
+			boolean twinIsMissing = wrapedEntity.getClass().equals(wrapedEntity.getWrapedEntity().getClass());
+			if(twinIsMissing) {
+				throw new RuntimeException(this.entity + " is not a twin entity");
+			}
 		}
 		
 		return wrapedEntity.getWrapedEntity();

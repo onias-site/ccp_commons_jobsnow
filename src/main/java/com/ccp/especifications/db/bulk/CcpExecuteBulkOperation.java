@@ -36,7 +36,7 @@ public interface CcpExecuteBulkOperation {
 	default CcpSelectUnionAll executeSelectUnionAllThenExecuteBulkOperation(CcpJsonRepresentation json,  Consumer<String[]> functionToDeleteKeysInTheCache, CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> ... handlers) {
 		Set<CcpEntity> collect = Arrays.asList(handlers).stream().map(x -> x.getEntityToSearch()).collect(Collectors.toSet());
 		CcpEntity[] array = collect.toArray(new CcpEntity[collect.size()]);
-		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class); 
 		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, array);
 		
 		List<CcpBulkItem> all = new ArrayList<>();
@@ -44,7 +44,7 @@ public interface CcpExecuteBulkOperation {
 		for (CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> handler : handlers) {
 			List<CcpBulkItem> list =  unionAll.handleRecordInUnionAll(json, handler);
 			all.addAll(list);
-		}
+		} 
 		
 		
 		this.executeBulk(all, functionToDeleteKeysInTheCache);

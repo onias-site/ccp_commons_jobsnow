@@ -30,9 +30,9 @@ interface OperationWriter {
 			Class<? extends RuntimeException> clazz = e.getClass();
 			List<CcpBusiness> list = exceptionHandlers.get(clazz);
 			
-			boolean notForeseen = list == null;
-			
-			if(notForeseen) {
+			boolean notForeseen = list == null; 
+			 
+			if(notForeseen) { 
 				throw e;
 			}
 			

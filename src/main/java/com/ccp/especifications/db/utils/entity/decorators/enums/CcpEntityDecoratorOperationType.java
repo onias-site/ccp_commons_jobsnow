@@ -22,7 +22,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			return result;
 		}
 	},
-	delete{
+	delete{ 
 		
 		CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
 			CcpJsonRepresentation result = entity.delete(json);
@@ -48,7 +48,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType._before, clazz, entity);
 		CcpJsonRepresentation result = this.executeEntityOperation(before, entity);
 		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationStepType._after, clazz, entity);
-		return after;
+		return after;  
 	}
 	
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationStepType when, Class<?> clazz, CcpEntity entity) {
@@ -63,7 +63,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 
 			CcpEntityDecoratorOperationType operationType = operation.operation();
 			
-			if(false == operationType.equals(this)) {
+			if(false == operationType.equals(this)) { 
 				continue;
 			}
 			
@@ -88,12 +88,12 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			var globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
 			globalExceptionHandlers.putAll(localExceptionHandlers);
 			Class<?>[] execute = operation.execute();
-			for (var businessClass : execute) {
+			for (var businessClass : execute) { 
 				CcpBusiness business = this.getBusiness(businessClass);
 				json = this.executeBusiness(json, business, globalExceptionHandlers);
 			}
 			return json;
-		}
+		} 
 		
 		return json;
 	}

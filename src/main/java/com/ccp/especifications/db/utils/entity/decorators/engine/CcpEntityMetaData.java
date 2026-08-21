@@ -33,7 +33,7 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
  * campos, busca e montagem de itens bulk. Instâncias são criadas e usadas internamente por
  * {@code CcpEntityFactory} e {@code DefaultImplementationEntity}.
  */
-public final class CcpEntityMetaData {
+public final class CcpEntityMetaData { 
 
 	public final List<String> onlyUpdatableFields;
 	public final Class<?>  configurationClass; 

@@ -25,7 +25,7 @@ public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandle
 	 * @param entity entidade de origem de onde o registro será transferido
 	 */
 	public CcpEntityBulkHandlerTransferRecordToTwinEntity(CcpEntity entity) {
-		this.entity = entity;
+		this.entity = entity; 
 	}
 	
 	/**

@@ -724,7 +724,6 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
 			if(annotation == null) {
-				System.out.println();
 			}
 			Integer value = annotation.exactLength();
 			return (T)value;
