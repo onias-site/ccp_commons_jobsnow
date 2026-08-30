@@ -1355,6 +1355,18 @@ public class CcpJsonRepresentation  {
 		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
 		return innerJsonFromPath;
 	}
+	
+	public CcpJsonRepresentation removeEmptyValues() {
+		Set<String> fieldSet = this.fieldSet()
+				.stream()
+				.filter(x -> false == this.getAsString(x).trim().isEmpty())
+				.collect(Collectors.toSet())
+				;
+
+		CcpJsonRepresentation removeEmptyValues = this.getJsonPiece(fieldSet);
+		
+		return removeEmptyValues;
+	}
 
 	/**
 	 * Exceção lançada quando se tenta acessar um campo de um {@code CcpJsonRepresentation} esperando uma lista JSON,
@@ -1437,4 +1449,5 @@ public class CcpJsonRepresentation  {
 			super("The path is empty, please fill the missing path in the json: " + json);
 		}
 	}
+	
 }
