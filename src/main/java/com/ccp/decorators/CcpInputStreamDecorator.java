@@ -34,19 +34,25 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	public InputStream environmentVariables() {
 		
 		String getenv = System.getenv(this.content);
-		
-		if(getenv == null) {
-			throw new CcpErrorInputStreamMissing(this.content);
-		}
+		boolean getenvIgual = getenv == null;
 
-		if(getenv.trim().isEmpty()) {
-			throw new CcpErrorInputStreamMissing(this.content);
+		if(getenvIgual) {
+			CcpErrorInputStreamMissing ccpErrorInputStreamMissing = new CcpErrorInputStreamMissing(this.content);
+			throw ccpErrorInputStreamMissing;
+		}
+		String getenvTrim = getenv.trim();
+		boolean getenvTrimEmpty = getenvTrim.isEmpty();
+
+		if(getenvTrimEmpty) {
+			CcpErrorInputStreamMissing ccpErrorInputStreamMissing2 = new CcpErrorInputStreamMissing(this.content);
+			throw ccpErrorInputStreamMissing2;
 		}
 
 		CcpStringDecorator csd = new CcpStringDecorator(getenv);
 		CcpFileDecorator file = csd.file();
-		
-		if(file.isFile()) {
+		boolean fileFile = file.isFile();
+
+		if(fileFile) {
 			CcpInputStreamDecorator inputStreamFrom = csd.inputStreamFrom();
 			InputStream file2 = inputStreamFrom.file();
 			return file2;
@@ -65,8 +71,10 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		Class<? extends CcpInputStreamDecorator> class1 = this.getClass();
 		ClassLoader classLoader = class1.getClassLoader();
 		URL resource = classLoader.getResource(this.content);
-		if(resource == null) {
-			throw new CcpErrorInputStreamMissing(this.content);
+		boolean resourceIgual = resource == null;
+		if(resourceIgual) {
+			CcpErrorInputStreamMissing ccpErrorInputStreamMissing3 = new CcpErrorInputStreamMissing(this.content);
+			throw ccpErrorInputStreamMissing3;
 		}
 		InputStream stream = resource.openStream(); 
 		return stream;
@@ -77,10 +85,13 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	 * Lança {@code CcpErrorInputStreamMissing} se o arquivo não existir.
 	 */
 	public InputStream file() {
-		CcpFileDecorator file = new CcpStringDecorator(this.content).file();
-		boolean notExists = false == file.exists();
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(this.content);
+		CcpFileDecorator file = ccpStringDecorator.file();
+		boolean exists = file.exists();
+		boolean notExists = false == exists;
 		if(notExists) {
-			throw new CcpErrorInputStreamMissing(this.content);
+			CcpErrorInputStreamMissing ccpErrorInputStreamMissing4 = new CcpErrorInputStreamMissing(this.content);
+			throw ccpErrorInputStreamMissing4;
 		}
 		FileInputStream fileInputStream = new FileInputStream(this.content);
 		return fileInputStream;
@@ -124,10 +135,4 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 		return this.content;
 	}
 
-	@SuppressWarnings("serial")
-	public static class CcpErrorInputStreamMissing extends RuntimeException {
-		private CcpErrorInputStreamMissing(String filePath) {
-			super("The file '" + filePath + "' is missing");
-		}
-	}
 }

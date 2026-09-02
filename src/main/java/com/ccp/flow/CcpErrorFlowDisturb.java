@@ -2,7 +2,7 @@ package com.ccp.flow;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 /**
  * Exceção de controle de fluxo de negócio. Não representa um erro técnico, mas sim uma saída

@@ -28,8 +28,9 @@ public interface CcpJsonValidator {
 	 * se a validação for crítica.
 	 */
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Class<?> clazz) {
+		boolean error2 = this.hasError(json, clazz);
 
-		boolean hasNoError = false == this.hasError(json, clazz);
+		boolean hasNoError = false == error2;
 
 		if (hasNoError) {
 			return CcpOtherConstants.EMPTY_JSON;
@@ -38,30 +39,18 @@ public interface CcpJsonValidator {
 		String className = clazz.getName();
 
 		Object error = this.getErrorMessage(json, clazz);
+		CcpFieldName ccpFieldName = new CcpFieldName(className);
 
-		CcpJsonRepresentation updatedErrors = errors.addToList(new CcpFieldName(className), error);
+		CcpJsonRepresentation updatedErrors = errors.addToList(ccpFieldName, error);
 
 		boolean criticalValidation = this.isCriticalValidation(json, clazz);
 		
 		if(criticalValidation) {
-			throw new CcpJsonValidatorErrorBreakValidationsToTheClass(updatedErrors);
+			CcpJsonValidatorErrorBreakValidationsToTheClass ccpJsonValidatorErrorBreakValidationsToTheClass = new CcpJsonValidatorErrorBreakValidationsToTheClass(updatedErrors);
+			throw ccpJsonValidatorErrorBreakValidationsToTheClass;
 		}
 
 		return updatedErrors;
 	}
 
-	/**
-	 * Exceção de controle de fluxo que interrompe as validações de nível de classe quando um validador
-	 * crítico encontra um erro. Carrega o JSON de erros acumulado até o momento da interrupção.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpJsonValidatorErrorBreakValidationsToTheClass extends RuntimeException {
-
-		public final CcpJsonRepresentation errors;
-
-		/** Armazena o JSON de erros acumulado no momento da interrupção. */
-		private CcpJsonValidatorErrorBreakValidationsToTheClass(CcpJsonRepresentation errors) {
-			this.errors = errors;
-		}
-	}
 }

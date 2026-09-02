@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.process.CcpProcessStatusDefault;
 
@@ -60,7 +60,8 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
 		CcpJsonFieldName statusAsJsonFieldName = result.statusAsJsonFieldName();
-		boolean statusNotMapped = false == this.handlers.containsAllFields(statusAsJsonFieldName);
+		boolean containsAllFields = this.handlers.containsAllFields(statusAsJsonFieldName);
+		boolean statusNotMapped = false == containsAllFields;
 		
 		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);

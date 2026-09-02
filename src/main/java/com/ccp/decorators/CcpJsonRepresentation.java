@@ -29,7 +29,8 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.hash.CcpHashAlgorithm;
- 
+import java.util.stream.Stream; 
+
 /**
  * Tipo central do framework jobsnow. Representa um documento JSON como um mapa imutável {@code Map<String, Object>}
  * e é o único tipo de dado que flui entre todos os componentes de negócio. Oferece uma API fluente abrangente para
@@ -47,14 +48,7 @@ public class CcpJsonRepresentation  {
 	 * sejam referenciados de forma tipada (sem strings literais espalhadas pelo código).
 	 * O método padrão {@code getValue()} chama {@code name()}, suportando enums diretamente.
 	 */
-	public static interface CcpJsonFieldName{
 
-		default String getValue() {
-			return this.name();
-		}
-
-		String name();
-	}
 	
 	/**
 	 * Cria uma nova instância a partir do conteúdo de outro JSON (cópia de conteúdo).
@@ -75,7 +69,8 @@ public class CcpJsonRepresentation  {
 	 * Fábrica pública para JSON vazio.
 	 */
 	public static CcpJsonRepresentation getEmptyJson() {
-		return new CcpJsonRepresentation();
+		CcpJsonRepresentation ccpJsonRepresentation = new CcpJsonRepresentation();
+		return ccpJsonRepresentation;
 	}
 
 	/**
@@ -104,19 +99,24 @@ public class CcpJsonRepresentation  {
 		try {
 			props.load(inStream);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			CcpErrorJsonPropertiesUnreadable ccpErrorJsonPropertiesUnreadable = new CcpErrorJsonPropertiesUnreadable(result, e);
+			throw ccpErrorJsonPropertiesUnreadable;
 		}
 		
 		Set<Object> keySet = props.keySet();
 		for (Object key : keySet) {
 			Object value = props.get(key);
-			this.content.put("" + key, value);
+			String valorMais = "" + key;
+			this.content.put(valorMais, value);
 		}
 	}
 
 	private String extractJson(InputStream is) {
 		InputStreamReader in = new InputStreamReader(is);
-		String result = new BufferedReader(in).lines().collect(Collectors.joining("\n"));
+		BufferedReader bufferedReader = new BufferedReader(in);
+		Stream<String> lines = bufferedReader.lines();
+		var joining = Collectors.joining("\n");
+		String result = lines.collect(joining);
 		return result;
 	}
 	
@@ -139,9 +139,11 @@ public class CcpJsonRepresentation  {
  
 	private static Map<String, Object> getMap(String json) {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-		boolean invalidJson = false ==  handler.isValidJson(json);
+		boolean validJson2 = handler.isValidJson(json);
+		boolean invalidJson = false ==  validJson2;
 		if(invalidJson) {
-			throw new CcpErrorJsonInvalid(json);
+			CcpErrorJsonInvalid ccpErrorJsonInvalid = new CcpErrorJsonInvalid(json);
+			throw ccpErrorJsonInvalid;
 		}
 		Map<String, Object> fromJson = handler.fromJson(json);
 		return fromJson;
@@ -171,14 +173,16 @@ public class CcpJsonRepresentation  {
 	private static CcpJsonRepresentation getErrorDetails(Throwable e) {
 
 		CcpJsonRepresentation jr = CcpOtherConstants.EMPTY_JSON;
-		
-		if(e == null) {
+		boolean eIgual = e == null;
+
+		if(eIgual) {
 			return jr; 
 		}
 		
 		Throwable cause = e.getCause();
 		String message = e.getMessage();
-		if(message == null) {
+		boolean messageIgual = message == null;
+		if(messageIgual) {
 			message = "";
 		}
 		StackTraceElement[] st = e.getStackTrace();
@@ -188,15 +192,26 @@ public class CcpJsonRepresentation  {
 			stackTrace.add(stackTraceLine); 
 		}
 		Object causeDetails = getCauseDetails(cause, st);
-		var completeStackTrace = getCompleteStackTrace(e).stream().map(x -> x.toString()).collect(Collectors.toList());
-		jr = jr.put(Fields.completeStackTrace, completeStackTrace).put(Fields.type, e.getClass().getName()).put(Fields.stackTrace, stackTrace).put(Fields.message, message).put(Fields.cause, causeDetails);
+		List<StackTraceElement> completeStackTrace2 = getCompleteStackTrace(e);
+		Stream<StackTraceElement> stream2 = completeStackTrace2.stream();
+		var stream2Map = stream2.map(x -> x.toString());
+		var completeStackTrace = stream2Map.collect(Collectors.toList());
+		var put2 = jr.put(Fields.completeStackTrace, completeStackTrace);
+		var eClass = e.getClass();
+		String eClassName = eClass.getName();
+		var put3 = put2.put(Fields.type, eClassName);
+		var put4 = put3.put(Fields.stackTrace, stackTrace);
+		var put5 = put4.put(Fields.message, message);
+		jr = put5.put(Fields.cause, causeDetails);
 		return jr;
 	}
 
 	@CcpAllowNullParameter
 	private static List<StackTraceElement> getCompleteStackTrace(Throwable e){
-		if(e == null) {
-			return new ArrayList<StackTraceElement>();
+		boolean eIgual2 = e == null;
+		if(eIgual2) {
+			ArrayList<StackTraceElement> arrayList2 = new ArrayList<StackTraceElement>();
+			return arrayList2;
 		}
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		List<StackTraceElement> asList = Arrays.asList(stackTrace);
@@ -224,10 +239,15 @@ public class CcpJsonRepresentation  {
 		int lineNumber = ste.getLineNumber();
 		String methodName = ste.getMethodName();
 		String fileName = ste.getFileName();
-		if(fileName == null) {
+		boolean fileNameIgual = fileName == null;
+		if(fileNameIgual) {
 			return "-";
 		}
-		String key = fileName.replace(".java", "") + "." + methodName + ":" + lineNumber;
+		String fileNameReplace = fileName.replace(".java", "");
+		String fileNameReplaceMais = fileNameReplace + ".";
+		String fileNameReplaceMaisMais = fileNameReplaceMais + methodName;
+		String fileNameReplaceMaisMaisMais = fileNameReplaceMaisMais + ":";
+		String key = fileNameReplaceMaisMaisMais + lineNumber;
 		return key;
 	}
 
@@ -238,19 +258,22 @@ public class CcpJsonRepresentation  {
 			String asString = this.getAsString(field);
 			Method met = clazz.getDeclaredMethod("valueOf", String.class);
 			Object invoke = met.invoke(null, asString);
-			return (T)invoke;
+			T t = (T)invoke;
+			return t;
 		} catch (Exception e) {
 			String value = field.getValue();
 			Object object = this.content.get(value);
-			throw new CcpErrorJsonInvalidFieldFormat(object, value, "enum", this);
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat = new CcpErrorJsonInvalidFieldFormat(object, value, "enum", this);
+			throw ccpErrorJsonInvalidFieldFormat;
 		}
 	}
 	
 	
 	public <T> T getAsEnum(CcpJsonFieldName field, Class<T> clazz, T defaultValue){
 		String asString = this.getAsString(field);
-		
-		boolean hasNoEnum = asString.trim().isEmpty();
+		String asStringTrim = asString.trim();
+
+		boolean hasNoEnum = asStringTrim.isEmpty();
 		
 		if(hasNoEnum) {
 			return defaultValue;
@@ -260,38 +283,52 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public Long getAsLongNumber(CcpJsonFieldName field) {
-		Long asLongNumber = this.getAsLongNumber(field.getValue());
+		String fieldValue = field.getValue();
+		Long asLongNumber = this.getAsLongNumber(fieldValue);
 		return asLongNumber;
 	}
 	
 	private Long getAsLongNumber(String field) {
 		
 		Object object = this.content.get(field);
-		
-		if(object == null) {
-			throw new CcpErrorJsonInvalidFieldFormat("", field, "long", this);
+		boolean objectIgual = object == null;
+
+		if(objectIgual) {
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat2 = new CcpErrorJsonInvalidFieldFormat("", field, "long", this);
+			throw ccpErrorJsonInvalidFieldFormat2;
 		}
 		try {
-			return Double.valueOf("" + object).longValue();
+			String valorMais2 = "" + object;
+			Double valueOf = Double.valueOf(valorMais2);
+			long longValue = valueOf.longValue();
+			return longValue;
 		} catch (Exception e) {
-			throw new CcpErrorJsonInvalidFieldFormat(object, field, "long", this);
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat3 = new CcpErrorJsonInvalidFieldFormat(object, field, "long", this);
+			throw ccpErrorJsonInvalidFieldFormat3;
 		}
 	}
 
 	public Integer getAsIntegerNumber(CcpJsonFieldName field) {
-		Integer asIntegerNumber = this.getAsIntegerNumber(field.getValue());
+		String fieldValue2 = field.getValue();
+		Integer asIntegerNumber = this.getAsIntegerNumber(fieldValue2);
 		return asIntegerNumber;
 	}
 	
 	private Integer getAsIntegerNumber(String field) {
 		Object object = this.content.get(field);
-		if(object == null) {
-			throw new CcpErrorJsonInvalidFieldFormat("", field, "integer", this);
+		boolean objectIgual2 = object == null;
+		if(objectIgual2) {
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat4 = new CcpErrorJsonInvalidFieldFormat("", field, "integer", this);
+			throw ccpErrorJsonInvalidFieldFormat4;
 		}
 		try {
-			return Double.valueOf("" + object).intValue();
+			String valorMais3 = "" + object;
+			Double valueOf2 = Double.valueOf(valorMais3);
+			int intValue = valueOf2.intValue();
+			return intValue;
 		} catch (Exception e) {
-			throw new CcpErrorJsonInvalidFieldFormat(object, field, "integer", this);
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat5 = new CcpErrorJsonInvalidFieldFormat(object, field, "integer", this);
+			throw ccpErrorJsonInvalidFieldFormat5;
 		}
 	}
 	
@@ -301,34 +338,44 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public boolean getAsBoolean(CcpJsonFieldName field) {
-		boolean asBoolean = this.getAsBoolean(field.getValue());
+		String fieldValue3 = field.getValue();
+		boolean asBoolean = this.getAsBoolean(fieldValue3);
 		return asBoolean;
 	}
 	
 	private boolean getAsBoolean(String field) {
 		String asString = this.getAsString(field);
-		return Boolean.valueOf(asString.toLowerCase());
+		String toLowerCase = asString.toLowerCase();
+		Boolean valueOf3 = Boolean.valueOf(toLowerCase);
+		return valueOf3;
 	}
 
 	public Double getAsDoubleNumber(CcpJsonFieldName field) {
-		Double asDoubleNumber = this.getAsDoubleNumber(field.getValue());
+		String fieldValue4 = field.getValue();
+		Double asDoubleNumber = this.getAsDoubleNumber(fieldValue4);
 		return asDoubleNumber;
 	}
 	
 	private Double getAsDoubleNumber(String field) {
 		Object object = this.content.get(field);
-		if(object == null) {
-			throw new CcpErrorJsonInvalidFieldFormat("", field, "double", this);
+		boolean objectIgual3 = object == null;
+		if(objectIgual3) {
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat6 = new CcpErrorJsonInvalidFieldFormat("", field, "double", this);
+			throw ccpErrorJsonInvalidFieldFormat6;
 		}
 		try {
-			return Double.valueOf("" + object);
+			String valorMais4 = "" + object;
+			Double valueOf4 = Double.valueOf(valorMais4);
+			return valueOf4;
 		} catch (Exception e) {
-			throw new CcpErrorJsonInvalidFieldFormat(object, field, "double", this);
+			CcpErrorJsonInvalidFieldFormat ccpErrorJsonInvalidFieldFormat7 = new CcpErrorJsonInvalidFieldFormat(object, field, "double", this);
+			throw ccpErrorJsonInvalidFieldFormat7;
 		}
 	}
 	
 	public CcpTextDecorator getAsTextDecorator(CcpJsonFieldName field) {
-		CcpTextDecorator asTextDecorator = this.getAsTextDecorator(field.getValue());
+		String fieldValue5 = field.getValue();
+		CcpTextDecorator asTextDecorator = this.getAsTextDecorator(fieldValue5);
 		return asTextDecorator;
 	}
 	
@@ -340,7 +387,8 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpStringDecorator getAsStringDecorator(CcpJsonFieldName field) {
-		CcpStringDecorator asStringDecorator = this.getAsStringDecorator(field.getValue());
+		String fieldValue6 = field.getValue();
+		CcpStringDecorator asStringDecorator = this.getAsStringDecorator(fieldValue6);
 		return asStringDecorator;
 	}
 	
@@ -372,8 +420,9 @@ public class CcpJsonRepresentation  {
 	 * @param fields os campos a verificar
 	 */
 	public CcpJsonRepresentation whenAnyFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
-		
-		boolean anyFieldIsNotPresent = false == this.containsAnyFields(fields);
+		boolean containsAnyFields2 = this.containsAnyFields(fields);
+	
+		boolean anyFieldIsNotPresent = false == containsAnyFields2;
 		
 		if(anyFieldIsNotPresent) {
 			return this;
@@ -389,7 +438,8 @@ public class CcpJsonRepresentation  {
 	 * @param fields os campos a verificar
 	 */
 	public CcpJsonRepresentation whenAllFieldsAreFound(CcpBusiness business, CcpJsonFieldName... fields) {
-		boolean allFieldIsNotPresent = false == this.containsAllFields(fields);
+		boolean containsAllFields2 = this.containsAllFields(fields);
+		boolean allFieldIsNotPresent = false == containsAllFields2;
 		
 		if(allFieldIsNotPresent) {
 			return this;
@@ -404,7 +454,8 @@ public class CcpJsonRepresentation  {
 	 * @param field o campo a ler
 	 */
 	public String getAsString(CcpJsonFieldName field) {
-		String asString = this.getAsString(field.getValue());
+		String fieldValue7 = field.getValue();
+		String asString = this.getAsString(fieldValue7);
 		return asString;
 	}
 	
@@ -412,47 +463,60 @@ public class CcpJsonRepresentation  {
 	private String getAsString(String field) {
  
 		Object object = this.content.get(field);
-		
-		boolean thisKeyIsNotPresent = false == this.content.containsKey(field);
+		boolean containsKey2 = this.content.containsKey(field);
+
+		boolean thisKeyIsNotPresent = false == containsKey2;
 		if(thisKeyIsNotPresent) {
 			return ""; 
 		}
+		boolean objectIgual4 = object == null;
 
-		if(object == null) {
+		if(objectIgual4) {
 			return "";
 		}
 		
 		if(object instanceof Map map) {
 			CcpJsonRepresentation json = new CcpJsonRepresentation(map);
-			return json.toString();
+			String toString = json.toString();
+			return toString;
 		}
 
 		if(object instanceof CcpJsonRepresentation json) {
-			return json.toString();
+			String toString2 = json.toString();
+			return toString2;
 		}
 		
 		if(object instanceof Collection<?> col) {
-			
-			if(col.isEmpty()) {
-				return col.toString();
+			boolean colEmpty = col.isEmpty();
+		
+			if(colEmpty) {
+				String toString3 = col.toString();
+				return toString3;
 			}
+			var stream3 = col.stream();
+			var stream3Map = stream3.map(x -> x instanceof Map ? new CcpJsonRepresentation((Map)x) : x);
 
-			List<Object> collect = col.stream().map(x -> x instanceof Map ? new CcpJsonRepresentation((Map)x) : x).collect(Collectors.toList());
+			List<Object> collect = stream3Map.collect(Collectors.toList());
+			var get = collect.get(0);
+			boolean isCcpJsonRepresentation = get instanceof CcpJsonRepresentation;
 
 			
-			if(collect.get(0) instanceof CcpJsonRepresentation) {
-				return collect.toString();
+			if(isCcpJsonRepresentation) {
+				String toString4 = collect.toString();
+				return toString4;
 			}
 			CcpJsonHandler dependency = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 			String json = dependency.toJson(col);
 			return json;
 		}
-		
-		return ("" + object);
+		String valorMais5 = "" + object;
+
+		return (valorMais5);
 	}
 	public <T> T getOrDefault(CcpJsonFieldName field, Supplier<T> supplier) {
 		T defaultValue = supplier.get();
-		T orDefault = this.getOrDefault(field.getValue(), defaultValue);
+		String fieldValue8 = field.getValue();
+		T orDefault = this.getOrDefault(fieldValue8, defaultValue);
 		return orDefault;
 	}
 
@@ -460,12 +524,14 @@ public class CcpJsonRepresentation  {
 	@SuppressWarnings("unchecked")
 	private <T> T getOrDefault(String field, T defaultValue) {
 		Object object = this.content.get(field);
-		
-		if(null == object) {
+		boolean valorIgual = null == object;
+
+		if(valorIgual) {
 			return defaultValue;
 		}
-		
-		return (T)object;
+		T t2 = (T)object;
+
+		return t2;
 	}
 	
 	public CcpJsonRepresentation getJsonPiece(Collection<String> fields) {
@@ -486,13 +552,15 @@ public class CcpJsonRepresentation  {
 		
 		for (String field : fields) {
 			Object value = this.content.get(field);
-			if(value == null) {
+			boolean valueIgual = value == null;
+			if(valueIgual) {
 				continue;
 			}
 			subMap.put(field, value);
 		}
-		
-		return new CcpJsonRepresentation(subMap);
+		CcpJsonRepresentation ccpJsonRepresentation2 = new CcpJsonRepresentation(subMap);
+
+		return ccpJsonRepresentation2;
 	}
 
 	/**
@@ -524,7 +592,8 @@ public class CcpJsonRepresentation  {
 			return _json;
 			
 		} catch (Exception e) {
-			return this.content.toString();
+			String toString5 = this.content.toString();
+			return toString5;
 		}
 	}
 	
@@ -538,7 +607,8 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public CcpJsonRepresentation put(CcpJsonFieldName field, CcpDecorator<?> map) {
-		CcpJsonRepresentation put = this.put(field.getValue(), map);
+		String fieldValue9 = field.getValue();
+		CcpJsonRepresentation put = this.put(fieldValue9, map);
 		return put;
 	}
 	
@@ -549,12 +619,15 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public CcpJsonRepresentation put(CcpJsonFieldName field, Collection<CcpJsonRepresentation> list) {
-		CcpJsonRepresentation put = this.put(field.getValue(), list);
+		String fieldValue10 = field.getValue();
+		CcpJsonRepresentation put = this.put(fieldValue10, list);
 		return put;
 	}
 	
 	private CcpJsonRepresentation put(String field, Collection<CcpJsonRepresentation> list) {
-		List<Map<String, Object>> collect = list.stream().map(x -> x.content).collect(Collectors.toList());
+		Stream<CcpJsonRepresentation> stream4 = list.stream();
+		var stream4Map = stream4.map(x -> x.content);
+		List<Map<String, Object>> collect = stream4Map.collect(Collectors.toList());
 		CcpJsonRepresentation put = this.put(field, collect);
 		return put;
 	}
@@ -588,7 +661,8 @@ public class CcpJsonRepresentation  {
 	 * @param process o transformador a armazenar
 	 */
 	public CcpJsonRepresentation addJsonTransformer(CcpJsonFieldName field, CcpBusiness process) {
-		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(field.getValue(), process);
+		String fieldValue11 = field.getValue();
+		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(fieldValue11, process);
 		return addJsonTransformer;
 	}
 	
@@ -598,7 +672,8 @@ public class CcpJsonRepresentation  {
 	 * @param process o transformador a armazenar
 	 */
 	public CcpJsonRepresentation addJsonTransformer(Integer field, CcpBusiness process) {
-		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer("" + field, process);
+		String valorMais6 = "" + field;
+		CcpJsonRepresentation addJsonTransformer = this.addJsonTransformer(valorMais6, process);
 		return addJsonTransformer;
 	}
 	private CcpJsonRepresentation addJsonTransformer(String field, CcpBusiness process) {
@@ -633,7 +708,8 @@ public class CcpJsonRepresentation  {
 	 * @param value o valor do campo
 	 */
 	public CcpJsonRepresentation put(CcpJsonFieldName field, Object value) {
-		CcpJsonRepresentation put = this.put(field.getValue(), value);
+		String fieldValue12 = field.getValue();
+		CcpJsonRepresentation put = this.put(fieldValue12, value);
 		return put;
 	}
 
@@ -643,7 +719,8 @@ public class CcpJsonRepresentation  {
 	 * @param value o JSON aninhado
 	 */
 	public CcpJsonRepresentation put(CcpJsonFieldName field, CcpJsonRepresentation value) {
-		CcpJsonRepresentation put = this.put(field.getValue(), value.content);
+		String fieldValue13 = field.getValue();
+		CcpJsonRepresentation put = this.put(fieldValue13, value.content);
 		return put;
 	}
 	
@@ -671,12 +748,14 @@ public class CcpJsonRepresentation  {
 	 */
 	public CcpJsonRepresentation duplicateValueFromField(CcpJsonFieldName fieldToCopy, CcpJsonFieldName... fieldsToPaste) {
 		String[] fields = this.getFields(fieldsToPaste);
-		CcpJsonRepresentation response = this.duplicateValueFromField(fieldToCopy.getValue(), fields);
+		String fieldToCopyValue = fieldToCopy.getValue();
+		CcpJsonRepresentation response = this.duplicateValueFromField(fieldToCopyValue, fields);
 		return response;
 	}	
 
 	private CcpJsonRepresentation duplicateValueFromField(String fieldToCopy, String... fieldsToPaste) {
-		boolean inexistentField = false == this.containsAllFields(fieldToCopy);
+		boolean containsAllFields3 = this.containsAllFields(fieldToCopy);
+		boolean inexistentField = false == containsAllFields3;
 
 		if (inexistentField) {
 			return this;
@@ -698,7 +777,9 @@ public class CcpJsonRepresentation  {
 	 * @param newField o novo nome do campo
 	 */
 	public CcpJsonRepresentation renameField(CcpJsonFieldName oldField, CcpJsonFieldName newField) {
-		CcpJsonRepresentation renameField = this.renameField(oldField.getValue(), newField.getValue());
+		String oldFieldValue = oldField.getValue();
+		String newFieldValue = newField.getValue();
+		CcpJsonRepresentation renameField = this.renameField(oldFieldValue, newFieldValue);
 		return renameField;
 	}
 	
@@ -706,7 +787,8 @@ public class CcpJsonRepresentation  {
 		Map<String, Object> content = new HashMap<>();
 		content.putAll(this.content);
 		Object value = content.remove(oldField);
-		if(value == null) {
+		boolean valueIgual2 = value == null;
+		if(valueIgual2) {
 			CcpJsonRepresentation json = new CcpJsonRepresentation(content);
 			return json;
 		}
@@ -753,7 +835,8 @@ public class CcpJsonRepresentation  {
 	 * Cria uma cópia independente do JSON atual.
 	 */
 	public CcpJsonRepresentation copy() {
-		CcpJsonRepresentation json = new CcpJsonRepresentation(this.getContent());
+		var content3 = this.getContent();
+		CcpJsonRepresentation json = new CcpJsonRepresentation(content3);
 		return json;
 	}
 	
@@ -812,7 +895,8 @@ public class CcpJsonRepresentation  {
 	
 	public CcpJsonRepresentation getTransformedJsonConsideringIfAnyOfTheConditionsIsMet(CcpBusiness conditionsMet, CcpBusiness conditionsDoNotMet, @SuppressWarnings("unchecked") Predicate<CcpJsonRepresentation>... conditions) {
 		for (Predicate<CcpJsonRepresentation> condition : conditions) {
-			boolean contionDoesNotMet = false == condition.test(this);
+			boolean test = condition.test(this);
+			boolean contionDoesNotMet = false == test;
 			if(contionDoesNotMet) {
 				continue;
 			}
@@ -830,7 +914,8 @@ public class CcpJsonRepresentation  {
 		boolean pathIsMissing = paths.length == 0;
 		
 		if(pathIsMissing) {
-			throw new CcpErrorJsonPathIsMissing(this);
+			CcpErrorJsonPathIsMissing ccpErrorJsonPathIsMissing = new CcpErrorJsonPathIsMissing(this);
+			throw ccpErrorJsonPathIsMissing;
 		}
 		
 		CcpJsonRepresentation initial = this;
@@ -839,8 +924,9 @@ public class CcpJsonRepresentation  {
 		boolean lastFieldIsJson = false;
 		for(int k = 0; k < paths.length; k++) {
 			String path = paths[k];
-			
-			boolean notContainsAllFields = false == initial.containsAllFields(path);
+			boolean containsAllFields4 = initial.containsAllFields(path);
+
+			boolean notContainsAllFields = false == containsAllFields4;
 			
 			if(notContainsAllFields) {
 				return defaultValue;
@@ -857,7 +943,8 @@ public class CcpJsonRepresentation  {
 		}
 		
 		if(lastFieldIsJson) {
-			return (T)initial;
+			T t3 = (T)initial;
+			return t3;
 		}
 		
 		String path = paths[lastIndex];
@@ -905,14 +992,16 @@ public class CcpJsonRepresentation  {
 			}
 			
 			Class<? extends Object> class1 = value.getClass();
-			throw new CCpErrorJsonFieldIsNotValidJsonList(this, class1, paths);
+			CCpErrorJsonFieldIsNotValidJsonList cCpErrorJsonFieldIsNotValidJsonList = new CCpErrorJsonFieldIsNotValidJsonList(this, class1, paths);
+			throw cCpErrorJsonFieldIsNotValidJsonList;
 		}
 		
 		return response;
 	}	
 
 	public CcpJsonRepresentation getInnerJson(CcpJsonFieldName field) {
-		CcpJsonRepresentation innerJson = this.getInnerJson(field.getValue());
+		String fieldValue14 = field.getValue();
+		CcpJsonRepresentation innerJson = this.getInnerJson(fieldValue14);
 		return innerJson;
 	}
 	
@@ -924,9 +1013,11 @@ public class CcpJsonRepresentation  {
 		if(object instanceof CcpJsonRepresentation json) {
 			return json;
 		}
-		
-		if(object instanceof String) {
-			CcpJsonRepresentation json = new CcpJsonRepresentation("" + object);
+		boolean isString = object instanceof String;
+
+		if(isString) {
+			String valorMais7 = "" + object;
+			CcpJsonRepresentation json = new CcpJsonRepresentation(valorMais7);
 			return json;
 		}
 		
@@ -941,7 +1032,8 @@ public class CcpJsonRepresentation  {
 
 	
 	public List<CcpJsonRepresentation> getAsJsonList(CcpJsonFieldName field) {
-		List<CcpJsonRepresentation> asJsonList = this.getAsJsonList(field.getValue());
+		String fieldValue15 = field.getValue();
+		List<CcpJsonRepresentation> asJsonList = this.getAsJsonList(fieldValue15);
 		return asJsonList;
 	}
 	
@@ -949,44 +1041,55 @@ public class CcpJsonRepresentation  {
 	private List<CcpJsonRepresentation> getAsJsonList(String field) {
 		
 		Object object = this.content.get(field);
-		 
-		if(object == null) {
+		boolean objectIgual5 = object == null;
+ 	
+		if(objectIgual5) {
 			return new ArrayList<>();
 		}   
-		
-		if(object instanceof String) {
+		boolean isString2 = object instanceof String;
+
+		if(isString2) {
 			CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 			try {
-				
-				boolean validJsonList = jsonHandler.isValidJsonList(object.toString());
+				String toString6 = object.toString();
+			
+				boolean validJsonList = jsonHandler.isValidJsonList(toString6);
 				
 				List<Map<String, Object>> fromJson = new ArrayList<>();
 				if(validJsonList) {
-					fromJson = jsonHandler.fromJson(object.toString());
+					String toString7 = object.toString();
+					fromJson = jsonHandler.fromJson(toString7);
 				}
-				List<CcpJsonRepresentation> collect = fromJson.stream().map(json -> new CcpJsonRepresentation(json)).collect(Collectors.toList());
+				var stream5 = fromJson.stream();
+				var stream5Map = stream5.map(json -> new CcpJsonRepresentation(json));
+				List<CcpJsonRepresentation> collect = stream5Map.collect(Collectors.toList());
 				return collect;
 			} catch (ClassCastException e) {
 				return new ArrayList<>(); 
 			}
 		}
+		boolean isCollection = object instanceof Collection;
+		boolean valorIgual2 = false == isCollection;
 
-		if(false == object instanceof Collection) {
+		if(valorIgual2) {
 			return new ArrayList<>();
 		}
 
 		
 		Collection<Object> list = (Collection<Object>) object;
-		
-		List<CcpJsonRepresentation> collect = list.stream().map(obj -> {
+		var stream6 = list.stream();
+		var stream6Map = stream6.map(obj -> {
 			
 			if(obj instanceof CcpJsonRepresentation jsn) {
 				return jsn;
 			}
-			
-			CcpJsonRepresentation json = new CcpJsonRepresentation((Map<String, Object>) obj);
+			Map<String, Object> mapStringObject = (Map<String, Object>) obj;
+
+			CcpJsonRepresentation json = new CcpJsonRepresentation(mapStringObject);
 			return json;
-		})
+			});
+
+			List<CcpJsonRepresentation> collect = stream6Map
 				.collect(Collectors.toList());
 		
 		return collect;
@@ -994,7 +1097,8 @@ public class CcpJsonRepresentation  {
 
 	public CcpCollectionDecorator getAsCollectionDecorator(String field){
 		List<String> asStringList = this.getAsStringList(field);
-		Object[] array = asStringList.toArray(new String[asStringList.size()]);
+		int asStringListSize = asStringList.size();
+		Object[] array = asStringList.toArray(new String[asStringListSize]);
 		CcpCollectionDecorator ccpCollectionDecorator = new CcpCollectionDecorator(array);
 		return ccpCollectionDecorator;
 	}
@@ -1007,16 +1111,22 @@ public class CcpJsonRepresentation  {
 	
 	public String[] getAsStringArray(CcpJsonFieldName... fields) {
 		List<String> asStringList = this.getAsStringList(fields);
-		String[] array = asStringList.toArray(new String[asStringList.size()]);
+		int asStringListSize2 = asStringList.size();
+		String[] array = asStringList.toArray(new String[asStringListSize2]);
 		return array;
 	}
 	
 	private List<String> getAsStringList(String... fields){
 		for (String field : fields) {
-			List<String> collect = this.getAsObjectList(field).stream()
-					.filter(x -> x != null)
-					.map(x -> x.toString()).collect(Collectors.toList());
-			if(collect.isEmpty()) {
+			var asObjectList2 = this.getAsObjectList(field);
+			var stream7 = asObjectList2.stream();
+			var filter = stream7
+					.filter(x -> x != null);
+					var filterMap = filter
+					.map(x -> x.toString());
+					List<String> collect = filterMap.collect(Collectors.toList());
+					boolean collectEmpty = collect.isEmpty();
+					if(collectEmpty) {
 				continue;
 			}
 			return collect;
@@ -1025,31 +1135,37 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public List<Object> getAsObjectList(CcpJsonFieldName field) {
-		List<Object> asObjectList = this.getAsObjectList(field.getValue());
+		String fieldValue16 = field.getValue();
+		List<Object> asObjectList = this.getAsObjectList(fieldValue16);
 		return asObjectList;
 	}
 	
 	private List<Object> getAsObjectList(String field) {
-		
-		boolean isNotPresent = false == this.containsAllFields(field);
+		boolean containsAllFields5 = this.containsAllFields(field);
+	
+		boolean isNotPresent = false == containsAllFields5;
 		
 		if(isNotPresent) {
 			return new ArrayList<>();
 		}
 		
 		Object object = this.content.get(field);
-		
-		if(object instanceof Object[]) {
+		boolean isObject = object instanceof Object[];
+
+		if(isObject) {
 			Object[] array = this.getAsObject(field);
 			List<Object> asList = Arrays.asList(array);
 			return asList;
 		}
 		
 		if(object instanceof Collection<?> list) {
-			return new ArrayList<Object>(list);
+			ArrayList<Object> arrayList3 = new ArrayList<Object>(list);
+			return arrayList3;
 		}
-		
-		boolean empty = object.toString().trim().isEmpty();
+		String toString8 = object.toString();
+		String toString8Trim = toString8.trim();
+
+		boolean empty = toString8Trim.isEmpty();
 		
 		if(empty) {
 			return new ArrayList<>();
@@ -1058,10 +1174,12 @@ public class CcpJsonRepresentation  {
 		CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		
 		try {
-			List<Object> fromJson = jsonHandler.fromJson(object.toString());
+			String toString9 = object.toString();
+			List<Object> fromJson = jsonHandler.fromJson(toString9);
 			return fromJson;
 		} catch (Exception e) {
-			return Arrays.asList(object.toString());
+			String toString10 = object.toString();
+			return Arrays.asList(toString10);
 		}
 	}
 	
@@ -1080,7 +1198,8 @@ public class CcpJsonRepresentation  {
 	
 	
 	public boolean containsField(CcpJsonFieldName field) {
-		boolean containsField = this.containsField(field.getValue());
+		String fieldValue17 = field.getValue();
+		boolean containsField = this.containsField(fieldValue17);
 		return containsField;
 	}
 
@@ -1136,18 +1255,21 @@ public class CcpJsonRepresentation  {
 	private boolean containsFields(boolean assertion, String... fields) {
 		for (String field : fields) {
 			boolean containsField = this.containsField(field);
-			if(containsField == assertion) {
+			boolean containsFieldIgual = containsField == assertion;
+			if(containsFieldIgual) {
 				return assertion;
 			}
 		}
-		if(false == assertion) {
+		boolean valorIgual3 = false == assertion;
+		if(valorIgual3) {
 			return true;
 		}
 		return false;
 	}
 	
 	public Object get(CcpJsonFieldName field) {
-		Object object = this.get(field.getValue());
+		String fieldValue18 = field.getValue();
+		Object object = this.get(fieldValue18);
 		return object;
 	}
 	
@@ -1155,7 +1277,8 @@ public class CcpJsonRepresentation  {
 		Object object = this.content.get(field);
 		boolean valueIsAbsent = object == null;
 		if(valueIsAbsent) {
-			throw new CcpErrorJsonFieldNotFound(field, this);
+			CcpErrorJsonFieldNotFound ccpErrorJsonFieldNotFound = new CcpErrorJsonFieldNotFound(field, this);
+			throw ccpErrorJsonFieldNotFound;
 		}
 		return object;
 	}
@@ -1170,12 +1293,16 @@ public class CcpJsonRepresentation  {
 	private <T> T getAsObject(String... fields) {
 		for (String field : fields) {
 			Object object = this.content.get(field);
-			if(object == null) {
+			boolean objectIgual6 = object == null;
+			if(objectIgual6) {
 				continue;
 			}
-			return (T) object;
+			T t4 = (T) object;
+			return t4;
 		}
-		throw new CcpErrorJsonFieldNotFound(Arrays.asList(fields).toString(), this);
+		String toString11 = Arrays.asList(fields).toString();
+		CcpErrorJsonFieldNotFound ccpErrorJsonFieldNotFound2 = new CcpErrorJsonFieldNotFound(toString11, this);
+		throw ccpErrorJsonFieldNotFound2;
 	}
 	
 	public boolean isEmpty() {
@@ -1184,7 +1311,8 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpJsonRepresentation addToList(CcpJsonFieldName field, Object... values) {
-		CcpJsonRepresentation addToList = this.addToList(field.getValue(), values);
+		String fieldValue19 = field.getValue();
+		CcpJsonRepresentation addToList = this.addToList(fieldValue19, values);
 		return addToList;
 	}
 
@@ -1205,7 +1333,8 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpJsonRepresentation addToList(CcpJsonFieldName field, CcpJsonRepresentation value) {
-		CcpJsonRepresentation addToList = this.addToList(field.getValue(), value);
+		String fieldValue20 = field.getValue();
+		CcpJsonRepresentation addToList = this.addToList(fieldValue20, value);
 		return addToList;
 	}
 	
@@ -1218,7 +1347,9 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public CcpJsonRepresentation addToItem(CcpJsonFieldName field, CcpJsonFieldName subField, Object value) {
-		CcpJsonRepresentation addToItem = this.addToItem(field.getValue(), subField.getValue(), value);
+		String fieldValue21 = field.getValue();
+		String subFieldValue = subField.getValue();
+		CcpJsonRepresentation addToItem = this.addToItem(fieldValue21, subFieldValue, value);
 		return addToItem;
 	}
 	
@@ -1231,7 +1362,9 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpJsonRepresentation addToItem(CcpJsonFieldName field, CcpJsonFieldName subField, CcpJsonRepresentation value) {
-		CcpJsonRepresentation addToItem = this.addToItem(field.getValue(), subField.getValue(), value);
+		String fieldValue22 = field.getValue();
+		String subFieldValue2 = subField.getValue();
+		CcpJsonRepresentation addToItem = this.addToItem(fieldValue22, subFieldValue2, value);
 		return addToItem;
 	}
 	
@@ -1244,7 +1377,9 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpJsonRepresentation copyIfNotContains(CcpJsonFieldName fieldToCopy, CcpJsonFieldName fieldToPaste) {
-		CcpJsonRepresentation copyIfNotContains = this.copyIfNotContains(fieldToCopy.getValue(), fieldToPaste.getValue());
+		String fieldToCopyValue2 = fieldToCopy.getValue();
+		String fieldToPasteValue = fieldToPaste.getValue();
+		CcpJsonRepresentation copyIfNotContains = this.copyIfNotContains(fieldToCopyValue2, fieldToPasteValue);
 		return copyIfNotContains;
 	}
 	
@@ -1262,8 +1397,9 @@ public class CcpJsonRepresentation  {
 	}		
 	
 	public CcpJsonRepresentation putIfNotContains(CcpJsonFieldName field, Object value) {
-	
-		CcpJsonRepresentation putIfNotContains = this.putIfNotContains(field.getValue(), value);
+		String fieldValue23 = field.getValue();
+
+		CcpJsonRepresentation putIfNotContains = this.putIfNotContains(fieldValue23, value);
 		return putIfNotContains;
 	}
 	
@@ -1279,7 +1415,8 @@ public class CcpJsonRepresentation  {
 	}
 	
 	public CcpCollectionDecorator getAsArrayMetadata(CcpJsonFieldName field) {
-		CcpCollectionDecorator asArrayMetadata = this.getAsArrayMetadata(field.getValue());
+		String fieldValue24 = field.getValue();
+		CcpCollectionDecorator asArrayMetadata = this.getAsArrayMetadata(fieldValue24);
 		return asArrayMetadata;
 	}
 	
@@ -1297,7 +1434,9 @@ public class CcpJsonRepresentation  {
 	
 	public String getSha1Hash(CcpHashAlgorithm algorithm) {
 		String asUgglyJson = this.asUgglyJson();
-		String hash = new CcpStringDecorator(asUgglyJson).hash().asString(algorithm);
+		CcpStringDecorator ccpStringDecorator2 = new CcpStringDecorator(asUgglyJson);
+		CcpHashDecorator ccpStringDecorator2Hash = ccpStringDecorator2.hash();
+		String hash = ccpStringDecorator2Hash.asString(algorithm);
 		return hash;
 	}
 
@@ -1321,21 +1460,25 @@ public class CcpJsonRepresentation  {
 	
 	public CcpJsonRepresentation getTransformedJson(
 			List<CcpBusiness> jsonTransformers) {
-		
-		CcpBusiness[] array = jsonTransformers.toArray(new CcpBusiness[jsonTransformers.size()]);
+				int jsonTransformersSize = jsonTransformers.size();
+
+				CcpBusiness[] array = jsonTransformers.toArray(new CcpBusiness[jsonTransformersSize]);
 		CcpJsonRepresentation transformedJson = this.getTransformedJson(array);
 		return transformedJson;
 	}
 
 	public boolean isInnerJson(CcpJsonFieldName fieldName) {
-		boolean innerJson = this.isInnerJson(fieldName.getValue());
+		String fieldNameValue = fieldName.getValue();
+		boolean innerJson = this.isInnerJson(fieldNameValue);
 		return innerJson;
 	}
 	
 	private boolean isInnerJson(String fieldName) {
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		String asString = this.getAsString(fieldName);
-		if(asString.trim().isEmpty()) {
+		String asStringTrim2 = asString.trim();
+		boolean asStringTrim2Empty = asStringTrim2.isEmpty();
+		if(asStringTrim2Empty) {
 			return false;
 		}
 		boolean validJson = handler.isValidJson(asString);
@@ -1352,14 +1495,18 @@ public class CcpJsonRepresentation  {
 	}
 
 	public CcpJsonRepresentation getInnerJsonFromPath(CcpJsonFieldName fieldName, String value) {
-		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldName.getValue(), value);
+		String fieldNameValue2 = fieldName.getValue();
+		CcpJsonRepresentation innerJsonFromPath = this.getInnerJsonFromPath(fieldNameValue2, value);
 		return innerJsonFromPath;
 	}
 	
 	public CcpJsonRepresentation removeEmptyValues() {
-		Set<String> fieldSet = this.fieldSet()
-				.stream()
-				.filter(x -> false == this.getAsString(x).trim().isEmpty())
+		Set<String> fieldSet2 = this.fieldSet();
+		Stream<String> stream8 = fieldSet2
+				.stream();
+				var filter2 = stream8
+				.filter(x -> false == this.getAsString(x).trim().isEmpty());
+				Set<String> fieldSet = filter2
 				.collect(Collectors.toSet())
 				;
 
@@ -1368,53 +1515,8 @@ public class CcpJsonRepresentation  {
 		return removeEmptyValues;
 	}
 
-	/**
-	 * Exceção lançada quando se tenta acessar um campo de um {@code CcpJsonRepresentation} esperando uma lista JSON,
-	 * mas o valor real é de outro tipo incompatível (por exemplo, um {@code Long} ou {@code String} comum).
-	 */
-	@SuppressWarnings("serial")
-	public static class CCpErrorJsonFieldIsNotValidJsonList extends RuntimeException {
-		/**
-		 * Monta a mensagem de erro indicando qual caminho de campos foi acessado, qual tipo foi encontrado
-		 * e qual era o JSON completo no momento do erro.
-		 * @param json o JSON no momento do erro
-		 * @param clazz o tipo real encontrado no campo
-		 * @param path o caminho de campos acessado
-		 */
-		private CCpErrorJsonFieldIsNotValidJsonList(CcpJsonRepresentation json, Class<?> clazz, String... path) {
-			super("The field path '" + java.util.Arrays.asList(path) + "' in the json does not represent a json type, instead, it represents a '" + clazz.getName() + "' in the json " + json);
-		}
-	}
 
-	/**
-	 * Exceção lançada quando se tenta obter o valor de um campo obrigatório de um {@code CcpJsonRepresentation} e esse campo está ausente.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpErrorJsonFieldNotFound extends RuntimeException {
-		/**
-		 * Monta a mensagem informando qual campo estava ausente e o conteúdo completo do JSON no momento do erro.
-		 * @param field o nome do campo ausente
-		 * @param json o JSON no momento do erro
-		 */
-		private CcpErrorJsonFieldNotFound(String field, CcpJsonRepresentation json) {
-			super("The value is absent to the field " + field + " in json: " + json);
-		}
-	}
 
-	/**
-	 * Exceção lançada quando uma string não pode ser desserializada como JSON válido.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpErrorJsonInvalid extends RuntimeException {
-		/**
-		 * Monta a mensagem indicando a string inválida e encadeia a exceção original como causa.
-		 * @param json a string que falhou na desserialização
-		 * @param e a exceção original
-		 */
-		private CcpErrorJsonInvalid(String json) {
-			super("The following json is an invalid json: " + json);
-		}
-	}
 
 
 	/**
@@ -1436,18 +1538,20 @@ public class CcpJsonRepresentation  {
 	}
 
 	/**
-	 * Exceção lançada quando métodos de navegação por caminho em {@code CcpJsonRepresentation} recebem um array de campos vazio,
-	 * o que indica erro de programação (caminho não informado).
+	 * Exceção lançada quando o conteúdo lido de um {@code InputStream} não é um JSON válido e também não pode ser
+	 * interpretado como um arquivo de {@code Properties}.
 	 */
 	@SuppressWarnings("serial")
-	public static class CcpErrorJsonPathIsMissing extends RuntimeException {
+	public static class CcpErrorJsonPropertiesUnreadable extends RuntimeException {
 		/**
-		 * Monta a mensagem pedindo que o caminho seja preenchido, incluindo o JSON que recebeu a chamada.
-		 * @param json o JSON no momento do erro
+		 * Monta a mensagem com o conteúdo que falhou na leitura e encadeia a exceção original como causa.
+		 * @param content o conteúdo lido do stream
+		 * @param cause a exceção original de leitura
 		 */
-		private CcpErrorJsonPathIsMissing(CcpJsonRepresentation json) {
-			super("The path is empty, please fill the missing path in the json: " + json);
+		private CcpErrorJsonPropertiesUnreadable(String content, Throwable cause) {
+			super("The following content is neither a valid json nor a valid properties file: " + content, cause);
 		}
 	}
+
 	
 }

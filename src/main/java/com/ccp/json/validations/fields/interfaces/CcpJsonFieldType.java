@@ -34,22 +34,26 @@ public interface CcpJsonFieldType {
 	 */
 	default boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		java.lang.String fieldName = field.getName();
-		
-		boolean thisFieldIsAbsent = false == json.containsAllFields(new CcpFieldName(fieldName));
+		CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+		boolean containsAllFields = json.containsAllFields(ccpFieldName);
+
+		boolean thisFieldIsAbsent = false == containsAllFields;
 		
 		if(thisFieldIsAbsent) {
 			return false;
 		}
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		for (CcpJsonFieldValidatorInterface validation : validations) {
-			
-			boolean isNotValidValidationContext = false == validation.isValidValidationContext(context);
+			boolean validValidationContext = validation.isValidValidationContext(context);
+		
+			boolean isNotValidValidationContext = false == validValidationContext;
 			
 			if(isNotValidValidationContext) {
 				continue;
 			}
-			
-			boolean hasNoRules = false == validation.hasRuleExplanation(field, this);
+			boolean ruleExplanation2 = validation.hasRuleExplanation(field, this);
+
+			boolean hasNoRules = false == ruleExplanation2;
 			
 			if(hasNoRules) {
 				continue;
@@ -74,8 +78,10 @@ public interface CcpJsonFieldType {
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 
 		java.lang.String fieldName = field.getName();
-		
-		boolean fieldIsNotPresent = false == json.containsAllFields(new CcpFieldName(fieldName));
+		CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
+		boolean containsAllFields2 = json.containsAllFields(ccpFieldName2);
+
+		boolean fieldIsNotPresent = false == containsAllFields2;
 		if(fieldIsNotPresent) {
 			return errors;
 		}
@@ -83,18 +89,21 @@ public interface CcpJsonFieldType {
 		List<CcpJsonFieldValidatorInterface> validations = this.getAllValidations(field);
 		
 		for (CcpJsonFieldValidatorInterface errorType : validations) {
-			boolean isInvalidContextValidation = false == errorType.isValidValidationContext(context);
+			boolean validValidationContext2 = errorType.isValidValidationContext(context);
+			boolean isInvalidContextValidation = false == validValidationContext2;
 			
 			if(isInvalidContextValidation) {
 				continue;
 			}
-			
-			boolean hasNoRules = false == this.hasRuleExplanation(field);
+			boolean ruleExplanation3 = this.hasRuleExplanation(field);
+
+			boolean hasNoRules = false == ruleExplanation3;
 			if(hasNoRules) {
 				continue;
 			}
-			
-			boolean hasNoErrors = false == errorType.hasError(json, field, this);
+			boolean error = errorType.hasError(json, field, this);
+
+			boolean hasNoErrors = false == error;
 			if(hasNoErrors) {
 				continue;
 			}
@@ -111,7 +120,8 @@ public interface CcpJsonFieldType {
 	 * @return JSON de regras atualizado
 	 */
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation ruleExplanation, Field field) {
-		boolean hasNoRulesExplanations = false == this.hasRuleExplanation(field);
+		boolean ruleExplanation4 = this.hasRuleExplanation(field);
+		boolean hasNoRulesExplanations = false == ruleExplanation4;
 		if(hasNoRulesExplanations) {
 			return ruleExplanation;
 		}
@@ -126,7 +136,8 @@ public interface CcpJsonFieldType {
 	private List<CcpJsonFieldValidatorInterface> getAllValidations(Field field) {
 		
 		List<CcpJsonFieldValidatorInterface> validations = this.getDefaultValidations();
-		List<CcpJsonFieldValidatorInterface> errorTypes = Arrays.asList(this.getErrorTypes());
+		CcpJsonFieldValidatorInterface[] errorTypes2 = this.getErrorTypes();
+		List<CcpJsonFieldValidatorInterface> errorTypes = Arrays.asList(errorTypes2);
 		validations.addAll(errorTypes);
 		
 		return validations;

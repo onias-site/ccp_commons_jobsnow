@@ -20,6 +20,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfte
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
+import com.ccp.decorators.CcpStringDecorator;
 
 /**
  * Catálogo dos tipos de campo padrão do framework de validação. Cada constante encapsula
@@ -123,14 +124,19 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 	NumberUnsigned(CcpJsonFieldTypeError.unsignedNumberMaxValue, CcpJsonFieldTypeError.unsignedNumberMinValue, CcpJsonFieldTypeError.unsignedNumberExactValue, CcpJsonFieldTypeError.unsignedNumberAllowed){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> {
-				boolean isNotLongNumber = false == json.getAsStringDecorator(new CcpFieldName(fieldName)).isLongNumber();
+				CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+				CcpStringDecorator asStringDecorator = json.getAsStringDecorator(ccpFieldName);
+				var longNumber = asStringDecorator.isLongNumber();
+				boolean isNotLongNumber = false == longNumber;
 
 				if(isNotLongNumber) {
 					return false;
 				}
+				CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
 
-				Long asLongNumber = json.getAsLongNumber(new CcpFieldName(fieldName));
-				return asLongNumber >= 0;
+				Long asLongNumber = json.getAsLongNumber(ccpFieldName2);
+				boolean asLongNumberMaiorOuIgual = asLongNumber >= 0;
+				return asLongNumberMaiorOuIgual;
 			} ;
 		}
 

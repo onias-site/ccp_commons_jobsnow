@@ -33,7 +33,8 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	 */
 	public long getSecondsEnlapsedSinceMidnight() {
 		Long meiaNoite = this.getMidnight();
-		long tempo = (this.content - meiaNoite) / 1000L;
+		Long contentMenos = this.content - meiaNoite;
+		long tempo = (contentMenos) / 1000L;
 		return tempo;
 	}
 
@@ -78,7 +79,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	public Calendar getBrazilianCalendar() {
 		TimeZone timeZone = TimeZone.getTimeZone("America/Sao_Paulo");
 		Calendar cal = Calendar.getInstance(timeZone);
-		return (Calendar)cal.clone();
+		var calClone = cal.clone();
+		Calendar calendar = (Calendar)calClone;
+		return calendar;
 	}
 
 	/**
@@ -86,8 +89,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	 * {@code false} se o valor for &lt;= 0 ou se a thread for interrompida.
 	 */
 	public boolean sleep(int i) {
+		boolean iMenorOuIgual = i <= 0;
 
-		if (i <= 0) {
+		if (iMenorOuIgual) {
 			return false;
 		}
 

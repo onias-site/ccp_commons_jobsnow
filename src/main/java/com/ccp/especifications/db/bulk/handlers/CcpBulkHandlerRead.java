@@ -66,7 +66,8 @@ public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity
 	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
 		String calculateId = this.entityToRead.calculateId(json);
-		List<CcpBulkItem> apply = this.whenRecordWasNotFoundInTheEntitySearch.apply(new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToRead, calculateId));
+		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToRead, calculateId);
+		List<CcpBulkItem> apply = this.whenRecordWasNotFoundInTheEntitySearch.apply(ccpBulkItem);
 		return apply;
 	}
 

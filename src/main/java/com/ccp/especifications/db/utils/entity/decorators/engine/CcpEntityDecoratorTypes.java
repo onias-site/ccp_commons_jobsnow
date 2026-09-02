@@ -59,9 +59,11 @@ public enum CcpEntityDecoratorTypes {
 	public CcpEntity getEntity(Class<?> clazz, CcpEntity decoratedEntity) {
 		
 		Class<?> apply = this.clazzProducer.apply(clazz);
-		Constructor<?> declaredConstructor = apply.getDeclaredConstructor(CcpEntity.class, clazz.getClass());
+		var clazzClass = clazz.getClass();
+		Constructor<?> declaredConstructor = apply.getDeclaredConstructor(CcpEntity.class, clazzClass);
 		declaredConstructor.setAccessible(true);
-		CcpEntity newInstance = (CcpEntity)declaredConstructor.newInstance(decoratedEntity, clazz);
+		var newInstance2 = declaredConstructor.newInstance(decoratedEntity, clazz);
+		CcpEntity newInstance = (CcpEntity)newInstance2;
 		return newInstance;
 		
 	}

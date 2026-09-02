@@ -7,7 +7,7 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.decorators.CcpTextDecorator;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 /**
@@ -51,7 +51,9 @@ public class CcpHttpResponse {
 	 * @return true se o corpo for um JSON de objeto único válido
 	 */
 	public boolean isValidSingleJson() {
-		if(this.httpResponse.trim().isEmpty()) {
+		String httpResponseTrim = this.httpResponse.trim();
+		boolean httpResponseTrimEmpty = httpResponseTrim.isEmpty();
+		if(httpResponseTrimEmpty) {
 			return true;
 		}
 		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(this.httpResponse);
@@ -66,7 +68,9 @@ public class CcpHttpResponse {
 	 */
 	public CcpJsonRepresentation asSingleJson() {
 		try {
-			return new CcpStringDecorator(this.httpResponse).json();
+			CcpStringDecorator ccpStringDecorator2 = new CcpStringDecorator(this.httpResponse);
+			CcpJsonRepresentation json2 = ccpStringDecorator2.json();
+			return json2;
 		} catch (Exception e) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
@@ -98,7 +102,10 @@ public class CcpHttpResponse {
 	 */
 	public String asBase64() {
 		byte[] bytes = this.httpResponse.getBytes();
-		String encodeToString = new CcpStringDecorator(bytes).text().asBase64().content;
+		CcpStringDecorator ccpStringDecorator3 = new CcpStringDecorator(bytes);
+		CcpTextDecorator ccpStringDecorator3Text = ccpStringDecorator3.text();
+		CcpTextDecorator asBase64 = ccpStringDecorator3Text.asBase64();
+		String encodeToString = asBase64.content;
 		return encodeToString;
 	}
 	
@@ -108,18 +115,24 @@ public class CcpHttpResponse {
 	 * @return representação JSON com httpStatus e httpResponse
 	 */
 	public String toString() {
-		return CcpOtherConstants.EMPTY_JSON
-				.put(JsonFieldNames.httpStatus, this.httpStatus)
-				.put(JsonFieldNames.httpResponse, this.httpResponse)
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
+				.put(JsonFieldNames.httpStatus, this.httpStatus);
+				CcpJsonRepresentation put2 = put
+				.put(JsonFieldNames.httpResponse, this.httpResponse);
+				String toString = put2
 				.toString();
+				return toString;
 	}
 	
 
 	private boolean isInRange(int range) {
-		if(this.httpStatus < range) {
+		boolean httpStatusMenor = this.httpStatus < range;
+		if(httpStatusMenor) {
 			return false;
 		}
-		if(this.httpStatus > (range + 99)) {
+		int rangeMais = range + 99;
+		boolean httpStatusMaior = this.httpStatus > (rangeMais);
+		if(httpStatusMaior) {
 			return false;
 		}
 		return true;
@@ -131,7 +144,8 @@ public class CcpHttpResponse {
 	 * @return true se for erro de cliente
 	 */
 	public boolean isClientError() {
-		return this.isInRange(400);
+		boolean inRange = this.isInRange(400);
+		return inRange;
 	}
 	
 	/**
@@ -139,7 +153,8 @@ public class CcpHttpResponse {
 	 * @return true se for erro de servidor
 	 */
 	public boolean isServerError() {
-		return this.isInRange(500);
+		boolean inRange2 = this.isInRange(500);
+		return inRange2;
 	}
 
 	/**
@@ -147,6 +162,7 @@ public class CcpHttpResponse {
 	 * @return true se for resposta de sucesso
 	 */
 	public boolean isSuccess() {
-		return this.isInRange(200);
+		boolean inRange3 = this.isInRange(200);
+		return inRange3;
 	}
 }

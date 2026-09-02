@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 
@@ -83,8 +83,9 @@ public interface CcpJsonFieldValidatorInterface {
 	 * @return JSON de erros atualizado
 	 */
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+		boolean error2 = this.hasError(json, field, type);
 
-		boolean hasNoError = false == this.hasError(json, field, type);
+		boolean hasNoError = false == error2;
 
 		if (hasNoError) {
 			return errors;
@@ -93,12 +94,15 @@ public interface CcpJsonFieldValidatorInterface {
 		String fieldName = field.getName();
 		
 		Object error = this.getError(json, field, type);
-		
-		CcpJsonRepresentation errorObject = CcpOtherConstants.EMPTY_JSON
-				.put(ErrorFields.errorName, this.name())
-				.put(ErrorFields.errorDescription, error);
+		String name = this.name();
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
+				.put(ErrorFields.errorName, name);
 
-		CcpJsonRepresentation updatedErrors = errors.addToList(new CcpFieldName(fieldName), errorObject);
+				CcpJsonRepresentation errorObject = put
+				.put(ErrorFields.errorDescription, error);
+				CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+
+				CcpJsonRepresentation updatedErrors = errors.addToList(ccpFieldName, errorObject);
 
 		CcpJsonFieldErrorHandleType errorHandleType = this.getErrorHandleType();
 		
@@ -115,8 +119,9 @@ public interface CcpJsonFieldValidatorInterface {
 	 * @return JSON de regras atualizado
 	 */
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation allRules, Field field, CcpJsonFieldType type) {
+		boolean ruleExplanation2 = this.hasRuleExplanation(field, type);
 
-		boolean hasNoRules = false == this.hasRuleExplanation(field, type);
+		boolean hasNoRules = false == ruleExplanation2;
 		
 		if(hasNoRules) {
 			return allRules;
@@ -125,13 +130,19 @@ public interface CcpJsonFieldValidatorInterface {
 		String fieldName = field.getName();
 		
 		Object ruleExplanation = this.getRuleExplanation(field, type);
-		if(ruleExplanation.toString().trim().isEmpty()) {
+		String toString = ruleExplanation.toString();
+		String toStringTrim = toString.trim();
+		boolean toStringTrimEmpty = toStringTrim.isEmpty();
+		if(toStringTrimEmpty) {
 			return allRules;
 		}
-		CcpJsonRepresentation rule = CcpOtherConstants.EMPTY_JSON
-				.put(RuleFields.ruleName, this.name())
+		String name2 = this.name();
+		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+				.put(RuleFields.ruleName, name2);
+				CcpJsonRepresentation rule = put2
 				.put(RuleFields.ruleDescription, ruleExplanation);
-		CcpJsonRepresentation updatedRuleExplanation = allRules.addToList(new CcpFieldName(fieldName), rule);
+				CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
+				CcpJsonRepresentation updatedRuleExplanation = allRules.addToList(ccpFieldName2, rule);
 		
 		return updatedRuleExplanation;
 	}

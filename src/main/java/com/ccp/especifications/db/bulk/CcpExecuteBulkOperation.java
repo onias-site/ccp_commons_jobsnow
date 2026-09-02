@@ -14,6 +14,7 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import java.util.stream.Stream;
 
 /**
  * Contrato de alto nível que combina uma busca {@code unionAll} no banco com a execução subsequente
@@ -34,8 +35,11 @@ public interface CcpExecuteBulkOperation {
 	 */
 	@SuppressWarnings("unchecked")
 	default CcpSelectUnionAll executeSelectUnionAllThenExecuteBulkOperation(CcpJsonRepresentation json,  Consumer<String[]> functionToDeleteKeysInTheCache, CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> ... handlers) {
-		Set<CcpEntity> collect = Arrays.asList(handlers).stream().map(x -> x.getEntityToSearch()).collect(Collectors.toSet());
-		CcpEntity[] array = collect.toArray(new CcpEntity[collect.size()]);
+		Stream<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> stream = Arrays.asList(handlers).stream();
+		var streamMap = stream.map(x -> x.getEntityToSearch());
+		Set<CcpEntity> collect = streamMap.collect(Collectors.toSet());
+		int collectSize = collect.size();
+		CcpEntity[] array = collect.toArray(new CcpEntity[collectSize]);
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class); 
 		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, array);
 		

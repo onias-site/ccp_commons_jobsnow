@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 
@@ -21,7 +20,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Extrai o valor de um campo do JSON como string.
 	 */
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getAsString(new CcpFieldName(key));
+		CcpFieldName ccpFieldName = new CcpFieldName(key);
+		this.content = json.getAsString(ccpFieldName);
 	}
 
 	/**
@@ -62,35 +62,40 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Interpreta a string como endereço de e-mail.
 	 */
 	public CcpEmailDecorator email() {
-		return new CcpEmailDecorator(this.content);
+		CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(this.content);
+		return ccpEmailDecorator;
 	}
 
 	/**
 	 * Interpreta a string como caminho de arquivo.
 	 */
 	public CcpFileDecorator file() {
-		return new CcpFileDecorator(this.content);
+		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(this.content);
+		return ccpFileDecorator;
 	}
 
 	/**
 	 * Interpreta a string como caminho de diretório.
 	 */
 	public CcpFolderDecorator folder() {
-		return new CcpFolderDecorator(this.content);
+		CcpFolderDecorator ccpFolderDecorator = new CcpFolderDecorator(this.content);
+		return ccpFolderDecorator;
 	}
 
 	/**
 	 * Prepara a string para cálculo de hash.
 	 */
 	public CcpHashDecorator hash() {
-		return new CcpHashDecorator(this.content);
+		CcpHashDecorator ccpHashDecorator = new CcpHashDecorator(this.content);
+		return ccpHashDecorator;
 	}
 
 	/**
 	 * Converte a string para número.
 	 */
 	public CcpNumberDecorator number() {
-		return new CcpNumberDecorator(this.content);
+		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(this.content);
+		return ccpNumberDecorator;
 	}
 
 	/**
@@ -105,35 +110,40 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Acessa operações de manipulação de texto.
 	 */
 	public CcpTextDecorator text() {
-		return new CcpTextDecorator(this.content);
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(this.content);
+		return ccpTextDecorator;
 	}
 
 	/**
 	 * Interpreta a string como URL para encode/decode.
 	 */
 	public CcpUrlDecorator url() {
-		return new CcpUrlDecorator(this.content);
+		CcpUrlDecorator ccpUrlDecorator = new CcpUrlDecorator(this.content);
+		return ccpUrlDecorator;
 	}
 
 	/**
 	 * Desserializa a string como JSON.
 	 */
 	public CcpJsonRepresentation json() {
-		return new CcpJsonRepresentation(this.content);
+		CcpJsonRepresentation ccpJsonRepresentation = new CcpJsonRepresentation(this.content);
+		return ccpJsonRepresentation;
 	}
 
 	/**
 	 * Interpreta a string como senha.
 	 */
 	public CcpPasswordDecorator password() {
-		return new CcpPasswordDecorator(this.content);
+		CcpPasswordDecorator ccpPasswordDecorator = new CcpPasswordDecorator(this.content);
+		return ccpPasswordDecorator;
 	}
 
 	/**
 	 * Prepara a string para abertura de stream.
 	 */
 	public CcpInputStreamDecorator inputStreamFrom() {
-		return new CcpInputStreamDecorator(this.content);
+		CcpInputStreamDecorator ccpInputStreamDecorator = new CcpInputStreamDecorator(this.content);
+		return ccpInputStreamDecorator;
 	}
 
 	/**
@@ -186,7 +196,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	@SuppressWarnings("unused")
 	public boolean isLongNumber() {
 		boolean valid = this.isValid(x -> {
-			Object obj = x.endsWith(".0") ? Double.valueOf(x) : Long.valueOf(x);
+			boolean endsWith = x.endsWith(".0");
+			Object obj = endsWith ? Double.valueOf(x) : Long.valueOf(x);
 		});
 		return valid;
 	}
@@ -204,13 +215,16 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 */
 	public boolean isBoolean() {
 		boolean valid = this.isValid(x -> {
-			if ("true".equalsIgnoreCase(x)) {
+			boolean equalsIgnoreCase = "true".equalsIgnoreCase(x);
+			if (equalsIgnoreCase) {
 				return;
 			}
-			if ("false".equalsIgnoreCase(x)) {
+			boolean equalsIgnoreCase2 = "false".equalsIgnoreCase(x);
+			if (equalsIgnoreCase2) {
 				return;
 			}
-			throw new CcpErrorStringIsNotBoolean();
+			CcpErrorStringIsNotBoolean ccpErrorStringIsNotBoolean = new CcpErrorStringIsNotBoolean();
+			throw ccpErrorStringIsNotBoolean;
 		});
 		return valid;
 	}

@@ -33,15 +33,7 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return result;
 	}
 	
-	private static class AlreadyTransformedJson extends CcpJsonRepresentation{
-		private AlreadyTransformedJson(CcpJsonRepresentation json) {
-			super(json.content);
-		}
-		
-		public CcpJsonRepresentation redoJson(CcpJsonRepresentation json) {
-			return new AlreadyTransformedJson(json);
-		}
-	}
+
 	
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
 		
@@ -67,7 +59,8 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 			
 			}
 		}
-		return new AlreadyTransformedJson(result);
+		AlreadyTransformedJson alreadyTransformedJson2 = new AlreadyTransformedJson(result);
+		return alreadyTransformedJson2;
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {

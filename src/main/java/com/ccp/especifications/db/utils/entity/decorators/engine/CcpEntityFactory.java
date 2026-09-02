@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -22,6 +22,8 @@ import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefault
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldNotUpdatable;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldTransformer;
+import com.ccp.decorators.CcpTextDecorator;
+import java.util.stream.Stream;
 
 /**
  * Fábrica responsável por construir a instância final de uma entidade encadeando os decorators
@@ -33,9 +35,13 @@ public class CcpEntityFactory {
 
 	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
 		String simpleName = clazz.getSimpleName();
-		String snackCase = new CcpStringDecorator(simpleName).text().toSnakeCase().content;
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(simpleName);
+		CcpTextDecorator ccpStringDecoratorText = ccpStringDecorator.text();
+		var toSnakeCase = ccpStringDecoratorText.toSnakeCase();
+		String snackCase = toSnakeCase.content;
 		int indexOf = snackCase.indexOf("entity");
-		String substring = snackCase.substring(indexOf + 7);
+		int indexOfMais = indexOf + 7;
+		String substring = snackCase.substring(indexOfMais);
 		return substring;
 	};
 
@@ -88,10 +94,14 @@ public class CcpEntityFactory {
 		CcpEntityMetaData entityDetails = new CcpEntityMetaData(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
-		
-		List<CcpEntityDecoratorTypes> collect = Arrays.asList(CcpEntityDecoratorTypes.values()).stream()
-				.filter(x -> x.isDecorated(configurationClass))
-				.filter(x -> false == avoidedDecorators.contains(x))
+		CcpEntityDecoratorTypes[] ccpEntityDecoratorTypesValues = CcpEntityDecoratorTypes.values();
+		Stream<CcpEntityDecoratorTypes> stream = Arrays.asList(ccpEntityDecoratorTypesValues).stream();
+		var filter = stream
+				.filter(x -> x.isDecorated(configurationClass));
+				var filter2 = filter
+				.filter(x -> false == avoidedDecorators.contains(x));
+
+				List<CcpEntityDecoratorTypes> collect = filter2
 				
 				.collect(Collectors.toList());
 		collect.sort((a,b) -> a.priority - b.priority);
@@ -113,7 +123,8 @@ public class CcpEntityFactory {
 		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);
 		
 		if(didNotDeclareFieldsEnum) {
-			throw new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
+			CcpErrorEntityConfigurationFieldsIsMissing ccpErrorEntityConfigurationFieldsIsMissing = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
+			throw ccpErrorEntityConfigurationFieldsIsMissing;
 		}
 		
 		CcpEntityFieldsValidator annotation = configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
@@ -128,23 +139,27 @@ public class CcpEntityFactory {
 			} catch (Exception e) {
 				continue;
 			}
-			boolean skipThisField = false == object instanceof CcpJsonFieldName;
+			boolean isCcpJsonFieldName = object instanceof CcpJsonFieldName;
+			boolean skipThisField = false == isCcpJsonFieldName;
 			
 			if(skipThisField) {
 				continue;
 			}
-			
-			String name = ((CcpJsonFieldName)object).name();
-			
-			boolean updatable = false == field.isAnnotationPresent(CcpEntityFieldNotUpdatable.class);
+			CcpJsonFieldName ccpJsonFieldName = (CcpJsonFieldName)object;
+
+			String name = (ccpJsonFieldName).name();
+			boolean annotationPresent = field.isAnnotationPresent(CcpEntityFieldNotUpdatable.class);
+
+			boolean updatable = false == annotationPresent;
 			CcpBusiness transformer = getEntityFieldTransformer(name, field, configurationClass);
 			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
 			CcpEntityField entityField = new CcpEntityField(name, primaryKey, updatable, transformer);
 			list.add(entityField);
 		}
-		
-		CcpEntityField[] fields = list.toArray(new CcpEntityField[list.size()]);
+		int listSize = list.size();
+
+		CcpEntityField[] fields = list.toArray(new CcpEntityField[listSize]);
 		
 		return fields;
 	}
@@ -160,22 +175,25 @@ public class CcpEntityFactory {
 		}
 		
 		Class<?> firstClass = declaredClasses[0];
-		
-		boolean isNotAnEnum = false == firstClass.isEnum();
+		boolean valor = firstClass.isEnum();
+
+		boolean isNotAnEnum = false == valor;
 		
 		if(isNotAnEnum) {
 			return true;
 		}
 		
 		String simpleName = firstClass.getSimpleName();
-		boolean incorrectName = false == "Fields".equals(simpleName);
+		boolean equals = "Fields".equals(simpleName);
+		boolean incorrectName = false == equals;
 		
 		if(incorrectName) {
 			return true;
 			
 		}
-		
-		boolean incorrectType = false == CcpJsonFieldName.class.isAssignableFrom(firstClass);
+		boolean assignableFrom = CcpJsonFieldName.class.isAssignableFrom(firstClass);
+
+		boolean incorrectType = false == assignableFrom;
 		if(incorrectType) {
 			return true;
 		}
@@ -184,8 +202,9 @@ public class CcpEntityFactory {
 	}
 
 	private static CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
-		
-		boolean isNotDecorated = false == configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
+		boolean annotationPresent2 = configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
+	
+		boolean isNotDecorated = false == annotationPresent2;
 		
 		if(isNotDecorated) {
 			return CcpOtherConstants.DO_NOTHING;
@@ -206,12 +225,14 @@ public class CcpEntityFactory {
 		CcpJsonTransformersDefaultEntityField defaultEntityField;
 		try {
 			declaredField = classReferenceWithTheFields.getDeclaredField(name);
-			defaultEntityField = (CcpJsonTransformersDefaultEntityField)declaredField.get(null);
+			var get = declaredField.get(null);
+			defaultEntityField = (CcpJsonTransformersDefaultEntityField)get;
 		} catch (Exception e) {
 			return CcpOtherConstants.DO_NOTHING;
 		}
+		boolean annotationPresent3 = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
-		boolean isNotPrimaryKeyField = false == field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+		boolean isNotPrimaryKeyField = false == annotationPresent3;
 
 		 if(isNotPrimaryKeyField) {
 			 return defaultEntityField;
@@ -222,8 +243,9 @@ public class CcpEntityFactory {
 		 if(canBePrimaryKey) {
 			 return defaultEntityField;
 		 }
+		 CcpEntityFieldCanNotBePrimaryKey ccpEntityFieldCanNotBePrimaryKey = new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
 
-		 throw new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
+		 throw ccpEntityFieldCanNotBePrimaryKey;
 	}
 
 	@SuppressWarnings("serial")

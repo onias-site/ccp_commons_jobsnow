@@ -60,19 +60,22 @@ public enum CcpEntityExpurgableOptions{
 	public String getFormattedDate(Long date) {
 		Date d = new Date();
 		d.setTime(date);
-		String format = new SimpleDateFormat(this.format).format(d);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(this.format);
+		String format = simpleDateFormat.format(d);
 		return format;
 	}
 	
 	/** Formata o instante atual usando o padrão desta granularidade. */
 	public String getFormattedDate() {
-		String formattedDate = getFormattedDate(System.currentTimeMillis());
+		long currentTimeMillis = System.currentTimeMillis();
+		String formattedDate = getFormattedDate(currentTimeMillis);
 		return formattedDate;
 	}
 
 	/** Retorna o timestamp do próximo período nesta granularidade a partir do instante atual. */
 	public Long getNextTimeStamp() {
-		Calendar cal = new CcpTimeDecorator().getBrazilianCalendar();
+		CcpTimeDecorator ccpTimeDecorator = new CcpTimeDecorator();
+		Calendar cal = ccpTimeDecorator.getBrazilianCalendar();
 		cal.add(this.calendarField, 1);
 		long timeInMillis = cal.getTimeInMillis();
 		return timeInMillis;
@@ -83,7 +86,8 @@ public enum CcpEntityExpurgableOptions{
 	 * @param timestamp timestamp de referência em milissegundos
 	 */
 	public Long getNextTimeStamp(Long timestamp) {
-		Calendar cal = new CcpTimeDecorator(timestamp).getBrazilianCalendar();
+		CcpTimeDecorator ccpTimeDecorator2 = new CcpTimeDecorator(timestamp);
+		Calendar cal = ccpTimeDecorator2.getBrazilianCalendar();
 		cal.add(this.calendarField, 1);
 		long timeInMillis = cal.getTimeInMillis();
 		return timeInMillis;

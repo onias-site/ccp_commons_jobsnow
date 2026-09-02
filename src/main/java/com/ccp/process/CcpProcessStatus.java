@@ -1,7 +1,7 @@
 package com.ccp.process;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.flow.CcpErrorFlowDisturb;
 
 /**
@@ -29,7 +29,8 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 		if(correctStatus) {
 			return testName;
 		}
-		throw new UnexpectedProcessStatus(message, testName, expectedStatus, actualStatus);
+		UnexpectedProcessStatus unexpectedProcessStatus = new UnexpectedProcessStatus(message, testName, expectedStatus, actualStatus);
+		throw unexpectedProcessStatus;
 	}
 	
 	/**
@@ -40,8 +41,9 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	 */
 	default CcpProcessStatus verifyStatusNames(int actualStatus, String actualStatusName) {
 		String expectedStatusName = this.verifyStatus(actualStatus, "");
-		
-		boolean empty = actualStatusName.trim().isEmpty();
+		String actualStatusNameTrim = actualStatusName.trim();
+
+		boolean empty = actualStatusNameTrim.isEmpty();
 		if(empty) {
 			return this;
 		}
@@ -51,7 +53,8 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 		if(correctStatusNumberAndCorrectStatusName) {
 			return this;
 		}
-		throw new UnexpectedProcessStatus(expectedStatusName, actualStatusName);
+		UnexpectedProcessStatus unexpectedProcessStatus2 = new UnexpectedProcessStatus(expectedStatusName, actualStatusName);
+		throw unexpectedProcessStatus2;
 	}
 	
 	
@@ -61,7 +64,8 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	 * @param json o JSON de contexto da exceção
 	 */
 	default CcpJsonRepresentation throwException(CcpJsonRepresentation json) {
-		throw new CcpErrorFlowDisturb(json, this);
+		CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(json, this);
+		throw ccpErrorFlowDisturb;
 	}
 
 	@SuppressWarnings("serial")

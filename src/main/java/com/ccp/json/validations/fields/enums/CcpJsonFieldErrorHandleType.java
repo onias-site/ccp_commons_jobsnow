@@ -10,7 +10,8 @@ public enum CcpJsonFieldErrorHandleType {
 
 	breakFieldValidation {
 		public void maybeBreakValidation(CcpJsonRepresentation error) {
-			throw new CcpJsonFieldErrorSkipOthersValidationsToTheField(error);
+			CcpJsonFieldErrorSkipOthersValidationsToTheField ccpJsonFieldErrorSkipOthersValidationsToTheField = new CcpJsonFieldErrorSkipOthersValidationsToTheField(error);
+			throw ccpJsonFieldErrorSkipOthersValidationsToTheField;
 		}
 	},
 	continueFieldValidation {
@@ -25,21 +26,4 @@ public enum CcpJsonFieldErrorHandleType {
 	 */
 	public abstract void maybeBreakValidation(CcpJsonRepresentation error);
 
-	/**
-	 * Exceção de controle de fluxo que interrompe as demais validações do campo atual ao ser lançada
-	 * por um validador do tipo {@code breakFieldValidation}.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpJsonFieldErrorSkipOthersValidationsToTheField extends RuntimeException {
-
-		public final CcpJsonRepresentation validationResultFromField;
-
-		/**
-		 * Armazena o JSON de erros acumulado em {@code validationResultFromField}.
-		 * @param error JSON com os erros acumulados até o momento
-		 */
-		private CcpJsonFieldErrorSkipOthersValidationsToTheField(CcpJsonRepresentation error) {
-			this.validationResultFromField = error;
-		}
-	}
 }

@@ -61,8 +61,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		}
 		
 		boolean exists = this.entity.exists(json);
+		boolean valorIgual = false == exists;
 
-		if(false == exists) {
+		if(valorIgual) {
 			cache.delete();
 			return false;
 		}
@@ -95,8 +96,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		
 		String calculateId = this.calculateId(json);		
 		CcpCacheDecorator cache = this.getCache(calculateId);
-		
-		boolean notPresentInThisUnionAll = false == this.entity.isPresentInThisUnionAll(unionAll, json);
+		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
+
+		boolean notPresentInThisUnionAll = false == presentInThisUnionAll;
 		
 		if(notPresentInThisUnionAll) {
 			cache.delete();

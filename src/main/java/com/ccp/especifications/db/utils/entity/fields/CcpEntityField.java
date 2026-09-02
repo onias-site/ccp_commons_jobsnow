@@ -2,7 +2,7 @@ package com.ccp.especifications.db.utils.entity.fields;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 
 /**
  * Representa os metadados de um campo de entidade: nome, se é chave primária, se é atualizável e

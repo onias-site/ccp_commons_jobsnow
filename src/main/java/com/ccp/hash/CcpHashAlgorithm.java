@@ -52,16 +52,11 @@ public enum CcpHashAlgorithm {
 		try {
 			instance = MessageDigest.getInstance(algorithm);
 		} catch (NoSuchAlgorithmException e) {
-			throw new CcpErrorHashAlgorithmNotFound(algorithm);
+			CcpErrorHashAlgorithmNotFound ccpErrorHashAlgorithmNotFound = new CcpErrorHashAlgorithmNotFound(algorithm);
+			throw ccpErrorHashAlgorithmNotFound;
 		}
 		return instance;
 	}
 
-	@SuppressWarnings("serial")
-	public static class CcpErrorHashAlgorithmNotFound extends RuntimeException {
-		private CcpErrorHashAlgorithmNotFound(String algorithm) {
-			super("Algorithm '" + algorithm + "' not found");
-		}
-	}
 
 }

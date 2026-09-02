@@ -27,8 +27,9 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] oneOfThem = validation.value();
-				
-				boolean hasError = false == json.containsAnyFields(Arrays.asList(oneOfThem));
+				boolean containsAnyFields = json.containsAnyFields(Arrays.asList(oneOfThem));
+
+				boolean hasError = false == containsAnyFields;
 				
 				if(hasError) {
 					return true;
@@ -50,7 +51,8 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 				if(hasNoError) {
 					continue;
 				}
-				String error = "It is missing one of them fields in the current json: " + Arrays.asList(oneOfThem).toString();
+				String toString = Arrays.asList(oneOfThem).toString();
+				String error = "It is missing one of them fields in the current json: " + toString;
 				errors.add(error);
 			}
 			return errors;
@@ -63,7 +65,8 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			for (CcpJsonValidationFieldList validation : requiredAtLeastOne) {
 				
 				String[] oneOfThem = validation.value();
-				String rule = "The provided json must has one of this following fields: " + Arrays.asList(oneOfThem).toString();
+				String toString2 = Arrays.asList(oneOfThem).toString();
+				String rule = "The provided json must has one of this following fields: " + toString2;
 				rules.add(rule);
 			}
 			return rules;
@@ -84,14 +87,16 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] array = validation.value();
+				boolean containsAnyFields2 = json.containsAnyFields(Arrays.asList(array));
 
-				boolean containsNeitherOfThisFields = false == json.containsAnyFields(Arrays.asList(array));
+				boolean containsNeitherOfThisFields = false == containsAnyFields2;
 				
 				if(containsNeitherOfThisFields) {
 					continue;
 				}
-				
-				boolean isMissingAnyField = false == json.containsAllFields(Arrays.asList(array));
+				boolean containsAllFields = json.containsAllFields(Arrays.asList(array));
+
+				boolean isMissingAnyField = false == containsAllFields;
 				
 				if(isMissingAnyField) {
 					return true;
@@ -110,21 +115,27 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			for (CcpJsonValidationFieldList validation : validations) {
 				
 				String[] array = validation.value();
+				boolean containsAnyFields3 = json.containsAnyFields(Arrays.asList(array));
 
-				boolean containsNeitherOfThisFields = false == json.containsAnyFields(Arrays.asList(array));
+				boolean containsNeitherOfThisFields = false == containsAnyFields3;
 				
 				if(containsNeitherOfThisFields) {
 					continue;
 				}
-				
-				boolean isMissingAnyField = false == json.containsAllFields(Arrays.asList(array));
+				boolean containsAllFields2 = json.containsAllFields(Arrays.asList(array));
+
+				boolean isMissingAnyField = false == containsAllFields2;
 				
 				if(isMissingAnyField) {
-					Set<String> presentFields = json.getJsonPiece(Arrays.asList(array)).fieldSet();
+					CcpJsonRepresentation jsonPiece = json.getJsonPiece(Arrays.asList(array));
+					Set<String> presentFields = jsonPiece.fieldSet();
 					List<String> asList = Arrays.asList(array);
 					List<String> missingFields = new ArrayList<String>(asList);
 					missingFields.removeAll(presentFields);
-					errors.add("This provided json contains the following fields: " + presentFields + ", but not contains the following fields: " + missingFields);
+					String valorMais = "This provided json contains the following fields: " + presentFields;
+					String valorMaisMais = valorMais + ", but not contains the following fields: ";
+					String valorMaisMaisMais = valorMaisMais + missingFields;
+					errors.add(valorMaisMaisMais);
 				}
 			}
 			return errors;
@@ -141,7 +152,9 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			for (CcpJsonValidationFieldList validation : list) {
 				
 				String[] oneOfThem = validation.value();
-				String rule = "The provided json must has all (or none) of this following fields: " + Arrays.asList(oneOfThem).toString() + ". If provide one of them, so must provide all of them";
+				String toString3 = Arrays.asList(oneOfThem).toString();
+				String valorMais2 = "The provided json must has all (or none) of this following fields: " + toString3;
+				String rule = valorMais2 + ". If provide one of them, so must provide all of them";
 				rules.add(rule);
 			}
 			return rules;

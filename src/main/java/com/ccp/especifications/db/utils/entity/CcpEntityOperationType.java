@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
@@ -68,7 +68,9 @@ public enum CcpEntityOperationType {
 
 	CcpEntity getEntities(CcpJsonRepresentation json) {
 		String entityToTransfer = json.getAsString(CcpEntityOperationType.Fields.entityToTransfer);
-		CcpEntity entity = new CcpStringDecorator(entityToTransfer).reflection().newInstance();
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(entityToTransfer);
+		CcpReflectionConstructorDecorator reflection2 = ccpStringDecorator.reflection();
+		CcpEntity entity = reflection2.newInstance();
 		return entity;
 	}
 

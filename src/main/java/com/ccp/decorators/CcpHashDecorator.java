@@ -32,8 +32,9 @@ public class CcpHashDecorator implements CcpDecorator<String> {
 	 */
 	public String asString(CcpHashAlgorithm algorithm) {
 		BigInteger bi = this.asBigInteger(algorithm);
+		String toString = bi.toString(16);
 
-		String strHash = bi.toString(16).toLowerCase();
+		String strHash = toString.toLowerCase();
 
 		return strHash;
 	}

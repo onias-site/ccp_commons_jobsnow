@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
@@ -98,9 +98,12 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		boolean foundInTwinEntity = oneByIdAnyWhere.containsAllFields(this);
 		
 		if(foundInTwinEntity) {
-			String id = this.getTwinEntity().calculateId(json);
-			String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this,  this.getTwinEntity());
-			throw new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new CcpJsonFieldName[0]);
+			CcpEntity twinEntity2 = this.getTwinEntity();
+			String id = twinEntity2.calculateId(json);
+			CcpEntity twinEntity3 = this.getTwinEntity();
+			String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this,  twinEntity3);
+			CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(json, CcpProcessStatusDefault.REDIRECT, errorMessage, new CcpJsonFieldName[0]);
+			throw ccpErrorFlowDisturb;
 		} 
 
 		CcpJsonRepresentation oneById =  this.entity.getOneById(json);
@@ -108,24 +111,27 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	}
 	
 	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
-		
-		if(this.twin != null) {
+		boolean twinDiferente = this.twin != null;
+	
+		if(twinDiferente) {
 			return this.twin;
 		}
 		
 		String twinEntityName = this.clazz.getAnnotation(CcpEntityTwin.class).twinEntityName();
 		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
+		boolean entityNameEquals = entityDetails.entityName.equals(twinEntityName);
 
-		boolean isNotTwin = false == entityDetails.entityName.equals(twinEntityName);
+		boolean isNotTwin = false == entityNameEquals;
 		
 		if(isNotTwin) {
 			this.twin = CcpEntityFactory.getEntity(this.clazz, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName(), decoratorsToAvoid);
 			return this.twin;
 		}
-		
-		CcpEntityConfigurator cfg = new CcpReflectionConstructorDecorator(this.clazz).newInstance();
+		CcpReflectionConstructorDecorator ccpReflectionConstructorDecorator2 = new CcpReflectionConstructorDecorator(this.clazz);
+
+		CcpEntityConfigurator cfg = ccpReflectionConstructorDecorator2.newInstance();
 		this.twin = cfg.getEntity();
-		return this.twin;
+		return this.twin;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -138,7 +144,8 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	}
 	
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
-		List<CcpJsonRepresentation> parametersToSearch =  new ArrayList<CcpJsonRepresentation>(this.entity.getParametersToSearch(json));
+		List<CcpJsonRepresentation> parametersToSearch2 = this.entity.getParametersToSearch(json);
+		List<CcpJsonRepresentation> parametersToSearch =  new ArrayList<CcpJsonRepresentation>(parametersToSearch2);
 		CcpEntity wrapedEntity = this.getWrapedTwinEntity();
 		List<CcpJsonRepresentation> parametersToSearchTwin = wrapedEntity.getParametersToSearch(json);
 		parametersToSearch.addAll(parametersToSearchTwin);
@@ -151,14 +158,33 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		CcpEntity wrapedEntity = twinEntity.getWrapedEntity();
 		while(false == wrapedEntity instanceof DecoratorTwinEntity) {
 			wrapedEntity = wrapedEntity.getWrapedEntity();
-			boolean twinIsMissing = wrapedEntity.getClass().equals(wrapedEntity.getWrapedEntity().getClass());
+			var wrapedEntityClass = wrapedEntity.getClass();
+			CcpEntity wrapedEntity2 = wrapedEntity.getWrapedEntity();
+			var wrapedEntity2Class = wrapedEntity2.getClass();
+			boolean twinIsMissing = wrapedEntityClass.equals(wrapedEntity2Class);
 			if(twinIsMissing) {
-				throw new RuntimeException(this.entity + " is not a twin entity");
+				CcpErrorEntityIsNotTwin ccpErrorEntityIsNotTwin = new CcpErrorEntityIsNotTwin(this.entity);
+				throw ccpErrorEntityIsNotTwin;
 			}
 		}
-		
-		return wrapedEntity.getWrapedEntity();
+		CcpEntity wrapedEntity3 = wrapedEntity.getWrapedEntity();
+
+		return wrapedEntity3;
 	}
-	
-	
+
+	/**
+	 * Exceção lançada quando se procura a entidade gêmea de uma entidade que não foi decorada como gêmea,
+	 * ou seja, a cadeia de decoradores foi percorrida até o fim sem encontrar um {@code DecoratorTwinEntity}.
+	 */
+	@SuppressWarnings("serial")
+	public static class CcpErrorEntityIsNotTwin extends RuntimeException {
+		/**
+		 * Monta a mensagem informando qual entidade não possui gêmea.
+		 * @param entity a entidade que não é gêmea
+		 */
+		private CcpErrorEntityIsNotTwin(CcpEntity entity) {
+			super(entity + " is not a twin entity");
+		}
+	}
+
 }

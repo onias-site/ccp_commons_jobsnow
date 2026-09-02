@@ -47,7 +47,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		String replace = ap.replace('\\', File.separatorChar);
 		File file2 = new File(replace);
 		File parentFile = file2.getParentFile();
-		if(parentFile == null) {
+		boolean parentFileIgual = parentFile == null;
+		if(parentFileIgual) {
 			return null;
 		}
 		String absolutePath = parentFile.getAbsolutePath();
@@ -90,20 +91,28 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	private CcpFileDecorator zip(File fileToZip, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
+		boolean hidden = fileToZip.isHidden();
+       if (hidden) {
             return this;
         }
-        if (fileToZip.isDirectory()) {
+        boolean directory2 = fileToZip.isDirectory();
+        if (directory2) {
             String terminacao = "/";
-        	if (this.content.endsWith("/")) {
+        	   boolean endsWith = this.content.endsWith("/");
+        	   if (endsWith) {
         		terminacao = ""; 
             } 
-            ZipEntry e = new ZipEntry(this.content + terminacao);
+            String contentMais = this.content + terminacao;
+            ZipEntry e = new ZipEntry(contentMais);
 			zipOut.putNextEntry(e);
             zipOut.closeEntry();
             File[] children = fileToZip.listFiles();
             for (File childFile : children) {
-                new CcpFileDecorator(this.content + "/" + childFile.getName()).zip(childFile, zipOut);
+                String contentMais2 = this.content + "/";
+                String childFileName = childFile.getName();
+                String contentMais2Mais = contentMais2 + childFileName;
+                CcpFileDecorator ccpFileDecorator2 = new CcpFileDecorator(contentMais2Mais);
+                ccpFileDecorator2.zip(childFile, zipOut);
             }
             return this;
         }
@@ -123,9 +132,11 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public  String getStringContent() {
 		File file = tryToCreateParentFolder();
-		boolean fileIsMissing = false == file.exists();
+		boolean exists = file.exists();
+		boolean fileIsMissing = false == exists;
 		if(fileIsMissing) {
-			throw new CcpErrorFolderParentIsMissing(this);
+			CcpErrorFolderParentIsMissing ccpErrorFolderParentIsMissing = new CcpErrorFolderParentIsMissing(this);
+			throw ccpErrorFolderParentIsMissing;
 		}
 		Path path = file.toPath();
 		byte[] fileContent = Files.readAllBytes(path);
@@ -149,11 +160,15 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public CcpFileDecorator append(String content) {
 		File file = new File(this.content);
-		if (false == file.exists()) {
+		boolean exists2 = file.exists();
+		boolean valorIgual = false == exists2;
+		if (valorIgual) {
 			file.createNewFile();
 		}
-		byte[] bytes = (content + "\n").getBytes();
-		Files.write(Paths.get(this.content), bytes, StandardOpenOption.APPEND);
+		String contentMais3 = content + "\n";
+		byte[] bytes = (contentMais3).getBytes();
+		Path get = Paths.get(this.content);
+		Files.write(get, bytes, StandardOpenOption.APPEND);
 		return this;
 	}
 	/**
@@ -189,9 +204,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		}
 		return linesFromFile;
 	}
-	public static interface FileLineReader {
-		void onRead(String fileLine, int lineNumber);
-	}
+
 
 	/**
 	 * Lê o arquivo linha a linha, chamando o callback {@code reader.onRead(linha, índice)} para cada linha.
@@ -210,7 +223,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	
 	
 	public String toString() {
-		return new File(this.content).getName();
+		File file3 = new File(this.content);
+		String file3Name = file3.getName();
+		return file3Name;
 	}
 
 	/**
@@ -218,13 +233,16 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public boolean exists() {
 		File file = tryToCreateParentFolder();
-		return file.exists();
+		boolean exists3 = file.exists();
+		return exists3;
 	}
 	/**
 	 * Retorna {@code true} se o caminho existe e aponta para um arquivo (não um diretório).
 	 */
 	public boolean isFile() {
-		if(false == this.exists()) {
+		boolean exists4 = this.exists();
+		boolean valorIgual2 = false == exists4;
+		if(valorIgual2) {
 			return false;
 		}
 		File file = new File(this.content);
@@ -238,7 +256,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * Reinterpreta o caminho como um diretório.
 	 */
 	public CcpFolderDecorator asFolder() {
-		return new CcpFolderDecorator(this.content);
+		CcpFolderDecorator ccpFolderDecorator = new CcpFolderDecorator(this.content);
+		return ccpFolderDecorator;
 	}
 	
 	/**
@@ -257,7 +276,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		CcpJsonHandler dependency = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		String string = this.getStringContent();
 		List<Map<String, Object>> list = dependency.fromJson(string);
-		List<CcpJsonRepresentation> collect = list.stream().map(x -> new CcpJsonRepresentation(x)).collect(Collectors.toList());
+		var stream = list.stream();
+		var streamMap = stream.map(x -> new CcpJsonRepresentation(x));
+		List<CcpJsonRepresentation> collect = streamMap.collect(Collectors.toList());
 		return collect;
 	}
 	
@@ -278,8 +299,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	public CcpFileDecorator rename(String newFileName) {
 		
 		File file = new File(this.content);
-		
-		file.renameTo(new File(newFileName));
+		File file4 = new File(newFileName);
+
+		file.renameTo(file4);
 		
 		CcpFileDecorator newFile = new CcpFileDecorator(newFileName);
 		
@@ -293,10 +315,4 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return this.content;
 	}
 
-	@SuppressWarnings("serial")
-	public static class CcpErrorFolderParentIsMissing extends RuntimeException {
-		private CcpErrorFolderParentIsMissing(CcpFileDecorator decorator) {
-			super("in the file " + new File(decorator.content).getParentFile().getAbsolutePath() + " is missing the file: " + decorator.content);
-		}
-	}
 }

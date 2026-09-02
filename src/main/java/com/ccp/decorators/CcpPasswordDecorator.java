@@ -27,7 +27,8 @@ public class CcpPasswordDecorator implements CcpDecorator<String> {
 	 * Verifica se a senha atende à regex de complexidade do sistema.
 	 */
 	public boolean isStrong() {
-		if (this.content.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$")){
+		boolean matches = this.content.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$");
+		if (matches){
 		   return true;
 		} 
 		return false;

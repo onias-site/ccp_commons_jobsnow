@@ -36,9 +36,11 @@ public interface CcpCache {
 		default <V> V get(String key, CcpJsonRepresentation json, Function<CcpJsonRepresentation, V> taskToGetValue, int cacheSeconds) {
 
 			Object object = this.get(key);
+			boolean objectDiferente = object != null;
 
-			if (object != null) {
-				return (V) object;
+			if (objectDiferente) {
+				V v = (V) object;
+				return v;
 			}
 			V value = taskToGetValue.apply(json);
 			this.put(key, value, cacheSeconds);
@@ -50,8 +52,9 @@ public interface CcpCache {
 		default CcpJsonRepresentation get(String key, CcpJsonRepresentation json, CcpBusiness taskToGetValue, int cacheSeconds) {
 
 			Object object = this.get(key);
+			boolean objectIgual = object == null;
 
-			if (object == null) {
+			if (objectIgual) {
 				CcpJsonRepresentation value = taskToGetValue.execute(json);
 				this.put(key, value.content, cacheSeconds);
 				return value;
@@ -61,8 +64,9 @@ public interface CcpCache {
 				CcpJsonRepresentation value = new CcpJsonRepresentation(map);
 				return value;
 			}
-			
-			CcpJsonRepresentation value = new CcpJsonRepresentation(object.toString());
+			String toString = object.toString();
+
+			CcpJsonRepresentation value = new CcpJsonRepresentation(toString);
 			return value;
 			
 		}
@@ -78,11 +82,13 @@ public interface CcpCache {
 	@SuppressWarnings("unchecked")
 	default <V> V getOrDefault(String key, V defaultValue) {
 		Object object = this.get(key);
-		
-		if(object == null) {
+		boolean objectIgual2 = object == null;
+
+		if(objectIgual2) {
 			return defaultValue;
 		}
-		return (V) object;
+		V v2 = (V) object;
+		return v2;
 	}
 	
 	/**
@@ -96,12 +102,14 @@ public interface CcpCache {
 	@SuppressWarnings("unchecked")
 	default <V> V getOrThrowException(String key, RuntimeException e) {
 		Object object = this.get(key);
-		
-		if(object == null) {
+		boolean objectIgual3 = object == null;
+
+		if(objectIgual3) {
 			throw e;
 		}
-		
-		return (V) object;
+		V v3 = (V) object;
+
+		return v3;
 	}
 	
 	/**
@@ -111,7 +119,8 @@ public interface CcpCache {
 	 * @return {@code true} se o valor estiver presente
 	 */
 	default boolean isPresent(String key) {
-		boolean isPresent = this.get(key) != null;
+		var get = this.get(key);
+		boolean isPresent = get != null;
 		return isPresent;
 	}
 

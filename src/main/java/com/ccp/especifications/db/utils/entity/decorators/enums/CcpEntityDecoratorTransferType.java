@@ -56,14 +56,17 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 		for (CcpEntityDataTransfer transfer : transfers) {
 
 			CcpEntityDecoratorTransferType operationType = transfer.transferType();
-			
-			if(false == operationType.equals(this)) {
+			boolean operationTypeEquals = operationType.equals(this);
+			boolean valorIgual = false == operationTypeEquals;
+
+			if(valorIgual) {
 				continue;
 			}
 
 			CcpEntityMetaData entityToTransferEntityDetails = entityToTransfer.getEntityMetaData();
 			Class<?> obj = transfer.to();
-			boolean wrongEntity = false == entityToTransferEntityDetails.configurationClass.equals(obj);
+			boolean configurationClassEquals = entityToTransferEntityDetails.configurationClass.equals(obj);
+			boolean wrongEntity = false == configurationClassEquals;
 			
 			if(wrongEntity) {
 				continue;
@@ -72,14 +75,17 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 			CcpEntityType entityType = transfer.from();
 			String extractEntityName = entityType.extractEntityName(clazz);
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			
-			boolean isNotTheEntity = false == extractEntityName.equals(entityDetails.entityName);
+			boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
+
+			boolean isNotTheEntity = false == extractEntityNameEquals;
 			
 			if(isNotTheEntity) {
 				continue;
 			}
+			var when2 = transfer.when();
+			var when2Equals = when2.equals(when);
 
-			boolean whenNotFound = false == transfer.when().equals(when);
+			boolean whenNotFound = false == when2Equals;
 			
 			if(whenNotFound) {
 				continue;

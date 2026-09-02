@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
+import java.util.stream.Stream;
 
 /**
  * Contrato para publicação de mensagens em tópicos GCP PubSub. Valida as mensagens antes de publicar
@@ -36,8 +37,11 @@ public interface CcpMensageriaSender {
 	 * @return this para encadeamento
 	 */
 	default CcpMensageriaSender sendToMensageria(String topic, Class<?> jsonValidationClass, CcpJsonRepresentation... msgs) {
-		
-		String[] array = Arrays.asList(msgs).stream().map(x -> CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, x, topic).asUgglyJson()).collect(Collectors.toList())
+		Stream<CcpJsonRepresentation> stream = Arrays.asList(msgs).stream();
+		var streamMap = stream.map(x -> CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, x, topic).asUgglyJson());
+		var collect = streamMap.collect(Collectors.toList());
+
+		String[] array = collect
 		.toArray(new String[msgs.length]);
 		CcpMensageriaSender send = this.sendToMensageria(topic, array);
 		return send;

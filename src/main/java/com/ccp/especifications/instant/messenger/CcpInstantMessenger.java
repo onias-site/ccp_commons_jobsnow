@@ -1,7 +1,7 @@
 package com.ccp.especifications.instant.messenger;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 
 /**
  * Contrato para envio de mensagens via bot (Telegram). Suporta envio de texto e envio de arquivos.

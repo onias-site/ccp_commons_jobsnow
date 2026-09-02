@@ -10,7 +10,6 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine.CcpJsonFieldNotValidated;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
@@ -62,15 +61,22 @@ public class CcpJsonValidationRulesEngine {
 	private CcpJsonRepresentation getRulesExplanationsFromClass(Class<?> clazz) {
 		
 		CcpJsonRepresentation rulesExplanation =  CcpOtherConstants.EMPTY_JSON;
-		
-		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(CcpJsonValidatorDefaults.values());
-		boolean skipThisClass = false == clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
+		CcpJsonValidatorDefaults[] ccpJsonValidatorDefaultsValues = CcpJsonValidatorDefaults.values();
+
+		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(ccpJsonValidatorDefaultsValues);
+		boolean annotationPresent = clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
+		boolean skipThisClass = false == annotationPresent;
 		if(skipThisClass) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
 		CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
-		List<CcpJsonValidator> customGlobalValidations = Arrays.asList(annotation.customJsonValidators())
-				.stream().map(x -> new CcpReflectionConstructorDecorator(x)).map(constructor -> (CcpJsonValidator)constructor.newInstance())
+		var customJsonValidators = annotation.customJsonValidators();
+		var asList = Arrays.asList(customJsonValidators);
+		var stream = asList
+				.stream();
+				var streamMap = stream.map(x -> new CcpReflectionConstructorDecorator(x));
+				var streamMapMap = streamMap.map(constructor -> (CcpJsonValidator)constructor.newInstance());
+				List<CcpJsonValidator> customGlobalValidations = streamMapMap
 				.collect(Collectors.toList())	
 				;
 		List<CcpJsonValidator> allGlobalValidations = new ArrayList<>(defaultGlobalValidations); 
@@ -78,7 +84,9 @@ public class CcpJsonValidationRulesEngine {
 		
 		for (CcpJsonValidator globalValidation : allGlobalValidations) {
 			Object ruleExplanation = globalValidation.getRuleExplanation(clazz);
-			rulesExplanation = rulesExplanation.addToList(new CcpFieldName(clazz.getName()), ruleExplanation);
+			String clazzName = clazz.getName();
+			CcpFieldName ccpFieldName = new CcpFieldName(clazzName);
+			rulesExplanation = rulesExplanation.addToList(ccpFieldName, ruleExplanation);
 		}
 		return rulesExplanation;
 	}

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
-import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
@@ -26,6 +24,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
+import java.util.stream.Stream;
 
 /**
  * Contém todos os metadados de uma entidade: nome do índice, classe configuradora, campos, chave
@@ -49,14 +48,21 @@ public final class CcpEntityMetaData {
 		this.allFields = CcpEntityFactory.getFields(configurationClass);
 		
 		this.entityName = entityNameProducer.apply(configurationClass);
-		
-		this.primaryKeyNames = Arrays.asList(this.allFields).stream().filter(field -> field.primaryKey).map(field -> field.name()).collect(Collectors.toList());
+		Stream<CcpEntityField> stream = Arrays.asList(this.allFields).stream();
+		var filter = stream.filter(field -> field.primaryKey);
+		var filterMap = filter.map(field -> field.name());
 
-		this.onlyUpdatableFields = Arrays.asList(this.allFields).stream()
-				.filter(field -> false == field.primaryKey)
-				.filter(field -> field.updatable)
+		this.primaryKeyNames = filterMap.collect(Collectors.toList());
+		Stream<CcpEntityField> stream2 = Arrays.asList(this.allFields).stream();
+		var filter2 = stream2
+				.filter(field -> false == field.primaryKey);
+				var filter3 = filter2
+				.filter(field -> field.updatable);
+				var filter3Map = filter3
 				
-				.map(field -> field.name())
+				.map(field -> field.name());
+
+				this.onlyUpdatableFields = filter3Map
 				.collect(Collectors.toList());
 		
 		this.entity = null;
@@ -74,8 +80,9 @@ public final class CcpEntityMetaData {
 	boolean isTwinEntity() {
 		
 		CcpEntityTwin annotation = this.configurationClass.getAnnotation(CcpEntityTwin.class);
-		
-		if(annotation == null) {
+		boolean annotationIgual = annotation == null;
+
+		if(annotationIgual) {
 			return false;
 		}
 		
@@ -89,13 +96,15 @@ public final class CcpEntityMetaData {
 		boolean twinEntity = this.isTwinEntity();
 		if(twinEntity) {
 			CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
-			return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
+			CcpEntityMetaData ccpEntityMetaData = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
+			return ccpEntityMetaData;
 		}
 		
 		Field field = this.configurationClass.getDeclaredField("ENTITY");
 		Object object = field.get(null);
 		CcpEntity entity = (CcpEntity) object;
-		return new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
+		CcpEntityMetaData ccpEntityMetaData2 = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
+		return ccpEntityMetaData2;
 		
 	}
 
@@ -111,11 +120,13 @@ public final class CcpEntityMetaData {
 	}
 
 	private CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
-		
-		boolean primaryKeyMissing = false == json.containsAllFields(this.primaryKeyNames);
+		boolean containsAllFields = json.containsAllFields(this.primaryKeyNames);
+	
+		boolean primaryKeyMissing = false == containsAllFields;
 		
 		if(primaryKeyMissing) {
-			throw new CcpErrorEntityPrimaryKeyIsMissing(this.entity, json);
+			CcpErrorEntityPrimaryKeyIsMissing ccpErrorEntityPrimaryKeyIsMissing = new CcpErrorEntityPrimaryKeyIsMissing(this.entity, json);
+			throw ccpErrorEntityPrimaryKeyIsMissing;
 		}
 		
 		CcpJsonRepresentation jsonPiece = json.getJsonPiece(this.primaryKeyNames);
@@ -142,8 +153,11 @@ public final class CcpEntityMetaData {
 	/** Retorna os nomes dos índices de todas as entidades associadas (incluindo twin). */
 	public String[] getEntitiesToSelect() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
-		List<String> collect = associatedEntities.stream().map(x -> x.getEntityMetaData().entityName).collect(Collectors.toList());
-		String[] array = collect.toArray(new String[collect.size()]);
+		Stream<CcpEntity> stream3 = associatedEntities.stream();
+		var stream3Map = stream3.map(x -> x.getEntityMetaData().entityName);
+		List<String> collect = stream3Map.collect(Collectors.toList());
+		int collectSize = collect.size();
+		String[] array = collect.toArray(new String[collectSize]);
 		return array;
 	}
 	
@@ -204,24 +218,6 @@ public final class CcpEntityMetaData {
 		return this.entityName;
 	}
 
-	@SuppressWarnings("serial")
-	public static class CcpErrorEntityPrimaryKeyIsMissing extends RuntimeException {
-		public final CcpEntityMetaData entityMetadata;
-		private CcpErrorEntityPrimaryKeyIsMissing(CcpEntity entity, CcpJsonRepresentation json) {
-			super(getMessage(entity, json));
-			this.entityMetadata = entity.getEntityMetaData();
-		}
-		private static String getMessage(CcpEntity entity, CcpJsonRepresentation json) {
-			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			List<String> onlyPrimaryKey = entityDetails.primaryKeyNames;
-			Set<String> fieldSet = json.fieldSet();
-			CcpCollectionDecorator ccd = new CcpCollectionDecorator(onlyPrimaryKey);
-			List<String> primaryKeyMissing = ccd.getExclusiveList(fieldSet);
-			String entityName = entityDetails.entityName;
-			String message = String.format("The json %s does not provide the required keys '%s' the entity '%s'", json, primaryKeyMissing, entityName);
-			return message;
-		}
-	}
 
 	public CcpBulkItem toCreateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);

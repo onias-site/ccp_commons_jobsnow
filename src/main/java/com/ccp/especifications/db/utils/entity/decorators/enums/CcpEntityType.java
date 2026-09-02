@@ -16,7 +16,8 @@ public enum CcpEntityType {
 	mainEntity {
 		public String extractEntityName(Class<?> clazz) {
 			Field declaredField = clazz.getDeclaredField("ENTITY");
-			CcpEntity entity =  (CcpEntity)declaredField.get(null);
+			var get = declaredField.get(null);
+			CcpEntity entity =  (CcpEntity)get;
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			return entityDetails.entityName;
 			

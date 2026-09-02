@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFrom;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
@@ -25,7 +25,7 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberUn
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfter;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
-import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorHandleType.CcpJsonFieldErrorSkipOthersValidationsToTheField;
+import com.ccp.json.validations.fields.enums.CcpJsonFieldErrorSkipOthersValidationsToTheField;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
@@ -33,7 +33,7 @@ import com.ccp.json.validations.global.annotations.CcpJsonCopyGlobalValidationsF
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
-import com.ccp.json.validations.global.interfaces.CcpJsonValidator.CcpJsonValidatorErrorBreakValidationsToTheClass;
+import com.ccp.json.validations.global.interfaces.CcpJsonValidatorErrorBreakValidationsToTheClass;
 
 /**
  * Engine singleton principal de validação de JSONs. Orquestra as validações globais (anotações de
@@ -68,8 +68,9 @@ public class CcpJsonValidatorEngine {
 		}
 		
 		CcpJsonRepresentation rulesExplanation = CcpJsonValidationRulesEngine.INSTANCE.getRulesExplanation(clazz);
-	
-		throw new CcpJsonValidationError(clazz, json, errors, rulesExplanation, featureName);
+		CcpJsonValidationError ccpJsonValidationError = new CcpJsonValidationError(clazz, json, errors, rulesExplanation, featureName);
+
+		throw ccpJsonValidationError;
 	}
 	
 	private CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
@@ -86,48 +87,58 @@ public class CcpJsonValidatorEngine {
 	 * Lança {@code CcpJsonFieldNotValidated} se nenhuma anotação de tipo for encontrada.
 	 */
 	public CcpJsonFieldType getJsonFieldType(Field field) {
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeBoolean.class)) {
+		boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeBoolean.class);
+	
+		if(annotationPresent) {
 			return CcpJsonFieldDefaultTypes.Boolean;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeNestedJson.class)) {
+		boolean annotationPresent2 = field.isAnnotationPresent(CcpJsonFieldTypeNestedJson.class);
+
+		if(annotationPresent2) {
 			return CcpJsonFieldDefaultTypes.NestedJson;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeNumber.class)) {
+		boolean annotationPresent3 = field.isAnnotationPresent(CcpJsonFieldTypeNumber.class);
+
+		if(annotationPresent3) {
 			return CcpJsonFieldDefaultTypes.Number;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberUnsigned.class)) {
+		boolean annotationPresent4 = field.isAnnotationPresent(CcpJsonFieldTypeNumberUnsigned.class);
+
+		if(annotationPresent4) {
 			return CcpJsonFieldDefaultTypes.NumberUnsigned;
 		}
+		boolean annotationPresent5 = field.isAnnotationPresent(CcpJsonFieldTypeNumberInteger.class);
 
-		if(field.isAnnotationPresent(CcpJsonFieldTypeNumberInteger.class)) {
+		if(annotationPresent5) {
 			return CcpJsonFieldDefaultTypes.NumberInteger;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeString.class)) {
+		boolean annotationPresent6 = field.isAnnotationPresent(CcpJsonFieldTypeString.class);
+
+		if(annotationPresent6) {
 			return CcpJsonFieldDefaultTypes.String;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeTimeAfter.class)) {
+		boolean annotationPresent7 = field.isAnnotationPresent(CcpJsonFieldTypeTimeAfter.class);
+
+		if(annotationPresent7) {
 			return CcpJsonFieldDefaultTypes.TimeAfterCurrentDate;
 		}
-		
-		if(field.isAnnotationPresent(CcpJsonFieldTypeTimeBefore.class)) {
+		boolean annotationPresent8 = field.isAnnotationPresent(CcpJsonFieldTypeTimeBefore.class);
+
+		if(annotationPresent8) {
 			return CcpJsonFieldDefaultTypes.TimeBeforeCurrentDate;
 		}
+		boolean annotationPresent9 = field.isAnnotationPresent(CcpJsonFieldTypeCustom.class);
 
-		if(field.isAnnotationPresent(CcpJsonFieldTypeCustom.class)) {
+		if(annotationPresent9) {
 			CcpJsonFieldTypeCustom annotation = field.getAnnotation(CcpJsonFieldTypeCustom.class);
 			Class<?> value = annotation.value();
 			CcpReflectionConstructorDecorator crcd = new CcpReflectionConstructorDecorator(value);
 			CcpJsonFieldType newInstance = crcd.newInstance();
 			return newInstance;
 		}
-		
-		throw new CcpJsonFieldNotValidated();
+		CcpJsonFieldNotValidated ccpJsonFieldNotValidated = new CcpJsonFieldNotValidated();
+
+		throw ccpJsonFieldNotValidated;
 	}
 	
 	/**
@@ -135,8 +146,9 @@ public class CcpJsonValidatorEngine {
 	 * caso contrário, retorna o próprio campo.
 	 */
 	public Field getReplacedField(Field field) {
-		
-		boolean useTheSameField = false == field.isAnnotationPresent(CcpJsonCopyFieldValidationsFrom.class);
+		boolean annotationPresent10 = field.isAnnotationPresent(CcpJsonCopyFieldValidationsFrom.class);
+	
+		boolean useTheSameField = false == annotationPresent10;
 		if(useTheSameField) {
 			return field;
 		}
@@ -167,9 +179,10 @@ public class CcpJsonValidatorEngine {
 				
 				Field replacedField = this.getReplacedField(field);
 				CcpJsonFieldType jsonFieldType = this.getJsonFieldType(replacedField);
-				
-				CcpJsonRepresentation values = CcpOtherConstants.EMPTY_JSON
-				.put(JsonFields.field, field)
+				CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+				.put(JsonFields.field, field);
+
+				CcpJsonRepresentation values = put2
 				.put(JsonFields.type, jsonFieldType);
 				map.put(replacedField, values);
 			} catch (CcpJsonFieldNotValidated e) {
@@ -184,8 +197,9 @@ public class CcpJsonValidatorEngine {
 			CcpJsonFieldDefaultTypes type = values.getAsObject(JsonFields.type);
 			Field oldField = values.getAsObject(JsonFields.field);
 			try {
+				boolean annotationPresent11 = oldField.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 
-				boolean isNotAnArray = false == oldField.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+				boolean isNotAnArray = false == annotationPresent11;
 				
 				if(isNotAnArray) {
 					errors = type.getErrors(errors, json, field, CcpJsonFieldsValidationContext.single);
@@ -199,12 +213,15 @@ public class CcpJsonValidatorEngine {
 					continue;
 				}
 				String fieldName = field.getName();
-				
-				List<Object> asObjectList = json.getAsObjectList(new CcpFieldName(fieldName));
+				CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+
+				List<Object> asObjectList = json.getAsObjectList(ccpFieldName);
 
 				for (Object obj : asObjectList) {
-					CcpJsonRepresentation put = json.put(new CcpFieldName(fieldName), obj);
-					boolean hasNoErrors = false == type.hasErrors(put, field, CcpJsonFieldsValidationContext.collection);
+					CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
+					CcpJsonRepresentation put = json.put(ccpFieldName2, obj);
+					boolean errors2 = type.hasErrors(put, field, CcpJsonFieldsValidationContext.collection);
+					boolean hasNoErrors = false == errors2;
 					if(hasNoErrors) {
 						continue;
 					}
@@ -220,8 +237,9 @@ public class CcpJsonValidatorEngine {
 	}
 
 	private CcpJsonRepresentation getErrorsFromClass(Class<?> clazz, CcpJsonRepresentation json) {
+		boolean annotationPresent12 = clazz.isAnnotationPresent(CcpJsonCopyGlobalValidationsFrom.class);
 
-		if(clazz.isAnnotationPresent(CcpJsonCopyGlobalValidationsFrom.class)) {
+		if(annotationPresent12) {
 			CcpJsonCopyGlobalValidationsFrom annotation = clazz.getAnnotation(CcpJsonCopyGlobalValidationsFrom.class);
 			Class<?> value = annotation.value();
 			CcpJsonRepresentation errorsFromClass = this.getErrorsFromClass(value, json);
@@ -229,17 +247,24 @@ public class CcpJsonValidatorEngine {
 		}
 
 		CcpJsonRepresentation errors =  CcpOtherConstants.EMPTY_JSON;
+		boolean annotationPresent13 = clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
 
-		boolean annotationIsMissing = false == clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
+		boolean annotationIsMissing = false == annotationPresent13;
 
 		if(annotationIsMissing) {
 			return errors;
 		}
+		CcpJsonValidatorDefaults[] ccpJsonValidatorDefaultsValues = CcpJsonValidatorDefaults.values();
 
-		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(CcpJsonValidatorDefaults.values());
+		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(ccpJsonValidatorDefaultsValues);
 		CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
-		List<CcpJsonValidator> customGlobalValidations = Arrays.asList(annotation.customJsonValidators())
-				.stream().map(x -> new CcpReflectionConstructorDecorator(x)).map(constructor -> (CcpJsonValidator)constructor.newInstance())
+		var customJsonValidators = annotation.customJsonValidators();
+		var asList = Arrays.asList(customJsonValidators);
+		var stream = asList
+				.stream();
+				var streamMap = stream.map(x -> new CcpReflectionConstructorDecorator(x));
+				var streamMapMap = streamMap.map(constructor -> (CcpJsonValidator)constructor.newInstance());
+				List<CcpJsonValidator> customGlobalValidations = streamMapMap
 				.collect(Collectors.toList())
 				;
 		List<CcpJsonValidator> allGlobalValidations = new ArrayList<>(defaultGlobalValidations);
@@ -255,43 +280,5 @@ public class CcpJsonValidatorEngine {
 		return errors;
 	}
 
-	/**
-	 * Exceção de controle de fluxo lançada quando um campo não possui nenhuma anotação de tipo
-	 * reconhecida. Capturada silenciosamente para pular o campo.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpJsonFieldNotValidated extends RuntimeException {
-		private CcpJsonFieldNotValidated() {}
-	}
 
-	/**
-	 * Exceção lançada por {@code CcpJsonValidatorEngine} quando a validação de um JSON falha. Carrega
-	 * todos os dados diagnósticos: JSON fornecido, erros encontrados, explicação das regras, nome da
-	 * funcionalidade e classe portadora das regras.
-	 */
-	@SuppressWarnings("serial")
-	public static class CcpJsonValidationError extends RuntimeException {
-
-		public final CcpJsonRepresentation json;
-
-		/** Monta o JSON de diagnóstico completo como mensagem da exceção. */
-		private CcpJsonValidationError(Class<?> clazz, CcpJsonRepresentation givenJson, CcpJsonRepresentation errors, CcpJsonRepresentation rulesExplanation, String featureName) {
-			super(getErrorMessage(clazz, givenJson, errors, rulesExplanation, featureName).asPrettyJson());
-			this.json = getErrorMessage(clazz, givenJson, errors, rulesExplanation, featureName);
-		}
-
-		private static CcpJsonRepresentation getErrorMessage(Class<?> clazz, CcpJsonRepresentation givenJson, CcpJsonRepresentation errors, CcpJsonRepresentation rulesExplanation, String featureName) {
-			CcpJsonRepresentation body = CcpOtherConstants.EMPTY_JSON
-			.put(ValidationErrorFields.errors, errors)
-			.put(ValidationErrorFields.featureName, featureName)
-			.put(ValidationErrorFields.classWithRules, clazz.getName())
-			.put(ValidationErrorFields.rulesExplanation, rulesExplanation)
-			.put(ValidationErrorFields.givenJson, givenJson);
-			return body;
-		}
-
-		private enum ValidationErrorFields implements CcpJsonFieldName {
-			classWithRules, givenJson, errors, rulesExplanation, featureName
-		}
-	}
 }

@@ -2,7 +2,7 @@ package com.ccp.service;
 
 import java.util.Map;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpErrorJsonInvalid;
+import com.ccp.decorators.CcpErrorJsonInvalid;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.business.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
@@ -36,7 +36,8 @@ public interface CcpService extends CcpBusiness {
 			CcpJsonRepresentation apply = this.apply(json);
 			return apply.content;
 		} catch (CcpErrorJsonInvalid e) {
-			throw new CcpServiceJsonValidationError(e);
+			CcpServiceJsonValidationError ccpServiceJsonValidationError = new CcpServiceJsonValidationError(e);
+			throw ccpServiceJsonValidationError;
 		}
 	}
 

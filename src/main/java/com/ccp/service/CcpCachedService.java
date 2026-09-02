@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.hash.CcpHashAlgorithm;

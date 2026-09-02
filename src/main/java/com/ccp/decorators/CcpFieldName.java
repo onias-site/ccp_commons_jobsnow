@@ -1,6 +1,5 @@
 package com.ccp.decorators;
 
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
 
 /**
  * Implementação concreta de {@code CcpJsonFieldName} que encapsula qualquer valor como nome de campo JSON.
@@ -19,7 +18,8 @@ public final class CcpFieldName implements CcpJsonFieldName{
 	}
 
 	public String name() {
-		return "" + this.name;
+		String valorMais = "" + this.name;
+		return valorMais;
 	}
 
 	public String toString() {

@@ -1,7 +1,7 @@
 package com.ccp.process;
 
 import com.ccp.decorators.CcpFieldName;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 
 /**
  * Conjunto padrão de status de processo HTTP-like usados em todo o sistema jobsnow.

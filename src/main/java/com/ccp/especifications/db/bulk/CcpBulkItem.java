@@ -2,7 +2,7 @@ package com.ccp.especifications.db.bulk;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
@@ -62,7 +62,8 @@ public class CcpBulkItem {
 	 */
 	public String toString() {
 		CcpJsonRepresentation put = this.asMap();
-		CcpJsonRepresentation jsonPiece = put.getJsonPiece(CcpBulkItemFields.values());
+		CcpBulkItemFields[] ccpBulkItemFieldsValues = CcpBulkItemFields.values();
+		CcpJsonRepresentation jsonPiece = put.getJsonPiece(ccpBulkItemFieldsValues);
 		String string = jsonPiece.toString();
 		return string;
 	}
@@ -75,10 +76,13 @@ public class CcpBulkItem {
 	 */
 	public CcpJsonRepresentation asMap() {
 		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put(CcpBulkItemFields.operation, this.operation)
-				.put(CcpBulkItemFields.entity, entityDetails.entityName)
-				.put(JsonFieldNames.json, this.json)
+		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+				.put(CcpBulkItemFields.operation, this.operation);
+				CcpJsonRepresentation put3 = put2
+				.put(CcpBulkItemFields.entity, entityDetails.entityName);
+				CcpJsonRepresentation put4 = put3
+				.put(JsonFieldNames.json, this.json);
+				CcpJsonRepresentation put = put4
 				.put(CcpBulkItemFields.id, this.id);
 		return put;
 	}
@@ -89,7 +93,8 @@ public class CcpBulkItem {
 	 * @return hash do item
 	 */
 	public int hashCode() {
-		String string = this.entity + "_" + this.id ;
+		String entityMais = this.entity + "_";
+		String string = entityMais + this.id ;
 		int hashCode = string.hashCode();
 		return hashCode;
 	}
@@ -104,14 +109,16 @@ public class CcpBulkItem {
 	public boolean equals(Object obj) {
 		try {
 			CcpBulkItem other = (CcpBulkItem)obj;
-			
-			boolean differentEntity = false == other.entity.equals(this.entity);
+			boolean entityEquals = other.entity.equals(this.entity);
+
+			boolean differentEntity = false == entityEquals;
 			
 			if(differentEntity) {
 				return false;
 			}
-			
-			boolean differentId = false == other.id.equals(this.id);
+			boolean idEquals = other.id.equals(this.id);
+
+			boolean differentId = false == idEquals;
 			
 			if(differentId) {
 				return false;

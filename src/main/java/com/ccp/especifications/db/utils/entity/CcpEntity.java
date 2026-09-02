@@ -10,7 +10,7 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpHashDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
@@ -54,13 +54,17 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		boolean hasNoPrimaryKey = entityDetails.primaryKeyNames.isEmpty();
 
 		if(hasNoPrimaryKey) {
-			throw new CcpEntityNoDefinedPrimaryKey(this);
+			CcpEntityNoDefinedPrimaryKey ccpEntityNoDefinedPrimaryKey = new CcpEntityNoDefinedPrimaryKey(this);
+			throw ccpEntityNoDefinedPrimaryKey;
 		}
 
 		ArrayList<Object> sortedPrimaryKeyValues = entityDetails.getSortedPrimaryKeyValues(json);
+		String toString = sortedPrimaryKeyValues.toString();
+		String toStringReplace = toString.replace("[", "");
 
-		String replace = sortedPrimaryKeyValues.toString().replace("[", "").replace("]", "");
-		CcpHashDecorator hash2 = new CcpStringDecorator(replace).hash();
+		String replace = toStringReplace.replace("]", "");
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(replace);
+		CcpHashDecorator hash2 = ccpStringDecorator.hash();
 		String hash = hash2.asString(CcpHashAlgorithm.SHA1);
 		return hash;
 	}
@@ -133,7 +137,8 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpBusiness arara = x -> {
 			CcpJsonRepresentation put = x.put(JsonFieldNames.entity, this);
-			throw new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
+			CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
+			throw ccpErrorFlowDisturb;
 		};
 		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, arara);
 		return md;
@@ -161,10 +166,13 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		String fieldNameToId = dependency.getFieldNameToId();
 
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
+		CcpFieldName ccpFieldName = new CcpFieldName(fieldNameToEntity);
+		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+		.put(ccpFieldName, entityDetails.entityName);
+		CcpFieldName ccpFieldName2 = new CcpFieldName(fieldNameToId);
 
-		CcpJsonRepresentation mainRecord = CcpOtherConstants.EMPTY_JSON
-		.put(new CcpFieldName(fieldNameToEntity), entityDetails.entityName)
-		.put(new CcpFieldName(fieldNameToId), id)
+		CcpJsonRepresentation mainRecord = put2
+		.put(ccpFieldName2, id)
 		;
 		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
 		return asList;
@@ -202,7 +210,10 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	 */
 	default <T>T throwException() {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		throw new UnsupportedOperationException("The entity '" + entityDetails.entityName + "' is just to read only");
+		String valorMais = "The entity '" + entityDetails.entityName;
+		String valorMaisMais = valorMais + "' is just to read only";
+		UnsupportedOperationException unsupportedOperationException = new UnsupportedOperationException(valorMaisMais);
+		throw unsupportedOperationException;
 	}
 
 	/**

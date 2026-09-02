@@ -26,6 +26,7 @@ public class CcpReflectionNewInstanceDecorator extends CcpReflectionOptionsDecor
 	}
 
 	private static Class<?> forName(CcpReflectionConstructorDecorator constructor) {
-		return constructor.forName();
+		var forName = constructor.forName();
+		return forName;
 	}
 }

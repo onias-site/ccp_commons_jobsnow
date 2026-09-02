@@ -34,19 +34,23 @@ public abstract class CcpQueryComponent {
 	<T extends CcpQueryComponent> T addChild(CcpQueryComponent child) {
 		CcpQueryComponent instanceCopy = this.copy();
 		Object value = child.getValue();
-		instanceCopy.json = instanceCopy.json.put(new CcpFieldName(child.name), value);
-		return (T) instanceCopy;
+		CcpFieldName ccpFieldName = new CcpFieldName(child.name);
+		instanceCopy.json = instanceCopy.json.put(ccpFieldName, value);
+		T t = (T) instanceCopy;
+		return t;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T copy() {
 		CcpQueryComponent instanceCopy = this.getInstanceCopy();
 		instanceCopy.name = this.name;
-		if (this.parent != null) {
+		boolean parentDiferente = this.parent != null;
+		if (parentDiferente) {
 			instanceCopy.parent = this.parent.copy();
 		}
 		instanceCopy.json = this.json.copy();
-		return (T) instanceCopy;
+		T t2 = (T) instanceCopy;
+		return t2;
 	}
 
 	public final String toString() {
@@ -57,12 +61,15 @@ public abstract class CcpQueryComponent {
 	}
 
 	public boolean hasChildreen() {
-		return false == this.json.content.isEmpty();
+		boolean contentEmpty = this.json.content.isEmpty();
+		boolean valorIgual = false == contentEmpty;
+		return valorIgual;
 	}
 
 	public <T extends CcpQueryComponent> T putProperty(String propertyName, Object propertyValue) {
 		T clone = this.copy();
-		clone.json = clone.json.put(new CcpFieldName(propertyName), propertyValue);
+		CcpFieldName ccpFieldName2 = new CcpFieldName(propertyName);
+		clone.json = clone.json.put(ccpFieldName2, propertyValue);
 		return clone;
 	}
 }

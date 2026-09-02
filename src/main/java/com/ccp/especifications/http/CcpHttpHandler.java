@@ -8,7 +8,6 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.http.CcpHttpRequester.CcpErrorHttp;
 
 
 /**
@@ -137,29 +136,36 @@ public final class CcpHttpHandler {
 	public <V> V executeHttpRequest(String trace, CcpHttpMethods method, CcpJsonRepresentation headers, String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
 		
 		int status = response.httpStatus;
-		
-		CcpBusiness flow = this.flows.getOrDefault(new CcpFieldName(status), () -> this.alternativeFlow);
-	
-		if(flow == null) {
+		CcpFieldName ccpFieldName = new CcpFieldName(status);
+
+		CcpBusiness flow = this.flows.getOrDefault(ccpFieldName, () -> this.alternativeFlow);
+		boolean flowIgual = flow == null;
+
+		if(flowIgual) {
 			Set<String> fieldSet = this.flows.fieldSet(); 
 			CcpErrorHttp httpError = this.ccpHttp.getHttpError(trace, this.url, method, headers, request, status, response.httpResponse, fieldSet);
 			throw httpError;
 		}
-	
-		boolean invalidSingleJson = false == response.isValidSingleJson();
+		boolean validSingleJson = response.isValidSingleJson();
+
+		boolean invalidSingleJson = false == validSingleJson;
 		
 		V tranform = transformer.transform(response);
 
 		if(invalidSingleJson) {
 			return tranform;
 		}
-		
-		if(false == (tranform instanceof CcpJsonRepresentation)) {
+		boolean isCcpJsonRepresentation = tranform instanceof CcpJsonRepresentation;
+		boolean valorIgual = false == (isCcpJsonRepresentation);
+
+		if(valorIgual) {
 			return tranform;
 		}
+		CcpJsonRepresentation ccpJsonRepresentation = (CcpJsonRepresentation)tranform;
 
-		CcpJsonRepresentation execute = flow.execute((CcpJsonRepresentation)tranform);
-		return (V)execute;
+		CcpJsonRepresentation execute = flow.execute(ccpJsonRepresentation);
+		V v = (V)execute;
+		return v;
 	}
 	
 	

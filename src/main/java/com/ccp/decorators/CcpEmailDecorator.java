@@ -60,9 +60,15 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 			String[] split = this.content.split("@");
 			String s1 = split[0];
 			String s2 = split[1];
-			String p1 = new CcpTextDecorator(s1).stripAccents().content;
-			String p2 = new CcpTextDecorator(s2).stripAccents().content;
-			CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(p1 + "@" + p2);
+			CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(s1);
+			CcpTextDecorator stripAccents2 = ccpTextDecorator.stripAccents();
+			String p1 = stripAccents2.content;
+			CcpTextDecorator ccpTextDecorator2 = new CcpTextDecorator(s2);
+			CcpTextDecorator stripAccents3 = ccpTextDecorator2.stripAccents();
+			String p2 = stripAccents3.content;
+			String p1Mais = p1 + "@";
+			String p1MaisMais = p1Mais + p2;
+			CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(p1MaisMais);
 			return ccpEmailDecorator;
 		}
 		
@@ -78,59 +84,93 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	 */
 	public boolean isValid() {
 		String[] split = this.content.split("@");
+		boolean lengthDiferente = split.length != 2;
 
-		if(split.length != 2) {
+		if(lengthDiferente) {
 			return false;
 		}
-		if(split[0].trim().isEmpty()) {
+		String splitTrim = split[0].trim();
+		boolean splitTrimEmpty = splitTrim.isEmpty();
+		if(splitTrimEmpty) {
 			return false;
 		}
-		if(this.content.trim().toLowerCase().endsWith(".digital")) {
+		String contentTrim = this.content.trim();
+		String toLowerCase = contentTrim.toLowerCase();
+		boolean endsWith = toLowerCase.endsWith(".digital");
+		if(endsWith) {
 			return true;
 		}
-		if(this.content.trim().toLowerCase().endsWith("@wayon.global")) {
+		String contentTrim2 = this.content.trim();
+		String toLowerCase2 = contentTrim2.toLowerCase();
+		boolean endsWith2 = toLowerCase2.endsWith("@wayon.global");
+		if(endsWith2) {
 			return true;
 		}
-		if(this.content.trim().toLowerCase().endsWith("@corp.inovation.com.br")) { 
+		String contentTrim3 = this.content.trim();
+		String toLowerCase3 = contentTrim3.toLowerCase();
+		boolean endsWith3 = toLowerCase3.endsWith("@corp.inovation.com.br");
+		if(endsWith3) { 
 			return true;
 		}
-		if(this.content.toLowerCase().endsWith(".docx")) {
+		String toLowerCase4 = this.content.toLowerCase();
+		boolean endsWith4 = toLowerCase4.endsWith(".docx");
+		if(endsWith4) {
 			return false;
 		}
-		if(this.content.toLowerCase().endsWith(".digi")) {
+		String toLowerCase5 = this.content.toLowerCase();
+		boolean endsWith5 = toLowerCase5.endsWith(".digi");
+		if(endsWith5) {
 			return false;
 		}
-		if(this.content.toLowerCase().endsWith(".onli")) {
+		String toLowerCase6 = this.content.toLowerCase();
+		boolean endsWith6 = toLowerCase6.endsWith(".onli");
+		if(endsWith6) {
 			return false;
 		}
-		if(this.content.toLowerCase().endsWith(".glob")) {
+		String toLowerCase7 = this.content.toLowerCase();
+		boolean endsWith7 = toLowerCase7.endsWith(".glob");
+		if(endsWith7) {
 			return false;
 		}
-		if(this.content.toLowerCase().endsWith(".soci")) {
+		String toLowerCase8 = this.content.toLowerCase();
+		boolean endsWith8 = toLowerCase8.endsWith(".soci");
+		if(endsWith8) {
 			return false;
 		}
-		if(this.content.toLowerCase().endsWith(".bren")) {
+		String toLowerCase9 = this.content.toLowerCase();
+		boolean endsWith9 = toLowerCase9.endsWith(".bren");
+		if(endsWith9) {
 			return false;
 		}
+		String toLowerCase10 = this.content.toLowerCase();
+		boolean contains = toLowerCase10.contains(".coom");
 
-		if(this.content.toLowerCase().contains(".coom")) {
+		if(contains) {
 			return false;
 		}
 
 		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(this.content);
 		boolean find = matcher.find();
-		
-		if(false == find) {
+		boolean valorIgual = false == find;
+
+		if(valorIgual) {
 			return false;
 		}
 		
 		String domain = split[1];
 		String[] split2 = domain.split("\\.");
-		String last = split2[split2.length - 1];
-		if(last.toLowerCase().startsWith("com") && false == last.toLowerCase().equalsIgnoreCase("com")) {
+		int lengthMenos = split2.length - 1;
+		String last = split2[lengthMenos];
+		String toLowerCase11 = last.toLowerCase();
+		boolean startsWith = toLowerCase11.startsWith("com");
+		boolean startsWithE = startsWith && false == last.toLowerCase().equalsIgnoreCase("com");
+		if(startsWithE) {
 			return false;
 		}
-		if(last.toLowerCase().startsWith("br") && false == last.toLowerCase().equalsIgnoreCase("br")) {
+		String toLowerCase12 = last.toLowerCase();
+		boolean startsWith2 = toLowerCase12.startsWith("br");
+		boolean startsWith2E = startsWith2 && false == last.toLowerCase().equalsIgnoreCase("br");
+		if(startsWith2E) {
 			return false;
 		}
 		
@@ -145,34 +185,49 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	 * @param delimitadores expressão de delimitadores para divisão do texto
 	 */
 	public CcpEmailDecorator findFirst(String delimitadores) {
-		
-		String[] palavras = this.content.toLowerCase().split(delimitadores);
+		String toLowerCase13 = this.content.toLowerCase();
+	
+		String[] palavras = toLowerCase13.split(delimitadores);
 		for (String palavra : palavras) {
-			if(palavra.contains("+")) {
-				String[] split = palavra.replace("+", " ").split(" ");
-				String email = split[split.length - 1];
+			boolean contains2 = palavra.contains("+");
+			if(contains2) {
+				String palavraReplace = palavra.replace("+", " ");
+				String[] split = palavraReplace.split(" ");
+				int lengthMenos2 = split.length - 1;
+				String email = split[lengthMenos2];
 				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(email);
-				if(ccpEmailDecorator.isValid()) {
+				boolean valid2 = ccpEmailDecorator.isValid();
+				if(valid2) {
 					return ccpEmailDecorator;
 				}
 			}
+			boolean endsWith10 = palavra.endsWith(".");
 
-			if(palavra.endsWith(".")) {
-				palavra = palavra.substring(0, palavra.length() - 1);
+			if(endsWith10) {
+				int palavraLength = palavra.length();
+				int palavraLengthMenos = palavraLength - 1;
+				palavra = palavra.substring(0, palavraLengthMenos);
 			}
 			String[] split = palavra.split("@");
 			
 			String str = "";
 			
 			for (String string : split) {
-				String content = new CcpTextDecorator(string).stripAccents().getContent();
-				str += (content + "@");
+				CcpTextDecorator ccpTextDecorator3 = new CcpTextDecorator(string);
+				CcpTextDecorator stripAccents4 = ccpTextDecorator3.stripAccents();
+				String content = stripAccents4.getContent();
+				String contentMais = content + "@";
+				str += (contentMais);
 			}
-			String substring = str.substring(0, str.length() - 1);
+			int strLength = str.length();
+			int strLengthMenos = strLength - 1;
+			String substring = str.substring(0, strLengthMenos);
 			CcpEmailDecorator ced = new CcpEmailDecorator(substring);
-			if(ced.isValid()) {
+			boolean valid3 = ced.isValid();
+			if(valid3) {
 				CcpEmailDecorator stripAccents = ced.stripAccents();
-				String retorno = stripAccents.content.toLowerCase().trim();
+				String toLowerCase14 = stripAccents.content.toLowerCase();
+				String retorno = toLowerCase14.trim();
 				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(retorno);
 				return ccpEmailDecorator;
 			}
@@ -193,7 +248,8 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		for (String piece : split) {
 			String trim = piece.trim();
 			CcpEmailDecorator decorator = new CcpEmailDecorator(trim);
-			boolean invalid = false == decorator.isValid();
+			boolean valid4 = decorator.isValid();
+			boolean invalid = false == valid4;
 			if (invalid) {
 				continue;
 			}
@@ -210,8 +266,9 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	 */
 	public String getDomain() {
 		String[] split = this.content.split("@");
+		boolean lengthDiferente2 = split.length != 2;
 
-		if (split.length != 2) {
+		if (lengthDiferente2) {
 			return "";
 		}
 
@@ -229,7 +286,8 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	 * Cria um {@code CcpHashDecorator} sobre o endereço para cálculo de hash.
 	 */
 	public CcpHashDecorator hash() {
-		return new CcpHashDecorator(this.content);
+		CcpHashDecorator ccpHashDecorator = new CcpHashDecorator(this.content);
+		return ccpHashDecorator;
 	}
 
 }

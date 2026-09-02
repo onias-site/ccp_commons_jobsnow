@@ -46,7 +46,9 @@ public final class CcpCacheDecorator {
 	public CcpCacheDecorator(CcpEntity entity, String id) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
-		this.key = "records.entity." + entityDetails.entityName + ".id." + id ;
+		String valorMais = "records.entity." + entityDetails.entityName;
+		String valorMaisMais = valorMais + ".id.";
+		this.key = valorMaisMais + id ;
 	}
 	
 	/**
@@ -77,7 +79,8 @@ public final class CcpCacheDecorator {
 	}
 
 	public CcpJsonRepresentation get(CcpBusiness taskToGetValue, CcpJsonRepresentation json, int cacheSeconds) {
-		return this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
+		CcpJsonRepresentation get = this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
+		return get;
 	}
 
 	/**
@@ -106,7 +109,8 @@ public final class CcpCacheDecorator {
 	 * @return {@code true} se o valor estiver presente no cache
 	 */
 	public boolean isPresentInTheCache() {
-		return this.cache.isPresent(this.key);
+		boolean cachePresent = this.cache.isPresent(this.key);
+		return cachePresent;
 	}
 
 	/**
@@ -141,8 +145,12 @@ public final class CcpCacheDecorator {
 	 * @return novo decorator com chave acumulada
 	 */
 	public CcpCacheDecorator incrementKey(String key, Object value) {
-		String _key = this.key + "." + key + "." + value;
-		CcpJsonRepresentation put = this.cacheParameters.put(new CcpFieldName(key), value);
+		String keyMais = this.key + ".";
+		String keyMaisMais = keyMais + key;
+		String keyMaisMaisMais = keyMaisMais + ".";
+		String _key = keyMaisMaisMais + value;
+		CcpFieldName ccpFieldName = new CcpFieldName(key);
+		CcpJsonRepresentation put = this.cacheParameters.put(ccpFieldName, value);
 		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(put, _key);
 		return ccpCacheDecorator;
 	}
@@ -176,7 +184,8 @@ public final class CcpCacheDecorator {
 		Set<String> keySet = jsonPiece.fieldSet();
 		
 		for (String key : keySet) {
-			Object value = jsonPiece.get(new CcpFieldName(key));
+			CcpFieldName ccpFieldName2 = new CcpFieldName(key);
+			Object value = jsonPiece.get(ccpFieldName2);
 			result = result.incrementKey(key, value);
 		}
 		return result;

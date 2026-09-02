@@ -22,7 +22,8 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	 * Extrai o nome da classe a partir de um campo do JSON.
 	 */
 	public CcpReflectionConstructorDecorator(CcpJsonRepresentation json, String field) {
-		this.content = json.getAsString(new CcpFieldName(field));
+		CcpFieldName ccpFieldName = new CcpFieldName(field);
+		this.content = json.getAsString(ccpFieldName);
 	}
 
 	/**
@@ -60,7 +61,8 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 		Class<?> forName = Class.forName(this.content);
 		Constructor<?> declaredConstructor = forName.getDeclaredConstructor();
 		declaredConstructor.setAccessible(true);
-		T newInstance = (T) declaredConstructor.newInstance();
+		var newInstance2 = declaredConstructor.newInstance();
+		T newInstance = (T) newInstance2;
 		return newInstance;
 
 	}

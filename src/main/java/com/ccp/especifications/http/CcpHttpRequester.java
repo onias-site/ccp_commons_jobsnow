@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
+import java.util.stream.Stream;
 
 
 /**
@@ -60,11 +61,14 @@ public interface CcpHttpRequester {
 		CcpHttpResponse res = this.executeHttpRequest(url, method, headers, request);
 
 		for (int expectedStatus : numbers) {
-			if (expectedStatus == res.httpStatus) {
+			boolean expectedStatusIgual = expectedStatus == res.httpStatus;
+			if (expectedStatusIgual) {
 				return res;
 			}
 		}
-		Set<String> expectedStatusList = Arrays.asList(numbers).stream().map(x -> "" + x).collect(Collectors.toSet());
+		Stream<Integer> stream = Arrays.asList(numbers).stream();
+		var streamMap = stream.map(x -> "" + x);
+		Set<String> expectedStatusList = streamMap.collect(Collectors.toSet());
 		
 		CcpErrorHttp httpError = this.getHttpError(
 				"", 
@@ -94,25 +98,34 @@ public interface CcpHttpRequester {
 	 */
 	default CcpErrorHttp getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, Integer status, String response, Set<String> expectedStatusList) {
+				CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+				.put(JsonFieldNames.url, url);
+				CcpJsonRepresentation put3 = put2
+				.put(JsonFieldNames.method, method);
+				CcpJsonRepresentation put4 = put3
+				.put(JsonFieldNames.headers, headers);
+				CcpJsonRepresentation put5 = put4
+				.put(JsonFieldNames.request, request);
+				CcpJsonRepresentation put6 = put5
+				.put(JsonFieldNames.status, status);
 
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put(JsonFieldNames.url, url)
-				.put(JsonFieldNames.method, method)
-				.put(JsonFieldNames.headers, headers)
-				.put(JsonFieldNames.request, request)
-				.put(JsonFieldNames.status, status)
+				CcpJsonRepresentation put = put6
 				.put(JsonFieldNames.response, response);
-		CcpJsonRepresentation entity = put
-				.put(JsonFieldNames.trace, trace)
-				.put(JsonFieldNames.details, put.content)
+				CcpJsonRepresentation put7 = put
+				.put(JsonFieldNames.trace, trace);
+				CcpJsonRepresentation put8 = put7
+				.put(JsonFieldNames.details, put.content);
+				CcpJsonRepresentation entity = put8
 				.put(JsonFieldNames.expectedStatusList, expectedStatusList);
+				boolean statusMaiorOuIgual = status >= 600;
 
-		if (status >= 600) {
+				if (statusMaiorOuIgual) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}
+		boolean statusMenor = status < 400;
 
-		if (status < 400) {
+		if (statusMenor) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}
@@ -128,19 +141,6 @@ public interface CcpHttpRequester {
 		return ccpHttpServerError;
 	}
 
-	@SuppressWarnings("serial")
-	public static class CcpErrorHttp extends RuntimeException {
-		public final CcpJsonRepresentation entity;
-		protected CcpErrorHttp(CcpJsonRepresentation entity) {
-			super(getMessage(entity));
-			this.entity = entity;
-		}
-		private static String getMessage(CcpJsonRepresentation entity) {
-			String string = "\n\n\nTrace:{trace}\nDetails: {details}\n. All expected status: {expectedStatusList}";
-			String message = new com.ccp.decorators.CcpStringDecorator(string).text().resolveTemplate(entity).content;
-			return message;
-		}
-	}
 
 
 }

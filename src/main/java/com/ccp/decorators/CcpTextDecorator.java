@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ccp.constants.CcpOtherConstants;
+import java.util.stream.Stream;
 
 /**
  * Decorator especializado em operações de manipulação e análise de texto: remoção de acentos, geração de
@@ -39,7 +39,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	 * Preenche o texto à esquerda com o caractere {@code complement} até atingir o tamanho {@code length}.
 	 */
 	public CcpTextDecorator completeLeft(char complement, int length) {
-		if((length - this.content.length() )<=0) {
+		int contentLength = this.content.length();
+		int lengthMenos = length - contentLength;
+		boolean lengthMenosMenorOuIgual = (lengthMenos )<=0;
+		if(lengthMenosMenorOuIgual) {
 			return this;
 		}
 		String x = "";
@@ -57,10 +60,13 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	public CcpTextDecorator stripAccents() {
 
 		String charp = "__charp__";
-		String s = Normalizer.normalize(this.content.replace("#", charp), Normalizer.Form.NFD);
-		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replaceAll("[^\\w\\s.,+-]", "");
+		String contentReplace = this.content.replace("#", charp);
+		String s = Normalizer.normalize(contentReplace, Normalizer.Form.NFD);
+		String replaceAll = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		s = replaceAll.replaceAll("[^\\w\\s.,+-]", "");
 		String replace = s.replace(charp, "#");
-		return new CcpTextDecorator(replace);
+		CcpTextDecorator ccpTextDecorator2 = new CcpTextDecorator(replace);
+		return ccpTextDecorator2;
 	}
 
 	/**
@@ -73,12 +79,16 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		List<String> list = new ArrayList<>();
 		while(true) {
 			beginIndex = str.indexOf(beginDelimiter);
-			if(beginIndex < 0) {
+			boolean beginIndexMenor = beginIndex < 0;
+			if(beginIndexMenor) {
 				return list;
 			}
-			endIndex = str.indexOf(endDelimiter )+ endDelimiter.length();
+			int indexOf = str.indexOf(endDelimiter );
+			int endDelimiterLength = endDelimiter.length();
+			endIndex = indexOf+ endDelimiterLength;
+			boolean endIndexMenor = endIndex < 0;
 
-			if(endIndex < 0) {
+			if(endIndexMenor) {
 				return list;
 			}
 			String substring = str.substring(beginIndex, endIndex);
@@ -93,7 +103,9 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	public List<String> getPieces(Predicate<String> predicate, String delimiter){
 		String[] split = this.content.split(delimiter);
 		List<String> asList = Arrays.asList(split);
-		List<String> collect = asList.stream().filter(predicate).collect(Collectors.toList());
+		Stream<String> stream = asList.stream();
+		var filter = stream.filter(predicate);
+		List<String> collect = filter.collect(Collectors.toList());
 		return collect;
 	}
 
@@ -152,8 +164,9 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 			char caractereAleatorio = charArray[indiceAleatorio];
 			sb.append(caractereAleatorio);
 		}
+		String toString = sb.toString();
 
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(sb.toString());
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(toString);
 		return ccpTextDecorator;
 	}
 
@@ -172,8 +185,9 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	public byte[] getByteArrayFromBase64String() {
 		String[] split = this.content.split(",");
 		String str = split[0];
+		boolean lengthMaior = split.length > 1;
 
-		if (split.length > 1) {
+		if (lengthMaior) {
 			str = split[1];
 		}
 
@@ -198,14 +212,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 
 	}
 
-	public static enum CcpTemplateFunctions implements Supplier<String>{
-		currentTimeMillis {
-			public String get() {
-				return "" + System.currentTimeMillis();
-			}
 
-		};
-	}
 
 	/**
 	 * Substitui os placeholders {@code {nomeDoCampo}} pelos valores correspondentes do JSON de parâmetros.
@@ -216,31 +223,41 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		Set<String> keySet = content.keySet();
 		String message = new String(this.content);
 		for (String key : keySet) {
-			String value = parameters.getAsString(new CcpFieldName(key));
-			message = message.replace("{" + key + "}", value);
+			CcpFieldName ccpFieldName = new CcpFieldName(key);
+			String value = parameters.getAsString(ccpFieldName);
+			String valorMais = "{" + key;
+			String valorMaisMais = valorMais + "}";
+			message = message.replace(valorMaisMais, value);
 		}
 
 		CcpTemplateFunctions[] templateExpressions = CcpTemplateFunctions.values();
 
 		for (CcpTemplateFunctions templateExpression : templateExpressions) {
 			String value = templateExpression.get();
-			message = message.replace("{" + templateExpression + "()}", value);
+			String valorMais2 = "{" + templateExpression;
+			String valorMais2Mais = valorMais2 + "()}";
+			message = message.replace(valorMais2Mais, value);
 		}
+		CcpTextDecorator ccpTextDecorator3 = new CcpTextDecorator(message);
 
-		return new CcpTextDecorator(message);
+		return ccpTextDecorator3;
 	}
 
 	/**
 	 * Remove recursivamente todos os caracteres {@code c} do início da string.
 	 */
 	public CcpTextDecorator removeStartingCharacters( char c) {
+		String valorMais3 = "" + c;
+		boolean startsWith = this.content.startsWith(valorMais3);
+		boolean valorIgual = false == startsWith;
 
-		if(false == this.content.startsWith("" + c)) {
+		if(valorIgual) {
 			return this;
 		}
 
 		String substring = this.content.substring(1);
-		CcpTextDecorator removeStartingCharacters = new CcpTextDecorator(substring).removeStartingCharacters(c);
+		CcpTextDecorator ccpTextDecorator4 = new CcpTextDecorator(substring);
+		CcpTextDecorator removeStartingCharacters = ccpTextDecorator4.removeStartingCharacters(c);
 		return removeStartingCharacters;
 	}
 
@@ -248,13 +265,19 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	 * Remove recursivamente todos os caracteres {@code c} do final da string.
 	 */
 	public CcpTextDecorator removeEndingCharacters(char c) {
+		String valorMais4 = "" + c;
+		boolean endsWith = this.content.endsWith(valorMais4);
+		boolean valorIgual2 = false == endsWith;
 
-		if(false == this.content.endsWith("" + c)) {
+		if(valorIgual2) {
 			return this;
 		}
+		int contentLength2 = this.content.length();
+		int contentLength2Menos = contentLength2 - 1;
 
-		String substring = this.content.substring(0, this.content.length() - 1);
-		CcpTextDecorator removed = new CcpTextDecorator(substring).removeEndingCharacters(c);
+		String substring = this.content.substring(0, contentLength2Menos);
+		CcpTextDecorator ccpTextDecorator5 = new CcpTextDecorator(substring);
+		CcpTextDecorator removed = ccpTextDecorator5.removeEndingCharacters(c);
 		return removed;
 	}
 
@@ -265,7 +288,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		try {
 			new CcpJsonRepresentation(this.content);
 			return true;
-		} catch (CcpJsonRepresentation.CcpErrorJsonInvalid e) {
+		} catch (CcpErrorJsonInvalid e) {
 			return false;
 		}
 	}
@@ -296,10 +319,14 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		List<String> asList = Arrays.asList(split);
 		StringBuilder sb = new StringBuilder();
 		for (String string : asList) {
-			String capitalize = new CcpStringDecorator(string).text().capitalize().content;
+			CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(string);
+			CcpTextDecorator ccpStringDecoratorText = ccpStringDecorator.text();
+			CcpTextDecorator capitalize2 = ccpStringDecoratorText.capitalize();
+			String capitalize = capitalize2.content;
 			sb.append(capitalize);
 		}
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator( sb.toString());
+		String toString2 = sb.toString();
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator( toString2);
 		return ccpTextDecorator;
 	}
 
@@ -312,22 +339,28 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		int k = 0;
 		int m = 0;
 		for (char c : charArray) {
-			if(k == 0) {
+			boolean kIgual = k == 0;
+			if(kIgual) {
 				k++;
 				continue;
 			}
+			boolean cMenor = c < 'A';
 
-			if(c < 'A') {
+			if(cMenor) {
 				k++;
 				continue;
 			}
-			if(c > 'Z') {
+			boolean cMaior = c > 'Z';
+			if(cMaior) {
 				k++;
 				continue;
 			}
-			sb.insert(k++ + m++, "_");
+			int kMais = k++ + m++;
+			sb.insert(kMais, "_");
 		}
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(sb.toString().toLowerCase());
+		String toString3 = sb.toString();
+		String toLowerCase = toString3.toLowerCase();
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(toLowerCase);
 		return ccpTextDecorator;
 	}
 
@@ -335,8 +368,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	 * Coloca a primeira letra em maiúscula e o restante em minúsculas.
 	 */
 	public CcpTextDecorator capitalize() {
+		String contentTrim = this.content.trim();
+		boolean contentTrimEmpty = contentTrim.isEmpty();
 
-		if(this.content.trim().isEmpty()) {
+		if(contentTrimEmpty) {
 			CcpTextDecorator ccpTextDecorator = new CcpTextDecorator("");
 			return ccpTextDecorator;
 		}
@@ -353,7 +388,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	 * Retorna o tamanho do texto encapsulado em {@code CcpNumberDecorator}.
 	 */
 	public CcpNumberDecorator lenght() {
-		return new CcpNumberDecorator("" + content.length());
+		int contentLength3 = content.length();
+		String valorMais5 = "" + contentLength3;
+		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(valorMais5);
+		return ccpNumberDecorator;
 	}
 
 	/**
@@ -381,7 +419,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		CcpTextDecorator s1 = this.sanitize(delimiters);
 		CcpTextDecorator ctd = new CcpTextDecorator(phrase);
 		CcpTextDecorator s2 = ctd.sanitize(delimiters);
-		boolean notContained = false == s1.content.toUpperCase().contains(s2.content.toUpperCase());
+		String toUpperCase = s1.content.toUpperCase();
+		String toUpperCase2 = s2.content.toUpperCase();
+		boolean contains2 = toUpperCase.contains(toUpperCase2);
+		boolean notContained = false == contains2;
 
 		if(notContained) {
 			return false;
@@ -404,7 +445,8 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	 * Substitui os delimitadores padrão por espaço e converte para maiúsculas sem acentos.
 	 */
 	public CcpTextDecorator sanitize() {
-		return this.sanitize(CcpOtherConstants.DELIMITERS_ARRAY);
+		CcpTextDecorator sanitize = this.sanitize(CcpOtherConstants.DELIMITERS_ARRAY);
+		return sanitize;
 	}
 
 	/**
@@ -416,7 +458,9 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 			text = text.replace(delimiter, " ");
 		}
 		String upperCase = text.toUpperCase();
-		CcpTextDecorator ctd = new CcpStringDecorator(upperCase).text().stripAccents();
+		CcpStringDecorator ccpStringDecorator2 = new CcpStringDecorator(upperCase);
+		CcpTextDecorator ccpStringDecorator2Text = ccpStringDecorator2.text();
+		CcpTextDecorator ctd = ccpStringDecorator2Text.stripAccents();
 		return ctd;
 	}
 

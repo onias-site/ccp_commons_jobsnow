@@ -3,7 +3,7 @@ package com.ccp.business;
 import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
@@ -38,7 +38,8 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 	 * @return o JSON resultante da execução
 	 */
 	default CcpJsonRepresentation execute(CcpJsonRepresentation json) {
-		String className = this.getClass().getName(); 
+		var clazz = this.getClass();
+		String className = clazz.getName(); 
 		Class<?> jsonValidationClass = this.getJsonValidationClass();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, className);
 
@@ -46,7 +47,9 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 		return apply;
 	}  
 	default String name() {
-		return this.getClass().getName();
+		var clazz2 = this.getClass();
+		var clazz2Name = clazz2.getName();
+		return clazz2Name;
 	}
 	
 }

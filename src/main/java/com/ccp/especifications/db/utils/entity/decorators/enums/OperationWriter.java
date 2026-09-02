@@ -51,9 +51,11 @@ interface OperationWriter {
 		for (CcpExceptionFlow flow : flows) {
 			Class<?> whenThrowing = flow.whenThrowing();
 			Class<?>[] thenExecute = flow.thenExecute();
-			var asList = Arrays.asList(thenExecute)
-					.stream()
-					.map(x -> this.getBusiness(x))
+			var stream = Arrays.asList(thenExecute)
+					.stream();
+					var streamMap = stream
+					.map(x -> this.getBusiness(x));
+					var asList = streamMap
 					.collect(Collectors.toList())
 					;
 			

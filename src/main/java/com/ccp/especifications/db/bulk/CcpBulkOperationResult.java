@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
@@ -75,7 +75,8 @@ public interface CcpBulkOperationResult {
 	 * @return status convertido para {@link CcpJsonFieldName}
 	 */
 	default CcpJsonFieldName statusAsJsonFieldName() {
-		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.status());
+		int status = this.status();
+		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(status);
 		return ccpJsonFieldName;
 	}
 }

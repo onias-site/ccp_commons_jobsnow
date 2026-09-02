@@ -62,22 +62,27 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 		for (CcpEntityOperation operation : operations) {
 
 			CcpEntityDecoratorOperationType operationType = operation.operation();
-			
-			if(false == operationType.equals(this)) { 
+			boolean operationTypeEquals = operationType.equals(this);
+			boolean valorIgual = false == operationTypeEquals;
+
+			if(valorIgual) { 
 				continue;
 			}
 			
 			CcpEntityType entityType = operation.from();
 			String extractEntityName = entityType.extractEntityName(clazz);
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			
-			boolean isNotTheEntity = false == extractEntityName.equals(entityDetails.entityName);
+			boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
+
+			boolean isNotTheEntity = false == extractEntityNameEquals;
 			
 			if(isNotTheEntity) {
 				continue;
 			}
+			var when2 = operation.when();
+			var when2Equals = when2.equals(when);
 
-			boolean whenNotFound = false == operation.when().equals(when);
+			boolean whenNotFound = false == when2Equals;
 			
 			if(whenNotFound) {
 				continue;

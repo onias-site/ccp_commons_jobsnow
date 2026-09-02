@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonRepresentation.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
@@ -39,18 +39,21 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	 * @return handler de negócio correspondente ao processo
 	 */
 	public CcpBusiness getProcess(String processName, CcpJsonRepresentation json){
-		
-		CcpReflectionConstructorDecorator reflection = new CcpStringDecorator(processName).reflection();
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(processName);
+	
+		CcpReflectionConstructorDecorator reflection = ccpStringDecorator.reflection();
 
 		Object newInstance = reflection.newInstance();
 		
 		if(newInstance instanceof CcpBusiness topic) {
 			return topic;
 		}
-		boolean invalidTopic = false == newInstance instanceof CcpEntityConfigurator;
+		boolean isCcpEntityConfigurator = newInstance instanceof CcpEntityConfigurator;
+		boolean invalidTopic = false == isCcpEntityConfigurator;
 	
 		if(invalidTopic) {
-			throw new CcpErrorMensageriaInvalidName(processName);
+			CcpErrorMensageriaInvalidName ccpErrorMensageriaInvalidName = new CcpErrorMensageriaInvalidName(processName);
+			throw ccpErrorMensageriaInvalidName;
 		}
 		
 		CcpEntity entity = this.getEntity(json, newInstance);
@@ -69,7 +72,8 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
 		String twinEntityName = CcpEntityType.twinEntity.extractEntityName(entityMetaData.configurationClass);
 		String entityName = json.getAsString(JsonFieldNames.entityName);
-		boolean isNotTwinEntity = false == twinEntityName.equals(entityName);
+		boolean twinEntityNameEquals = twinEntityName.equals(entityName);
+		boolean isNotTwinEntity = false == twinEntityNameEquals;
 		
 		if(isNotTwinEntity) {
 			return entity;
@@ -98,8 +102,9 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	 * @return instância concreta de {@code CcpMensageriaReceiver}
 	 */
 	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
-		
-		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, JsonFieldNames.mensageriaReceiver.name());
+		String mensageriaReceiverName = JsonFieldNames.mensageriaReceiver.name();
+	
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(json, mensageriaReceiverName);
 		
 		CcpMensageriaReceiver newInstance = reflection.newInstance();
 		

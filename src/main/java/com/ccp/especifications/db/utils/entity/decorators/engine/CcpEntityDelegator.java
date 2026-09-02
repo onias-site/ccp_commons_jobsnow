@@ -84,13 +84,18 @@ public class CcpEntityDelegator implements CcpEntity{
 		
 		CcpEntity wrapedEntity = this;
 		Set<String> set = new LinkedHashSet<>();
-		set.add(this.getClass().getSimpleName());
+		var clazz = this.getClass();
+		var simpleName = clazz.getSimpleName();
+		set.add(simpleName);
 		do {
 			
 		}while(set.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
-		String replace = set.toString().replace(" ", "").replace(",", "->");
+		String toString = set.toString();
+		String toStringReplace = toString.replace(" ", "");
+		String replace = toStringReplace.replace(",", "->");
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		String string = entityDetails.entityName + " = " + replace;
+		String entityNameMais = entityDetails.entityName + " = ";
+		String string = entityNameMais + replace;
 		return string;
 	}
 	

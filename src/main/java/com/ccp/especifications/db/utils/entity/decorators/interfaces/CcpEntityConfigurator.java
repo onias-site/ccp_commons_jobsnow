@@ -46,7 +46,8 @@ public interface CcpEntityConfigurator {
 		Field declaredField = class1.getDeclaredField("ENTITY");
 		declaredField.setAccessible(true);
 		Object object = declaredField.get(null);
-		return (CcpEntity) object;
+		CcpEntity ccpEntity = (CcpEntity) object;
+		return ccpEntity;
 		
 	}
 }

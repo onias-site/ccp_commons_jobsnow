@@ -26,7 +26,9 @@ public class CcpDependencyInjection {
 		CcpInstanceProvider[] actuallyDependecies = new CcpInstanceProvider[providers.length];
 		int k = 0;
 		for (CcpInstanceProvider<?> provider : providers) {
-			actuallyDependecies[k++] = (CcpInstanceProvider) getDependency(provider.getClass().getInterfaces()[0]);
+			var providerClass = provider.getClass();
+			var interfaces2 = providerClass.getInterfaces();
+			actuallyDependecies[k++] = (CcpInstanceProvider) getDependency(interfaces2[0]);
 		}
 		loadAllDependencies(providers);
 
@@ -56,7 +58,8 @@ public class CcpDependencyInjection {
 	 */
 	public static <T> boolean hasDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
-		return implementation != null;
+		boolean implementationDiferente = implementation != null;
+		return implementationDiferente;
 	}
 
 	/**
@@ -66,10 +69,13 @@ public class CcpDependencyInjection {
 	@SuppressWarnings("unchecked")
 	public static <T> T getDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
-		if(implementation == null) {
-			throw new CcpErrorDependencyInjectionMissing(interfaceClass);
+		boolean implementationIgual = implementation == null;
+		if(implementationIgual) {
+			CcpErrorDependencyInjectionMissing ccpErrorDependencyInjectionMissing = new CcpErrorDependencyInjectionMissing(interfaceClass);
+			throw ccpErrorDependencyInjectionMissing;
 		}
-		return (T) implementation;
+		T t = (T) implementation;
+		return t;
 	}
 	
 	public static void removeAllDependencies() {

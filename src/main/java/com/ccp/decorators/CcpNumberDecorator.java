@@ -20,42 +20,48 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	 * Retorna o número como string.
 	 */
 	public String toString() {
-		return "" + this.content;
+		String valorMais = "" + this.content;
+		return valorMais;
 	}
 
 	/**
 	 * Retorna {@code true} se o valor for estritamente maior que {@code x}.
 	 */
 	public boolean greaterThan(Double x) {
-		return this.content > x ;
+		boolean contentMaior = this.content > x;
+		return contentMaior ;
 	}
 
 	/**
 	 * Retorna {@code true} se o valor for maior ou igual a {@code x}.
 	 */
 	public boolean equalsOrGreaterThan(Double x) {
-		return this.content >= x ;
+		boolean contentMaiorOuIgual = this.content >= x;
+		return contentMaiorOuIgual ;
 	}
 
 	/**
 	 * Retorna {@code true} se o valor for estritamente menor que {@code x}.
 	 */
 	public boolean lessThan(Double x) {
-		return this.content < x ;
+		boolean contentMenor = this.content < x;
+		return contentMenor ;
 	}
 
 	/**
 	 * Retorna {@code true} se o valor for menor ou igual a {@code x}.
 	 */
 	public boolean equalsOrLessThan(Double x) {
-		return this.content <= x ;
+		boolean contentMenorOuIgual = this.content <= x;
+		return contentMenorOuIgual ;
 	}
 
 	/**
 	 * Retorna {@code true} se o valor for exatamente igual a {@code x}.
 	 */
 	public boolean equalsTo(Double x) {
-		return this.content == x ;
+		boolean contentIgual = this.content == x;
+		return contentIgual ;
 	}
 
 	/**
@@ -63,7 +69,8 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	 */
 	public boolean belongsToRestrictedValues(Double...restrictedValues) {
 		for (double restricted : restrictedValues) {
-			if(restricted == this.content) {
+			boolean restrictedIgual = restricted == this.content;
+			if(restrictedIgual) {
 				return true;
 			}
 		}
@@ -77,7 +84,8 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 		int size = restrictedValues.size();
 		Double[] a = new Double[size];
 		Double[] array = restrictedValues.toArray(a);
-		return this.belongsToRestrictedValues(array);
+		boolean belongsToRestrictedValues = this.belongsToRestrictedValues(array);
+		return belongsToRestrictedValues;
 	}
 
 	/**

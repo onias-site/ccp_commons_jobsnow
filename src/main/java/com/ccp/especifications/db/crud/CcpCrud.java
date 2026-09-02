@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData.CcpErrorEntityPrimaryKeyIsMissing;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpErrorEntityPrimaryKeyIsMissing;
 
 /**
  * Contrato central de acesso ao banco de dados (Elasticsearch). Fornece operações CRUD básicas
@@ -54,7 +54,8 @@ public interface CcpCrud {
 				}
 			}
 		}
-		String[] array = keysToDeleteInCache.toArray(new String[keysToDeleteInCache.size()]);
+		int keysToDeleteInCacheSize = keysToDeleteInCache.size();
+		String[] array = keysToDeleteInCache.toArray(new String[keysToDeleteInCacheSize]);
 		functionToDeleteKeysInTheCache.accept(array);
 		return this;
 	}

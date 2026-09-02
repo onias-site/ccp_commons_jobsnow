@@ -41,7 +41,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	 * @param key o nome do campo que contém a lista
 	 */
 	public CcpCollectionDecorator(CcpJsonRepresentation json, String key) {
-		this.content = json.getAsObjectList(new CcpFieldName(key));
+		CcpFieldName ccpFieldName = new CcpFieldName(key);
+		this.content = json.getAsObjectList(ccpFieldName);
 	}
 
 	/**
@@ -82,8 +83,10 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	private boolean isValidList(Predicate<CcpStringDecorator> predicate) {
 		
 		for (Object object : this.content) {
-			CcpStringDecorator t = new CcpStringDecorator("" + object);
-			boolean failed = false ==  predicate.test(t);
+			String valorMais = "" + object;
+			CcpStringDecorator t = new CcpStringDecorator(valorMais);
+			boolean test = predicate.test(t);
+			boolean failed = false ==  test;
 			if(failed) {
 				return false;
 			}
@@ -95,7 +98,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	 * Implementação de {@code Iterable}; permite uso em {@code for-each}.
 	 */
 	public Iterator<Object> iterator() {
-		return this.content.iterator();
+		var iterator = this.content.iterator();
+		return iterator;
 	}
 	
 	
@@ -103,14 +107,18 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	 * Verifica se a coleção não possui elementos.
 	 */
 	public boolean isEmpty() {
-		return this.content.isEmpty();
+		boolean contentEmpty = this.content.isEmpty();
+		return contentEmpty;
 	}
 	
 	/**
 	 * Retorna o tamanho da coleção encapsulado em {@code CcpNumberDecorator} para facilitar comparações.
 	 */
 	public CcpNumberDecorator size() {
-		return new CcpNumberDecorator("" + this.content.size());
+		int contentSize = this.content.size();
+		String valorMais2 = "" + contentSize;
+		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(valorMais2);
+		return ccpNumberDecorator;
 	}
 	
 	/**
@@ -120,7 +128,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 		HashSet<Object> hashSet = new HashSet<Object>(this.content);
 		int s1 = this.content.size();
 		int s2 = hashSet.size();
-		return s1 == s2;
+		boolean s1Igual = s1 == s2;
+		return s1Igual;
 	}
 	
 	/**
@@ -131,8 +140,12 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getExclusiveList(Collection<T> listToCompare){
 		Predicate<? super Object> p = x ->  false == listToCompare.contains(x);
-		List<Object> collect = new ArrayList<Object>(this.content.stream().filter(p).collect(Collectors.toList()));
-		return (List<T>)collect;
+		var stream = this.content.stream();
+		var filter = stream.filter(p);
+		var collect2 = filter.collect(Collectors.toList());
+		List<Object> collect = new ArrayList<Object>(collect2);
+		List<T> listT = (List<T>)collect;
+		return listT;
 	}
 
 	/**
@@ -143,7 +156,11 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getIntersectList(Collection<T> listToCompare){
 		Predicate<? super Object> p = x -> listToCompare.contains(x);
-		List<T> collect = (List<T> )new ArrayList<Object>(this.content.stream().filter(p).collect(Collectors.toList()));
+		var stream2 = this.content.stream();
+		var filter2 = stream2.filter(p);
+		var collect3 = filter2.collect(Collectors.toList());
+		ArrayList<Object> arrayList2 = new ArrayList<Object>(collect3);
+		List<T> collect = (List<T> )arrayList2;
 		return collect;
 	}
 	
@@ -153,7 +170,9 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	 */
 	public <T> boolean hasIntersect(Collection<T> listToCompare) {
 		List<T> intersectList = this.getIntersectList(listToCompare);
-		return false == intersectList.isEmpty();
+		boolean intersectListEmpty = intersectList.isEmpty();
+		boolean valorIgual = false == intersectListEmpty;
+		return valorIgual;
 	}
 	
 	/**
@@ -162,7 +181,9 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	 * @param end índice final (exclusivo)
 	 */
 	public CcpCollectionDecorator getSubCollection(int start, int end) {
-		if(end > this.content.size()) {
+		int contentSize2 = this.content.size();
+		boolean endMaior = end > contentSize2;
+		if(endMaior) {
 			end = this.content.size();
 		}
 		

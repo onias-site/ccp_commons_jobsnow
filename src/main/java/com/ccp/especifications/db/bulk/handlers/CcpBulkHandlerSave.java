@@ -9,6 +9,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
+import java.util.stream.Stream;
 
 /**
  * Handler bulk que implementa a lógica de "upsert" inteligente: se o registro existe, gera itens
@@ -38,10 +39,13 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	 * @return lista de itens bulk de atualização ou noop
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation searchParameter,	CcpJsonRepresentation recordFound) {
-		
-		var asList = this.mainEntity
-			.toBulkItems(searchParameter, CcpBulkEntityOperationType.update)
-			.stream().map(x -> this.toUpdateRecord(searchParameter, recordFound, x))	
+		List<CcpBulkItem> toBulkItems = this.mainEntity
+			.toBulkItems(searchParameter, CcpBulkEntityOperationType.update);
+			Stream<CcpBulkItem> stream = toBulkItems
+			.stream();
+			var streamMap = stream.map(x -> this.toUpdateRecord(searchParameter, recordFound, x));
+
+			var asList = streamMap	
 			.collect(Collectors.toList())
 				;
 		return asList;
@@ -57,8 +61,9 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 			CcpBulkItem updatedBulkItem = new CcpBulkItem(x.json, CcpBulkEntityOperationType.noop, x.entity, x.id);
 			return updatedBulkItem;
 		}
-		
-		if(false == x.operation.createsVersionsToSameRecord) {
+		boolean valorIgual = false == x.operation.createsVersionsToSameRecord;
+
+		if(valorIgual) {
 			return x;
 		}
 		

@@ -33,7 +33,8 @@ public class CcpUrlDecorator implements CcpDecorator<String> {
 	 */
 	public String asDecoded() {
 		try {
-			String decode = URLDecoder.decode(this.content, StandardCharsets.UTF_8.toString());
+			String toString = StandardCharsets.UTF_8.toString();
+			String decode = URLDecoder.decode(this.content, toString);
 			return decode;
 		} catch (UnsupportedEncodingException e) {
 			return this.content;
@@ -47,7 +48,8 @@ public class CcpUrlDecorator implements CcpDecorator<String> {
 	 */
 	public String asEnconded() {
 		try {
-			String encode = URLEncoder.encode(this.content, StandardCharsets.UTF_8.toString());
+			String toString2 = StandardCharsets.UTF_8.toString();
+			String encode = URLEncoder.encode(this.content, toString2);
 			return encode;
 		} catch (UnsupportedEncodingException e) {
 			return this.content;

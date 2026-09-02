@@ -17,45 +17,57 @@ public interface CcpTransformers extends CcpBusiness {
 	
 	/** Trunca o valor do campo {@code field} para no máximo {@code limit} caracteres. */
 	default CcpJsonRepresentation substring(CcpJsonRepresentation json, String field, int limit) {
-		String value = json.getAsString(new CcpFieldName(field));
-		boolean isValid = value.trim().length() <= limit;
+		CcpFieldName ccpFieldName = new CcpFieldName(field);
+		String value = json.getAsString(ccpFieldName);
+		String valueTrim = value.trim();
+		int valueTrimLength = valueTrim.length();
+		boolean isValid = valueTrimLength <= limit;
 
 		if (isValid) {
 			return json;
 		}
 
 		String substring = value.substring(0, limit);
-		CcpJsonRepresentation put = json.put(new CcpFieldName(field), substring);
+		CcpFieldName ccpFieldName2 = new CcpFieldName(field);
+		CcpJsonRepresentation put = json.put(ccpFieldName2, substring);
 		return put;
 	}
 
 	/** Garante que o campo numérico {@code field} seja ao menos {@code minValue}. */
 	default CcpJsonRepresentation putMinValue(CcpJsonRepresentation json, String field, int minValue) {
-		boolean isNotPresent = false == json.containsAllFields(new CcpFieldName(field));
+		CcpFieldName ccpFieldName3 = new CcpFieldName(field);
+		boolean containsAllFields = json.containsAllFields(ccpFieldName3);
+		boolean isNotPresent = false == containsAllFields;
 		if(isNotPresent) {
 			return json;
 		}
+		CcpFieldName ccpFieldName4 = new CcpFieldName(field);
 
-		Double value = json.getAsDoubleNumber(new CcpFieldName(field));
+		Double value = json.getAsDoubleNumber(ccpFieldName4);
+		boolean valueMaiorOuIgual = value >= minValue;
 
-		if(value >= minValue) {
+		if(valueMaiorOuIgual) {
 			return json;
 		}
+		CcpFieldName ccpFieldName5 = new CcpFieldName(field);
 
-		CcpJsonRepresentation put = json.put(new CcpFieldName(field), minValue);
+		CcpJsonRepresentation put = json.put(ccpFieldName5, minValue);
 		return put;
 	}
 
 	/** Adiciona {@code longValue} ao campo se o valor atual não for um número long válido. */
 	default CcpJsonRepresentation addLongValue(CcpJsonRepresentation json, String field, Long longValue) {
-		String value = json.getAsString(new CcpFieldName(field));
+		CcpFieldName ccpFieldName6 = new CcpFieldName(field);
+		String value = json.getAsString(ccpFieldName6);
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(value);
 
-		boolean isLongNumber = new CcpStringDecorator(value).isLongNumber();
+		boolean isLongNumber = ccpStringDecorator.isLongNumber();
 
 		if(isLongNumber) {
 			return json;
 		}
-		CcpJsonRepresentation put = json.put(new CcpFieldName(field), longValue);
+		CcpFieldName ccpFieldName7 = new CcpFieldName(field);
+		CcpJsonRepresentation put = json.put(ccpFieldName7, longValue);
 		return put;
 
 	}
@@ -66,8 +78,9 @@ public interface CcpTransformers extends CcpBusiness {
 		if(containsAnyFields) {
 			return json;
 		}
+		CcpFieldName ccpFieldName8 = new CcpFieldName(field);
 
-		CcpJsonRepresentation put = json.put(new CcpFieldName(field), value);
+		CcpJsonRepresentation put = json.put(ccpFieldName8, value);
 		return put;
 	}
 

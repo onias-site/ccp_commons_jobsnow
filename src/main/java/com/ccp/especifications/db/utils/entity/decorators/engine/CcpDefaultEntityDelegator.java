@@ -23,6 +23,7 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
+import java.util.stream.Stream;
 
 /**
  * Especialização abstrata de {@code CcpEntityDelegator} que fornece implementações padrão de
@@ -36,7 +37,9 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	protected final CcpExecuteBulkOperation executeBulkOperation; 
 	Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch = jsn -> {
 		CcpEntityMetaData entityDetails = jsn.entity.getEntityMetaData();
-		throw new CcpErrorFlowDisturb(CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entityDetails.entityName), CcpProcessStatusDefault.NOT_FOUND);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entityDetails.entityName);
+		CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
+		throw ccpErrorFlowDisturb;
 	};
 
 	
@@ -54,16 +57,19 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 	
 	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+		List<CcpBulkItem> toBulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
 
-		List<CcpBulkItem> bulkItems = new ArrayList<>(this.toBulkItems(json, CcpBulkEntityOperationType.delete));
+		List<CcpBulkItem> bulkItems = new ArrayList<>(toBulkItems);
 		try {
 			CcpEntity twinEntity = this.getTwinEntity();
 			List<CcpBulkItem> bulkItemsTwin = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
 			bulkItems.addAll(bulkItemsTwin);
 		} catch (UnsupportedOperationException e) { 
 		} 
-		
-		List<CcpBulkItem> collect = bulkItems.stream().map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete))
+		Stream<CcpBulkItem> stream = bulkItems.stream();
+		var streamMap = stream.map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete));
+
+		List<CcpBulkItem> collect = streamMap
 		.collect(Collectors.toList());
 		this.executeBulkOperation.executeBulk(collect, this.functionToDeleteKeysInTheCache);
  
@@ -104,9 +110,10 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		List<CcpEntity> associatedEntities = getAssociatedEntities();
+		int associatedEntitiesSize = associatedEntities.size();
 
 
-		CcpEntity[] array = associatedEntities.toArray(new CcpEntity[associatedEntities.size()]);
+		CcpEntity[] array = associatedEntities.toArray(new CcpEntity[associatedEntitiesSize]);
 //		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
 		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
 		
@@ -165,24 +172,32 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
-
-
-		List<CcpBulkHandlerDelete> delete = this.toBulkItems(json, CcpBulkEntityOperationType.delete).stream()
+		List<CcpBulkItem> toBulkItems2 = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		Stream<CcpBulkItem> stream2 = toBulkItems2.stream();
+		var stream2Map = stream2
 		.map(x -> {
-			return new CcpBulkHandlerDelete(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
-		})
+			CcpBulkHandlerDelete ccpBulkHandlerDelete = new CcpBulkHandlerDelete(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
+			return ccpBulkHandlerDelete;
+			});
+
+
+			List<CcpBulkHandlerDelete> delete = stream2Map
 		.collect(Collectors.toList());
 		
 		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>(delete);
 		
 		for (CcpEntity entity : entities) {
-			List<CcpBulkHandlerCreate> create = entity.toBulkItems(json, CcpBulkEntityOperationType.create).stream()
-					.map(x -> new CcpBulkHandlerCreate(x.entity))
+			List<CcpBulkItem> toBulkItems3 = entity.toBulkItems(json, CcpBulkEntityOperationType.create);
+			Stream<CcpBulkItem> stream3 = toBulkItems3.stream();
+			var stream3Map = stream3
+					.map(x -> new CcpBulkHandlerCreate(x.entity));
+					List<CcpBulkHandlerCreate> create = stream3Map
 					.collect(Collectors.toList());
 		
 			all.addAll(create);
 		}
-		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[all.size()]);
+		int allSize = all.size();
+		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize]);
 		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
 	
 		return json;
@@ -190,23 +205,31 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
-		List<CcpBulkHandlerRead> read = this.toBulkItems(json, CcpBulkEntityOperationType.noop).stream()
+		List<CcpBulkItem> toBulkItems4 = this.toBulkItems(json, CcpBulkEntityOperationType.noop);
+		Stream<CcpBulkItem> stream4 = toBulkItems4.stream();
+		var stream4Map = stream4
 		.map(x -> {
-			return new CcpBulkHandlerRead(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
-		})
+			CcpBulkHandlerRead ccpBulkHandlerRead = new CcpBulkHandlerRead(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
+			return ccpBulkHandlerRead;
+			});
+			List<CcpBulkHandlerRead> read = stream4Map
 		.collect(Collectors.toList());
 
 		
 		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>(read);
 		
 		for (CcpEntity entity : entities) {
-			List<CcpBulkHandlerCreate> create = entity.toBulkItems(json, CcpBulkEntityOperationType.create).stream()
-					.map(x -> new CcpBulkHandlerCreate(x.entity))
+			List<CcpBulkItem> toBulkItems5 = entity.toBulkItems(json, CcpBulkEntityOperationType.create);
+			Stream<CcpBulkItem> stream5 = toBulkItems5.stream();
+			var stream5Map = stream5
+					.map(x -> new CcpBulkHandlerCreate(x.entity));
+					List<CcpBulkHandlerCreate> create = stream5Map
 					.collect(Collectors.toList());
 		
 			all.addAll(create);
 		}
-		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[all.size()]);
+		int allSize2 = all.size();
+		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize2]);
 		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
 	
 		return json;
