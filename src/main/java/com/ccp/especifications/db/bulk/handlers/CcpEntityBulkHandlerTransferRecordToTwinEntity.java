@@ -3,6 +3,7 @@ package com.ccp.especifications.db.bulk.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -48,14 +49,11 @@ public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandle
 		return asList;
 	}
 
-	/**
-	 * Retorna lista vazia, pois sem registro na origem não há o que transferir.
-	 *
-	 * @param json parâmetros da busca
-	 * @return lista vazia
-	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		return new ArrayList<>();
+		CcpEntity entityToSearch = this.getEntityToSearch();
+		CcpBulkHandlerDelete handler = new CcpBulkHandlerDelete(entityToSearch, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
+		List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(json);
+		return whenRecordWasNotFoundInTheEntitySearch;
 	}
 
 	/**

@@ -3,9 +3,9 @@ package com.ccp.especifications.db.utils.entity.decorators.engine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -21,9 +21,6 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.flow.CcpErrorFlowDisturb;
-import com.ccp.process.CcpProcessStatusDefault;
-import java.util.stream.Stream;
 
 /**
  * Especialização abstrata de {@code CcpEntityDelegator} que fornece implementações padrão de
@@ -35,12 +32,6 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	
 	protected final Consumer<String[]> functionToDeleteKeysInTheCache;
 	protected final CcpExecuteBulkOperation executeBulkOperation; 
-	Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch = jsn -> {
-		CcpEntityMetaData entityDetails = jsn.entity.getEntityMetaData();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entityDetails.entityName);
-		CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
-		throw ccpErrorFlowDisturb;
-	};
 
 	
 	public CcpDefaultEntityDelegator(CcpEntity entity, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
@@ -176,7 +167,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		Stream<CcpBulkItem> stream2 = toBulkItems2.stream();
 		var stream2Map = stream2
 		.map(x -> {
-			CcpBulkHandlerDelete ccpBulkHandlerDelete = new CcpBulkHandlerDelete(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
+			CcpBulkHandlerDelete ccpBulkHandlerDelete = new CcpBulkHandlerDelete(x.entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
 			return ccpBulkHandlerDelete;
 			});
 
@@ -209,7 +200,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		Stream<CcpBulkItem> stream4 = toBulkItems4.stream();
 		var stream4Map = stream4
 		.map(x -> {
-			CcpBulkHandlerRead ccpBulkHandlerRead = new CcpBulkHandlerRead(x.entity, this.whenRecordWasNotFoundInTheEntitySearch);
+			CcpBulkHandlerRead ccpBulkHandlerRead = new CcpBulkHandlerRead(x.entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
 			return ccpBulkHandlerRead;
 			});
 			List<CcpBulkHandlerRead> read = stream4Map

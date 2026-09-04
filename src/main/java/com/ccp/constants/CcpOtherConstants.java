@@ -1,9 +1,17 @@
 package com.ccp.constants;
 
+import java.util.List;
+import java.util.function.Function;
+
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.utils.entity.CcpEntity.JsonFieldNames;
+import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
+import com.ccp.flow.CcpErrorFlowDisturb;
+import com.ccp.process.CcpProcessStatusDefault;
 
 /**
  * Repositório de constantes globais compartilhadas em todo o sistema.
@@ -25,5 +33,12 @@ public interface CcpOtherConstants {
 	CcpFieldName EMPTY_STRING = new CcpFieldName("");
 
 	CcpStringDecorator LETTERS_AND_NUMBERS = new CcpStringDecorator("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+
+	Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntityToSearch = jsn -> {
+		CcpEntityMetaData entityDetails = jsn.entity.getEntityMetaData();
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entityDetails.entityName);
+		CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
+		throw ccpErrorFlowDisturb;
+	};
 
 }
