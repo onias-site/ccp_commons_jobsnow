@@ -3,7 +3,6 @@ package com.ccp.json.validations.fields.enums;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -13,8 +12,8 @@ import java.util.Set;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNestedJson;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
@@ -24,9 +23,9 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
+import com.ccp.json.validations.global.engine.CcpJsonValidationError;
 import com.ccp.json.validations.global.engine.CcpJsonValidationRulesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
-import com.ccp.json.validations.global.engine.CcpJsonValidationError;
 
 /**
  * Catálogo extenso de validadores de restrições específicas por tipo (números, strings, arrays,
@@ -1032,10 +1031,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		
 		<T extends Object> T getValidationParameter(Field field, CcpJsonFieldType type) {
 			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
-			String[] allowedValues = annotation.allowedValues();
-			List<String> value = Arrays.asList(allowedValues);
 			Class[] allowedValuesEnum = annotation.allowedValuesEnum();
-			LinkedHashSet<String> set = new LinkedHashSet<String>(value);
+			LinkedHashSet<String> set = new LinkedHashSet<String>();
 			for (Class class1 : allowedValuesEnum) {
 				try {
 					Method method = class1.getDeclaredMethod("values");

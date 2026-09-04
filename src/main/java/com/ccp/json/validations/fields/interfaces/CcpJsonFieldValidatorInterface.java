@@ -96,10 +96,10 @@ public interface CcpJsonFieldValidatorInterface {
 		Object error = this.getError(json, field, type);
 		String name = this.name();
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
-				.put(ErrorFields.errorName, name);
+				.put(CcpErrorFields.errorName, name);
 
 				CcpJsonRepresentation errorObject = put
-				.put(ErrorFields.errorDescription, error);
+				.put(CcpErrorFields.errorDescription, error);
 				CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
 
 				CcpJsonRepresentation updatedErrors = errors.addToList(ccpFieldName, errorObject);
@@ -152,7 +152,7 @@ public interface CcpJsonFieldValidatorInterface {
 		ruleName, ruleDescription
 		;
 	}
-	enum ErrorFields implements CcpJsonFieldName{
+	public static enum CcpErrorFields implements CcpJsonFieldName{
 		errorName, errorDescription
 		;
 	}

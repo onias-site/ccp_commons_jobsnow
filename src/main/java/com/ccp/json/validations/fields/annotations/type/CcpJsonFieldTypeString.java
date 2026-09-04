@@ -21,8 +21,7 @@ public @interface CcpJsonFieldTypeString {
 	int maxLength() default Integer.MAX_VALUE;
 	/** Se string vazia é aceita (padrão: false). */
 	boolean allowsEmptyString() default false;
-	/** Valores de string permitidos. */
-	String[] allowedValues() default {};
+
 	/** Expressão regular de validação. */
 	String regexValidation() default "";
 	
