@@ -1,13 +1,17 @@
 package com.ccp.json.validations.global.enums;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.ccp.json.validations.global.annotations.CcpJsonValidationFieldList;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
+import com.ccp.json.validations.global.annotations.CcpJsonValidationFieldList;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
 /**
@@ -26,7 +30,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			
 			for (CcpJsonValidationFieldList validation : validations) {
 				
-				String[] oneOfThem = validation.value();
+				String[] oneOfThem = getItemsFromAnnotation(validation);
 				boolean containsAnyFields = json.containsAnyFields(Arrays.asList(oneOfThem));
 
 				boolean hasError = false == containsAnyFields;
@@ -44,7 +48,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			List<String> errors = new ArrayList<>();
 			for (CcpJsonValidationFieldList validation : requiredAtLeastOne) {
 				
-				String[] oneOfThem = validation.value();
+				String[] oneOfThem = getItemsFromAnnotation(validation);
 				
 				boolean hasNoError = json.containsAnyFields(Arrays.asList(oneOfThem));
 				
@@ -64,7 +68,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			List<String> rules = new ArrayList<>();
 			for (CcpJsonValidationFieldList validation : requiredAtLeastOne) {
 				
-				String[] oneOfThem = validation.value();
+				String[] oneOfThem = getItemsFromAnnotation(validation);
 				String toString2 = Arrays.asList(oneOfThem).toString();
 				String rule = "The provided json must has one of this following fields: " + toString2;
 				rules.add(rule);
@@ -86,7 +90,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			
 			for (CcpJsonValidationFieldList validation : validations) {
 				
-				String[] array = validation.value();
+				String[] array = getItemsFromAnnotation(validation);
 				boolean containsAnyFields2 = json.containsAnyFields(Arrays.asList(array));
 
 				boolean containsNeitherOfThisFields = false == containsAnyFields2;
@@ -114,7 +118,7 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			
 			for (CcpJsonValidationFieldList validation : validations) {
 				
-				String[] array = validation.value();
+				String[] array = getItemsFromAnnotation(validation);
 				boolean containsAnyFields3 = json.containsAnyFields(Arrays.asList(array));
 
 				boolean containsNeitherOfThisFields = false == containsAnyFields3;
@@ -151,12 +155,35 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 			List<String> rules = new ArrayList<>();
 			for (CcpJsonValidationFieldList validation : list) {
 				
-				String[] oneOfThem = validation.value();
+				String[] oneOfThem = getItemsFromAnnotation(validation);
 				String toString3 = Arrays.asList(oneOfThem).toString();
 				String valorMais2 = "The provided json must has all (or none) of this following fields: " + toString3;
 				String rule = valorMais2 + ". If provide one of them, so must provide all of them";
 				rules.add(rule);
 			}
 			return rules;
-		}}
+		}};
+
+		protected static String[] getItemsFromAnnotation(CcpJsonValidationFieldList validation) {
+		
+			Set<String> set = new HashSet<>();
+			Class<?>[] classes = validation.value();
+			CcpJsonHandler dependency = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+			
+			for (Class<?> class1 : classes) {
+				try {
+					
+					Method declaredMethod = class1.getDeclaredMethod("values");
+					Object[] invoke = (Object[])declaredMethod.invoke(null);
+					List<String> list = dependency.fromJson(Arrays.asList(invoke).toString());
+					set.addAll(list); 
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				
+			}
+			
+			String[] array = set.toArray(new String[set.size()]);
+			return array;
+		}
 }

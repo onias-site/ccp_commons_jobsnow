@@ -45,5 +45,5 @@ public enum CcpProcessStatusDefault implements CcpProcessStatus{
 		return ccpJsonFieldName; 
 	}
 	
-	private final int status;
+	public final int status;
 }

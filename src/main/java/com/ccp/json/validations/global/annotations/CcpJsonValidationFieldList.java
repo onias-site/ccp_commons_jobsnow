@@ -6,5 +6,6 @@ package com.ccp.json.validations.global.annotations;
  */
 public @interface CcpJsonValidationFieldList {
 	/** Nomes dos campos que compõem o grupo de validação. */
-	String[] value() default{};
+	@SuppressWarnings("rawtypes")
+	Class[] value() default{};
 }
