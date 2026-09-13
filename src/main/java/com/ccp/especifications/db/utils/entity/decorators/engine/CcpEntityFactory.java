@@ -13,10 +13,13 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorator;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorators;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefaultEntityField;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldNotUpdatable;
@@ -86,33 +89,56 @@ public class CcpEntityFactory {
 	 * Constrói a cadeia de decorators para a classe configuradora, aplicando os tipos presentes nas
 	 * anotações em ordem de prioridade, exceto os listados em {@code decoratorsToAvoid}.
 	 */
-	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> entityNameExtractor, CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> entityNameExtractor, CcpEntityDecoratorType... decoratorsToAvoid) {
 		
-		
-		List<CcpEntityDecoratorTypes> avoidedDecorators = Arrays.asList(decoratorsToAvoid);
+		List<CcpEntityDecoratorType> avoidedDecorators = Arrays.asList(decoratorsToAvoid);
 		
 		CcpEntityMetaData entityDetails = new CcpEntityMetaData(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
 		CcpEntityDecoratorTypes[] ccpEntityDecoratorTypesValues = CcpEntityDecoratorTypes.values();
-		Stream<CcpEntityDecoratorTypes> stream = Arrays.asList(ccpEntityDecoratorTypesValues).stream();
+		List<CcpEntityDecoratorType> asList = Arrays.asList(ccpEntityDecoratorTypesValues);
+		Stream<CcpEntityDecoratorType> stream = asList.stream();
 		var filter = stream
 				.filter(x -> x.isDecorated(configurationClass));
 				var filter2 = filter
 				.filter(x -> false == avoidedDecorators.contains(x));
 
-				List<CcpEntityDecoratorTypes> collect = filter2
+				List<CcpEntityDecoratorType> collect = filter2
 				
 				.collect(Collectors.toList());
-		collect.sort((a,b) -> a.priority - b.priority);
+
+		List<CcpEntityDecoratorType> list = new ArrayList<>(collect);		
 		
-		for (CcpEntityDecoratorTypes decorator : collect) {
+		List<CcpEntityDecoratorType> customDecorators = getCustomDecorators(configurationClass);
+		
+		list.addAll(customDecorators);
+		
+		list.sort((a,b) -> a.getPriority() - b.getPriority());
+		
+		for (CcpEntityDecoratorType decorator : list) {
 			result = decorator.getEntity(configurationClass, result);
 		}
 		
 		return result;
 	}
 	
+	private static List<CcpEntityDecoratorType> getCustomDecorators(Class<?> configurationClass) {
+		
+		boolean isNotDecorated = configurationClass.isAnnotationPresent(CcpEntityCustomDecorators.class);
+		
+		if(isNotDecorated) {
+			return new ArrayList<>();
+		}
+		
+		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
+		CcpEntityCustomDecorator[] value = annotation.value();
+		List<CcpEntityCustomDecorator> asList = Arrays.asList(value);
+		List<CcpEntityDecoratorType> collect = asList.stream().map(x -> new DecoratorCustomEntity(x, configurationClass)).collect(Collectors.toList());
+		
+		return collect;
+	}
+
 	/**
 	 * Extrai os campos da entidade a partir da inner class {@code Fields} declarada em
 	 * {@code configurationClass}, construindo um array de {@code CcpEntityField} com os metadados

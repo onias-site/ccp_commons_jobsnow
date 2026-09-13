@@ -239,5 +239,15 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
 		return recordFromUnionAll;
 	}
+	
+	public String getValue() {
+		String value = this.entity.getValue();
+		return value;
+	}
+
+	public String name() {
+		String name = this.entity.name();
+		return name;
+	}
 
 }

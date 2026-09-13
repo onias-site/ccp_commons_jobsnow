@@ -68,7 +68,8 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 
 	private CcpEntity getEntity(CcpJsonRepresentation json, Object newInstance) {
 		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
-		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.AsyncWriter);
+		//FIXME CORRECAO URGENTE PARA EVITAR O ASYNC
+		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.Cacheable);
 		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
 		String twinEntityName = CcpEntityType.twinEntity.extractEntityName(entityMetaData.configurationClass);
 		String entityName = json.getAsString(JsonFieldNames.entityName);
@@ -79,7 +80,8 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 			return entity;
 		}
 		
-		CcpEntity twinEntity = entity.getTwinEntity(CcpEntityDecoratorTypes.AsyncWriter);
+		//FIXME CORRECAO URGENTE PARA EVITAR O ASYNC
+		CcpEntity twinEntity = entity.getTwinEntity(CcpEntityDecoratorTypes.Cacheable);
 		return twinEntity;
 	}
 	

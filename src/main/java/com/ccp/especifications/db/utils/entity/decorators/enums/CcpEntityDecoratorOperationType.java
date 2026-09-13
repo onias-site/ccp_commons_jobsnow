@@ -1,5 +1,8 @@
 package com.ccp.especifications.db.utils.entity.decorators.enums;
 
+import java.util.List;
+import java.util.Map;
+
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
@@ -88,12 +91,12 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 				continue;
 			}
 			
-			var localHandlers = operation.operationHandlers();
-			var localExceptionHandlers = this.getExceptionHandlers(localHandlers);
-			var globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
+			CcpExceptionFlow[] localHandlers = operation.operationHandlers();
+			Map<Class<?>, List<CcpBusiness>> localExceptionHandlers = this.getExceptionHandlers(localHandlers);
+			Map<Class<?>, List<CcpBusiness>> globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
 			globalExceptionHandlers.putAll(localExceptionHandlers);
 			Class<?>[] execute = operation.execute();
-			for (var businessClass : execute) { 
+			for (Class<?> businessClass : execute) { 
 				CcpBusiness business = this.getBusiness(businessClass);
 				json = this.executeBusiness(json, business, globalExceptionHandlers);
 			}
@@ -102,4 +105,5 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 		
 		return json;
 	}
+	
 }

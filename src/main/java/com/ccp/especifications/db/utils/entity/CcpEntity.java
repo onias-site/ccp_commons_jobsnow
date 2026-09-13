@@ -33,7 +33,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	public static enum JsonFieldNames implements CcpJsonFieldName{
 		entity,
 		_entities,
-
+ 
 	}
 
 	/**
