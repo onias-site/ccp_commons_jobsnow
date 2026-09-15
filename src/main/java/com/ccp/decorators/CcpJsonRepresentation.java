@@ -1362,4 +1362,22 @@ public class CcpJsonRepresentation  {
 		}
 	}
 
+
+
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getAsEnumList(CcpJsonFieldName field, Class<T> class1) {
+		try {
+			Method method = class1.getDeclaredMethod("valueOf", String.class);
+			List<String> asStringList = this.getAsStringList(field);
+			List<T> list = new ArrayList<>();
+			for (String string : asStringList) {
+				T invoke = (T)method.invoke(null, string);
+				list.add(invoke);
+			}
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

@@ -14,13 +14,13 @@ import java.lang.annotation.Target;
 public @interface CcpEntityOperations {
 
 	/**
-	 * Tratadores de exceção globais aplicados a todas as operações.
-	 */
-	CcpExceptionFlow[] globalHandlers();
-
-	/**
 	 * Array de operações configuradas para a entidade.
 	 */
-	CcpEntityOperation[] operations();
+	CcpEntityOperation[] value();
+
+	/**
+	 * Tratadores de exceção globais aplicados a todas as operações.
+	 */
+	CcpExceptionFlow[] globalHandlers() default {};
 
 }

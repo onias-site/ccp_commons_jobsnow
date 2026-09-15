@@ -5,38 +5,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorTransferType;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationStepType;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDataTransferType;
 
 /**
  * Configura uma transferência de dados entre entidades ({@code copyDataTo} ou {@code transferDataTo}).
- * Define a origem, o destino, o tipo de transferência, o momento de execução (antes/depois da operação
- * principal) e os negócios a executar com seus tratadores de exceção.
+ * A combinação de momento de execução, tipo de transferência e entidade de origem vem encapsulada em
+ * um único item de {@code CcpEntityDataTransferType}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityDataTransfer {
 
 	/**
+	 * Combinação de {@code operationPhase}, {@code transferType} e {@code entityPhase} desta
+	 * transferência.
+	 */
+	CcpEntityDataTransferType operationType();
+
+	/**
 	 * Tratadores de exceção específicos desta transferência.
 	 */
 	CcpExceptionFlow[] transferHandlers();
-
-	/**
-	 * Entidade de origem da transferência (mainEntity ou twinEntity).
-	 */
-	CcpEntityType from();
-
-	/**
-	 * Tipo de transferência ({@code copyDataTo} ou {@code transferDataTo}).
-	 */
-	CcpEntityDecoratorTransferType transferType();
-
-	/**
-	 * Momento de execução: {@code before} (antes) ou {@code after} (depois) da operação principal.
-	 */
-	CcpEntityOperationStepType when();
 
 	/**
 	 * Classes de negócio a executar durante a transferência.
@@ -47,6 +36,6 @@ public @interface CcpEntityDataTransfer {
 	/**
 	 * Classe de configuração da entidade destino.
 	 */
-	Class<?> to();
+	Class<?> targetEntity();
 
 }

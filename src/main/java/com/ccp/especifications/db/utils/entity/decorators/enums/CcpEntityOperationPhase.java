@@ -5,6 +5,6 @@ package com.ccp.especifications.db.utils.entity.decorators.enums;
  * principal) e {@code after} (depois). Usado como atributo em {@code @CcpEntityOperation} e
  * {@code @CcpEntityDataTransfer}.
  */
-public enum CcpEntityOperationStepType {
+public enum CcpEntityOperationPhase {
 	_after, _before
 }

@@ -5,37 +5,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationStepType;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationType;
 
 /**
- * Configura uma operação com side effects para uma entidade (save, delete, deleteAnyWhere). Define a
- * origem, o tipo de operação, o momento de execução e os negócios a executar com seus tratadores de exceção.
+ * Configura uma operação com side effects para uma entidade (save, delete, deleteAnyWhere). A
+ * combinação de momento de execução, tipo de operação e entidade de origem vem encapsulada em um
+ * único item de {@code CcpEntityOperationType}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityOperation {
 
 	/**
+	 * Combinação de {@code operationPhase}, {@code operationType} e {@code entityPhase} desta
+	 * operação.
+	 */
+	CcpEntityOperationType operationType();
+
+	/**
 	 * Tratadores de exceção específicos desta operação.
 	 */
 	CcpExceptionFlow[] operationHandlers();
-
-	/**
-	 * Entidade de origem (mainEntity ou twinEntity).
-	 */
-	CcpEntityType from();
-
-	/**
-	 * Tipo da operação: {@code save}, {@code delete} ou {@code deleteAnyWhere}.
-	 */
-	CcpEntityDecoratorOperationType operation();
-
-	/**
-	 * Momento de execução: {@code before} (antes) ou {@code after} (depois) da operação.
-	 */
-	CcpEntityOperationStepType when();
 
 	/**
 	 * Classes de negócio a executar durante a operação.

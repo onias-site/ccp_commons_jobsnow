@@ -48,31 +48,33 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	 * @param entity a entidade alvo da operação
 	 */
 	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity... entities) {
-		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType._before, clazz, entity);
+		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
 		CcpJsonRepresentation result = this.executeEntityOperation(before, entity);
-		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationStepType._after, clazz, entity);
+		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationPhase._after, clazz, entity);
 		return after;  
 	}
 	
-	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationStepType when, Class<?> clazz, CcpEntity entity) {
+	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity) {
 		
 		CcpEntityOperations annotation = clazz.getAnnotation(CcpEntityOperations.class);
 		
 		CcpExceptionFlow[] globalHandlers = annotation.globalHandlers();
 		
-		CcpEntityOperation[] operations = annotation.operations();
-		
+		CcpEntityOperation[] operations = annotation.value();
+
 		for (CcpEntityOperation operation : operations) {
 
-			CcpEntityDecoratorOperationType operationType = operation.operation();
+			CcpEntityOperationType configuredOperationType = operation.operationType();
+
+			CcpEntityDecoratorOperationType operationType = configuredOperationType.operationType;
 			boolean operationTypeEquals = operationType.equals(this);
 			boolean valorIgual = false == operationTypeEquals;
 
-			if(valorIgual) { 
+			if(valorIgual) {
 				continue;
 			}
-			
-			CcpEntityType entityType = operation.from();
+
+			CcpEntityPhase entityType = configuredOperationType.entityPhase;
 			String extractEntityName = entityType.extractEntityName(clazz);
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
@@ -82,7 +84,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			if(isNotTheEntity) {
 				continue;
 			}
-			var when2 = operation.when();
+			var when2 = configuredOperationType.operationPhase;
 			var when2Equals = when2.equals(when);
 
 			boolean whenNotFound = false == when2Equals;

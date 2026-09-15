@@ -12,7 +12,7 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
  * (a entidade twin definida em {@code @CcpEntityTwin}). Usada como atributo em
  * {@code @CcpEntityOperation} e {@code @CcpEntityDataTransfer}.
  */
-public enum CcpEntityType {
+public enum CcpEntityPhase {
 	mainEntity {
 		public String extractEntityName(Class<?> clazz) {
 			Field declaredField = clazz.getDeclaredField("ENTITY");

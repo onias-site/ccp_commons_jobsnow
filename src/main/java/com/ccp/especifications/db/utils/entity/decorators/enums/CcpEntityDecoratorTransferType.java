@@ -38,52 +38,62 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	 * @param entityToTransfer a entidade destino
 	 */
 	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
-		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationStepType._before, clazz, entity, entityToTransfer);
+		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
 		CcpJsonRepresentation result = this.executeEntityTransfer(before, entity, entityToTransfer);
-		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationStepType._after, clazz, entity, entityToTransfer);
+		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
 		return after;
 
 	}
 	
-	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationStepType when, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		
 		CcpEntityDataTransfers annotation = clazz.getAnnotation(CcpEntityDataTransfers.class);
 		
 		CcpExceptionFlow[] globalHandlers = annotation.globalHandlers();
 		
-		CcpEntityDataTransfer[] transfers = annotation.transfers();
-		
+		CcpEntityDataTransfer[] transfers = annotation.value();
+
 		for (CcpEntityDataTransfer transfer : transfers) {
 
-			CcpEntityDecoratorTransferType operationType = transfer.transferType();
-			boolean operationTypeEquals = operationType.equals(this);
-			boolean valorIgual = false == operationTypeEquals;
-
-			if(valorIgual) {
-				continue;
+			CcpEntityDataTransferType configuredTransferType = transfer.operationType();
+			{
+				CcpEntityDecoratorTransferType operationType = configuredTransferType.transferType;
+				boolean operationTypeEquals = operationType.equals(this);
+				boolean isNotOperationTyype = false == operationTypeEquals;
+				
+				if(isNotOperationTyype) {
+					continue;
+				}
+				
 			}
-
-			CcpEntityMetaData entityToTransferEntityDetails = entityToTransfer.getEntityMetaData();
-			Class<?> obj = transfer.to();
-			boolean configurationClassEquals = entityToTransferEntityDetails.configurationClass.equals(obj);
-			boolean wrongEntity = false == configurationClassEquals;
-			
-			if(wrongEntity) {
-				continue;
+			{
+				CcpEntityMetaData entityToTransferEntityDetails = entityToTransfer.getEntityMetaData();
+				Class<?> targetEntity = transfer.targetEntity();
+				boolean configurationClassEquals = entityToTransferEntityDetails.configurationClass.equals(targetEntity);
+				boolean wrongTarget = false == configurationClassEquals;
+				
+				if(wrongTarget) {
+					continue;
+				}
 			}
 			
-			CcpEntityType entityType = transfer.from();
-			String extractEntityName = entityType.extractEntityName(clazz);
-			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
-
-			boolean isNotTheEntity = false == extractEntityNameEquals;
-			
-			if(isNotTheEntity) {
-				continue;
+			{
+				
+				CcpEntityPhase entityPhase = configuredTransferType.entityPhase;
+				String extractEntityName = entityPhase.extractEntityName(clazz);
+				CcpEntityMetaData entityDetails = entity.getEntityMetaData();
+				boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
+				
+				boolean wrongEntityPhase = false == extractEntityNameEquals;
+				
+				if(wrongEntityPhase) {
+					continue;
+				}
 			}
-			var when2 = transfer.when();
-			var when2Equals = when2.equals(when);
+			 
+			CcpEntityOperationPhase when2 = configuredTransferType.operationPhase;
+			
+			boolean when2Equals = when2.equals(when);
 
 			boolean whenNotFound = false == when2Equals;
 			

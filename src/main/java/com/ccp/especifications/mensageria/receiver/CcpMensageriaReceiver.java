@@ -13,7 +13,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
-import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityType;
+import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityPhase;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 
 /**
@@ -71,7 +71,7 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		//FIXME CORRECAO URGENTE PARA EVITAR O ASYNC
 		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.Cacheable);
 		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
-		String twinEntityName = CcpEntityType.twinEntity.extractEntityName(entityMetaData.configurationClass);
+		String twinEntityName = CcpEntityPhase.twinEntity.extractEntityName(entityMetaData.configurationClass);
 		String entityName = json.getAsString(JsonFieldNames.entityName);
 		boolean twinEntityNameEquals = twinEntityName.equals(entityName);
 		boolean isNotTwinEntity = false == twinEntityNameEquals;

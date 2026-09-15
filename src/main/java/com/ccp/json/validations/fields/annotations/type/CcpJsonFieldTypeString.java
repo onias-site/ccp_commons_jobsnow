@@ -28,5 +28,5 @@ public @interface CcpJsonFieldTypeString {
 	@SuppressWarnings("rawtypes")
 	/** Valores de enums (concatenados) permitidos. */
 	Class[] allowedValuesEnum() default {};
-
+//TODO ISJAVACLASS
 }
