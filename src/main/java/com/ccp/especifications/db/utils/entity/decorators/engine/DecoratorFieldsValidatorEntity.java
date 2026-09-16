@@ -28,21 +28,21 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 		return json;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	public boolean save(CcpJsonRepresentation json) {
 		this.validateJson(json);
-		CcpJsonRepresentation save = this.entity.save(json);
+		boolean save = this.entity.save(json);
 		return save;
 	}
 
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		this.validateJson(json);
-		CcpJsonRepresentation result = this.entity.transferDataTo(json, entities);
+		boolean result = this.entity.transferDataTo(json, entities);
 		return result;
 	}
-	
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		this.validateJson(json);
-		CcpJsonRepresentation result = this.entity.copyDataTo(json, entities);
+		boolean result = this.entity.copyDataTo(json, entities);
 		return result;
 	}
 }

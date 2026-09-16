@@ -36,13 +36,13 @@ public class CcpEntityDelegator implements CcpEntity{
 		return entityDetails;
 	}
 
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		CcpJsonRepresentation delete = this.entity.delete(json);
+	public boolean delete(CcpJsonRepresentation json) {
+		boolean delete = this.entity.delete(json);
 		return delete;
 	}
 
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
-		CcpJsonRepresentation deleteAnyWhere = this.entity.deleteAnyWhere(json);
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
+		boolean deleteAnyWhere = this.entity.deleteAnyWhere(json);
 		return deleteAnyWhere;
 	}
 
@@ -75,8 +75,8 @@ public class CcpEntityDelegator implements CcpEntity{
 		return presentInThisUnionAll;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpJsonRepresentation save = this.entity.save(json);
+	public boolean save(CcpJsonRepresentation json) {
+		boolean save = this.entity.save(json);
 		return save;
 	}
 
@@ -134,13 +134,13 @@ public class CcpEntityDelegator implements CcpEntity{
 		return bulkItems;
 	}
 
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		CcpJsonRepresentation copyDataTo = this.entity.copyDataTo(json, entities);
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+		boolean copyDataTo = this.entity.copyDataTo(json, entities);
 		return copyDataTo;
 	}
 
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+		boolean transferDataTo = this.entity.transferDataTo(json, entities);
 		return transferDataTo;
 	}
 

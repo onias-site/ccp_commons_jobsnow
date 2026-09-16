@@ -38,6 +38,17 @@ public interface CcpCrud {
 
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
+	/**
+	 * Informa se a resposta devolvida por {@code save} corresponde à inclusão de um documento novo,
+	 * e não à atualização de um documento que já existia. Quem implementa este contrato é o único que
+	 * conhece o formato da resposta do banco e o status HTTP que a acompanha, por isso é aqui que a
+	 * resposta é interpretada.
+	 *
+	 * @param saveResponse a resposta devolvida por {@code save}
+	 * @return {@code true} se o documento foi incluído, {@code false} se ele foi atualizado
+	 */
+	boolean isInsertedDocument(CcpJsonRepresentation saveResponse);
+
 	boolean exists(String entityName, String id);
 
 	boolean delete(String entityName, String id);

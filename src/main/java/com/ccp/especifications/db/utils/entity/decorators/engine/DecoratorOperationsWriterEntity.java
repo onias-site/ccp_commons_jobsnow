@@ -19,18 +19,18 @@ class DecoratorOperationsWriterEntity extends CcpEntityDelegator {
 		this.clazz = clazz;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
-		CcpJsonRepresentation execute = CcpEntityDecoratorOperationType.save.execute(json, this.clazz, this.entity);
+	public boolean save(CcpJsonRepresentation json) {
+		boolean execute = CcpEntityDecoratorOperationType.save.execute(json, this.clazz, this.entity);
 		return execute;
 	}
-	
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		CcpJsonRepresentation execute = CcpEntityDecoratorOperationType.delete.execute(json, this.clazz, this.entity);
-		return execute; 
-	} 
-	 
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
-		CcpJsonRepresentation execute = CcpEntityDecoratorOperationType.deleteAnyWhere.execute(json, this.clazz, this.entity);
-		return execute; 
+
+	public boolean delete(CcpJsonRepresentation json) {
+		boolean execute = CcpEntityDecoratorOperationType.delete.execute(json, this.clazz, this.entity);
+		return execute;
+	}
+
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
+		boolean execute = CcpEntityDecoratorOperationType.deleteAnyWhere.execute(json, this.clazz, this.entity);
+		return execute;
 	}
 }

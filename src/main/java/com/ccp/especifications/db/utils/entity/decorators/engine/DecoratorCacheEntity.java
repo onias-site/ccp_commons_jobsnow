@@ -26,22 +26,22 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return ccpCacheDecorator;
 	}
 
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		
-		CcpJsonRepresentation delete = this.entity.delete(json);
-		String calculateId = this.entity.calculateId(json);		
+	public boolean delete(CcpJsonRepresentation json) {
+
+		boolean delete = this.entity.delete(json);
+		String calculateId = this.entity.calculateId(json);
 		CcpCacheDecorator cache = this.getCache(calculateId);
-		
+
 		cache.delete();
-		
+
 		return delete;
 	}
 
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
-		
-		CcpJsonRepresentation delete = this.entity.deleteAnyWhere(json);
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 
-		String calculateId = this.entity.calculateId(json);		
+		boolean delete = this.entity.deleteAnyWhere(json);
+
+		String calculateId = this.entity.calculateId(json);
 		CcpCacheDecorator cache = this.getCache(calculateId);
 		
 		cache.delete();
@@ -110,26 +110,26 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return true;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	public boolean save(CcpJsonRepresentation json) {
 
-		CcpJsonRepresentation createOrUpdate = this.entity.save(json);
-		
-		String calculateId = this.entity.calculateId(json);		
+		boolean inserted = this.entity.save(json);
+
+		String calculateId = this.entity.calculateId(json);
 		CcpCacheDecorator cache = this.getCache(calculateId);
-		
-		cache.put(createOrUpdate, this.cacheExpires);
-		
-		return createOrUpdate;
-	}
-	
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 
-		
-		String calculateId = this.entity.calculateId(json);		
+		cache.put(json, this.cacheExpires);
+
+		return inserted;
+	}
+
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+
+
+		String calculateId = this.entity.calculateId(json);
 		CcpCacheDecorator cache = this.getCache(calculateId);
 		cache.delete();
-		
-		CcpJsonRepresentation transferDataTo = this.entity.transferDataTo(json, entities);
+
+		boolean transferDataTo = this.entity.transferDataTo(json, entities);
 		return transferDataTo;
 	}
 }

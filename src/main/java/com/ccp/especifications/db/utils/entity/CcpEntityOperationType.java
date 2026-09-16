@@ -22,8 +22,8 @@ public enum CcpEntityOperationType {
 	 */
 	save {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			CcpJsonRepresentation save = entity.save(json);
-			return save;
+			entity.save(json);
+			return json;
 		}
 	},
 	/**
@@ -31,8 +31,8 @@ public enum CcpEntityOperationType {
 	 */
 	delete {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			CcpJsonRepresentation delete = entity.delete(json);
-			return delete;
+			entity.delete(json);
+			return json;
 		}
 	},
 	/**
@@ -41,8 +41,8 @@ public enum CcpEntityOperationType {
 	deleteAnyWhere {
 		@Override
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
-			CcpJsonRepresentation deleteAnyWhere = entity.deleteAnyWhere(json);
-			return deleteAnyWhere;
+			entity.deleteAnyWhere(json);
+			return json;
 		}
 	},
 	/**
@@ -51,8 +51,8 @@ public enum CcpEntityOperationType {
 	transferDataTo {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			CcpEntity entities = this.getEntities(json);
-			CcpJsonRepresentation transferDataTo = entity.transferDataTo(json, entities);
-			return transferDataTo;
+			entity.transferDataTo(json, entities);
+			return json;
 		}
 	},
 	/**
@@ -61,8 +61,8 @@ public enum CcpEntityOperationType {
 	copyDataTo {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			CcpEntity entities = this.getEntities(json);
-			CcpJsonRepresentation copyDataTo = entity.copyDataTo(json, entities);
-			return copyDataTo;
+			entity.copyDataTo(json, entities);
+			return json;
 		}
 	};
 
@@ -76,6 +76,8 @@ public enum CcpEntityOperationType {
 
 	/**
 	 * Executa a operação representada pela constante sobre a entidade e o JSON informados.
+	 * Como as operações de escrita da entidade devolvem apenas um booleano, o JSON de entrada é
+	 * repassado adiante para manter o contrato de {@code CcpBusiness}.
 	 */
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
 

@@ -20,38 +20,49 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	deleteAnyWhere{
 
-		CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
-			CcpJsonRepresentation result = entity.deleteAnyWhere(json);
+		boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
+			boolean result = entity.deleteAnyWhere(json);
 			return result;
 		}
 	},
-	delete{ 
-		
-		CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
-			CcpJsonRepresentation result = entity.delete(json);
+	delete{
+
+		boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
+			boolean result = entity.delete(json);
 			return result;
 		}
 	},
 	save{
-		CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
-			CcpJsonRepresentation result = entity.save(json);
+		boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
+			boolean result = entity.save(json);
 			return result;
 		}
 	},
 ;
-	abstract CcpJsonRepresentation executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
-	
+	abstract boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
+
 	/**
-	 * Executa os fluxos {@code before}/{@code after} e a operação sobre a entidade informada.
+	 * Executa o fluxo {@code before}, a operação sobre a entidade informada e, somente se a operação
+	 * tiver acontecido de fato, o fluxo {@code after}. Ou seja, o {@code after} é dispensado quando o
+	 * {@code save} apenas atualizou um documento que já existia ou quando o {@code delete} não
+	 * encontrou registro para remover. Como a operação devolve apenas o resultado booleano, o fluxo
+	 * {@code after} recebe o JSON produzido pelo fluxo {@code before}.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
 	 * @param entity a entidade alvo da operação
 	 */
-	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity... entities) {
+	public boolean execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity... entities) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
-		CcpJsonRepresentation result = this.executeEntityOperation(before, entity);
-		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationPhase._after, clazz, entity);
-		return after;  
+		boolean result = this.executeEntityOperation(before, entity);
+
+		boolean operationDidNotHappen = false == result;
+
+		if(operationDidNotHappen) {
+			return false;
+		}
+
+		this.executeFlow(before, CcpEntityOperationPhase._after, clazz, entity);
+		return result;
 	}
 	
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity) {

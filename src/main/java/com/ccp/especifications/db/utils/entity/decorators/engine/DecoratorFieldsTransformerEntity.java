@@ -21,7 +21,7 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		super(entity);
 	}
 	
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+	public boolean delete(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.delete(transformedJsonByEachFieldInJson);
 		return result;
@@ -88,21 +88,21 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return result;
 	}
 	
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	public boolean save(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.save(transformedJsonByEachFieldInJson);
 		return result;
 	}
-	
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
-		CcpJsonRepresentation result = this.entity.transferDataTo(handledJson, entities);
+		boolean result = this.entity.transferDataTo(handledJson, entities);
 		return result;
 	}
-	
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
-		CcpJsonRepresentation result = this.entity.copyDataTo(handledJson, entities);
+		boolean result = this.entity.copyDataTo(handledJson, entities);
 		return result;
 	}
 

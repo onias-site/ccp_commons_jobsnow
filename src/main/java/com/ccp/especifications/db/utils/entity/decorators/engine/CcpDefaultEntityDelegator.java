@@ -41,13 +41,26 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 	
 
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+	/**
+	 * Remove o registro via bulk. Como o bulk não devolve o desfecho de cada item, a existência prévia
+	 * do registro é consultada antes da remoção para que o retorno signifique o mesmo que em
+	 * {@code CcpEntity.delete}: o registro existia e foi removido.
+	 */
+	public boolean delete(CcpJsonRepresentation json) {
+		boolean existedBeforeTheDeletion = this.exists(json);
 		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
 		this.executeBulkOperation.executeBulk(bulkItems, this.functionToDeleteKeysInTheCache);
-		return json;
+		return existedBeforeTheDeletion;
 	}
-	
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+
+	/**
+	 * Remove o registro da entidade principal e da gêmea. Retorna {@code true} se ele existia em ao
+	 * menos uma das duas antes da remoção.
+	 */
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
+		boolean existedInTheMainEntity = this.exists(json);
+		boolean existedInTheTwinEntity = false;
+
 		List<CcpBulkItem> toBulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
 
 		List<CcpBulkItem> bulkItems = new ArrayList<>(toBulkItems);
@@ -55,19 +68,25 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			CcpEntity twinEntity = this.getTwinEntity();
 			List<CcpBulkItem> bulkItemsTwin = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
 			bulkItems.addAll(bulkItemsTwin);
-		} catch (UnsupportedOperationException e) { 
-		} 
+			existedInTheTwinEntity = twinEntity.exists(json);
+		} catch (UnsupportedOperationException e) {
+		}
 		Stream<CcpBulkItem> stream = bulkItems.stream();
 		var streamMap = stream.map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete));
 
 		List<CcpBulkItem> collect = streamMap
 		.collect(Collectors.toList());
 		this.executeBulkOperation.executeBulk(collect, this.functionToDeleteKeysInTheCache);
- 
-		return json;
+
+		boolean existedBeforeTheDeletion = existedInTheMainEntity || existedInTheTwinEntity;
+		return existedBeforeTheDeletion;
 	}
 
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	/**
+	 * Grava o registro via bulk. O {@code unionAll} disparado antes do bulk já diz se o registro
+	 * existia, então é ele que distingue a inclusão da atualização.
+	 */
+	public boolean save(CcpJsonRepresentation json) {
 		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
 		int size = bulkItems.size();
 		CcpBulkHandlerSave[] array = new CcpBulkHandlerSave[size];
@@ -79,8 +98,10 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			parametersToSearch = parametersToSearch.mergeWithAnotherJson(bulkItem.json);
 		}
 		parametersToSearch = json.redoJson(parametersToSearch);
-		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, array);
-		return json;
+		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, array);
+		boolean alreadyExisted = this.isPresentInThisUnionAll(unionAll, parametersToSearch);
+		boolean inserted = false == alreadyExisted;
+		return inserted;
 	}
 	
 	public String calculateId(CcpJsonRepresentation json) {
@@ -162,7 +183,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
 		List<CcpBulkItem> toBulkItems2 = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
 		Stream<CcpBulkItem> stream2 = toBulkItems2.stream();
 		var stream2Map = stream2
@@ -189,13 +210,14 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		}
 		int allSize = all.size();
 		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize]);
-		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
-	
-		return json;
+		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
+
+		boolean transfered = this.isPresentInThisUnionAll(unionAll, json);
+		return transfered;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
 		List<CcpBulkItem> toBulkItems4 = this.toBulkItems(json, CcpBulkEntityOperationType.noop);
 		Stream<CcpBulkItem> stream4 = toBulkItems4.stream();
 		var stream4Map = stream4
@@ -221,9 +243,10 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		}
 		int allSize2 = all.size();
 		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize2]);
-		this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
-	
-		return json;
+		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
+
+		boolean copied = this.isPresentInThisUnionAll(unionAll, json);
+		return copied;
 	}
 	
 	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {

@@ -16,32 +16,42 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
  */
 public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	transferDataTo{
-		CcpJsonRepresentation executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
-			CcpJsonRepresentation result = entity.transferDataTo(json, entities);
+		boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
+			boolean result = entity.transferDataTo(json, entities);
 			return result;
 		}
-	}, 
+	},
 	copyDataTo{
-		CcpJsonRepresentation executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
-			CcpJsonRepresentation result = entity.copyDataTo(json, entities);
+		boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
+			boolean result = entity.copyDataTo(json, entities);
 			return result;
 		}
-	}, 
+	},
 ;
-	abstract CcpJsonRepresentation executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
-	
+	abstract boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
+
 	/**
-	 * Executa os fluxos {@code before}/{@code after} e a transferência entre entidades.
+	 * Executa o fluxo {@code before}, a transferência entre entidades e, somente se a transferência
+	 * tiver acontecido de fato, o fluxo {@code after}. Ou seja, o {@code after} é dispensado quando não
+	 * havia registro de origem para transferir ou copiar. Como a transferência devolve apenas o
+	 * resultado booleano, o fluxo {@code after} recebe o JSON produzido pelo fluxo {@code before}.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
 	 * @param entity a entidade origem
 	 * @param entityToTransfer a entidade destino
 	 */
-	public CcpJsonRepresentation execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+	public boolean execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
-		CcpJsonRepresentation result = this.executeEntityTransfer(before, entity, entityToTransfer);
-		CcpJsonRepresentation after = this.executeFlow(result, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
-		return after;
+		boolean result = this.executeEntityTransfer(before, entity, entityToTransfer);
+
+		boolean transferDidNotHappen = false == result;
+
+		if(transferDidNotHappen) {
+			return false;
+		}
+
+		this.executeFlow(before, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
+		return result;
 
 	}
 	

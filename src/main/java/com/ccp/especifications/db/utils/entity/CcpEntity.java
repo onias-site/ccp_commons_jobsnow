@@ -71,10 +71,10 @@ public interface CcpEntity  extends CcpJsonFieldName{
 
 	/**
 	 * Copia dados desta entidade para outra entidade sem remover o registro original.
-	 * Por padrão lança {@code UnsupportedOperationException}.
+	 * Por padrão a operação não é suportada, retornando {@code false}.
 	 */
-	default CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		return this.throwException();
+	default boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+		return false;
 	}
 
 	/**
@@ -85,21 +85,25 @@ public interface CcpEntity  extends CcpJsonFieldName{
 
 	/**
 	 * Remove o documento correspondente ao JSON informado do índice desta entidade.
+	 * O retorno vem da análise que o {@code CcpCrud} faz da resposta da remoção, considerando o json
+	 * devolvido pelo banco e o status HTTP: {@code true} quando o registro existia e foi removido
+	 * (200, com {@code result} igual a {@code deleted}) e {@code false} quando ele não foi encontrado
+	 * (404, com {@code result} igual a {@code not_found}).
 	 */
-	default CcpJsonRepresentation delete(CcpJsonRepresentation json) {
+	default boolean delete(CcpJsonRepresentation json) {
 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		String calculateId = this.calculateId(json);
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		crud.delete(entityDetails.entityName, calculateId);
-		return json;
+		boolean deleted = crud.delete(entityDetails.entityName, calculateId);
+		return deleted;
 	}
 	/**
 	 * Variante de delete sem restrições adicionais; delega para {@code delete} por padrão.
 	 */
-	default CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
-		CcpJsonRepresentation delete = this.delete(json);
-		return delete;
+	default boolean deleteAnyWhere(CcpJsonRepresentation json) {
+		boolean deleted = this.delete(json);
+		return deleted;
 	}
 
 	/**
@@ -239,15 +243,19 @@ public interface CcpEntity  extends CcpJsonFieldName{
 
 	/**
 	 * Salva o documento no índice desta entidade, filtrando apenas os campos existentes nos metadados.
+	 * O retorno vem da análise que o {@code CcpCrud} faz da própria resposta da gravação, considerando
+	 * tanto o json devolvido pelo banco quanto o status HTTP que o acompanha: {@code true} quando o
+	 * documento foi incluído (201) e {@code false} quando ele já existia e foi apenas atualizado (200).
 	 */
-	default CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	default boolean save(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
 		String id = this.calculateId(json);
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		crud.save(entityDetails.entityName, onlyExistingFields, id);
-		return json;
-	} 
+		CcpJsonRepresentation response = crud.save(entityDetails.entityName, onlyExistingFields, id);
+		boolean inserted = crud.isInsertedDocument(response);
+		return inserted;
+	}
 
 	/**
 	 * Converte o JSON em itens de operação bulk para uso no executor de bulk.
@@ -262,10 +270,10 @@ public interface CcpEntity  extends CcpJsonFieldName{
 
 	/**
 	 * Transfere (move) dados desta entidade para outra entidade, removendo o registro original.
-	 * Por padrão lança {@code UnsupportedOperationException}.
+	 * Por padrão a operação não é suportada, retornando {@code false}.
 	 */
-	default CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		return this.throwException();
+	default boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
+		return false;
 	}
 
 	/**

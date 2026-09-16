@@ -12,6 +12,7 @@ import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerSaveTwinEntity;
 import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferRecordToTwinEntity;
+import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
@@ -58,20 +59,26 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	}
 
 
+	/**
+	 * Move o registro para a entidade gêmea. O {@code unionAll} disparado antes do bulk diz se o
+	 * registro existia, que é o que define se houve de fato uma remoção da entidade principal.
+	 */
 	@SuppressWarnings("unchecked")
-	public CcpJsonRepresentation delete(CcpJsonRepresentation json) {
-		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this); 
-		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
-		return json;
+	public boolean delete(CcpJsonRepresentation json) {
+		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this);
+		CcpSelectUnionAll unionAll = super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
+		boolean existedBeforeTheDeletion = this.isPresentInThisUnionAll(unionAll, json);
+		return existedBeforeTheDeletion;
 	}
 
 	//FIXME NAO ESTA PERMITINDO EXECUTAR ESTE METODO QUANDO A PK SOFRE LGPD
-	public CcpJsonRepresentation deleteAnyWhere(CcpJsonRepresentation json) {
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(this, CcpEntityDecoratorTypes.Twin);
 		CcpEntity twinEntity = this.getTwinEntity(CcpEntityDecoratorTypes.Twin);
-		customEntity.delete(json);
-		twinEntity.delete(json);
-		return json;
+		boolean deletedFromMainEntity = customEntity.delete(json);
+		boolean deletedFromTwinEntity = twinEntity.delete(json);
+		boolean deleted = deletedFromMainEntity || deletedFromTwinEntity;
+		return deleted;
 	}
 	
 	public List<CcpEntity> getAssociatedEntities() {
@@ -134,13 +141,19 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return this.twin;
 	}
 
+	/**
+	 * Grava na entidade principal e apaga da gêmea. O {@code unionAll} disparado antes do bulk diz se a
+	 * entidade principal já tinha o registro, que é o que distingue a inclusão da atualização.
+	 */
 	@SuppressWarnings("unchecked")
-	public CcpJsonRepresentation save(CcpJsonRepresentation json) {
+	public boolean save(CcpJsonRepresentation json) {
 		CcpEntity twinEntity = this.getTwinEntity();
 		var deleteTwinEntity = new CcpBulkHandlerDelete(twinEntity);
 		var saveMainEntity = new CcpEntityBulkHandlerSaveTwinEntity(this);
-		super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, saveMainEntity, deleteTwinEntity);
-		return json;
+		CcpSelectUnionAll unionAll = super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, saveMainEntity, deleteTwinEntity);
+		boolean alreadyExisted = this.isPresentInThisUnionAll(unionAll, json);
+		boolean inserted = false == alreadyExisted;
+		return inserted;
 	}
 	
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {

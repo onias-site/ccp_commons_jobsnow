@@ -18,13 +18,13 @@ class DecoratorTransferDataEntity extends CcpEntityDelegator {
 		this.clazz = clazz;
 	}
 
-	public CcpJsonRepresentation copyDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
-		CcpJsonRepresentation execute = CcpEntityDecoratorTransferType.copyDataTo.execute(json, this.clazz, this.entity, entityToTransferData);
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
+		boolean execute = CcpEntityDecoratorTransferType.copyDataTo.execute(json, this.clazz, this.entity, entityToTransferData);
 		return execute;
 	}
-	
-	public CcpJsonRepresentation transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
-		CcpJsonRepresentation execute = CcpEntityDecoratorTransferType.transferDataTo.execute(json, this.clazz, this.entity, entityToTransferData);
+
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
+		boolean execute = CcpEntityDecoratorTransferType.transferDataTo.execute(json, this.clazz, this.entity, entityToTransferData);
 		return execute;
 	}
 }
