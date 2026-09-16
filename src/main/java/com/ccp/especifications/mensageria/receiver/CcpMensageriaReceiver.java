@@ -3,15 +3,13 @@ package com.ccp.especifications.mensageria.receiver;
 import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityPhase;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
@@ -67,9 +65,7 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	}
 
 	private CcpEntity getEntity(CcpJsonRepresentation json, Object newInstance) {
-		CcpEntityConfigurator configurator = (CcpEntityConfigurator)newInstance;
-		//FIXME CORRECAO URGENTE PARA EVITAR O ASYNC
-		CcpEntity entity = CcpEntityFactory.getCustomEntity(configurator, CcpEntityDecoratorTypes.Cacheable);
+		CcpEntity entity = this.getCustomEntity(newInstance);
 		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
 		String twinEntityName = CcpEntityPhase.twinEntity.extractEntityName(entityMetaData.configurationClass);
 		String entityName = json.getAsString(JsonFieldNames.entityName);
@@ -80,10 +76,13 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 			return entity;
 		}
 		
-		//FIXME CORRECAO URGENTE PARA EVITAR O ASYNC
-		CcpEntity twinEntity = entity.getTwinEntity(CcpEntityDecoratorTypes.Cacheable);
+		CcpEntity twinEntity = this.getTwinEntity(entity);
 		return twinEntity;
 	}
+
+	protected abstract CcpEntity getTwinEntity(CcpEntity entity);
+
+	protected abstract CcpEntity getCustomEntity(Object newInstance);
 	
 
 	/**

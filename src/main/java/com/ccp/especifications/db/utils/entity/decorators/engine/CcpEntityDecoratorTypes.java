@@ -41,7 +41,7 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	private final int priority;
 	
 	/** Retorna {@code true} se a anotação deste tipo de decorator está presente em {@code clazz}. */
-	public boolean isDecorated(Class<?> clazz) {
+	public boolean isAnnoted(Class<?> clazz) {
 		boolean annotationPresent = clazz.isAnnotationPresent(this.annotation);
 		return annotationPresent;
 	}
@@ -66,7 +66,7 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 		}
 	}
 
-	public int getPriority() {
-		return priority;
+	public int getPriority(Class<?> configurationClass) {
+		return this.priority;
 	}
 }

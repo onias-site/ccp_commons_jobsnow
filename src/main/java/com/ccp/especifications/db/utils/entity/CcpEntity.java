@@ -9,8 +9,8 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpHashDecorator;
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
@@ -18,8 +18,8 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.CcpDbRequester;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityDecoratorTypes;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.hash.CcpHashAlgorithm;
 import com.ccp.process.CcpProcessStatusDefault;
@@ -199,7 +199,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	/**
 	 * Retorna a entidade twin correspondente. Por padrão lança {@code UnsupportedOperationException}.
 	 */
-	default CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	default CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntity throwException = this.throwException();
 		return throwException;
 	}

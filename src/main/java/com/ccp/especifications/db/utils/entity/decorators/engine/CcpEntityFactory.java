@@ -70,7 +70,7 @@ public class CcpEntityFactory {
 	 * Constrói a entidade a partir do {@code configurator}, excluindo os tipos de decorator listados
 	 * em {@code decoratorsToAvoid}.
 	 */
-	public static CcpEntity getCustomEntity(CcpEntityConfigurator configurator, CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public static CcpEntity getCustomEntity(CcpEntityConfigurator configurator, CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntity entity = configurator.getEntity();
 		CcpEntity customEntity = getCustomEntity(entity, decoratorsToAvoid);
 		return customEntity;
@@ -79,7 +79,7 @@ public class CcpEntityFactory {
 	/**
 	 * Constrói a entidade a partir de uma instância já existente, excluindo os decorators indicados.
 	 */
-	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		CcpEntity customEntity = getEntity(entityDetails.configurationClass, mainEntityNameProducer, decoratorsToAvoid);
 		return customEntity;
@@ -100,11 +100,9 @@ public class CcpEntityFactory {
 		List<CcpEntityDecoratorType> asList = Arrays.asList(ccpEntityDecoratorTypesValues);
 		Stream<CcpEntityDecoratorType> stream = asList.stream();
 		var filter = stream
-				.filter(x -> x.isDecorated(configurationClass));
-				var filter2 = filter
-				.filter(x -> false == avoidedDecorators.contains(x));
+				.filter(x -> x.isAnnoted(configurationClass));
 
-				List<CcpEntityDecoratorType> collect = filter2
+				List<CcpEntityDecoratorType> collect = filter
 				
 				.collect(Collectors.toList());
 
@@ -114,9 +112,12 @@ public class CcpEntityFactory {
 		
 		list.addAll(customDecorators);
 		
-		list.sort((a,b) -> a.getPriority() - b.getPriority());
+		List<CcpEntityDecoratorType> filtered = list.stream()
+		.filter(x -> false == avoidedDecorators.contains(x)).collect(Collectors.toList());
 		
-		for (CcpEntityDecoratorType decorator : list) {
+		filtered.sort((a,b) -> a.getPriority(configurationClass) - b.getPriority(configurationClass));
+		
+		for (CcpEntityDecoratorType decorator : filtered) {
 			result = decorator.getEntity(configurationClass, result);
 		}
 		
@@ -134,7 +135,14 @@ public class CcpEntityFactory {
 		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
 		CcpEntityCustomDecorator[] value = annotation.value();
 		List<CcpEntityCustomDecorator> asList = Arrays.asList(value);
-		List<CcpEntityDecoratorType> collect = asList.stream().map(x -> new DecoratorCustomEntity(x, configurationClass)).collect(Collectors.toList());
+		
+		
+		
+		List<CcpEntityDecoratorType> collect = 
+				asList.stream()
+				.map(x -> x.value())
+				.map(x -> new CcpReflectionConstructorDecorator(x))
+				.map(x -> (CcpCustomDecoratorEntity) x.newInstance()).collect(Collectors.toList());
 		
 		return collect;
 	}
