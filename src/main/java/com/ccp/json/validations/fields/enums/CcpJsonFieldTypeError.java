@@ -20,7 +20,6 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumber;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberInteger;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeNumberUnsigned;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
 import com.ccp.json.validations.global.engine.CcpJsonValidationError;
@@ -139,7 +138,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    String fieldName = field.getName();
 		    CcpFieldName ccpFieldName3 = new CcpFieldName(fieldName);
 		    Long value = json.getAsLongNumber(ccpFieldName3);
-		    boolean valueDiferente = value != number;
+		    boolean valueIgual = value.equals(number);
+		    boolean valueDiferente = false == valueIgual;
 		    return valueDiferente;
 		}
 
@@ -330,11 +330,18 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 	longNumberExactValue(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+			boolean ruleExplanation = this.hasRuleExplanation(field, type);
+			boolean hasNoRuleExplanation = false == ruleExplanation;
+
+			if(hasNoRuleExplanation) {
+				return false;
+			}
 			Long number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
 		    CcpFieldName ccpFieldName7 = new CcpFieldName(fieldName);
 		    Long value = json.getAsLongNumber(ccpFieldName7);
-		    boolean valueDiferente2 = value != number;
+		    boolean valueIgual2 = value.equals(number);
+		    boolean valueDiferente2 = false == valueIgual2;
 		    return valueDiferente2;
 		}
 
@@ -388,8 +395,9 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    String fieldName = field.getName();
 			   CcpFieldName ccpFieldName8 = new CcpFieldName(fieldName);
 			   Long value = json.getAsLongNumber(ccpFieldName8);
-			boolean isAllowed = allowedValues.contains(value);
-			return isAllowed;
+			boolean contains = allowedValues.contains(value);
+			boolean isNotAllowed = false == contains;
+			return isNotAllowed;
 		}
 
 		List<Long> getValidationParameter(Field field, CcpJsonFieldType type) {
@@ -538,7 +546,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    String fieldName = field.getName();
 			   CcpFieldName ccpFieldName11 = new CcpFieldName(fieldName);
 			   Double value = json.getAsDoubleNumber(ccpFieldName11);
-		    boolean valueDiferente3 = value != number;
+		    boolean valueIgual3 = value.equals(number);
+		    boolean valueDiferente3 = false == valueIgual3;
 		    return valueDiferente3;
 		}
 
@@ -591,8 +600,9 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		    String fieldName = field.getName();
 			   CcpFieldName ccpFieldName12 = new CcpFieldName(fieldName);
 			   Double value = json.getAsDoubleNumber(ccpFieldName12);
-			boolean isAllowed = allowedValues.contains(value);
-			return isAllowed;
+			boolean contains = allowedValues.contains(value);
+			boolean isNotAllowed = false == contains;
+			return isNotAllowed;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1211,10 +1221,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			boolean boundValueMenor6 = boundValue < Integer.MAX_VALUE;
-			return boundValueMenor6;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.max.hasRuleExplanation(field, TimeOptions._before);
+			return hasRuleExplanation;
 		}
 	},
 	timeExactValueBeforeCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1241,10 +1249,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.exactValue();
-			boolean boundValueMenor7 = boundValue < Integer.MAX_VALUE;
-			return boundValueMenor7;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.exact.hasRuleExplanation(field, TimeOptions._before);
+			return hasRuleExplanation;
 		}
 	},
 	timeMinValueBeforeCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1267,10 +1273,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			boolean boundValueMaior10 = boundValue > Integer.MIN_VALUE;
-			return boundValueMaior10;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.min.hasRuleExplanation(field, TimeOptions._before);
+			return hasRuleExplanation;
 		}
 	},
 	timeMaxValueAfterCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1293,10 +1297,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			boolean boundValueMenor8 = boundValue < Integer.MAX_VALUE;
-			return boundValueMenor8;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.max.hasRuleExplanation(field, TimeOptions._after);
+			return hasRuleExplanation;
 		}
 	},
 	timeExactValueAfterCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1319,10 +1321,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			boolean boundValueDiferente = boundValue != Integer.MAX_VALUE;
-			return boundValueDiferente;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.exact.hasRuleExplanation(field, TimeOptions._after);
+			return hasRuleExplanation;
 		}
 	},
 	timeMinValueAfterCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
@@ -1345,10 +1345,8 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
-			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-			Integer boundValue = annotation.maxValue();
-			boolean boundValueMaior11 = boundValue > Integer.MIN_VALUE;
-			return boundValueMaior11;
+			boolean hasRuleExplanation = TimeValueExtractorFromAnnotation.min.hasRuleExplanation(field, TimeOptions._after);
+			return hasRuleExplanation;
 		}
 	},
 	nestedJson(CcpJsonFieldErrorHandleType.continueFieldValidation){

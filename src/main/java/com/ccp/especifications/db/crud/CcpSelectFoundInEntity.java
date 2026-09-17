@@ -9,6 +9,8 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 public class CcpSelectFoundInEntity {
 
 	public static enum JsonFieldNames implements CcpJsonFieldName {
@@ -34,7 +36,7 @@ public class CcpSelectFoundInEntity {
 	}
 
 	private CcpSelectNextStep addStatement(String key, Object obj) {
-		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(JsonFieldNames.statements);
+		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
 		int listSize = list.size();
 		int listSizeMenos = listSize - 1;
 		CcpJsonRepresentation lastStatement = list.get(listSizeMenos);
@@ -44,7 +46,7 @@ public class CcpSelectFoundInEntity {
 		int listSize2Menos = listSize2 - 1;
 		List<CcpJsonRepresentation> subList = list.subList(0, listSize2Menos);
 		subList.add(put);
-		CcpJsonRepresentation newStatements = this.statements.put(JsonFieldNames.statements, subList);
+		CcpJsonRepresentation newStatements = this.statements.put(CcpJsonCommonsFields.statements, subList);
 		CcpSelectNextStep ccpSelectNextStep = new CcpSelectNextStep(this.parametersToSearch, newStatements);
 		return ccpSelectNextStep;
 	}

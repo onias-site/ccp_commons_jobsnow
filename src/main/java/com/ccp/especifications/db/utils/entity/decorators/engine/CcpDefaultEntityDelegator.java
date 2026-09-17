@@ -21,6 +21,7 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 
 /**
  * Especialização abstrata de {@code CcpEntityDelegator} que fornece implementações padrão de
@@ -148,7 +149,7 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return parametersToSearch;
 	}
 
-	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntity twinEntity = this.entity.getTwinEntity(decoratorsToAvoid);
 		return twinEntity;
 	}

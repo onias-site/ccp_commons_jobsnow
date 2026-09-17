@@ -10,7 +10,11 @@ import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.hash.CcpHashAlgorithm;
 
 public class CcpCachedService{
-	
+
+	enum JsonFieldNames implements CcpJsonFieldName {
+		cacheHash
+	}
+
 	private final CcpJsonFieldName fieldToCache;
 	private final CcpService service;
 	private final int cacheSeconds;
@@ -28,7 +32,7 @@ public class CcpCachedService{
 		String hashValue = hash.asString(CcpHashAlgorithm.SHA1);
 		CcpCacheDecorator ccd = new CcpCacheDecorator(hashValue);
 		CcpJsonRepresentation value = ccd.get(this.service, json, this.cacheSeconds);
-		CcpJsonRepresentation put = value.put(() -> "cacheHash", hashValue);
+		CcpJsonRepresentation put = value.put(JsonFieldNames.cacheHash, hashValue);
 		return put.content;
 	}
 }

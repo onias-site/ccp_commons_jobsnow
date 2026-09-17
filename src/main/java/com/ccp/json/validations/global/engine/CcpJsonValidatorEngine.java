@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFrom;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
@@ -35,16 +34,14 @@ import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidatorErrorBreakValidationsToTheClass;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 /**
  * Engine singleton principal de validação de JSONs. Orquestra as validações globais (anotações de
  * classe) e por campo, coletando todos os erros antes de lançar {@code CcpJsonValidationError} caso
  * haja falhas. Também inspeciona anotações de tipo de campo para determinar o validador correto.
  */
 public class CcpJsonValidatorEngine {
-	enum JsonFields implements CcpJsonFieldName{
-		field, type
-		;
-	}
 	
 	private CcpJsonValidatorEngine() {}
 	
@@ -180,10 +177,10 @@ public class CcpJsonValidatorEngine {
 				Field replacedField = this.getReplacedField(field);
 				CcpJsonFieldType jsonFieldType = this.getJsonFieldType(replacedField);
 				CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
-				.put(JsonFields.field, field);
+				.put(CcpJsonCommonsFields.field, field);
 
 				CcpJsonRepresentation values = put2
-				.put(JsonFields.type, jsonFieldType);
+				.put(CcpJsonCommonsFields.type, jsonFieldType);
 				map.put(replacedField, values);
 			} catch (CcpJsonFieldNotValidated e) {
 
@@ -194,8 +191,8 @@ public class CcpJsonValidatorEngine {
 		
 		for (Field field : fields) {
 			CcpJsonRepresentation values = map.get(field);
-			CcpJsonFieldDefaultTypes type = values.getAsObject(JsonFields.type);
-			Field oldField = values.getAsObject(JsonFields.field);
+			CcpJsonFieldType type = values.getAsObject(CcpJsonCommonsFields.type);
+			Field oldField = values.getAsObject(CcpJsonCommonsFields.field);
 			try {
 				boolean annotationPresent11 = oldField.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 

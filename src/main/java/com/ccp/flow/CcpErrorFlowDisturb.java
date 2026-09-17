@@ -4,6 +4,8 @@ import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 /**
  * Exceção de controle de fluxo de negócio. Não representa um erro técnico, mas sim uma saída
  * alternativa de um processo (similar a um status HTTP de erro). Carrega o status
@@ -12,9 +14,6 @@ import com.ccp.process.CcpProcessStatus;
  */
 @SuppressWarnings("serial")
 public class CcpErrorFlowDisturb extends RuntimeException{
-	enum JsonFieldNames implements CcpJsonFieldName{
-		reason, statusNumber, statusName
-	}
 	
 	public final CcpJsonRepresentation json;
 	
@@ -45,7 +44,7 @@ public class CcpErrorFlowDisturb extends RuntimeException{
 	}
 
 	private static String getErrorMessage(CcpJsonRepresentation json, CcpProcessStatus status) {
-		return json.getOrDefault(JsonFieldNames.reason, () -> json.put(JsonFieldNames.statusNumber, status.asNumber()).put(JsonFieldNames.statusName, status.name()).asPrettyJson());
+		return json.getOrDefault(CcpJsonCommonsFields.reason, () -> json.put(CcpJsonCommonsFields.statusNumber, status.asNumber()).put(CcpJsonCommonsFields.statusName, status.name()).asPrettyJson());
 	}
 
 	/**

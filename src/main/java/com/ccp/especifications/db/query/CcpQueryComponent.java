@@ -3,6 +3,7 @@ package com.ccp.especifications.db.query;
 import com.ccp.aop.CcpAllowNullParameter;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
@@ -66,10 +67,9 @@ public abstract class CcpQueryComponent {
 		return valorIgual;
 	}
 
-	public <T extends CcpQueryComponent> T putProperty(String propertyName, Object propertyValue) {
+	public <T extends CcpQueryComponent> T putProperty(CcpJsonFieldName propertyName, Object propertyValue) {
 		T clone = this.copy();
-		CcpFieldName ccpFieldName2 = new CcpFieldName(propertyName);
-		clone.json = clone.json.put(ccpFieldName2, propertyValue);
+		clone.json = clone.json.put(propertyName, propertyValue);
 		return clone;
 	}
 }

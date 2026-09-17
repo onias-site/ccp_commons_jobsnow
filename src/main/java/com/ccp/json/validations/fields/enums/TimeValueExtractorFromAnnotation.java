@@ -2,152 +2,172 @@ package com.ccp.json.validations.fields.enums;
 
 import java.lang.reflect.Field;
 
-import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpTimeDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityExpurgableOptions;
-import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 
+/**
+ * Qual dos limites de {@code @CcpJsonFieldTypeTimeBefore} / {@code @CcpJsonFieldTypeTimeAfter} está
+ * sendo avaliado: o máximo, o mínimo ou o valor exato. A comparação é feita na granularidade
+ * declarada na anotação (dias, horas, etc), não em milissegundos, que é como os limites são
+ * escritos pelo desenvolvedor.
+ *
+ * <p>O sentido da comparação (para trás ou para frente no tempo) vem do {@code TimeOptions}
+ * recebido, que também é quem sabe ler a anotação correta do campo.
+ */
 enum TimeValueExtractorFromAnnotation{
 	max("maximum") {
-		int getValueFromAnnotation(CcpJsonFieldTypeTimeBefore annotation) {
-			int value = annotation.maxValue();
-			return value;
+		int getValueFromAnnotation(Field field, TimeOptions timeOptions) {
+			int maxValue = timeOptions.getMaxValue(field);
+			return maxValue;
 		}
 
-		boolean hasError(Long enlapsedTime, Long validationParameter) {
-			boolean enlapsedTimeMaior = enlapsedTime > validationParameter;
-			return enlapsedTimeMaior;
+		boolean isActive(Field field, TimeOptions timeOptions) {
+			int maxValue = timeOptions.getMaxValue(field);
+			boolean isActive = maxValue < Integer.MAX_VALUE;
+			return isActive;
 		}
 
+		boolean isOutOfBounds(Long enlapsedInterval, Integer validationParameter) {
+			long validationParameterValue = validationParameter.longValue();
+			long enlapsedIntervalValue = enlapsedInterval.longValue();
+			boolean outOfBounds = enlapsedIntervalValue > validationParameterValue;
+			return outOfBounds;
+		}
 	},
 	exact("exact") {
-		int getValueFromAnnotation(CcpJsonFieldTypeTimeBefore annotation) {
-			int value = annotation.exactValue();
-			return value;
+		int getValueFromAnnotation(Field field, TimeOptions timeOptions) {
+			int exactValue = timeOptions.getExactValue(field);
+			return exactValue;
 		}
 
-		boolean hasError(Long enlapsedTime, Long validationParameter) {
-			boolean enlapsedTimeDiferente = enlapsedTime != validationParameter;
-			return enlapsedTimeDiferente;
+		boolean isActive(Field field, TimeOptions timeOptions) {
+			int exactValue = timeOptions.getExactValue(field);
+			boolean isActive = exactValue < Integer.MAX_VALUE;
+			return isActive;
 		}
 
+		boolean isOutOfBounds(Long enlapsedInterval, Integer validationParameter) {
+			long validationParameterValue = validationParameter.longValue();
+			long enlapsedIntervalValue = enlapsedInterval.longValue();
+			boolean saoIguais = enlapsedIntervalValue == validationParameterValue;
+			boolean outOfBounds = false == saoIguais;
+			return outOfBounds;
+		}
 	},
 	min("minimum") {
-		int getValueFromAnnotation(CcpJsonFieldTypeTimeBefore annotation) {
-			int value = annotation.minValue();
-			return value;
+		int getValueFromAnnotation(Field field, TimeOptions timeOptions) {
+			int minValue = timeOptions.getMinValue(field);
+			return minValue;
 		}
 
-		boolean hasError(Long enlapsedTime, Long validationParameter) {
-			boolean enlapsedTimeMenor = enlapsedTime < validationParameter;
-			return enlapsedTimeMenor;
+		boolean isActive(Field field, TimeOptions timeOptions) {
+			int minValue = timeOptions.getMinValue(field);
+			boolean isActive = minValue > Integer.MIN_VALUE;
+			return isActive;
+		}
+
+		boolean isOutOfBounds(Long enlapsedInterval, Integer validationParameter) {
+			long validationParameterValue = validationParameter.longValue();
+			long enlapsedIntervalValue = enlapsedInterval.longValue();
+			boolean outOfBounds = enlapsedIntervalValue < validationParameterValue;
+			return outOfBounds;
 		}
 	}
 	;
-	
+
 	private final String word;
-	
-	
+
+
 	private TimeValueExtractorFromAnnotation(String word) {
 		this.word = word;
 	}
 
-	abstract int getValueFromAnnotation(CcpJsonFieldTypeTimeBefore annotation); 
-	
+	/** Valor deste limite tal como escrito na anotação do campo. */
+	abstract int getValueFromAnnotation(Field field, TimeOptions timeOptions);
+
+	/** Se este limite foi de fato declarado no campo, ou se está no valor padrão da anotação. */
+	abstract boolean isActive(Field field, TimeOptions timeOptions);
+
+	/** Compara o tempo decorrido com o limite, ambos na granularidade da anotação. */
+	abstract boolean isOutOfBounds(Long enlapsedInterval, Integer validationParameter);
+
+	/** Este limite convertido para milissegundos, usado nas mensagens de diagnóstico. */
 	protected Long getValueFromAnnotationInMilliseconds(CcpJsonRepresentation json, Field field) {
-		CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-		CcpEntityExpurgableOptions intervalType = annotation.intervalType();
+		TimeOptions timeOptions = TimeOptions.getTimeOptions(field);
+		CcpEntityExpurgableOptions intervalType = timeOptions.getIntervalType(field);
 		long currentTimeMillis = System.currentTimeMillis();
-		Long milliseconds = intervalType.getMilliseconds(currentTimeMillis);
-		Integer value = this.getValueFromAnnotation(annotation);
-		Long millisecondsVezes = milliseconds * value;
-		Long valueOf = Long.valueOf(millisecondsVezes);
+		long milliseconds = intervalType.getMilliseconds(currentTimeMillis);
+		int value = this.getValueFromAnnotation(field, timeOptions);
+		long total = milliseconds * value;
+		Long valueOf = Long.valueOf(total);
 		return valueOf;
 	}
-	
+
 	public final boolean hasError(CcpJsonRepresentation json, Field field, TimeOptions timeOptions) {
-		
-		Long valueFromAnnotationInMilliseconds = this.getValueFromAnnotationInMilliseconds(json, field);
-		String fieldName2 = field.getName();
-		CcpFieldName ccpFieldName = new CcpFieldName(fieldName2);
 
-		CcpJsonRepresentation put = json.put(ccpFieldName, valueFromAnnotationInMilliseconds);
-		
-		Long enlapsedTime = timeOptions.getEnlapsedTime(put, field);
-		
-		long subtractNumber = timeOptions.subtractNumber(valueFromAnnotationInMilliseconds);
-		boolean enlapsedTimeMaior2 = enlapsedTime > subtractNumber;
+		boolean active = this.isActive(field, timeOptions);
 
-		return enlapsedTimeMaior2;
+		boolean isNotActive = false == active;
+
+		if(isNotActive) {
+			return false;
+		}
+
+		Long enlapsedInterval = timeOptions.getEnlapsedInterval(json, field);
+		Integer validationParameter = this.getValueFromAnnotation(field, timeOptions);
+
+		boolean outOfBounds = this.isOutOfBounds(enlapsedInterval, validationParameter);
+
+		return outOfBounds;
 	}
-	
-	public final String getErrorMessage(CcpJsonRepresentation json, Field field, TimeOptions timeOptions) {
-		
-		String fieldName = field.getName();
-		Long valueFromAnnotationInMilliseconds = this.getValueFromAnnotationInMilliseconds(json, field);
-		
-		CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-		CcpEntityExpurgableOptions intervalType = annotation.intervalType();
-		CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
 
-		Long providedValue = json.getAsLongNumber(ccpFieldName2);
-		CcpTimeDecorator ctd = new CcpTimeDecorator(providedValue);
+	/** Se este limite gera regra a ser documentada e validada para o campo. */
+	public final boolean hasRuleExplanation(Field field, TimeOptions timeOptions) {
+		boolean active = this.isActive(field, timeOptions);
+		return active;
+	}
+
+	public final String getErrorMessage(CcpJsonRepresentation json, Field field, TimeOptions timeOptions) {
+
+		String fieldName = field.getName();
+		CcpEntityExpurgableOptions intervalType = timeOptions.getIntervalType(field);
+
+		Long providedValue = timeOptions.getEnlapsedTime(json, field);
+		long currentTimeMillis = System.currentTimeMillis();
+		long providedTimestamp = currentTimeMillis - providedValue;
+		CcpTimeDecorator ctd = new CcpTimeDecorator(providedTimestamp);
 		String formattedDateTime = ctd.getFormattedDateTime(intervalType.format);
-		
-		int valueFromAnnotation = this.getValueFromAnnotation(annotation);
+
+		int valueFromAnnotation = this.getValueFromAnnotation(field, timeOptions);
+		Long enlapsedInterval = timeOptions.getEnlapsedInterval(json, field);
 		String intervalTypeWord = intervalType.word.toLowerCase();
 		String timeOptionsName = timeOptions.name();
-		String valorMais = "The field " + fieldName;
-		String valorMaisMais = valorMais + " has a value ";
-		String valorMaisMaisMais = valorMaisMais + formattedDateTime;
-		String valorMaisMaisMaisMais = valorMaisMaisMais
-				+ " and this value has to be in the ";
-				String valorMaisMaisMaisMaisMais = valorMaisMaisMaisMais + this.word;
-				String valorMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMais + " ";
-				String valorMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMais 
-				+ valueFromAnnotation;
-				String valorMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMais + " ";
-				String valorMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMais + intervalTypeWord;
-				String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMais + " ";
-				String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + timeOptionsName;
-				String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + " this current time. ";
-				String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais
-						+ "But it is ";
-						String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + valueFromAnnotationInMilliseconds;
-						String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + " ";
-						String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + intervalTypeWord;
-						String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + " ";
-						String valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais
-						+ timeOptionsName;
-						String errorMessage = valorMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMaisMais + " this current time. ";
+
+		String comCampo = "The field " + fieldName;
+		String comValor = comCampo + " has a value " + formattedDateTime;
+		String comLimite = comValor + " and this value has to be in the " + this.word;
+		String comQuantidade = comLimite + " " + valueFromAnnotation + " " + intervalTypeWord;
+		String comSentido = comQuantidade + " " + timeOptionsName + " this current time. ";
+		String errorMessage = comSentido + "But it is " + enlapsedInterval + " " + intervalTypeWord + " " + timeOptionsName + " this current time. ";
+
 		return errorMessage;
 	}
 
 	public final String getRuleExplanation(Field field, TimeOptions timeOptions) {
-		
+
 		String fieldName = field.getName();
-		
-		CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
-		CcpEntityExpurgableOptions intervalType = annotation.intervalType();
-		
-		int valueFromAnnotation = this.getValueFromAnnotation(annotation);
+		CcpEntityExpurgableOptions intervalType = timeOptions.getIntervalType(field);
+
+		int valueFromAnnotation = this.getValueFromAnnotation(field, timeOptions);
 		String intervalTypeWord = intervalType.word.toLowerCase();
 		String timeOptionsName = timeOptions.name();
-		String valorMais2 = "The field " + fieldName;
-		String valorMais2Mais = valorMais2 + " accepts timestamp values that are at ";
-		String valorMais2MaisMais = valorMais2Mais + this.word;
-		String valorMais2MaisMaisMais = valorMais2MaisMais + " ";
-		String valorMais2MaisMaisMaisMais = valorMais2MaisMaisMais 
-				+ valueFromAnnotation;
-				String valorMais2MaisMaisMaisMaisMais = valorMais2MaisMaisMaisMais + " ";
-				String valorMais2MaisMaisMaisMaisMaisMais = valorMais2MaisMaisMaisMaisMais + intervalTypeWord;
-				String valorMais2MaisMaisMaisMaisMaisMaisMais = valorMais2MaisMaisMaisMaisMaisMais + " ";
-				String valorMais2MaisMaisMaisMaisMaisMaisMaisMais = valorMais2MaisMaisMaisMaisMaisMaisMais + timeOptionsName;
-				String errorMessage = valorMais2MaisMaisMaisMaisMaisMaisMaisMais + " the current time. "
-						;
-		return errorMessage;
+
+		String comCampo = "The field " + fieldName;
+		String comLimite = comCampo + " accepts timestamp values that are at " + this.word;
+		String comQuantidade = comLimite + " " + valueFromAnnotation + " " + intervalTypeWord;
+		String ruleExplanation = comQuantidade + " " + timeOptionsName + " the current time. ";
+
+		return ruleExplanation;
 	}
-	
-	abstract boolean hasError(Long enlapsedTime, Long validationParameter);
 }

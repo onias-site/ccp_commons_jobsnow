@@ -126,8 +126,10 @@ public class CcpEntityFactory {
 	
 	private static List<CcpEntityDecoratorType> getCustomDecorators(Class<?> configurationClass) {
 		
-		boolean isNotDecorated = configurationClass.isAnnotationPresent(CcpEntityCustomDecorators.class);
-		
+		boolean annotationPresent = configurationClass.isAnnotationPresent(CcpEntityCustomDecorators.class);
+
+		boolean isNotDecorated = false == annotationPresent;
+
 		if(isNotDecorated) {
 			return new ArrayList<>();
 		}
@@ -135,8 +137,6 @@ public class CcpEntityFactory {
 		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
 		CcpEntityCustomDecorator[] value = annotation.value();
 		List<CcpEntityCustomDecorator> asList = Arrays.asList(value);
-		
-		
 		
 		List<CcpEntityDecoratorType> collect = 
 				asList.stream()

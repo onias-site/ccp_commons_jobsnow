@@ -10,6 +10,7 @@ import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 
 /**
  * Implementação base do padrão Decorator para {@code CcpEntity}. Encapsula uma entidade e delega
@@ -61,7 +62,7 @@ public class CcpEntityDelegator implements CcpEntity{
 		return parametersToSearch;
 	}
 
-	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntity twinEntity = this.entity.getTwinEntity(decoratorsToAvoid);
 		return twinEntity;
 	}
@@ -168,4 +169,6 @@ public class CcpEntityDelegator implements CcpEntity{
 		String name = this.entity.name();
 		return name;
 	}
+	
+	
 }

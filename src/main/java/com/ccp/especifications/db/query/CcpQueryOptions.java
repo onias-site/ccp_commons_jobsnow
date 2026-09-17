@@ -19,7 +19,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
  */
 public class CcpQueryOptions extends CcpQueryComponent {
 	enum JsonFieldNames implements CcpJsonFieldName {
-		sort, match_all
+		sort, match_all, scroll_id, size, from, scroll, query
 	}
 
 	public static final CcpQueryOptions INSTANCE = new CcpQueryOptions();
@@ -128,7 +128,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o ID de scroll para continuar uma iteração paginada.
 	 */
 	public CcpQueryOptions setScrollId(String scrollId) {
-		CcpQueryOptions clone = super.putProperty("scroll_id", scrollId);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.scroll_id, scrollId);
 		return clone;
 	}
 
@@ -136,7 +136,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o número máximo de documentos retornados.
 	 */
 	public CcpQueryOptions setSize(int size) {
-		CcpQueryOptions clone = super.putProperty("size", size);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, size);
 		return clone;
 	}
 
@@ -144,7 +144,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o tamanho máximo como 10.000 documentos.
 	 */
 	public CcpQueryOptions maxResults() {
-		CcpQueryOptions clone = super.putProperty("size", 10000);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, 10000);
 		return clone;
 	}
 
@@ -152,7 +152,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o tamanho como 0 (útil para consultas que retornam apenas metadados ou agregações).
 	 */
 	public CcpQueryOptions zeroResults() {
-		CcpQueryOptions clone = super.putProperty("size", 0);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, 0);
 		return clone;
 	}
 
@@ -160,7 +160,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o offset (paginação por deslocamento) dos resultados.
 	 */
 	public CcpQueryOptions setFrom(int from) {
-		CcpQueryOptions clone = super.putProperty("from", from);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.from, from);
 		return clone;
 	}
 
@@ -168,7 +168,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Define o tempo de expiração do contexto de scroll (ex: "1m", "5m").
 	 */
 	public CcpQueryOptions setScrollTime(String scrollTime) {
-		CcpQueryOptions clone = super.putProperty("scroll", scrollTime);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.scroll, scrollTime);
 		return clone;
 	}
 
@@ -177,7 +177,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 */
 	public CcpQueryOptions matchAll() {
 		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.match_all, CcpOtherConstants.EMPTY_JSON.content);
-		CcpQueryOptions clone = super.putProperty("query", put2.content);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.query, put2.content);
 		return clone;
 	}
 

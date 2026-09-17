@@ -4,14 +4,12 @@ import java.util.Map;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
-import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.decorators.CcpJsonRepresentation;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 public final class BucketAggregation extends CcpQueryComponent {
-	enum JsonFieldNames implements CcpJsonFieldName {
-		field
-	}
 
 	private final CcpEntityField fieldName;
 	private final long size;
@@ -34,7 +32,7 @@ public final class BucketAggregation extends CcpQueryComponent {
 
 	private CcpQueryAggregations getStatisRequest(String p1, String p2) {
 		CcpQueryComponent copy = this.copy();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.field, this.fieldName);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, this.fieldName);
 		CcpFieldName ccpFieldName = new CcpFieldName(p1);
 		var put2 = put
 				.put(ccpFieldName, this.size);

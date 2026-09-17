@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
@@ -16,6 +16,7 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatusDefault;
 
@@ -117,7 +118,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return oneById;
 	}
 	
-	public CcpEntity getTwinEntity(CcpEntityDecoratorTypes... decoratorsToAvoid) {
+	public CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
 		boolean twinDiferente = this.twin != null;
 	
 		if(twinDiferente) {

@@ -4,14 +4,12 @@ import java.util.Map;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
-import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.decorators.CcpJsonRepresentation;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 public final class CcpQueryAggregations extends CcpQueryComponent {
-	enum JsonFieldNames implements CcpJsonFieldName {
-		field
-	}
 
 	CcpQueryAggregations(CcpQueryComponent parent) {
 		super(parent, "aggs");
@@ -32,7 +30,7 @@ public final class CcpQueryAggregations extends CcpQueryComponent {
 
 	private CcpQueryAggregations createAggregation(String aggregationName, CcpEntityField fieldName, String key) {
 		CcpQueryAggregations copy = this.copy();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.field, fieldName);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldName);
 		Map<String, Object> c1 = put.getContent();
 		CcpFieldName ccpFieldName = new CcpFieldName(key);
 		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName, c1);

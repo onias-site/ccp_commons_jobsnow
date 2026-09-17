@@ -5,9 +5,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.process.CcpProcessStatus;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 class FunctionPutStatus implements CcpBusiness {
 	enum JsonFieldNames implements CcpJsonFieldName{
-		status, statusName, statusNumber
+		status
 	}
 
 	public static final FunctionPutStatus INSTANCE = new FunctionPutStatus();
@@ -21,10 +23,10 @@ class FunctionPutStatus implements CcpBusiness {
 	public CcpJsonRepresentation apply(CcpJsonRepresentation j) {
 		CcpProcessStatus stats = j.getAsObject(JsonFieldNames.status);
 		String statsName = stats.name();
-		CcpJsonRepresentation put = j.put(JsonFieldNames.statusName, statsName);
+		CcpJsonRepresentation put = j.put(CcpJsonCommonsFields.statusName, statsName);
 		int asNumber = stats.asNumber();
 		CcpJsonRepresentation put3 = put
-				.put(JsonFieldNames.statusNumber, asNumber);
+				.put(CcpJsonCommonsFields.statusNumber, asNumber);
 		CcpJsonRepresentation removeField = put3.removeFields(JsonFieldNames.status);
 		return removeField;
 

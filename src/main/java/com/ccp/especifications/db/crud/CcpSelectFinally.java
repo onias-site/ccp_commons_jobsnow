@@ -19,10 +19,11 @@ import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.process.CcpProcessStatus;
 import java.util.stream.Stream;
 
+import com.ccp.json.fields.validation.CcpJsonCommonsFields;
+
 public class CcpSelectFinally {
 
-	enum JsonFieldNames implements CcpJsonFieldName {
-		statements, entity, action, found, status, message, errorDetails, flow, origin
+	enum JsonFieldNames implements CcpJsonFieldName { entity, action, status, message, flow, origin
 	}
 
 	private final Collection<CcpJsonRepresentation> parametersToSearch;
@@ -36,7 +37,7 @@ public class CcpSelectFinally {
 	}
 
 	public CcpSelectFinally endThisProcedure(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
+		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
 		int statementsSize = statements.size();
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statementsSize]);
 		this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
@@ -44,7 +45,7 @@ public class CcpSelectFinally {
 	}
 
 	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(JsonFieldNames.statements);
+		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
 		int statementsSize2 = statements.size();
 		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statementsSize2]);
 		CcpJsonRepresentation findById = this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
@@ -90,7 +91,7 @@ public class CcpSelectFinally {
 				continue;
 			}
 
-			boolean shouldHaveBeenFound = specification.getAsBoolean(JsonFieldNames.found);
+			boolean shouldHaveBeenFound = specification.getAsBoolean(CcpJsonCommonsFields.found);
 			CcpEntity entity = specification.getAsObject(JsonFieldNames.entity);
 
 			boolean wasActuallyFound = this.isPresentInUnionAll(unionAll, entity);
@@ -120,9 +121,9 @@ public class CcpSelectFinally {
 				}
 				CcpProcessStatus status = specification.getAsObject(JsonFieldNames.status);
 				String message = specification.getOrDefault(JsonFieldNames.message, () -> status.name());
-				CcpJsonRepresentation addToItem = json.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.message, message);
+				CcpJsonRepresentation addToItem = json.addToItem(CcpJsonCommonsFields.errorDetails, JsonFieldNames.message, message);
 				CcpJsonRepresentation put = addToItem
-						.addToItem(JsonFieldNames.errorDetails, JsonFieldNames.status, status);
+						.addToItem(CcpJsonCommonsFields.errorDetails, JsonFieldNames.status, status);
 				CcpJsonRepresentation dataBaseRow = this.getRecordFromUnionAll(unionAll, entity);
 				CcpJsonRepresentation context = put.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
 				CcpJsonRepresentation apply = whenFlowError.execute(context);
