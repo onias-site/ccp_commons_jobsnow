@@ -151,10 +151,10 @@ public enum CcpJsonValidatorDefaults implements CcpJsonValidator{
 
 		public Object getRuleExplanation(Class<?> clazz) {
 			CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
-			CcpJsonValidationFieldList[] list = annotation.requiresAtLeastOne();
+			CcpJsonValidationFieldList[] list = annotation.requiresAllOrNone();
 			List<String> rules = new ArrayList<>();
 			for (CcpJsonValidationFieldList validation : list) {
-				
+
 				String[] oneOfThem = getItemsFromAnnotation(validation);
 				String toString3 = Arrays.asList(oneOfThem).toString();
 				String valorMais2 = "The provided json must has all (or none) of this following fields: " + toString3;

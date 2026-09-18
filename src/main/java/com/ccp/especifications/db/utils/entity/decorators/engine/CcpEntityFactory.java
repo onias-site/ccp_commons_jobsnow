@@ -198,41 +198,41 @@ public class CcpEntityFactory {
 		return fields;
 	}
 	
+	/**
+	 * Procura o enum {@code Fields} entre <b>todos</b> os tipos aninhados da classe configuradora, em
+	 * qualquer posição. A ordem devolvida por {@code getDeclaredClasses()} não é especificada, então
+	 * olhar apenas o primeiro elemento reprovava entidades corretas só por declararem algum outro tipo
+	 * aninhado antes do {@code Fields}.
+	 */
 	private static  boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
-		
+
 		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
-		
-		boolean hasNoInternalClasses = declaredClasses.length == 0;
-		
-		if(hasNoInternalClasses) {
-			return true;
-		}
-		
-		Class<?> firstClass = declaredClasses[0];
-		boolean valor = firstClass.isEnum();
 
-		boolean isNotAnEnum = false == valor;
-		
-		if(isNotAnEnum) {
-			return true;
-		}
-		
-		String simpleName = firstClass.getSimpleName();
-		boolean equals = "Fields".equals(simpleName);
-		boolean incorrectName = false == equals;
-		
-		if(incorrectName) {
-			return true;
-			
-		}
-		boolean assignableFrom = CcpJsonFieldName.class.isAssignableFrom(firstClass);
+		for (Class<?> declaredClass : declaredClasses) {
 
-		boolean incorrectType = false == assignableFrom;
-		if(incorrectType) {
-			return true;
+			boolean isNotAnEnum = false == declaredClass.isEnum();
+
+			if(isNotAnEnum) {
+				continue;
+			}
+
+			String simpleName = declaredClass.getSimpleName();
+			boolean incorrectName = false == "Fields".equals(simpleName);
+
+			if(incorrectName) {
+				continue;
+			}
+
+			boolean incorrectType = false == CcpJsonFieldName.class.isAssignableFrom(declaredClass);
+
+			if(incorrectType) {
+				continue;
+			}
+
+			return false;
 		}
-		
-		return false;
+
+		return true;
 	}
 
 	private static CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
@@ -292,7 +292,7 @@ public class CcpEntityFactory {
 	@SuppressWarnings("serial")
 	public static class CcpErrorEntityConfigurationFieldsIsMissing extends RuntimeException {
 		private CcpErrorEntityConfigurationFieldsIsMissing(Class<?> configurationClass) {
-			super("The class '" + configurationClass.getName() + "' must declare a public static enum called 'FIELDS'");
+			super("The class '" + configurationClass.getName() + "' must declare a public static enum called 'Fields' implementing '" + CcpJsonFieldName.class.getSimpleName() + "'");
 		}
 	}
 

@@ -14,8 +14,9 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 /**
  * Define os tipos de operação com side effects que podem ser configurados para uma entidade via
  * {@code @CcpEntityOperation}: {@code save}, {@code delete} e {@code deleteAnyWhere}. Cada constante
- * implementa a operação sobre a entidade e executa os fluxos {@code before}/{@code after} configurados
- * na anotação.
+ * implementa a operação sobre a entidade e expõe os fluxos {@code before} e {@code after} em métodos
+ * separados ({@code executeBefore} e {@code executeAfter}), porque cada fluxo é aplicado por um
+ * decorator próprio e em posição própria da cadeia.
  */
 public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	deleteAnyWhere{
@@ -42,18 +43,31 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	abstract boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
 
 	/**
-	 * Executa o fluxo {@code before}, a operação sobre a entidade informada e, somente se a operação
-	 * tiver acontecido de fato, o fluxo {@code after}. Ou seja, o {@code after} é dispensado quando o
-	 * {@code save} apenas atualizou um documento que já existia ou quando o {@code delete} não
-	 * encontrou registro para remover. Como a operação devolve apenas o resultado booleano, o fluxo
-	 * {@code after} recebe o JSON produzido pelo fluxo {@code before}.
+	 * Executa o fluxo {@code before} e, na sequência, delega a operação ao restante da cadeia de
+	 * decorators. O JSON produzido pelo fluxo {@code before} é o que segue para os decorators
+	 * internos, de modo que tudo o que vem depois enxerga o resultado dos side effects prévios.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
 	 * @param entity a entidade alvo da operação
 	 */
-	public boolean execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity... entities) {
+	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
 		boolean result = this.executeEntityOperation(before, entity);
+		return result;
+	}
+
+	/**
+	 * Delega a operação ao restante da cadeia de decorators e executa o fluxo {@code after} somente se
+	 * a operação tiver acontecido de fato. Ou seja, o {@code after} é dispensado quando o {@code save}
+	 * apenas atualizou um documento que já existia ou quando o {@code delete} não encontrou registro
+	 * para remover. Como a operação devolve apenas o resultado booleano, o fluxo {@code after} recebe o
+	 * mesmo JSON que chegou a este decorator.
+	 * @param json o JSON de entrada
+	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
+	 * @param entity a entidade alvo da operação
+	 */
+	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
+		boolean result = this.executeEntityOperation(json, entity);
 
 		boolean operationDidNotHappen = false == result;
 
@@ -61,10 +75,10 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			return false;
 		}
 
-		this.executeFlow(before, CcpEntityOperationPhase._after, clazz, entity);
+		this.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity);
 		return result;
 	}
-	
+
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity) {
 		
 		CcpEntityOperations annotation = clazz.getAnnotation(CcpEntityOperations.class);

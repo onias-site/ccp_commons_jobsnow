@@ -33,6 +33,33 @@ public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType
 		throw ccpEntityCustomDecoratorIsNotDeclared;
 	}
 
+	/**
+	 * Dois decorators custom são o mesmo decorator quando são da mesma classe. A identidade não serve:
+	 * {@code CcpEntityFactory} instancia cada builder por reflexão a cada montagem de entidade, então o
+	 * objeto passado em {@code decoratorsToAvoid} nunca é o mesmo que está na cadeia. Sem esta
+	 * comparação por classe o {@code contains} do filtro de exclusão devolve sempre {@code false} e o
+	 * decorator que se pediu para evitar continua na cadeia.
+	 */
+	public final boolean equals(Object obj) {
+
+		boolean isNull = obj == null;
+
+		if(isNull) {
+			return false;
+		}
+
+		Class<?> thisDecorator = this.getClass();
+		Class<?> otherDecorator = obj.getClass();
+		boolean sameDecorator = thisDecorator.equals(otherDecorator);
+		return sameDecorator;
+	}
+
+	public final int hashCode() {
+		Class<?> thisDecorator = this.getClass();
+		int hashCode = thisDecorator.hashCode();
+		return hashCode;
+	}
+
 	@SuppressWarnings("serial")
 	public static class CcpEntityCustomDecoratorIsNotDeclared extends RuntimeException {
 		private CcpEntityCustomDecoratorIsNotDeclared(Class<?> configurationClass, Class<?> thisDecorator) {

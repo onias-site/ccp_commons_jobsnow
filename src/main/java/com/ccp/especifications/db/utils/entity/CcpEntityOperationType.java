@@ -82,6 +82,14 @@ public enum CcpEntityOperationType {
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
 
 	/**
+	 * Retorna um {@code CcpBusiness} que executa esta operação sobre a entidade informada.
+	 */
+	public CcpBusiness getOperationCallback(CcpEntity entity) {
+		CcpBusiness operationCallback = json -> this.execute(entity, json);
+		return operationCallback;
+	}
+
+	/**
 	 * Retorna um {@code CcpBusiness} (função lambda) que encapsula a execução desta operação sobre a entidade
 	 * informada; usado como handler de tópicos/mensagens.
 	 */

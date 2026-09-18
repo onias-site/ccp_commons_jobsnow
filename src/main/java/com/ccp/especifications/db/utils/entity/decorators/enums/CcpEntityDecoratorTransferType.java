@@ -11,8 +11,9 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 /**
  * Define os tipos de transferência de dados entre entidades configurados via
  * {@code @CcpEntityDataTransfer}: {@code transferDataTo} (move e remove a origem) e
- * {@code copyDataTo} (copia sem remover a origem). Executa os fluxos {@code before}/{@code after}
- * configurados na anotação.
+ * {@code copyDataTo} (copia sem remover a origem). Expõe os fluxos {@code before} e {@code after} em
+ * métodos separados ({@code executeBefore} e {@code executeAfter}), porque cada fluxo é aplicado por
+ * um decorator próprio e em posição própria da cadeia.
  */
 public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	transferDataTo{
@@ -31,18 +32,32 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	abstract boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
 
 	/**
-	 * Executa o fluxo {@code before}, a transferência entre entidades e, somente se a transferência
-	 * tiver acontecido de fato, o fluxo {@code after}. Ou seja, o {@code after} é dispensado quando não
-	 * havia registro de origem para transferir ou copiar. Como a transferência devolve apenas o
-	 * resultado booleano, o fluxo {@code after} recebe o JSON produzido pelo fluxo {@code before}.
+	 * Executa o fluxo {@code before} e, na sequência, delega a transferência ao restante da cadeia de
+	 * decorators. O JSON produzido pelo fluxo {@code before} é o que segue para os decorators internos,
+	 * de modo que tudo o que vem depois enxerga o resultado dos side effects prévios.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
 	 * @param entity a entidade origem
 	 * @param entityToTransfer a entidade destino
 	 */
-	public boolean execute(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
 		boolean result = this.executeEntityTransfer(before, entity, entityToTransfer);
+		return result;
+	}
+
+	/**
+	 * Delega a transferência ao restante da cadeia de decorators e executa o fluxo {@code after} somente
+	 * se a transferência tiver acontecido de fato. Ou seja, o {@code after} é dispensado quando não havia
+	 * registro de origem para transferir ou copiar. Como a transferência devolve apenas o resultado
+	 * booleano, o fluxo {@code after} recebe o mesmo JSON que chegou a este decorator.
+	 * @param json o JSON de entrada
+	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
+	 * @param entity a entidade origem
+	 * @param entityToTransfer a entidade destino
+	 */
+	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+		boolean result = this.executeEntityTransfer(json, entity, entityToTransfer);
 
 		boolean transferDidNotHappen = false == result;
 
@@ -50,11 +65,10 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 			return false;
 		}
 
-		this.executeFlow(before, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
+		this.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
 		return result;
-
 	}
-	
+
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		
 		CcpEntityDataTransfers annotation = clazz.getAnnotation(CcpEntityDataTransfers.class);

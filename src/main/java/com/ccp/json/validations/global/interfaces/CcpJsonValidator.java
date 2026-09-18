@@ -1,6 +1,5 @@
 package com.ccp.json.validations.global.interfaces;
 
-import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 
@@ -33,7 +32,7 @@ public interface CcpJsonValidator {
 		boolean hasNoError = false == error2;
 
 		if (hasNoError) {
-			return CcpOtherConstants.EMPTY_JSON;
+			return errors;
 		}
 
 		String className = clazz.getName();

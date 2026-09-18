@@ -21,7 +21,6 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import java.util.stream.Stream;
@@ -105,12 +104,7 @@ public final class CcpEntityMetaData {
 		CcpEntity entity = (CcpEntity) object;
 		CcpEntityMetaData ccpEntityMetaData2 = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
 		return ccpEntityMetaData2;
-		
-	}
-
-	/** Retorna um {@code CcpBusiness} que executa a operação informada sobre a entidade destes metadados. */
-	public CcpBusiness getOperationCallback(CcpEntityOperationType operation){
-		return json -> operation.execute(this.entity, json);
+		
 	}
 
 	/** Retorna um JSON contendo apenas os campos atualizáveis (não chave primária) presentes em {@code json}. */
