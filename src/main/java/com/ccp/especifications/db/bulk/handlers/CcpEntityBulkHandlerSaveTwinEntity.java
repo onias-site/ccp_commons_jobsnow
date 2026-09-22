@@ -3,6 +3,7 @@ package com.ccp.especifications.db.bulk.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -21,7 +22,7 @@ public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTran
 	 * @param entity entidade de origem (cujo wrapped receberá o registro)
 	 */
 	public CcpEntityBulkHandlerSaveTwinEntity(CcpEntity entity) {
-		super(entity);
+		super(entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
 	}
 
 	/**
