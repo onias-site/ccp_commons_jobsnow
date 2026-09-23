@@ -1,11 +1,11 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
@@ -29,9 +29,10 @@ import com.ccp.process.CcpProcessStatusDefault;
  */
 class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	
+	private final Class<?> clazz;
+
 	private CcpEntity twin;
 	
-	private final Class<?> clazz;
 	
 	public DecoratorTwinEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
@@ -40,8 +41,8 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 
 	private DecoratorTwinEntity(CcpEntity entity, CcpEntity twin, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
-		this.twin = twin;
 		this.clazz = clazz;
+		this.twin = twin;
 	}
 
 	private static Consumer<String[]> instanciateFunctionToDeleteKeysInTheCache(Class<?> clazz) {
@@ -67,7 +68,7 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean delete(CcpJsonRepresentation json) {
-		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this, x -> Arrays.asList());
+		var transfer = new CcpEntityBulkHandlerTransferRecordToTwinEntity(this, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
 		CcpSelectUnionAll unionAll = super.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, super.functionToDeleteKeysInTheCache, transfer);
 		boolean existedBeforeTheDeletion = this.isPresentInThisUnionAll(unionAll, json);
 		return existedBeforeTheDeletion;
