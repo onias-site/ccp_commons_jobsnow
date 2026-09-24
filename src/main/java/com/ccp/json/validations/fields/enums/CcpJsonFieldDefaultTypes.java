@@ -146,7 +146,7 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 		}
 
 	}, 
-	String(CcpJsonFieldTypeError.stringNotEmpty, CcpJsonFieldTypeError.stringExactLength, CcpJsonFieldTypeError.stringRegex, CcpJsonFieldTypeError.stringAllowedValues, CcpJsonFieldTypeError.stringMaxLength, CcpJsonFieldTypeError.stringMinLength){
+	String(CcpJsonFieldTypeError.stringNotEmpty, CcpJsonFieldTypeError.stringExactLength, CcpJsonFieldTypeError.stringRegex, CcpJsonFieldTypeError.stringAllowedValues, CcpJsonFieldTypeError.stringMaxLength, CcpJsonFieldTypeError.stringMinLength, CcpJsonFieldTypeError.stringJavaClass){
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
 			return json -> true;
 		}

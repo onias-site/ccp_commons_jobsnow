@@ -1,7 +1,6 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -24,6 +23,12 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	public boolean delete(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.delete(transformedJsonByEachFieldInJson);
+		return result;
+	}
+
+	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
+		var result = this.entity.deleteAnyWhere(transformedJsonByEachFieldInJson);
 		return result;
 	}
 
@@ -76,12 +81,6 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return result;
 	}	
 
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		Supplier<CcpJsonRepresentation> jsonSupplier = () -> this.getHandledJson(json);
-		var result = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
-		return result;
-	}
-	
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.isPresentInThisUnionAll(unionAll, transformedJsonByEachFieldInJson);

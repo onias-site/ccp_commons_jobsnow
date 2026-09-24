@@ -1,5 +1,6 @@
 package com.ccp.json.validations.global.engine;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,21 +56,74 @@ public class CcpJsonValidatorEngine {
 	 * @param featureName nome da funcionalidade para diagnóstico
 	 */
 	public CcpJsonRepresentation validateJson(Class<?> clazz, CcpJsonRepresentation json, String featureName) {
-		
-		CcpJsonRepresentation errors = this.getErrors(clazz, json);
-		
+
+		CcpJsonRepresentation jsonWithArraysAsCollections = this.replaceArraysByCollections(json);
+
+		CcpJsonRepresentation errors = this.getErrors(clazz, jsonWithArraysAsCollections);
+
 		boolean hasNoJsonErrors = errors.isEmpty();
-		
+
 		if(hasNoJsonErrors) {
 			return json;
 		}
-		
+
 		CcpJsonRepresentation rulesExplanation = CcpJsonValidationRulesEngine.INSTANCE.getRulesExplanation(clazz);
-		CcpJsonValidationError ccpJsonValidationError = new CcpJsonValidationError(clazz, json, errors, rulesExplanation, featureName);
+		CcpJsonValidationError ccpJsonValidationError = new CcpJsonValidationError(clazz, jsonWithArraysAsCollections, errors, rulesExplanation, featureName);
 
 		throw ccpJsonValidationError;
 	}
-	
+
+	/**
+	 * Devolve o JSON com todo campo que traz um array java substituído pela lista equivalente, para
+	 * que o restante da validação enxergue array e coleção da mesma forma. O JSON original não é
+	 * alterado: a troca vale apenas para a validação.
+	 */
+	private CcpJsonRepresentation replaceArraysByCollections(CcpJsonRepresentation json) {
+
+		Set<String> fieldNames = json.fieldSet();
+
+		CcpJsonRepresentation jsonWithArraysAsCollections = json;
+
+		for (String fieldName : fieldNames) {
+			Object value = json.content.get(fieldName);
+			boolean isNotAnArray = false == this.isArray(value);
+
+			if(isNotAnArray) {
+				continue;
+			}
+
+			List<Object> collection = this.toCollection(value);
+			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+			jsonWithArraysAsCollections = jsonWithArraysAsCollections.put(ccpFieldName, collection);
+		}
+
+		return jsonWithArraysAsCollections;
+	}
+
+	private boolean isArray(Object value) {
+		boolean valueIsAbsent = value == null;
+
+		if(valueIsAbsent) {
+			return false;
+		}
+
+		Class<?> valueClass = value.getClass();
+		boolean isArray = valueClass.isArray();
+		return isArray;
+	}
+
+	private List<Object> toCollection(Object array) {
+		int length = Array.getLength(array);
+		List<Object> collection = new ArrayList<>();
+
+		for (int index = 0; index < length; index++) {
+			Object item = Array.get(array, index);
+			collection.add(item);
+		}
+
+		return collection;
+	}
+
 	private CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation errors = this.getErrorsFromClass(clazz, json);

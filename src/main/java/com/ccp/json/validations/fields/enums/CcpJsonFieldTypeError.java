@@ -1201,6 +1201,55 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		}
 		
 	},
+	stringJavaClass(CcpJsonFieldErrorHandleType.continueFieldValidation){
+
+		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			Boolean isJavaClass = this.getValidationParameter(field, type);
+			boolean doNotValidate = false == isJavaClass;
+			if(doNotValidate) {
+				return false;
+			}
+			String fieldName = field.getName();
+			CcpFieldName ccpFieldName33 = new CcpFieldName(fieldName);
+			String value = json.getAsString(ccpFieldName33);
+			boolean classWasFound = CcpJsonFieldTypeError.existsInClassLoader(value);
+			boolean classWasNotFound = false == classWasFound;
+			return classWasNotFound;
+		}
+
+		Boolean getValidationParameter(Field field, CcpJsonFieldType type) {
+			CcpJsonFieldTypeString annotation = field.getAnnotation(CcpJsonFieldTypeString.class);
+			Boolean value = annotation.isJavaClass();
+			return value;
+		}
+
+		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
+			String fieldName = field.getName();
+			Object providedValue = this.getProvidedValue(json, field, type);
+			String valorMais46 = "The field " + fieldName;
+			String valorMais46Mais = valorMais46 + " has a value ";
+			String valorMais46MaisMais = valorMais46Mais + providedValue;
+			String valorMais46MaisMaisMais = valorMais46MaisMais + " that is not the complete name of a java class that the class loader is able to find";
+			String errorMessage = valorMais46MaisMaisMais + "";
+			return errorMessage;
+		}
+
+		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
+			String fieldName = field.getName();
+			String valorMais47 = "The field " + fieldName;
+			String valorMais47Mais = valorMais47 + " does not accept free text: it accepts only the complete name of a java class, ";
+			String valorMais47MaisMais = valorMais47Mais + "package included, exactly as it is returned by Class.getName(). ";
+			String valorMais47MaisMaisMais = valorMais47MaisMais + "The value is accepted only if the class loader of the running application is able to find a class with that name, ";
+			String valorMais47MaisMaisMaisMais = valorMais47MaisMaisMais + "so names that are misspelled, that belong to a class that was renamed or removed, or that are not in the classpath are refused";
+			String ruleExplanation = valorMais47MaisMaisMaisMais + "";
+			return ruleExplanation;
+		}
+
+		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
+			Boolean isJavaClass = this.getValidationParameter(field, type);
+			return isJavaClass;
+		}
+	},
 	timeMaxValueBeforeCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
@@ -1457,6 +1506,17 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		return this.errorHandleType;
 	}
 	
+	private static boolean existsInClassLoader(String className) {
+		ClassLoader classLoader = CcpJsonFieldTypeError.class.getClassLoader();
+		boolean doNotInitializeTheClass = false;
+		try {
+			Class.forName(className, doNotInitializeTheClass, classLoader);
+			return true;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
 	protected final Object getProvidedValue(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 
 		String fieldName = field.getName();

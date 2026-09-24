@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.json.defaultvalues.engine.CcpJsonFieldDefaultValuesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
@@ -43,7 +44,9 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 		Class<?> jsonValidationClass = this.getJsonValidationClass();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, className);
 
-		CcpJsonRepresentation apply = this.apply(json);
+		CcpJsonRepresentation jsonWithDefaultValues = CcpJsonFieldDefaultValuesEngine.INSTANCE.putDefaultValues(jsonValidationClass, json);
+
+		CcpJsonRepresentation apply = this.apply(jsonWithDefaultValues);
 		return apply;
 	}  
 	default String name() {

@@ -28,5 +28,11 @@ public @interface CcpJsonFieldTypeString {
 	@SuppressWarnings("rawtypes")
 	/** Valores de enums (concatenados) permitidos. */
 	Class[] allowedValuesEnum() default {};
-//TODO ISJAVACLASS
+
+	/**
+	 * Se o campo transporta o nome completo (pacote incluído) de uma classe java, e não texto livre.
+	 * Quando true, o valor só é aceito se o class loader da aplicação conseguir encontrar a classe
+	 * com aquele nome (padrão: false).
+	 */
+	boolean isJavaClass() default false;
 }

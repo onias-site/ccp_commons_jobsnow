@@ -74,16 +74,6 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return existedBeforeTheDeletion;
 	}
 
-	//FIXME NAO ESTA PERMITINDO EXECUTAR ESTE METODO QUANDO A PK SOFRE LGPD
-	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
-		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(this, CcpEntityDecoratorTypes.Twin);
-		CcpEntity twinEntity = this.getTwinEntity(CcpEntityDecoratorTypes.Twin);
-		boolean deletedFromMainEntity = customEntity.delete(json);
-		boolean deletedFromTwinEntity = twinEntity.delete(json);
-		boolean deleted = deletedFromMainEntity || deletedFromTwinEntity;
-		return deleted;
-	}
-	
 	public List<CcpEntity> getAssociatedEntities() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
 		ArrayList<CcpEntity> result = new ArrayList<CcpEntity>(associatedEntities);
