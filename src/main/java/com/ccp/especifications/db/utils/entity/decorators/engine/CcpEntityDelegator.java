@@ -97,7 +97,7 @@ public class CcpEntityDelegator implements CcpEntity{
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		String entityNameMais = entityDetails.entityName + " = ";
 		String string = entityNameMais + replace;
-		return string;
+		return string + "\n"; 
 	}
 	
 	public boolean equals(Object obj) {

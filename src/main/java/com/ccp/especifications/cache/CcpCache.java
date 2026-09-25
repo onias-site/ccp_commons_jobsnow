@@ -1,5 +1,6 @@
 package com.ccp.especifications.cache;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -135,10 +136,31 @@ public interface CcpCache {
 	CcpCache put(String key, Object value, int secondsDelay);
 
 	/**
-	 * Remove a entrada da chave informada do cache e retorna o valor que estava armazenado.
+	 * Remove a entrada da chave informada do cache.
+	 *
+	 * <p>Não devolve o valor removido de propósito. Devolvê-lo obriga a implementação a ler antes de
+	 * apagar — duas idas ao servidor de cache em vez de uma — e nenhum dos chamadores usava o retorno:
+	 * todos os pontos de remoção ({@code JnDeleteKeysFromCache} e os cinco de
+	 * {@code DecoratorCacheEntity}) chamam este método como comando isolado.</p>
 	 *
 	 * @param key a chave de cache
-	 * @return o valor removido ou {@code null} se não havia entrada
 	 */
-	<V> V delete(String key);
+	void delete(String key);
+
+	/**
+	 * Remove de uma vez todas as chaves informadas.
+	 *
+	 * <p>A implementação padrão apaga uma a uma, para que qualquer {@code CcpCache} continue
+	 * funcionando sem alteração. Quem fala com um servidor de cache de verdade deve sobrescrever com a
+	 * operação em lote do provedor: a invalidação dispara antes de <b>toda</b> busca
+	 * ({@code CcpCrud.deleteKeysInCache}), e uma busca que toca nove entidades vira nove idas à rede
+	 * quando poderia ser uma.</p>
+	 *
+	 * @param keys as chaves a remover
+	 */
+	default void deleteAll(Collection<String> keys) {
+		for (String key : keys) {
+			this.delete(key);
+		}
+	}
 }

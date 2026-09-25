@@ -82,32 +82,37 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return result;
 	}
 
+	/**
+	 * Devolve o registro do resultado de union-all <b>sem passar pelo cache</b>.
+	 *
+	 * <p>O {@code CcpSelectUnionAll} é uma estrutura em memória: o {@code _mget} já trouxe todos os
+	 * registros antes desta chamada. Consultar o cache aqui não pode economizar ida nenhuma ao banco —
+	 * na melhor hipótese evita uma leitura de RAM, e na pior paga uma leitura e uma gravação no
+	 * servidor de cache para obter o que já estava na mão.</p>
+	 *
+	 * <p>O cache continua valendo em {@code getOneById} e {@code exists}, onde a alternativa é
+	 * realmente ir ao banco.</p>
+	 */
 	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		
-		String calculateId = this.entity.calculateId(json);		
-		CcpCacheDecorator cache = this.getCache(calculateId);
-		
-		CcpJsonRepresentation result = cache.get(x -> this.entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier()), this.cacheExpires);
-		
+
+		CcpJsonRepresentation result = this.entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier());
+
 		return result;
 	}
-	
+
+	/**
+	 * Informa se o registro está no resultado de union-all, <b>sem tocar no cache</b>.
+	 *
+	 * <p>Além de a consulta ser em memória (ver {@code getRecordFromUnionAll}), a versão anterior
+	 * desfazia o próprio trabalho: {@code CcpCrud.unionAll} apaga a chave logo antes do {@code _mget},
+	 * e este método a regravava em seguida com o dado recém-lido. Eram três conversas com o servidor
+	 * de cache — apagar, ler, gravar — para terminar no mesmo estado de quem não faz nada.</p>
+	 */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		
-		String calculateId = this.calculateId(json);		
-		CcpCacheDecorator cache = this.getCache(calculateId);
+
 		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
 
-		boolean notPresentInThisUnionAll = false == presentInThisUnionAll;
-		
-		if(notPresentInThisUnionAll) {
-			cache.delete();
-			return false;
-		}
-		
-		CcpJsonRepresentation requiredEntityRow = this.getRecordFromUnionAll(unionAll, json);
-		cache.put(requiredEntityRow, this.cacheExpires);
-		return true;
+		return presentInThisUnionAll;
 	}
 
 	public boolean save(CcpJsonRepresentation json) {

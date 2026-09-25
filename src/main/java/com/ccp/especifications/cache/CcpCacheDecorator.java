@@ -1,10 +1,10 @@
 package com.ccp.especifications.cache;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.ccp.aop.CcpAllowNullReturn;
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
@@ -126,14 +126,32 @@ public final class CcpCacheDecorator {
 	}
 
 	/**
-	 * Remove e retorna o valor associado à chave deste decorator no cache.
-	 *
-	 * @return o valor removido ou {@code null} se não havia entrada
+	 * Remove do cache a entrada da chave deste decorator.
 	 */
-	@CcpAllowNullReturn
-	public <V> V delete() {
-		V delete = this.cache.delete(this.key);
-		return delete;
+	public void delete() {
+		this.cache.delete(this.key);
+	}
+
+	/**
+	 * Remove de uma vez todas as chaves informadas, numa única conversa com o servidor de cache
+	 * quando a implementação suporta lote.
+	 *
+	 * <p>É estático porque quem invalida cache em massa — {@code JnDeleteKeysFromCache} — parte de um
+	 * conjunto de chaves já prontas, e não de uma entidade: construir um decorator por chave só para
+	 * apagá-la era justamente o que transformava uma invalidação em N idas à rede.</p>
+	 *
+	 * @param keys as chaves a remover; coleção vazia não gera chamada alguma
+	 */
+	public static void deleteAll(Collection<String> keys) {
+
+		boolean hasNothingToDelete = keys.isEmpty();
+
+		if(hasNothingToDelete) {
+			return;
+		}
+
+		CcpCache cache = CcpDependencyInjection.getDependency(CcpCache.class);
+		cache.deleteAll(keys);
 	}
 	
 	/**
