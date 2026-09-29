@@ -4,11 +4,12 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Contrato de callback para tratamento de resultados de busca em uma entidade. Define dois
- * caminhos — registro encontrado e registro não encontrado — e identifica a entidade alvo da
- * busca.
+ * Callback contract to handle the search results of an entity. Defines two
+ * paths — record found and record not found — and identifies the entity targeted by the
+ * search.
  *
- * @param <T> tipo do resultado retornado pelos callbacks
+ * @param <T> type of the result returned by the callbacks
+
  */
 public interface CcpHandleWithSearchResultsInTheEntity<T> {
 

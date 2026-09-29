@@ -6,9 +6,9 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityF
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
- * Decorator que valida o JSON de entrada antes das operações de escrita ({@code save},
- * {@code transferDataTo}, {@code copyDataTo}) usando as regras definidas em
- * {@code @CcpEntityFieldsValidator}. Interrompe a operação se o JSON não passar na validação.
+ * Decorator that validates the input JSON before the write operations ({@code save},
+ * {@code transferDataTo}, {@code copyDataTo}) using the rules defined in
+ * {@code @CcpEntityFieldsValidator}. Interrupts the operation if the JSON does not pass the validation.
  */
 class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 	
@@ -30,8 +30,8 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 
 	public boolean save(CcpJsonRepresentation json) {
 		this.validateJson(json);
-		boolean save = this.entity.save(json);
-		return save;
+		boolean inserted = this.entity.save(json);
+		return inserted;
 	}
 
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {

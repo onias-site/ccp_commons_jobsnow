@@ -6,20 +6,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Agrupa múltiplas configurações de {@code @CcpEntityDataTransfer} em uma entidade, além de definir
- * tratadores de exceção globais para todas as transferências.
+ * Groups several {@code @CcpEntityDataTransfer} configurations on an entity, and also defines
+ * global exception handlers for every transfer.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityDataTransfers {
 
 	/**
-	 * Array de transferências configuradas para a entidade.
+	 * Array of transfers configured for the entity.
 	 */
 	CcpEntityDataTransfer[] value();
 
 	/**
-	 * Tratadores de exceção globais aplicados a todas as transferências.
+	 * Global exception handlers applied to every transfer.
+	
 	 */
 	CcpExceptionFlow[] globalHandlers() default {};
 

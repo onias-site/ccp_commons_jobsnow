@@ -13,21 +13,17 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerCreate;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerDelete;
-import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerRead;
 import com.ccp.especifications.db.bulk.handlers.CcpBulkHandlerSave;
 import com.ccp.especifications.db.crud.CcpCrud;
-import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 
 /**
- * Especialização abstrata de {@code CcpEntityDelegator} que fornece implementações padrão de
- * {@code save}, {@code delete}, {@code deleteAnyWhere}, {@code transferDataTo} e {@code copyDataTo}
- * usando operações bulk. É a base para todos os decorators que precisam de operações de escrita com
- * suporte a bulk e invalidação de cache.
+ * Abstract specialization of {@code CcpEntityDelegator} that provides default implementations of
+ * {@code save}, {@code delete}, {@code deleteAnyWhere}, {@code transferDataTo} and {@code copyDataTo}
+ * using bulk operations. It is the base for every decorator that needs write operations with
+ * bulk support and cache invalidation.
  */
 public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntityDelegator{
 	
@@ -43,9 +39,9 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	
 
 	/**
-	 * Remove o registro via bulk. Como o bulk não devolve o desfecho de cada item, a existência prévia
-	 * do registro é consultada antes da remoção para que o retorno signifique o mesmo que em
-	 * {@code CcpEntity.delete}: o registro existia e foi removido.
+	 * Removes the record through bulk. Since the bulk does not return the outcome of each item, the previous existence
+	 * of the record is checked before the removal so that the return value means the same as in
+	 * {@code CcpEntity.delete}: the record existed and was removed.
 	 */
 	public boolean delete(CcpJsonRepresentation json) {
 		boolean existedBeforeTheDeletion = this.exists(json);
@@ -55,16 +51,16 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 
 	/**
-	 * Remove o registro da entidade principal e da gêmea. Retorna {@code true} se ele existia em ao
-	 * menos uma das duas antes da remoção.
+	 * Removes the record from the main entity and from the twin. Returns {@code true} if it existed in at
+	 * least one of the two before the removal.
 	 */
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 		boolean existedInTheMainEntity = this.exists(json);
 		boolean existedInTheTwinEntity = false;
 
-		List<CcpBulkItem> toBulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		List<CcpBulkItem> mainEntityDeleteItems = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
 
-		List<CcpBulkItem> bulkItems = new ArrayList<>(toBulkItems);
+		List<CcpBulkItem> bulkItems = new ArrayList<>(mainEntityDeleteItems);
 		try {
 			CcpEntity twinEntity = this.getTwinEntity();
 			List<CcpBulkItem> bulkItemsTwin = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
@@ -72,42 +68,59 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 			existedInTheTwinEntity = twinEntity.exists(json);
 		} catch (UnsupportedOperationException e) {
 		}
-		Stream<CcpBulkItem> stream = bulkItems.stream();
-		var streamMap = stream.map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete));
+		Stream<CcpBulkItem> bulkItemsStream = bulkItems.stream();
+		var deleteItemsStream = bulkItemsStream.map(item -> new CcpBulkItem(item, CcpBulkEntityOperationType.delete));
 
-		List<CcpBulkItem> collect = streamMap
+		List<CcpBulkItem> deleteItems = deleteItemsStream
 		.collect(Collectors.toList());
-		this.executeBulkOperation.executeBulk(collect, this.functionToDeleteKeysInTheCache);
+		this.executeBulkOperation.executeBulk(deleteItems, this.functionToDeleteKeysInTheCache);
 
 		boolean existedBeforeTheDeletion = existedInTheMainEntity || existedInTheTwinEntity;
 		return existedBeforeTheDeletion;
 	}
 
 	/**
-	 * Grava o registro via bulk. O {@code unionAll} disparado antes do bulk já diz se o registro
-	 * existia, então é ele que distingue a inclusão da atualização.
+	 * Saves the record through bulk. The {@code unionAll} triggered before the bulk already tells whether the record
+	 * existed, so it is what distinguishes an insert from an update.
+	 *
+	 * <p>Only the items of the entity itself get a handler. The items of auxiliary tables (the versionable's
+	 * history row, the disposable's copy) do not need their own handler: the handler of the
+	 * main entity calls {@code toBulkItems} of the complete entity, which goes through the same
+	 * decorators again and regenerates them. One handler per auxiliary item saved each of them twice — in the
+	 * versionable, two history rows per {@code save}.
 	 */
 	public boolean save(CcpJsonRepresentation json) {
 		List<CcpBulkItem> bulkItems = this.toBulkItems(json, CcpBulkEntityOperationType.create);
-		int size = bulkItems.size();
-		CcpBulkHandlerSave[] array = new CcpBulkHandlerSave[size];
-		int k = 0;
+		CcpEntityMetaData thisEntityDetails = this.getEntityMetaData();
+		List<CcpBulkHandlerSave> handlers = new ArrayList<>();
 		CcpJsonRepresentation parametersToSearch = CcpOtherConstants.EMPTY_JSON;
 		for (CcpBulkItem bulkItem : bulkItems) {
-			CcpBulkHandlerSave handler = new CcpBulkHandlerSave(bulkItem.entity);
-			array[k++] = handler;
+			CcpEntityMetaData itemEntityDetails = bulkItem.entity.getEntityMetaData();
+			boolean isThisEntity = itemEntityDetails.entityName.equals(thisEntityDetails.entityName);
+			boolean isAnAuxiliaryEntity = false == isThisEntity;
+			if(isAnAuxiliaryEntity) {
+				// the fields of an auxiliary record never overwrite the ones of this entity: the disposable record
+				// keeps the whole original record in a field named "json", and an entity that also has a "json"
+				// field (the bot session) was saved with its own record nested inside it
+				parametersToSearch = bulkItem.json.mergeWithAnotherJson(parametersToSearch);
+				continue;
+			}
 			parametersToSearch = parametersToSearch.mergeWithAnotherJson(bulkItem.json);
+			CcpBulkHandlerSave handler = new CcpBulkHandlerSave(bulkItem.entity);
+			handlers.add(handler);
 		}
+		int handlersCount = handlers.size();
+		CcpBulkHandlerSave[] handlersArray = handlers.toArray(new CcpBulkHandlerSave[handlersCount]);
 		parametersToSearch = json.redoJson(parametersToSearch);
-		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, array);
+		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(parametersToSearch, this.functionToDeleteKeysInTheCache, handlersArray);
 		boolean alreadyExisted = this.isPresentInThisUnionAll(unionAll, parametersToSearch);
 		boolean inserted = false == alreadyExisted;
 		return inserted;
 	}
 	
 	public String calculateId(CcpJsonRepresentation json) {
-		String calculateId = this.entity.calculateId(json);
-		return calculateId;
+		String recordId = this.entity.calculateId(json);
+		return recordId;
 	}
 
 	public CcpEntityMetaData getEntityMetaData() {
@@ -120,15 +133,26 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return oneById;
 	}
 
+	/**
+	 * Looks for the record in every associated entity whose primary key the json is able to build.
+	 *
+	 * <p>The associated entities include auxiliary tables that internal decorators add — the versionable's
+	 * history, the disposable's copy — and they have their own primary key ({@code entity},
+	 * {@code id}...). When the json is the one of the business record, that key does not exist in it, and computing the
+	 * id there blew up with {@code CcpErrorEntityPrimaryKeyIsMissing}: that is what made {@code getOneById}
+	 * break in every twin entity that is also versionable or disposable. Whoever needs the auxiliary
+	 * table in the result (the disposable) merges its key into the json before reaching this point.
+	 */
 	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		List<CcpEntity> associatedEntities = getAssociatedEntities();
+		List<CcpEntity> allAssociatedEntities = getAssociatedEntities();
+		Stream<CcpEntity> associatedEntitiesStream = allAssociatedEntities.stream();
+		var withTheKeyInTheJson = associatedEntitiesStream.filter(entity -> json.containsAllFields(entity.getEntityMetaData().primaryKeyNames));
+		List<CcpEntity> associatedEntities = withTheKeyInTheJson.collect(Collectors.toList());
 		int associatedEntitiesSize = associatedEntities.size();
 
-
-		CcpEntity[] array = associatedEntities.toArray(new CcpEntity[associatedEntitiesSize]);
-//		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
-		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, array);
+		CcpEntity[] entitiesToSearch = associatedEntities.toArray(new CcpEntity[associatedEntitiesSize]);
+		CcpSelectUnionAll unionAll = crud.unionAll(json, this.functionToDeleteKeysInTheCache, entitiesToSearch);
 		
 		CcpJsonRepresentation result = CcpOtherConstants.EMPTY_JSON;
 		
@@ -169,8 +193,8 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 	}
 	
 	public <T> T throwException() {
-		T throwException = this.entity.throwException();
-		return throwException;
+		T result = this.entity.throwException();
+		return result;
 	}
 
 	public List<CcpEntity> getAssociatedEntities() {
@@ -183,76 +207,25 @@ public abstract class CcpDefaultEntityDelegator<CcpAnnotation> extends CcpEntity
 		return bulkItems;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
-		List<CcpBulkItem> toBulkItems2 = this.toBulkItems(json, CcpBulkEntityOperationType.delete);
-		Stream<CcpBulkItem> stream2 = toBulkItems2.stream();
-		var stream2Map = stream2
-		.map(x -> {
-			CcpBulkHandlerDelete ccpBulkHandlerDelete = new CcpBulkHandlerDelete(x.entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
-			return ccpBulkHandlerDelete;
-			});
-
-
-			List<CcpBulkHandlerDelete> delete = stream2Map
-		.collect(Collectors.toList());
-		
-		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>(delete);
-		
-		for (CcpEntity entity : entities) {
-			List<CcpBulkItem> toBulkItems3 = entity.toBulkItems(json, CcpBulkEntityOperationType.create);
-			Stream<CcpBulkItem> stream3 = toBulkItems3.stream();
-			var stream3Map = stream3
-					.map(x -> new CcpBulkHandlerCreate(x.entity));
-					List<CcpBulkHandlerCreate> create = stream3Map
-					.collect(Collectors.toList());
-		
-			all.addAll(create);
-		}
-		int allSize = all.size();
-		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize]);
-		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
-
-		boolean transfered = this.isPresentInThisUnionAll(unionAll, json);
+	/**
+	 * Moves the record to the given entity. Until 2026-09-27 this method received {@code CcpEntity...}:
+	 * it was an overload, it did not override the interface method, and no transfer ever reached it. Rules
+	 * in {@code CcpEntityDataMover}.
+	 */
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
+		boolean transfered = CcpEntityDataMover.transfer(this, entityToTransferData, json, this.executeBulkOperation, this.functionToDeleteKeysInTheCache);
 		return transfered;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
-		List<CcpBulkItem> toBulkItems4 = this.toBulkItems(json, CcpBulkEntityOperationType.noop);
-		Stream<CcpBulkItem> stream4 = toBulkItems4.stream();
-		var stream4Map = stream4
-		.map(x -> {
-			CcpBulkHandlerRead ccpBulkHandlerRead = new CcpBulkHandlerRead(x.entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
-			return ccpBulkHandlerRead;
-			});
-			List<CcpBulkHandlerRead> read = stream4Map
-		.collect(Collectors.toList());
-
-		
-		List<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> all = new ArrayList<>(read);
-		
-		for (CcpEntity entity : entities) {
-			List<CcpBulkItem> toBulkItems5 = entity.toBulkItems(json, CcpBulkEntityOperationType.create);
-			Stream<CcpBulkItem> stream5 = toBulkItems5.stream();
-			var stream5Map = stream5
-					.map(x -> new CcpBulkHandlerCreate(x.entity));
-					List<CcpBulkHandlerCreate> create = stream5Map
-					.collect(Collectors.toList());
-		
-			all.addAll(create);
-		}
-		int allSize2 = all.size();
-		CcpHandleWithSearchResultsInTheEntity[] array = all.toArray(new CcpHandleWithSearchResultsInTheEntity[allSize2]);
-		CcpSelectUnionAll unionAll = this.executeBulkOperation.executeSelectUnionAllThenExecuteBulkOperation(json, this.functionToDeleteKeysInTheCache, array);
-
-		boolean copied = this.isPresentInThisUnionAll(unionAll, json);
+	/** Copies the record to the given entity, without removing it from here. Rules in {@code CcpEntityDataMover}. */
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToCopyData) {
+		boolean copied = CcpEntityDataMover.copy(this, entityToCopyData, json, this.executeBulkOperation, this.functionToDeleteKeysInTheCache);
 		return copied;
 	}
 	
 	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
-		return validateJson;
+		CcpJsonRepresentation validatedJson = this.entity.validateJson(json);
+		return validatedJson;
 	}
 	
 	public CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {

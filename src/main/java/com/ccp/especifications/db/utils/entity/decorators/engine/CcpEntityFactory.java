@@ -29,23 +29,30 @@ import com.ccp.decorators.CcpTextDecorator;
 import java.util.stream.Stream;
 
 /**
- * Fábrica responsável por construir a instância final de uma entidade encadeando os decorators
- * configurados via anotações (cache, twin, versionamento, operações, etc.) em ordem de prioridade.
- * Também extrai os campos da entidade a partir da inner class {@code Fields} declarada na classe
- * configuradora.
+ * Factory responsible for building the final instance of an entity by chaining the decorators
+ * configured through annotations (cache, twin, versioning, operations, etc.) in priority order.
+ * It also extracts the entity fields from the inner class {@code Fields} declared in the
+ * configurator class.
  */
 public class CcpEntityFactory {
 
+	/**
+	 * Derives the entity name from the simple name of the configurator class, keeping the cost center
+	 * prefix and discarding only the {@code Entity} marker. Example:
+	 * {@code JnEntityJobsnowError} becomes {@code jn_jobsnow_error}.
+	 */
 	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
 		String simpleName = clazz.getSimpleName();
-		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(simpleName);
-		CcpTextDecorator ccpStringDecoratorText = ccpStringDecorator.text();
-		var toSnakeCase = ccpStringDecoratorText.toSnakeCase();
-		String snackCase = toSnakeCase.content;
-		int indexOf = snackCase.indexOf("entity");
-		int indexOfMais = indexOf + 7;
-		String substring = snackCase.substring(indexOfMais);
-		return substring;
+		CcpStringDecorator simpleNameDecorator = new CcpStringDecorator(simpleName);
+		CcpTextDecorator simpleNameText = simpleNameDecorator.text();
+		var snakeCaseDecorator = simpleNameText.toSnakeCase();
+		String snakeCase = snakeCaseDecorator.content;
+		int entityMarkerIndex = snakeCase.indexOf("_entity_");
+		String costCenterPrefix = snakeCase.substring(0, entityMarkerIndex);
+		int entityNameStartIndex = entityMarkerIndex + 8;
+		String nameAfterEntityMarker = snakeCase.substring(entityNameStartIndex);
+		String entityName = costCenterPrefix + "_" + nameAfterEntityMarker;
+		return entityName;
 	};
 
 	public final CcpEntityField[] entityFields;
@@ -67,8 +74,8 @@ public class CcpEntityFactory {
 	}
 
 	/**
-	 * Constrói a entidade a partir do {@code configurator}, excluindo os tipos de decorator listados
-	 * em {@code decoratorsToAvoid}.
+	 * Builds the entity from the {@code configurator}, excluding the decorator types listed
+	 * in {@code decoratorsToAvoid}.
 	 */
 	public static CcpEntity getCustomEntity(CcpEntityConfigurator configurator, CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntity entity = configurator.getEntity();
@@ -77,7 +84,7 @@ public class CcpEntityFactory {
 	}
 
 	/**
-	 * Constrói a entidade a partir de uma instância já existente, excluindo os decorators indicados.
+	 * Builds the entity from an already existing instance, excluding the given decorators.
 	 */
 	public static CcpEntity getCustomEntity(CcpEntity entity, CcpEntityDecoratorType... decoratorsToAvoid) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
@@ -86,8 +93,8 @@ public class CcpEntityFactory {
 	}
 	
 	/**
-	 * Constrói a cadeia de decorators para a classe configuradora, aplicando os tipos presentes nas
-	 * anotações em ordem de prioridade, exceto os listados em {@code decoratorsToAvoid}.
+	 * Builds the decorator chain for the configurator class, applying the types present in the
+	 * annotations in priority order, except the ones listed in {@code decoratorsToAvoid}.
 	 */
 	public static CcpEntity getEntity(Class<?> configurationClass, Function<Class<?>, String> entityNameExtractor, CcpEntityDecoratorType... decoratorsToAvoid) {
 		
@@ -96,23 +103,23 @@ public class CcpEntityFactory {
 		CcpEntityMetaData entityDetails = new CcpEntityMetaData(configurationClass, entityNameExtractor);
 		
 		CcpEntity result = new DefaultImplementationEntity(entityDetails);
-		CcpEntityDecoratorTypes[] ccpEntityDecoratorTypesValues = CcpEntityDecoratorTypes.values();
-		List<CcpEntityDecoratorType> asList = Arrays.asList(ccpEntityDecoratorTypesValues);
-		Stream<CcpEntityDecoratorType> stream = asList.stream();
-		var filter = stream
+		CcpEntityDecoratorTypes[] enumDecoratorTypes = CcpEntityDecoratorTypes.values();
+		List<CcpEntityDecoratorType> enumDecoratorTypesList = Arrays.asList(enumDecoratorTypes);
+		Stream<CcpEntityDecoratorType> decoratorTypesStream = enumDecoratorTypesList.stream();
+		var annotatedDecoratorsStream = decoratorTypesStream
 				.filter(x -> x.isAnnoted(configurationClass));
 
-				List<CcpEntityDecoratorType> collect = filter
+				List<CcpEntityDecoratorType> annotatedDecorators = annotatedDecoratorsStream
 				
 				.collect(Collectors.toList());
 
-		List<CcpEntityDecoratorType> list = new ArrayList<>(collect);		
+		List<CcpEntityDecoratorType> decoratorsToApply = new ArrayList<>(annotatedDecorators);		
 		
 		List<CcpEntityDecoratorType> customDecorators = getCustomDecorators(configurationClass);
 		
-		list.addAll(customDecorators);
+		decoratorsToApply.addAll(customDecorators);
 		
-		List<CcpEntityDecoratorType> filtered = list.stream()
+		List<CcpEntityDecoratorType> filtered = decoratorsToApply.stream()
 		.filter(x -> false == avoidedDecorators.contains(x)).collect(Collectors.toList());
 		
 		filtered.sort((a,b) -> a.getPriority(configurationClass) - b.getPriority(configurationClass));
@@ -135,36 +142,36 @@ public class CcpEntityFactory {
 		}
 		
 		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
-		CcpEntityCustomDecorator[] value = annotation.value();
-		List<CcpEntityCustomDecorator> asList = Arrays.asList(value);
+		CcpEntityCustomDecorator[] customDecoratorAnnotations = annotation.value();
+		List<CcpEntityCustomDecorator> customDecoratorAnnotationsList = Arrays.asList(customDecoratorAnnotations);
 		
-		List<CcpEntityDecoratorType> collect = 
-				asList.stream()
+		List<CcpEntityDecoratorType> customDecorators = 
+				customDecoratorAnnotationsList.stream()
 				.map(x -> x.value())
 				.map(x -> new CcpReflectionConstructorDecorator(x))
 				.map(x -> (CcpCustomDecoratorEntity) x.newInstance()).collect(Collectors.toList());
 		
-		return collect;
+		return customDecorators;
 	}
 
 	/**
-	 * Extrai os campos da entidade a partir da inner class {@code Fields} declarada em
-	 * {@code configurationClass}, construindo um array de {@code CcpEntityField} com os metadados
-	 * de cada campo (nome, chave primária, atualizável, transformador).
+	 * Extracts the entity fields from the inner class {@code Fields} declared in
+	 * {@code configurationClass}, building an array of {@code CcpEntityField} with the metadata
+	 * of each field (name, primary key, updatable, transformer).
 	 */
 	public static CcpEntityField[] getFields(Class<?> configurationClass) {
 		
 		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);
 		
 		if(didNotDeclareFieldsEnum) {
-			CcpErrorEntityConfigurationFieldsIsMissing ccpErrorEntityConfigurationFieldsIsMissing = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
-			throw ccpErrorEntityConfigurationFieldsIsMissing;
+			CcpErrorEntityConfigurationFieldsIsMissing fieldsEnumMissingError = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
+			throw fieldsEnumMissingError;
 		}
 		
 		CcpEntityFieldsValidator annotation = configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
 		Class<?> entitySchemeValidation = annotation.classReferenceWithTheFields();
 		Field[] declaredFields = entitySchemeValidation.getDeclaredFields();
-		List<CcpEntityField> list = new ArrayList<>();
+		List<CcpEntityField> entityFieldsList = new ArrayList<>();
 		for (Field field : declaredFields) {
 			
 			Object object;
@@ -179,9 +186,9 @@ public class CcpEntityFactory {
 			if(skipThisField) {
 				continue;
 			}
-			CcpJsonFieldName ccpJsonFieldName = (CcpJsonFieldName)object;
+			CcpJsonFieldName jsonFieldName = (CcpJsonFieldName)object;
 
-			String name = (ccpJsonFieldName).name();
+			String name = (jsonFieldName).name();
 			boolean annotationPresent = field.isAnnotationPresent(CcpEntityFieldNotUpdatable.class);
 
 			boolean updatable = false == annotationPresent;
@@ -189,20 +196,20 @@ public class CcpEntityFactory {
 			boolean primaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
 			CcpEntityField entityField = new CcpEntityField(name, primaryKey, updatable, transformer);
-			list.add(entityField);
+			entityFieldsList.add(entityField);
 		}
-		int listSize = list.size();
+		int fieldsCount = entityFieldsList.size();
 
-		CcpEntityField[] fields = list.toArray(new CcpEntityField[listSize]);
+		CcpEntityField[] fields = entityFieldsList.toArray(new CcpEntityField[fieldsCount]);
 		
 		return fields;
 	}
 	
 	/**
-	 * Procura o enum {@code Fields} entre <b>todos</b> os tipos aninhados da classe configuradora, em
-	 * qualquer posição. A ordem devolvida por {@code getDeclaredClasses()} não é especificada, então
-	 * olhar apenas o primeiro elemento reprovava entidades corretas só por declararem algum outro tipo
-	 * aninhado antes do {@code Fields}.
+	 * Looks for the {@code Fields} enum among <b>all</b> the nested types of the configurator class, in
+	 * any position. The order returned by {@code getDeclaredClasses()} is unspecified, so
+	 * looking only at the first element rejected correct entities just because they declared some other nested
+	 * type before {@code Fields}.
 	 */
 	private static  boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
 
@@ -236,9 +243,9 @@ public class CcpEntityFactory {
 	}
 
 	private static CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
-		boolean annotationPresent2 = configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
+		boolean hasFieldsTransformer = configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
 	
-		boolean isNotDecorated = false == annotationPresent2;
+		boolean isNotDecorated = false == hasFieldsTransformer;
 		
 		if(isNotDecorated) {
 			return CcpOtherConstants.DO_NOTHING;
@@ -247,9 +254,9 @@ public class CcpEntityFactory {
 		boolean hasCustomEntityFieldTransformer = field.isAnnotationPresent(CcpEntityFieldTransformer.class);
 		if(hasCustomEntityFieldTransformer) {
 			CcpEntityFieldTransformer annotation = field.getAnnotation(CcpEntityFieldTransformer.class);
-			Class<?> value = annotation.value();
-			CcpReflectionConstructorDecorator crcd = new CcpReflectionConstructorDecorator(value);
-			CcpBusiness transformer = crcd.newInstance();
+			Class<?> transformerClass = annotation.value();
+			CcpReflectionConstructorDecorator transformerConstructor = new CcpReflectionConstructorDecorator(transformerClass);
+			CcpBusiness transformer = transformerConstructor.newInstance();
 			return transformer;
 		}
 		
@@ -259,14 +266,14 @@ public class CcpEntityFactory {
 		CcpJsonTransformersDefaultEntityField defaultEntityField;
 		try {
 			declaredField = classReferenceWithTheFields.getDeclaredField(name);
-			var get = declaredField.get(null);
-			defaultEntityField = (CcpJsonTransformersDefaultEntityField)get;
+			var fieldValue = declaredField.get(null);
+			defaultEntityField = (CcpJsonTransformersDefaultEntityField)fieldValue;
 		} catch (Exception e) {
 			return CcpOtherConstants.DO_NOTHING;
 		}
-		boolean annotationPresent3 = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+		boolean isPrimaryKeyField = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
-		boolean isNotPrimaryKeyField = false == annotationPresent3;
+		boolean isNotPrimaryKeyField = false == isPrimaryKeyField;
 
 		 if(isNotPrimaryKeyField) {
 			 return defaultEntityField;
@@ -277,9 +284,9 @@ public class CcpEntityFactory {
 		 if(canBePrimaryKey) {
 			 return defaultEntityField;
 		 }
-		 CcpEntityFieldCanNotBePrimaryKey ccpEntityFieldCanNotBePrimaryKey = new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
+		 CcpEntityFieldCanNotBePrimaryKey cannotBePrimaryKeyError = new CcpEntityFieldCanNotBePrimaryKey(defaultEntityField);
 
-		 throw ccpEntityFieldCanNotBePrimaryKey;
+		 throw cannotBePrimaryKeyError;
 	}
 
 	@SuppressWarnings("serial")

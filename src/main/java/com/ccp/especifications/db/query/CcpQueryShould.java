@@ -17,16 +17,23 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 		return super.prefix(field, value);
 	}
 
+	/**
+	 * Stores the value as text. As a number it went through the component copy via Gson, which returns
+	 * every number as {@code Double}, and reached Elasticsearch as {@code 1.0} — a value it rejects
+	 * ({@code number_format_exception}), bringing down the whole query with a 400. The parameter accepts text
+	 * ({@code "1"}, {@code "75%"}) precisely for these cases.
+	 */
 	CcpQueryShould setMinimumShouldMatch(int minimumShouldMatch) {
 		CcpQueryShould copy = this.copy();
-		copy.parent.json = copy.parent.json.put(JsonFieldNames.minimum_should_match, minimumShouldMatch);
+		String minimumShouldMatchAsText = String.valueOf(minimumShouldMatch);
+		copy.parent.json = copy.parent.json.put(JsonFieldNames.minimum_should_match, minimumShouldMatchAsText);
 		return copy;
 	}
 
 	public CcpQueryBool endShouldAndBackToBool() {
 		CcpQueryComponent copy = this.parent.copy();
-		CcpQueryBool addChild = copy.addChild(this);
-		return addChild;
+		CcpQueryBool boolQuery = copy.addChild(this);
+		return boolQuery;
 	}
 
 	public CcpQueryShould matchPhrase2(CcpEntityField field, Object value) {
@@ -38,13 +45,13 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	}
 
 	public CcpQueryShould matchPhrase(String field, Object value, double boost) {
-		CcpQueryShould addCondition = this.addCondition(field, value, "match_phrase", boost, "");
-		return addCondition;
+		CcpQueryShould shouldWithCondition = this.addCondition(field, value, "match_phrase", boost, "");
+		return shouldWithCondition;
 	}
 
 	public CcpQueryShould match(String field, Object value, double boost, String operator) {
-		CcpQueryShould addCondition = this.addCondition(field, value, "match", boost, operator);
-		return addCondition;
+		CcpQueryShould shouldWithCondition = this.addCondition(field, value, "match", boost, operator);
+		return shouldWithCondition;
 	}
 
 	public CcpQueryShould term(CcpEntityField field, Object value) {
@@ -53,9 +60,9 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryShould ccpQueryShould = new CcpQueryShould(this.parent);
-		T t = (T) ccpQueryShould;
-		return t;
+		CcpQueryShould newInstance = new CcpQueryShould(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,7 +71,7 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	}
 
 	public CcpQueryBool startBool() {
-		CcpQueryBool ccpQueryBool = new CcpQueryBool(this);
-		return ccpQueryBool;
+		CcpQueryBool boolQuery = new CcpQueryBool(this);
+		return boolQuery;
 	}
 }

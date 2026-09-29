@@ -10,23 +10,23 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.process.CcpProcessStatusDefault;
 
 /**
- * Enumera os tipos de operação bulk possíveis sobre uma entidade do banco ({@code create},
- * {@code update}, {@code delete}, {@code noop}) e encapsula a lógica de reprocessamento automático
- * para situações de conflito ou registro não encontrado — por exemplo, promovendo {@code create}
- * para {@code update} em caso de conflito, e vice-versa.
+ * Enumerates the possible bulk operation types on a database entity ({@code create},
+ * {@code update}, {@code delete}, {@code noop}) and encapsulates the automatic reprocessing logic
+ * for conflict or record-not-found situations — for example, promoting {@code create}
+ * to {@code update} on a conflict, and vice versa.
  */
 public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 
-	/** Operação de criação; em caso de conflito (registro já existe), converte automaticamente para {@code update}. */
+	/** Create operation; on a conflict (record already exists), it is automatically converted into {@code update}. */
 	create(1, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.CONFLICT.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))),
-	/** Operação de atualização ({@code createsVersionsToSameRecord = true}); em caso de registro não encontrado, converte automaticamente para {@code create}. */
+	/** Update operation ({@code createsVersionsToSameRecord = true}); when the record is not found, it is automatically converted into {@code create}. */
 	update(2, true, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))),
-	/** Operação de exclusão; em caso de registro não encontrado, lança {@link CcpErrorBulkEntityRecordNotFound}. */
+	/** Delete operation; when the record is not found, throws {@link CcpErrorBulkEntityRecordNotFound}. */
 	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x ->
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
 	})),
-	/** Operação nula/sem efeito; usada para marcar registros que existem mas não precisam ser alterados. */
+	/** Null/no-effect operation; used to mark records that exist but do not need to be changed. */
 	noop(0, false, CcpOtherConstants.EMPTY_JSON),
 	;
 	public final boolean createsVersionsToSameRecord;
@@ -38,24 +38,24 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 		this.handlers = handlers;
 		this.priority = priority;
 	}
-	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem x) {
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(x, CcpBulkEntityOperationType.update);
-		return ccpBulkItem;
+	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem originalItem) {
+		CcpBulkItem updateItem = new CcpBulkItem(originalItem, CcpBulkEntityOperationType.update);
+		return updateItem;
 	}
-	private static CcpBulkItem replaceUpdateToCreate(CcpBulkItem x) {
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(x, CcpBulkEntityOperationType.create);
-		return ccpBulkItem;
+	private static CcpBulkItem replaceUpdateToCreate(CcpBulkItem originalItem) {
+		CcpBulkItem createItem = new CcpBulkItem(originalItem, CcpBulkEntityOperationType.create);
+		return createItem;
 	}
 	
 	/**
-	 * Avalia o status retornado pela operação bulk; se o status não tem handler mapeado, gera um novo
-	 * {@link CcpBulkItem} de criação via {@code reprocessJsonProducer}; caso contrário, aplica o handler
-	 * correspondente (ex.: troca create para update) e retorna o item reprocessado.
+	 * Evaluates the status returned by the bulk operation; if the status has no mapped handler, builds a new
+	 * create {@link CcpBulkItem} through {@code reprocessJsonProducer}; otherwise, applies the matching
+	 * handler (e.g. switches create to update) and returns the reprocessed item.
 	 *
-	 * @param reprocessJsonProducer função que produz o JSON para reprocessamento quando o status não é mapeado
-	 * @param result resultado da operação bulk original
-	 * @param entityToReprocess entidade destino do reprocessamento
-	 * @return item bulk reprocessado
+	 * @param reprocessJsonProducer function that produces the JSON to reprocess when the status is not mapped
+	 * @param result result of the original bulk operation
+	 * @param entityToReprocess target entity of the reprocessing
+	 * @return reprocessed bulk item
 	 */
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		
@@ -65,14 +65,14 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 		
 		if(statusNotMapped) {
 			CcpJsonRepresentation json = reprocessJsonProducer.apply(result);
-			String calculateId = entityToReprocess.calculateId(json);
-			CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, entityToReprocess, calculateId);
-			return ccpBulkItem;
+			String recordId = entityToReprocess.calculateId(json);
+			CcpBulkItem createItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, entityToReprocess, recordId);
+			return createItem;
 		}
 		
 		Function<CcpBulkItem,CcpBulkItem> handler = this.handlers.getAsObject(statusAsJsonFieldName);
 		CcpBulkItem bulkItem = result.getBulkItem();
-		CcpBulkItem apply = handler.apply(bulkItem);
-		return apply;
+		CcpBulkItem reprocessedItem = handler.apply(bulkItem);
+		return reprocessedItem;
 	}
 }

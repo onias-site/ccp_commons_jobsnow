@@ -5,14 +5,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 
 /**
- * Define um fluxo de tratamento de exceção: quando uma exceção do tipo {@code whenThrowing} for
- * lançada durante a execução de um negócio, os negócios listados em {@code thenExecute} serão
- * executados em sequência.
+ * Defines an exception handling flow: when an exception of type {@code whenThrowing} is
+ * thrown during the execution of a business, the businesses listed in {@code thenExecute} are
+ * executed in sequence.
  */
 @Retention(RUNTIME)
 public @interface CcpExceptionFlow {
-	/** Classes de negócio a executar quando a exceção configurada for capturada. */
+	/** Business classes to execute when the configured exception is caught. */
 	Class<?>[] thenExecute();
-	/** Tipo de exceção que dispara este fluxo de tratamento. */
+	/** Exception type that triggers this handling flow. */
 	Class<?> whenThrowing();
 }

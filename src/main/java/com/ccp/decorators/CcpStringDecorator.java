@@ -8,16 +8,16 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 
 /**
- * Decorator central sobre {@code String} que serve como hub de conversão para todos os outros tipos do
- * framework. A partir de uma string, oferece acesso fluente a decorators especializados (e-mail, arquivo,
- * hash, JSON, URL, reflexão, etc.) e verificações de tipo.
+ * Central decorator over {@code String} that works as a conversion hub to all the other types of the
+ * framework. Starting from a string, it offers fluent access to specialized decorators (e-mail, file,
+ * hash, JSON, URL, reflection, etc.) and type checks.
  */
 public class CcpStringDecorator implements CcpDecorator<String> {
 
 	public final String content;
 
 	/**
-	 * Extrai o valor de um campo do JSON como string.
+	 * Extracts the value of a JSON field as a string.
 	 */
 	public CcpStringDecorator(CcpJsonRepresentation json, String key) {
 		CcpFieldName ccpFieldName = new CcpFieldName(key);
@@ -25,41 +25,41 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Encapsula a string fornecida.
+	 * Wraps the given string.
 	 */
 	public CcpStringDecorator(String content) {
 		this.content = content;
 	}
 
 	/**
-	 * Lê todos os bytes do {@code InputStream} e os converte em string.
+	 * Reads all the bytes of the {@code InputStream} and converts them into a string.
 	 */
-	public CcpStringDecorator(InputStream is) {
-		this(readAllBytes(is));
+	public CcpStringDecorator(InputStream inputStream) {
+		this(readAllBytes(inputStream));
 	}
 
 	/**
-	 * Converte o array de bytes primitivos em string.
+	 * Converts the primitive byte array into a string.
 	 */
 	public CcpStringDecorator(byte[] content) {
 		this(new String(content));
 	}
 
 	/**
-	 * Converte o array de bytes wrapper em string.
+	 * Converts the wrapper byte array into a string.
 	 */
 	public CcpStringDecorator(Byte[] content) {
 		this(readAllBytes(content));
 	}
 
-	private static byte[] readAllBytes(InputStream is){
-		byte[] readAllBytes = is.readAllBytes();
-		return readAllBytes;
+	private static byte[] readAllBytes(InputStream inputStream){
+		byte[] bytes = inputStream.readAllBytes();
+		return bytes;
 
 	}
 
 	/**
-	 * Interpreta a string como endereço de e-mail.
+	 * Interprets the string as an e-mail address.
 	 */
 	public CcpEmailDecorator email() {
 		CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(this.content);
@@ -67,7 +67,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Interpreta a string como caminho de arquivo.
+	 * Interprets the string as a file path.
 	 */
 	public CcpFileDecorator file() {
 		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(this.content);
@@ -75,7 +75,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Interpreta a string como caminho de diretório.
+	 * Interprets the string as a directory path.
 	 */
 	public CcpFolderDecorator folder() {
 		CcpFolderDecorator ccpFolderDecorator = new CcpFolderDecorator(this.content);
@@ -83,7 +83,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Prepara a string para cálculo de hash.
+	 * Prepares the string for hash calculation.
 	 */
 	public CcpHashDecorator hash() {
 		CcpHashDecorator ccpHashDecorator = new CcpHashDecorator(this.content);
@@ -91,7 +91,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Converte a string para número.
+	 * Converts the string to a number.
 	 */
 	public CcpNumberDecorator number() {
 		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(this.content);
@@ -99,7 +99,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Cria um {@code CcpJsonFieldName} cujo valor é esta string.
+	 * Creates a {@code CcpJsonFieldName} whose value is this string.
 	 */
 	public CcpJsonFieldName jsonFieldName() {
 		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.content);
@@ -107,7 +107,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Acessa operações de manipulação de texto.
+	 * Gives access to text manipulation operations.
 	 */
 	public CcpTextDecorator text() {
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(this.content);
@@ -115,7 +115,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Interpreta a string como URL para encode/decode.
+	 * Interprets the string as a URL for encode/decode.
 	 */
 	public CcpUrlDecorator url() {
 		CcpUrlDecorator ccpUrlDecorator = new CcpUrlDecorator(this.content);
@@ -123,7 +123,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Desserializa a string como JSON.
+	 * Deserializes the string as JSON.
 	 */
 	public CcpJsonRepresentation json() {
 		CcpJsonRepresentation ccpJsonRepresentation = new CcpJsonRepresentation(this.content);
@@ -131,7 +131,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Interpreta a string como senha.
+	 * Interprets the string as a password.
 	 */
 	public CcpPasswordDecorator password() {
 		CcpPasswordDecorator ccpPasswordDecorator = new CcpPasswordDecorator(this.content);
@@ -139,7 +139,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Prepara a string para abertura de stream.
+	 * Prepares the string for opening a stream.
 	 */
 	public CcpInputStreamDecorator inputStreamFrom() {
 		CcpInputStreamDecorator ccpInputStreamDecorator = new CcpInputStreamDecorator(this.content);
@@ -147,7 +147,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Prepara a string para leitura de configurações.
+	 * Prepares the string for reading settings.
 	 */
 	public CcpPropertiesDecorator propertiesFrom() {
 		CcpPropertiesDecorator ccpPropertiesDecorator = new CcpPropertiesDecorator(this.content);
@@ -155,7 +155,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Prepara a string (nome de classe) para reflexão.
+	 * Prepares the string (class name) for reflection.
 	 */
 	public CcpReflectionConstructorDecorator reflection() {
 		CcpReflectionConstructorDecorator decorator = new CcpReflectionConstructorDecorator(this.content);
@@ -163,7 +163,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Verifica se a string representa um JSON de objeto válido.
+	 * Checks whether the string represents a valid JSON object.
 	 */
 	public boolean isInnerJson() {
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
@@ -172,14 +172,14 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Retorna a string interna.
+	 * Returns the internal string.
 	 */
 	public String toString() {
 		return this.content;
 	}
 
 	/**
-	 * Verifica se a string representa uma lista JSON.
+	 * Checks whether the string represents a JSON list.
 	 */
 	public boolean isList() {
 		boolean valid = this.isValid(x ->  {
@@ -191,19 +191,19 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Verifica se a string pode ser convertida para {@code long}.
+	 * Checks whether the string can be converted to {@code long}.
 	 */
 	@SuppressWarnings("unused")
 	public boolean isLongNumber() {
 		boolean valid = this.isValid(x -> {
-			boolean endsWith = x.endsWith(".0");
-			Object obj = endsWith ? Double.valueOf(x) : Long.valueOf(x);
+			boolean endsWithDecimalZero = x.endsWith(".0");
+			Object parsedNumber = endsWithDecimalZero ? Double.valueOf(x) : Long.valueOf(x);
 		});
 		return valid;
 	}
 
 	/**
-	 * Verifica se a string pode ser convertida para {@code double}.
+	 * Checks whether the string can be converted to {@code double}.
 	 */
 	public boolean isDoubleNumber() {
 		boolean valid = this.isValid(x -> Double.valueOf(x));
@@ -211,20 +211,20 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Verifica se a string é {@code "true"} ou {@code "false"} (case insensitive).
+	 * Checks whether the string is {@code "true"} or {@code "false"} (case insensitive).
 	 */
 	public boolean isBoolean() {
 		boolean valid = this.isValid(x -> {
-			boolean equalsIgnoreCase = "true".equalsIgnoreCase(x);
-			if (equalsIgnoreCase) {
+			boolean isTrue = "true".equalsIgnoreCase(x);
+			if (isTrue) {
 				return;
 			}
-			boolean equalsIgnoreCase2 = "false".equalsIgnoreCase(x);
-			if (equalsIgnoreCase2) {
+			boolean isFalse = "false".equalsIgnoreCase(x);
+			if (isFalse) {
 				return;
 			}
-			CcpErrorStringIsNotBoolean ccpErrorStringIsNotBoolean = new CcpErrorStringIsNotBoolean();
-			throw ccpErrorStringIsNotBoolean;
+			CcpErrorStringIsNotBoolean notBooleanError = new CcpErrorStringIsNotBoolean();
+			throw notBooleanError;
 		});
 		return valid;
 	}
@@ -243,22 +243,22 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna a string interna.
+	 * Implementation of {@code CcpDecorator}; returns the internal string.
 	 */
 	public String getContent() {
 		return this.content;
 	}
 
 	/**
-	 * Retorna o array de bytes da string (tipo wrapper {@code Byte[]}).
+	 * Returns the byte array of the string (wrapper type {@code Byte[]}).
 	 */
 	public Byte[] getBytes() {
 		byte[] bytes = this.content.getBytes();
 		Byte[] result = new Byte[bytes.length];
 		int k = 0;
 
-		for (Byte byte1 : bytes) {
-			result[k++] = byte1;
+		for (Byte byteValue : bytes) {
+			result[k++] = byteValue;
 		}
 
 		return result;
@@ -268,8 +268,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		byte[] result = new byte[bytes.length];
 		int k = 0;
 
-		for (Byte byte1 : bytes) {
-			result[k++] = byte1;
+		for (Byte byteValue : bytes) {
+			result[k++] = byteValue;
 		}
 
 		return result;

@@ -6,15 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marca uma entidade para ter seus campos validados antes das operações de escrita. O atributo indica a
- * classe que contém as definições de validação de cada campo (o schema de campos válidos).
+ * Marks an entity to have its fields validated before write operations. The attribute points to the
+ * class that holds the validation definitions of each field (the schema of valid fields).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityFieldsValidator {
 
 	/**
-	 * Classe que define os campos válidos e suas regras de validação para esta entidade.
+	 * Class that defines the valid fields and their validation rules for this entity.
+	
 	 */
 	@SuppressWarnings("rawtypes")
 	Class classReferenceWithTheFields();

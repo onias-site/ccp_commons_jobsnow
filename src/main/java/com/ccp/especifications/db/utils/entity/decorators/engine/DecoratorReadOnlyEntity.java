@@ -4,9 +4,9 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Decorator que impede qualquer operação de escrita em entidades marcadas com
- * {@code @CcpEntityOlyReadable}. Os métodos {@code save}, {@code delete}, {@code deleteAnyWhere}
- * e {@code transferDataTo} não executam nada e retornam {@code false}.
+ * Decorator that prevents any write operation on entities marked with
+ * {@code @CcpEntityOlyReadable}. The methods {@code save}, {@code delete}, {@code deleteAnyWhere}
+ * and {@code transferDataTo} execute nothing and return {@code false}.
  */
 class DecoratorReadOnlyEntity extends CcpEntityDelegator {
 
@@ -27,7 +27,13 @@ class DecoratorReadOnlyEntity extends CcpEntityDelegator {
 		return false;
 	}
 
-	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity... entities) {
+	/**
+	 * Transferring removes the record from here, so it is a write and stays blocked. Copying does not write to this
+	 * entity and remains allowed. Until 2026-09-27 this method received {@code CcpEntity...} and did not
+	 * override the interface method — the block was never applied.
+	
+	 */
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
 		return false;
 	}
 }

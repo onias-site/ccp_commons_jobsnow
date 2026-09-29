@@ -6,9 +6,10 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Contrato para execução de consultas do tipo UNION ALL no banco de dados. Permite buscar
- * registros de múltiplas entidades em uma única operação, retornando um {@code CcpSelectUnionAll}
- * com os resultados.
+ * Contract for executing UNION ALL queries on the database. Allows fetching
+ * records of several entities in a single operation, returning a {@code CcpSelectUnionAll}
+ * with the results.
+
  */
 public interface CcpUnionAllExecutor {
 

@@ -10,9 +10,9 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerError;
 
 /**
- * Decorator que aplica transformações de campo (definidas em {@code @CcpEntityFieldsTransformer})
- * ao JSON antes de qualquer operação de leitura ou escrita. Usa a classe interna
- * {@code AlreadyTransformedJson} para evitar re-transformações em chamadas recursivas.
+ * Decorator that applies field transformations (defined in {@code @CcpEntityFieldsTransformer})
+ * to the JSON before any read or write operation. Uses the internal class
+ * {@code AlreadyTransformedJson} to avoid re-transformations in recursive calls.
  */
 class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	
@@ -64,8 +64,8 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 			
 			}
 		}
-		AlreadyTransformedJson alreadyTransformedJson2 = new AlreadyTransformedJson(result);
-		return alreadyTransformedJson2;
+		AlreadyTransformedJson transformedJson = new AlreadyTransformedJson(result);
+		return transformedJson;
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {

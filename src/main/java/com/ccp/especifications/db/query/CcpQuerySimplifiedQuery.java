@@ -28,9 +28,9 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQuerySimplifiedQuery ccpQuerySimplifiedQuery = new CcpQuerySimplifiedQuery(this.parent);
-		T t = (T) ccpQuerySimplifiedQuery;
-		return t;
+		CcpQuerySimplifiedQuery newInstance = new CcpQuerySimplifiedQuery(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	Object getValue() {
@@ -50,8 +50,8 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	CcpQuerySimplifiedQuery addChild(CcpQueryComponent child) {
 		CcpQuerySimplifiedQuery instanceCopy = this.copy();
 		Object value = child.getValue();
-		CcpFieldName ccpFieldName = new CcpFieldName(child.name);
-		instanceCopy.json = instanceCopy.json.put(ccpFieldName, value);
+		CcpFieldName childKey = new CcpFieldName(child.name);
+		instanceCopy.json = instanceCopy.json.put(childKey, value);
 		return instanceCopy;
 	}
 
@@ -76,12 +76,12 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 
 	@SuppressWarnings("unchecked")
 	protected CcpQuerySimplifiedQuery addCondition(String field, Object value, String key) {
-		CcpFieldName ccpFieldName2 = new CcpFieldName(field);
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName2, value);
-		Map<String, Object> map = put.getContent();
-		CcpFieldName ccpFieldName3 = new CcpFieldName(key);
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName3, map);
-		Map<String, Object> outerMap = put2.getContent();
+		CcpFieldName fieldKey = new CcpFieldName(field);
+		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, value);
+		Map<String, Object> map = conditionJson.getContent();
+		CcpFieldName conditionTypeKey = new CcpFieldName(key);
+		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionTypeKey, map);
+		Map<String, Object> outerMap = outerJson.getContent();
 		CcpQuerySimplifiedQuery clone = this.copy();
 		clone.json = new CcpJsonRepresentation(outerMap);
 		return clone;
@@ -89,7 +89,7 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 
 	public boolean hasChildreen() {
 		boolean contentEmpty = this.json.content.isEmpty();
-		boolean valorIgual = false == contentEmpty;
-		return valorIgual;
+		boolean hasContent = false == contentEmpty;
+		return hasContent;
 	}
 }

@@ -16,12 +16,12 @@ public class CcpSelectLoadDataFromEntity {
 	}
 
 	public CcpSelectProcedure and() {
-		CcpSelectProcedure ccpSelectProcedure = new CcpSelectProcedure(this.parametersToSearch, this.statements);
-		return ccpSelectProcedure;
+		CcpSelectProcedure procedure = new CcpSelectProcedure(this.parametersToSearch, this.statements);
+		return procedure;
 	}
 
 	public CcpSelectFinally andFinally(CcpJsonFieldName... fields) {
-		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
-		return ccpSelectFinally;
+		CcpSelectFinally finalStep = new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
+		return finalStep;
 	}
 }

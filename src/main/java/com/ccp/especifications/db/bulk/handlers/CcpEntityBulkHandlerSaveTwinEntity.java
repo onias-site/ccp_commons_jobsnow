@@ -3,52 +3,53 @@ package com.ccp.especifications.db.bulk.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkEntityOperationType;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Handler bulk especializado que salva (cria ou atualiza) um registro na "entidade wrapper"
- * (wrapped entity) de uma entidade twin, sem mover o registro da entidade original. Difere de
- * {@link CcpEntityBulkHandlerTransferRecordToTwinEntity} por não deletar o registro da entidade de origem.
+ * Specialized bulk handler that saves (creates or updates) a record in the "wrapper entity"
+ * (wrapped entity) of a twin entity, without moving the record out of the original entity. Differs from
+ * {@link CcpEntityBulkHandlerTransferRecordToTwinEntity} in that it does not delete the record from the source entity.
  */
 public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTransferRecordToTwinEntity{
 
 	/**
-	 * Inicializa com a entidade cujo wrapper receberá o registro.
+	 * Initializes with the entity whose wrapper will receive the record.
 	 *
-	 * @param entity entidade de origem (cujo wrapped receberá o registro)
+	 * @param entity source entity (whose wrapped entity will receive the record)
 	 */
 	public CcpEntityBulkHandlerSaveTwinEntity(CcpEntity entity) {
-		super(entity, CcpOtherConstants.whenRecordWasNotFoundInTheEntityToSearch);
+		// this class overrides the "not found" case to create the record; the superclass function is never
+		// called, and therefore it cannot be the one that throws NOT_FOUND
+		super(entity, item -> new ArrayList<>());
 	}
 
 	/**
-	 * Gera itens de {@code update} na entidade wrapper (wrapped entity).
+	 * Produces {@code update} items in the wrapper entity (wrapped entity).
 	 *
-	 * @param json parâmetros da busca
-	 * @param recordFound dados do registro encontrado
-	 * @return lista de itens bulk de atualização na entidade wrapper
+	 * @param json search parameters
+	 * @param recordFound data of the record found
+	 * @return list of update bulk items in the wrapper entity
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 		
-		var asList = this.getBulkItemsToSave(json, CcpBulkEntityOperationType.update);
+		var saveItems = this.getBulkItemsToSave(json, CcpBulkEntityOperationType.update);
 		
-		return asList;
+		return saveItems;
 	}
 
 	/**
-	 * Gera itens de {@code create} na entidade wrapper (wrapped entity).
+	 * Produces {@code create} items in the wrapper entity (wrapped entity).
 	 *
-	 * @param json parâmetros da busca
-	 * @return lista de itens bulk de criação na entidade wrapper
+	 * @param json search parameters
+	 * @return list of create bulk items in the wrapper entity
 	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		var asList = getBulkItemsToSave(json, CcpBulkEntityOperationType.create);
+		var saveItems = getBulkItemsToSave(json, CcpBulkEntityOperationType.create);
 		
-		return asList;
+		return saveItems;
 	}
 
 	private ArrayList<CcpBulkItem> getBulkItemsToSave(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
@@ -56,11 +57,11 @@ public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTran
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity wrapedEntity = entityToSearch.getWrapedEntity();
 
-		var itemTo = wrapedEntity.toBulkItems(json, operation);
-		var asList = new ArrayList<CcpBulkItem>();
+		var wrappedEntityItems = wrapedEntity.toBulkItems(json, operation);
+		var bulkItemsToSave = new ArrayList<CcpBulkItem>();
 		
-		asList.addAll(itemTo);
-		return asList;
+		bulkItemsToSave.addAll(wrappedEntityItems);
+		return bulkItemsToSave;
 	}
 
 

@@ -34,9 +34,9 @@ public final class CcpQueryMust extends CcpQueryBooleanOperator {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryMust ccpQueryMust = new CcpQueryMust(this.parent);
-		T t = (T) ccpQueryMust;
-		return t;
+		CcpQueryMust newInstance = new CcpQueryMust(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -45,8 +45,8 @@ public final class CcpQueryMust extends CcpQueryBooleanOperator {
 	}
 
 	public CcpQueryBool startBool() {
-		CcpQueryBool ccpQueryBool = new CcpQueryBool(this);
-		return ccpQueryBool;
+		CcpQueryBool boolQuery = new CcpQueryBool(this);
+		return boolQuery;
 	}
 
 	public CcpQueryMust match(CcpEntityField field, Object value) {

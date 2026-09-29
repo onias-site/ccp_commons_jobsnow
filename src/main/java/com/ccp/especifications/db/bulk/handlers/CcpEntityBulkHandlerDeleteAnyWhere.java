@@ -21,8 +21,8 @@ public class CcpEntityBulkHandlerDeleteAnyWhere implements CcpHandleWithSearchRe
 
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 
-		var asList = this.deleteAll(json);
-		return asList;
+		var deleteItems = this.deleteAll(json);
+		return deleteItems;
 	}
 
 	protected ArrayList<CcpBulkItem> deleteAll(CcpJsonRepresentation json) {
@@ -30,17 +30,17 @@ public class CcpEntityBulkHandlerDeleteAnyWhere implements CcpHandleWithSearchRe
 		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entityToSearch, CcpEntityDecoratorTypes.Twin);
 		CcpEntity twinEntity = entityToSearch.getTwinEntity(CcpEntityDecoratorTypes.Twin);
 		ArrayList<CcpBulkItem> result = new ArrayList<>();
-		List<CcpBulkItem> bulkItems = customEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
-		result.addAll(bulkItems);
-		List<CcpBulkItem> bulkItems2 = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
-		result.addAll(bulkItems2);
+		List<CcpBulkItem> customEntityDeleteItems = customEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		result.addAll(customEntityDeleteItems);
+		List<CcpBulkItem> twinEntityDeleteItems = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		result.addAll(twinEntityDeleteItems);
 		return result;
 	
 	}
 
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		var asList = this.deleteAll(json);
-		return asList;
+		var deleteItems = this.deleteAll(json);
+		return deleteItems;
 	}
 
 	public CcpEntity getEntityToSearch() {

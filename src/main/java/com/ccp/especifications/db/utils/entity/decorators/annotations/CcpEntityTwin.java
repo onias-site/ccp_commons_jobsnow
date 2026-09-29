@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Configura o padrão de entidade twin, onde um registro migra entre dois índices (entidade principal e
- * entidade twin) conforme seu estado. Define a função de limpeza de cache, o executor de bulk e o nome
- * do índice twin.
+ * Configures the twin entity pattern, in which a record migrates between two indexes (main entity and
+ * twin entity) according to its state. Defines the cache cleanup function, the bulk executor and the name
+ * of the twin index.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
@@ -16,17 +16,18 @@ import java.lang.annotation.Target;
 public @interface CcpEntityTwin {
 
 	/**
-	 * Classe que implementa a lógica de invalidação de cache ao mover registros entre entidades.
+	 * Class that implements the cache invalidation logic when records are moved between entities.
 	 */
 	Class functionToDeleteKeysInTheCacheClass ();
 
 	/**
-	 * Classe que implementa o executor de operações bulk para esta entidade.
+	 * Class that implements the bulk operations executor for this entity.
 	 */
 	Class bulkExecutorClass ();
 
 	/**
-	 * Nome do índice twin (índice de destino/origem alternativo).
+	 * Name of the twin index (the alternative target/source index).
+	
 	 */
 	String twinEntityName();
 

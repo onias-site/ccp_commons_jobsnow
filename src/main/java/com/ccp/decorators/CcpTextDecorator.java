@@ -21,56 +21,56 @@ import com.ccp.constants.CcpOtherConstants;
 import java.util.stream.Stream;
 
 /**
- * Decorator especializado em operações de manipulação e análise de texto: remoção de acentos, geração de
- * tokens aleatórios, preenchimento, capitalização, conversão de case, validação de regex, sanitização para
- * busca, encode/decode Base64 e resolução de templates com variáveis.
+ * Decorator specialized in text manipulation and analysis: accent removal, random
+ * token generation, padding, capitalization, case conversion, regex validation, sanitization for
+ * search, Base64 encode/decode and resolution of templates with variables.
  */
 public class CcpTextDecorator implements CcpDecorator<String> {
 	public final String content;
 
 	/**
-	 * Encapsula o texto.
+	 * Wraps the text.
 	 */
 	protected CcpTextDecorator(String content) {
 		this.content = content;
 	}
 
 	/**
-	 * Preenche o texto à esquerda com o caractere {@code complement} até atingir o tamanho {@code length}.
+	 * Pads the text on the left with the character {@code complement} until it reaches the length {@code length}.
 	 */
 	public CcpTextDecorator completeLeft(char complement, int length) {
 		int contentLength = this.content.length();
-		int lengthMenos = length - contentLength;
-		boolean lengthMenosMenorOuIgual = (lengthMenos )<=0;
-		if(lengthMenosMenorOuIgual) {
+		int missingCharacters = length - contentLength;
+		boolean alreadyLongEnough = (missingCharacters )<=0;
+		if(alreadyLongEnough) {
 			return this;
 		}
-		String x = "";
+		String padding = "";
 		for(int k = this.content.length(); k < length; k++) {
-			x += complement;
+			padding += complement;
 		}
-		String complete = x + this.content;
+		String complete = padding + this.content;
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(complete);
 		return ccpTextDecorator;
 	}
 
 	/**
-	 * Remove acentos e diacríticos preservando {@code #} e caracteres alfanuméricos básicos.
+	 * Removes accents and diacritics, preserving {@code #} and basic alphanumeric characters.
 	 */
 	public CcpTextDecorator stripAccents() {
 
-		String charp = "__charp__";
-		String contentReplace = this.content.replace("#", charp);
-		String s = Normalizer.normalize(contentReplace, Normalizer.Form.NFD);
-		String replaceAll = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-		s = replaceAll.replaceAll("[^\\w\\s.,+-]", "");
-		String replace = s.replace(charp, "#");
-		CcpTextDecorator ccpTextDecorator2 = new CcpTextDecorator(replace);
-		return ccpTextDecorator2;
+		String hashPlaceholder = "__charp__";
+		String contentReplace = this.content.replace("#", hashPlaceholder);
+		String normalizedText = Normalizer.normalize(contentReplace, Normalizer.Form.NFD);
+		String withoutDiacritics = normalizedText.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		normalizedText = withoutDiacritics.replaceAll("[^\\w\\s.,+-]", "");
+		String restoredText = normalizedText.replace(hashPlaceholder, "#");
+		CcpTextDecorator strippedText = new CcpTextDecorator(restoredText);
+		return strippedText;
 	}
 
 	/**
-	 * Extrai todas as substrings delimitadas por {@code beginDelimiter} e {@code endDelimiter}.
+	 * Extracts all substrings delimited by {@code beginDelimiter} and {@code endDelimiter}.
 	 */
 	public List<String> getPieces(String beginDelimiter, String endDelimiter) {
 		int beginIndex = 0;
@@ -79,16 +79,16 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		List<String> list = new ArrayList<>();
 		while(true) {
 			beginIndex = str.indexOf(beginDelimiter);
-			boolean beginIndexMenor = beginIndex < 0;
-			if(beginIndexMenor) {
+			boolean beginDelimiterNotFound = beginIndex < 0;
+			if(beginDelimiterNotFound) {
 				return list;
 			}
-			int indexOf = str.indexOf(endDelimiter );
+			int endDelimiterIndex = str.indexOf(endDelimiter );
 			int endDelimiterLength = endDelimiter.length();
-			endIndex = indexOf+ endDelimiterLength;
-			boolean endIndexMenor = endIndex < 0;
+			endIndex = endDelimiterIndex+ endDelimiterLength;
+			boolean endDelimiterNotFound = endIndex < 0;
 
-			if(endIndexMenor) {
+			if(endDelimiterNotFound) {
 				return list;
 			}
 			String substring = str.substring(beginIndex, endIndex);
@@ -98,19 +98,19 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Divide o texto pelo delimitador e filtra as partes pelo predicado.
+	 * Splits the text by the delimiter and filters the pieces by the predicate.
 	 */
 	public List<String> getPieces(Predicate<String> predicate, String delimiter){
 		String[] split = this.content.split(delimiter);
 		List<String> asList = Arrays.asList(split);
 		Stream<String> stream = asList.stream();
-		var filter = stream.filter(predicate);
-		List<String> collect = filter.collect(Collectors.toList());
-		return collect;
+		var filteredPieces = stream.filter(predicate);
+		List<String> matchingPieces = filteredPieces.collect(Collectors.toList());
+		return matchingPieces;
 	}
 
 	/**
-	 * Remove as partes que atendem ao predicado, substituindo-as por espaço.
+	 * Removes the pieces that satisfy the predicate, replacing them with a space.
 	 */
 	public CcpTextDecorator removePieces(Predicate<String> predicate, String delimiter) {
 		List<String> pieces = this.getPieces(predicate, delimiter);
@@ -119,16 +119,16 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Substitui todas as ocorrências de {@code oldText} por {@code newText}.
+	 * Replaces all occurrences of {@code oldText} with {@code newText}.
 	 */
 	public CcpTextDecorator replace(String oldText, String newText) {
-		String replace = this.content.replace(oldText, newText);
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(replace);
+		String replacedText = this.content.replace(oldText, newText);
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(replacedText);
 		return ccpTextDecorator;
 	}
 
 	/**
-	 * Remove todas as substrings delimitadas por {@code beginDelimiter} e {@code endDelimiter}.
+	 * Removes all substrings delimited by {@code beginDelimiter} and {@code endDelimiter}.
 	 */
 	public CcpTextDecorator removePieces(String beginDelimiter, String endDelimiter) {
 		List<String> pieces = this.getPieces(beginDelimiter, endDelimiter);
@@ -137,7 +137,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Remove da string cada substring da lista fornecida.
+	 * Removes from the string each substring of the given list.
 	 */
 	public CcpTextDecorator removePieces(List<String> pieces) {
 		String str = this.content;
@@ -149,7 +149,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Gera um token aleatório de tamanho {@code charactersSize} selecionando caracteres do conteúdo atual (útil como alfabeto de tokens).
+	 * Generates a random token of size {@code charactersSize} by picking characters from the current content (useful as a token alphabet).
 	 */
 	public CcpTextDecorator generateToken(long charactersSize) {
 
@@ -159,35 +159,35 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 
 		for (int k = 0; k < charactersSize; k++) {
 
-			int indiceAleatorio = random.nextInt(charArray.length);
+			int randomIndex = random.nextInt(charArray.length);
 
-			char caractereAleatorio = charArray[indiceAleatorio];
-			sb.append(caractereAleatorio);
+			char randomCharacter = charArray[randomIndex];
+			sb.append(randomCharacter);
 		}
-		String toString = sb.toString();
+		String token = sb.toString();
 
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(toString);
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(token);
 		return ccpTextDecorator;
 	}
 
 	/**
-	 * Decodifica a string Base64 e retorna como {@code ByteArrayInputStream}.
+	 * Decodes the Base64 string and returns it as a {@code ByteArrayInputStream}.
 	 */
 	public InputStream getByteArrayInputStream() {
 		byte[] byteArrayFromBase64String = this.getByteArrayFromBase64String();
-		ByteArrayInputStream is = new ByteArrayInputStream(byteArrayFromBase64String);
-		return is;
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayFromBase64String);
+		return inputStream;
 	}
 
 	/**
-	 * Decodifica a string Base64 (suportando prefixo {@code data:xxx,base64}) e retorna o array de bytes.
+	 * Decodes the Base64 string (supporting the {@code data:xxx,base64} prefix) and returns the byte array.
 	 */
 	public byte[] getByteArrayFromBase64String() {
 		String[] split = this.content.split(",");
 		String str = split[0];
-		boolean lengthMaior = split.length > 1;
+		boolean hasDataPrefix = split.length > 1;
 
-		if (lengthMaior) {
+		if (hasDataPrefix) {
 			str = split[1];
 		}
 
@@ -200,7 +200,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Alias de {@code getByteArrayInputStream}.
+	 * Alias of {@code getByteArrayInputStream}.
 	 */
 	public  ByteArrayInputStream getParameterAsByteArrayInputStream() {
 
@@ -215,8 +215,8 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 
 
 	/**
-	 * Substitui os placeholders {@code {nomeDoCampo}} pelos valores correspondentes do JSON de parâmetros.
-	 * Suporta também a função dinâmica {@code {currentTimeMillis()}}.
+	 * Replaces the {@code {fieldName}} placeholders with the corresponding values of the parameters JSON.
+	 * Also supports the dynamic function {@code {currentTimeMillis()}}.
 	 */
 	public CcpTextDecorator resolveTemplate(CcpJsonRepresentation parameters) {
 		Map<String, Object> content = parameters.getContent();
@@ -225,64 +225,64 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		for (String key : keySet) {
 			CcpFieldName ccpFieldName = new CcpFieldName(key);
 			String value = parameters.getAsString(ccpFieldName);
-			String valorMais = "{" + key;
-			String valorMaisMais = valorMais + "}";
-			message = message.replace(valorMaisMais, value);
+			String placeholderStart = "{" + key;
+			String placeholder = placeholderStart + "}";
+			message = message.replace(placeholder, value);
 		}
 
 		CcpTemplateFunctions[] templateExpressions = CcpTemplateFunctions.values();
 
 		for (CcpTemplateFunctions templateExpression : templateExpressions) {
 			String value = templateExpression.get();
-			String valorMais2 = "{" + templateExpression;
-			String valorMais2Mais = valorMais2 + "()}";
-			message = message.replace(valorMais2Mais, value);
+			String functionPlaceholderStart = "{" + templateExpression;
+			String functionPlaceholder = functionPlaceholderStart + "()}";
+			message = message.replace(functionPlaceholder, value);
 		}
-		CcpTextDecorator ccpTextDecorator3 = new CcpTextDecorator(message);
+		CcpTextDecorator resolvedTemplate = new CcpTextDecorator(message);
 
-		return ccpTextDecorator3;
+		return resolvedTemplate;
 	}
 
 	/**
-	 * Remove recursivamente todos os caracteres {@code c} do início da string.
+	 * Recursively removes every {@code c} character from the start of the string.
 	 */
 	public CcpTextDecorator removeStartingCharacters( char c) {
-		String valorMais3 = "" + c;
-		boolean startsWith = this.content.startsWith(valorMais3);
-		boolean valorIgual = false == startsWith;
+		String characterAsString = "" + c;
+		boolean startsWith = this.content.startsWith(characterAsString);
+		boolean doesNotStartWithCharacter = false == startsWith;
 
-		if(valorIgual) {
+		if(doesNotStartWithCharacter) {
 			return this;
 		}
 
 		String substring = this.content.substring(1);
-		CcpTextDecorator ccpTextDecorator4 = new CcpTextDecorator(substring);
-		CcpTextDecorator removeStartingCharacters = ccpTextDecorator4.removeStartingCharacters(c);
+		CcpTextDecorator textWithoutFirstCharacter = new CcpTextDecorator(substring);
+		CcpTextDecorator removeStartingCharacters = textWithoutFirstCharacter.removeStartingCharacters(c);
 		return removeStartingCharacters;
 	}
 
 	/**
-	 * Remove recursivamente todos os caracteres {@code c} do final da string.
+	 * Recursively removes every {@code c} character from the end of the string.
 	 */
 	public CcpTextDecorator removeEndingCharacters(char c) {
-		String valorMais4 = "" + c;
-		boolean endsWith = this.content.endsWith(valorMais4);
-		boolean valorIgual2 = false == endsWith;
+		String characterAsString = "" + c;
+		boolean endsWith = this.content.endsWith(characterAsString);
+		boolean doesNotEndWithCharacter = false == endsWith;
 
-		if(valorIgual2) {
+		if(doesNotEndWithCharacter) {
 			return this;
 		}
-		int contentLength2 = this.content.length();
-		int contentLength2Menos = contentLength2 - 1;
+		int contentLength = this.content.length();
+		int lastCharacterIndex = contentLength - 1;
 
-		String substring = this.content.substring(0, contentLength2Menos);
-		CcpTextDecorator ccpTextDecorator5 = new CcpTextDecorator(substring);
-		CcpTextDecorator removed = ccpTextDecorator5.removeEndingCharacters(c);
+		String substring = this.content.substring(0, lastCharacterIndex);
+		CcpTextDecorator textWithoutLastCharacter = new CcpTextDecorator(substring);
+		CcpTextDecorator removed = textWithoutLastCharacter.removeEndingCharacters(c);
 		return removed;
 	}
 
 	/**
-	 * Verifica se o texto é um JSON de objeto válido.
+	 * Checks whether the text is a valid JSON object.
 	 */
 	public boolean isValidSingleJson() {
 		try {
@@ -294,14 +294,14 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Retorna o texto interno.
+	 * Returns the internal text.
 	 */
 	public String toString() {
 		return this.content;
 	}
 
 	/**
-	 * Codifica o texto em Base64.
+	 * Encodes the text in Base64.
 	 */
 	public CcpTextDecorator asBase64() {
 		byte[] bytes = this.content.getBytes();
@@ -312,7 +312,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Converte texto em {@code snake_case} para {@code CamelCase}.
+	 * Converts {@code snake_case} text to {@code CamelCase}.
 	 */
 	public CcpTextDecorator toCamelCase() {
 		String[] split = this.content.split("_");
@@ -321,51 +321,51 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		for (String string : asList) {
 			CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(string);
 			CcpTextDecorator ccpStringDecoratorText = ccpStringDecorator.text();
-			CcpTextDecorator capitalize2 = ccpStringDecoratorText.capitalize();
-			String capitalize = capitalize2.content;
-			sb.append(capitalize);
+			CcpTextDecorator capitalizedText = ccpStringDecoratorText.capitalize();
+			String capitalizedWord = capitalizedText.content;
+			sb.append(capitalizedWord);
 		}
-		String toString2 = sb.toString();
-		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator( toString2);
+		String camelCaseText = sb.toString();
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator( camelCaseText);
 		return ccpTextDecorator;
 	}
 
 	/**
-	 * Converte texto em {@code CamelCase} para {@code snake_case}.
+	 * Converts {@code CamelCase} text to {@code snake_case}.
 	 */
 	public CcpTextDecorator toSnakeCase() {
 		char[] charArray = this.content.toCharArray();
 		StringBuilder sb = new StringBuilder(this.content);
 		int k = 0;
-		int m = 0;
+		int insertedUnderscores = 0;
 		for (char c : charArray) {
-			boolean kIgual = k == 0;
-			if(kIgual) {
+			boolean isFirstCharacter = k == 0;
+			if(isFirstCharacter) {
 				k++;
 				continue;
 			}
-			boolean cMenor = c < 'A';
+			boolean isBeforeUpperCase = c < 'A';
 
-			if(cMenor) {
+			if(isBeforeUpperCase) {
 				k++;
 				continue;
 			}
-			boolean cMaior = c > 'Z';
-			if(cMaior) {
+			boolean isAfterUpperCase = c > 'Z';
+			if(isAfterUpperCase) {
 				k++;
 				continue;
 			}
-			int kMais = k++ + m++;
-			sb.insert(kMais, "_");
+			int insertPosition = k++ + insertedUnderscores++;
+			sb.insert(insertPosition, "_");
 		}
-		String toString3 = sb.toString();
-		String toLowerCase = toString3.toLowerCase();
+		String snakeCaseText = sb.toString();
+		String toLowerCase = snakeCaseText.toLowerCase();
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(toLowerCase);
 		return ccpTextDecorator;
 	}
 
 	/**
-	 * Coloca a primeira letra em maiúscula e o restante em minúsculas.
+	 * Puts the first letter in upper case and the rest in lower case.
 	 */
 	public CcpTextDecorator capitalize() {
 		String contentTrim = this.content.trim();
@@ -385,27 +385,27 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Retorna o tamanho do texto encapsulado em {@code CcpNumberDecorator}.
+	 * Returns the text length wrapped in a {@code CcpNumberDecorator}.
 	 */
 	public CcpNumberDecorator lenght() {
-		int contentLength3 = content.length();
-		String valorMais5 = "" + contentLength3;
-		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(valorMais5);
+		int contentLength = content.length();
+		String lengthAsString = "" + contentLength;
+		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(lengthAsString);
 		return ccpNumberDecorator;
 	}
 
 	/**
-	 * Verifica se o texto corresponde à expressão regular (case insensitive).
+	 * Checks whether the text matches the regular expression (case insensitive).
 	 */
 	public boolean regexMatches(String regex) {
-		Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(this.content);
-		boolean find = m.find();
-		return find;
+		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(this.content);
+		boolean found = matcher.find();
+		return found;
 	}
 
 	/**
-	 * Verifica se o texto contém a frase usando sanitização por delimitadores padrão e comparação de palavras.
+	 * Checks whether the text contains the phrase, using sanitization by the default delimiters and word comparison.
 	 */
 	public boolean contains(String phrase) {
 		boolean contains = this.contains(CcpOtherConstants.DELIMITERS_ARRAY, phrase);
@@ -413,25 +413,25 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Verifica se o texto contém a frase com delimitadores personalizados.
+	 * Checks whether the text contains the phrase, using custom delimiters.
 	 */
 	public boolean contains(String[] delimiters, String phrase) {
-		CcpTextDecorator s1 = this.sanitize(delimiters);
-		CcpTextDecorator ctd = new CcpTextDecorator(phrase);
-		CcpTextDecorator s2 = ctd.sanitize(delimiters);
-		String toUpperCase = s1.content.toUpperCase();
-		String toUpperCase2 = s2.content.toUpperCase();
-		boolean contains2 = toUpperCase.contains(toUpperCase2);
-		boolean notContained = false == contains2;
+		CcpTextDecorator sanitizedText = this.sanitize(delimiters);
+		CcpTextDecorator phraseDecorator = new CcpTextDecorator(phrase);
+		CcpTextDecorator sanitizedPhrase = phraseDecorator.sanitize(delimiters);
+		String upperCaseText = sanitizedText.content.toUpperCase();
+		String upperCasePhrase = sanitizedPhrase.content.toUpperCase();
+		boolean containsPhrase = upperCaseText.contains(upperCasePhrase);
+		boolean notContained = false == containsPhrase;
 
 		if(notContained) {
 			return false;
 		}
 
-		List<String> split1 = s1.split();
-		List<String> split2 = s2.split();
+		List<String> textWords = sanitizedText.split();
+		List<String> phraseWords = sanitizedPhrase.split();
 
-		boolean containsAll = split1.containsAll(split2);
+		boolean containsAll = textWords.containsAll(phraseWords);
 		return containsAll;
 	}
 
@@ -442,7 +442,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Substitui os delimitadores padrão por espaço e converte para maiúsculas sem acentos.
+	 * Replaces the default delimiters with a space and converts to upper case without accents.
 	 */
 	public CcpTextDecorator sanitize() {
 		CcpTextDecorator sanitize = this.sanitize(CcpOtherConstants.DELIMITERS_ARRAY);
@@ -450,7 +450,7 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Substitui os delimitadores personalizados por espaço e converte para maiúsculas sem acentos.
+	 * Replaces the custom delimiters with a space and converts to upper case without accents.
 	 */
 	public CcpTextDecorator sanitize(String[] delimiters) {
 		String text = this.content;
@@ -458,14 +458,14 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 			text = text.replace(delimiter, " ");
 		}
 		String upperCase = text.toUpperCase();
-		CcpStringDecorator ccpStringDecorator2 = new CcpStringDecorator(upperCase);
-		CcpTextDecorator ccpStringDecorator2Text = ccpStringDecorator2.text();
-		CcpTextDecorator ctd = ccpStringDecorator2Text.stripAccents();
-		return ctd;
+		CcpStringDecorator upperCaseDecorator = new CcpStringDecorator(upperCase);
+		CcpTextDecorator upperCaseText = upperCaseDecorator.text();
+		CcpTextDecorator sanitizedText = upperCaseText.stripAccents();
+		return sanitizedText;
 	}
 
 	/**
-	 * Retorna o texto interno.
+	 * Returns the internal text.
 	 */
 	public String getContent() {
 		return this.content;

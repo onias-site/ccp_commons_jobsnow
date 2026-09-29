@@ -6,15 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marca uma entidade para ter seus registros cacheados. O atributo {@code value} define o tempo de
- * expiração do cache em segundos.
+ * Marks an entity to have its records cached. The {@code value} attribute defines the cache
+ * expiration time in seconds.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityCache {
 
 	/**
-	 * Tempo de expiração do cache em segundos.
+	 * Cache expiration time in seconds.
+	
 	 */
 	int value();
 }

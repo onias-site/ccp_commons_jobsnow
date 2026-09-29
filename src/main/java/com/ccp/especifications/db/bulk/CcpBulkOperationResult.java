@@ -9,58 +9,58 @@ import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Contrato que representa o resultado de uma operação bulk individual. Permite inspecionar
- * sucesso/falha, obter detalhes de erro e disparar o reprocessamento adequado do item baseado
- * no status HTTP retornado pelo banco.
+ * Contract that represents the result of a single bulk operation. Allows inspecting
+ * success/failure, getting error details and triggering the proper reprocessing of the item based
+ * on the HTTP status returned by the database.
  */
 public interface CcpBulkOperationResult {
 
 	/**
-	 * Retorna um JSON com os detalhes do erro ocorrido na operação bulk deste item.
+	 * Returns a JSON with the details of the error that occurred in this item's bulk operation.
 	 *
-	 * @return JSON com detalhes do erro
+	 * @return JSON with the error details
 	 */
 	CcpJsonRepresentation getErrorDetails();
 
 	/**
-	 * Retorna o {@link CcpBulkItem} original que originou esta operação.
+	 * Returns the original {@link CcpBulkItem} that gave rise to this operation.
 	 *
-	 * @return item bulk original
+	 * @return original bulk item
 	 */
 	CcpBulkItem getBulkItem();
 
 	/**
-	 * Indica se a operação resultou em erro.
+	 * Tells whether the operation resulted in an error.
 	 *
-	 * @return {@code true} se houve erro
+	 * @return {@code true} if there was an error
 	 */
 	boolean hasError();
 
 	/**
-	 * Retorna o código de status HTTP da operação bulk (ex.: 200, 201, 404, 409).
+	 * Returns the HTTP status code of the bulk operation (e.g. 200, 201, 404, 409).
 	 *
-	 * @return código de status HTTP
+	 * @return HTTP status code
 	 */
 	int status();
 
 	/**
-	 * Delega para {@link CcpBulkEntityOperationType#getReprocess} para determinar como
-	 * reprocessar o item com base no status retornado.
+	 * Delegates to {@link CcpBulkEntityOperationType#getReprocess} to determine how
+	 * to reprocess the item based on the returned status.
 	 *
-	 * @param reprocessJsonMapper função que produz o JSON para reprocessamento
-	 * @param reprocessEntity entidade destino do reprocessamento
-	 * @return item bulk reprocessado
+	 * @param reprocessJsonMapper function that produces the JSON to reprocess
+	 * @param reprocessEntity target entity of the reprocessing
+	 * @return reprocessed bulk item
 	 */
 	default CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonMapper, CcpEntity reprocessEntity) {
 		CcpBulkItem bulkItem = this.getBulkItem(); 
-		CcpBulkItem reprocess = bulkItem.operation.getReprocess(reprocessJsonMapper, this, reprocessEntity);
-		return reprocess;
+		CcpBulkItem reprocessedItem = bulkItem.operation.getReprocess(reprocessJsonMapper, this, reprocessEntity);
+		return reprocessedItem;
 	}
 	
 	/**
-	 * Gera e retorna a chave de cache correspondente ao {@link CcpBulkItem} deste resultado.
+	 * Builds and returns the cache key corresponding to this result's {@link CcpBulkItem}.
 	 *
-	 * @return chave de cache do item
+	 * @return cache key of the item
 	 */
 	default String getCacheKey() {
 		CcpBulkItem bulkItem = this.getBulkItem();
@@ -69,14 +69,14 @@ public interface CcpBulkOperationResult {
 	}
 	
 	/**
-	 * Converte o código de status numérico em um {@link CcpJsonFieldName}, permitindo usá-lo como
-	 * chave para lookup de handlers no mapa de reprocessamento.
+	 * Converts the numeric status code into a {@link CcpJsonFieldName}, allowing it to be used as
+	 * the key to look up handlers in the reprocessing map.
 	 *
-	 * @return status convertido para {@link CcpJsonFieldName}
+	 * @return status converted into {@link CcpJsonFieldName}
 	 */
 	default CcpJsonFieldName statusAsJsonFieldName() {
 		int status = this.status();
-		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(status);
-		return ccpJsonFieldName;
+		CcpJsonFieldName statusFieldName = new CcpFieldName(status);
+		return statusFieldName;
 	}
 }

@@ -11,9 +11,9 @@ import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Handler bulk que implementa leitura sem modificação: se o registro existe, gera itens com
- * operação {@code noop} (sem efeito); se não existe, aplica uma função customizável (padrão: lista
- * vazia). Útil para incluir registros existentes em um lote sem alterá-los.
+ * Bulk handler that implements reading without changes: if the record exists, produces items with the
+ * {@code noop} operation (no effect); if it does not exist, applies a customizable function (default: empty
+ * list). Useful to include existing records in a batch without changing them.
  */
 public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
@@ -22,9 +22,9 @@ public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity
 	private final Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch;
 
 	/**
-	 * Cria o handler com comportamento padrão ao não encontrar o registro: lista vazia.
+	 * Creates the handler with the default behavior when the record is not found: empty list.
 	 *
-	 * @param entityToRead entidade cujos registros serão lidos
+	 * @param entityToRead entity whose records will be read
 	 */
 	public CcpBulkHandlerRead(CcpEntity entityToRead) {
 		this(entityToRead, json -> new ArrayList<>());
@@ -33,10 +33,10 @@ public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity
 	
 
 	/**
-	 * Cria o handler com comportamento customizado ao não encontrar o registro.
+	 * Creates the handler with a custom behavior when the record is not found.
 	 *
-	 * @param entityToRead entidade cujos registros serão lidos
-	 * @param whenRecordWasNotFoundInTheEntitySearch função aplicada quando o registro não é encontrado
+	 * @param entityToRead entity whose records will be read
+	 * @param whenRecordWasNotFoundInTheEntitySearch function applied when the record is not found
 	 */
 	public CcpBulkHandlerRead(CcpEntity entityToRead, Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch) {
 		this.entityToRead = entityToRead;
@@ -46,35 +46,35 @@ public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity
 
 
 	/**
-	 * Gera itens bulk com operação {@code noop}, marcando o registro como "visto" sem alterar seu estado.
+	 * Produces bulk items with the {@code noop} operation, marking the record as "seen" without changing its state.
 	 *
-	 * @param json parâmetros da busca
-	 * @param recordFound dados do registro encontrado
-	 * @return lista de itens bulk com operação noop
+	 * @param json search parameters
+	 * @param recordFound data of the record found
+	 * @return list of bulk items with the noop operation
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 
-		List<CcpBulkItem> asList = this.entityToRead.toBulkItems(json, CcpBulkEntityOperationType.noop);
-		return asList;
+		List<CcpBulkItem> noopItems = this.entityToRead.toBulkItems(json, CcpBulkEntityOperationType.noop);
+		return noopItems;
 	}
 
 	/**
-	 * Aplica a função de "não encontrado" fornecida no construtor ao item bulk correspondente.
+	 * Applies the "not found" function given in the constructor to the matching bulk item.
 	 *
-	 * @param json parâmetros da busca
-	 * @return resultado da função customizada de "não encontrado"
+	 * @param json search parameters
+	 * @return result of the custom "not found" function
 	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		String calculateId = this.entityToRead.calculateId(json);
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToRead, calculateId);
-		List<CcpBulkItem> apply = this.whenRecordWasNotFoundInTheEntitySearch.apply(ccpBulkItem);
-		return apply;
+		String recordId = this.entityToRead.calculateId(json);
+		CcpBulkItem notFoundItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToRead, recordId);
+		List<CcpBulkItem> notFoundItems = this.whenRecordWasNotFoundInTheEntitySearch.apply(notFoundItem);
+		return notFoundItems;
 	}
 
 	/**
-	 * Retorna a entidade alvo de leitura.
+	 * Returns the entity targeted by the reading.
 	 *
-	 * @return entidade alvo
+	 * @return target entity
 	 */
 	public CcpEntity getEntityToSearch() {
 		return this.entityToRead;

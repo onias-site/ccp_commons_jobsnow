@@ -17,52 +17,52 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import java.util.stream.Stream;
 
 /**
- * Contrato de alto nível que combina uma busca {@code unionAll} no banco com a execução subsequente
- * de operações bulk. Permite processar múltiplas entidades em uma única consulta e então enviar os
- * itens resultantes para o bulk, orquestrando busca e escrita de forma integrada.
+ * High-level contract that combines a {@code unionAll} search on the database with the subsequent
+ * execution of bulk operations. Allows processing several entities in a single query and then sending the
+ * resulting items to the bulk, orchestrating search and write in an integrated way.
  */
 public interface CcpExecuteBulkOperation {
 
 	/**
-	 * Extrai o conjunto de entidades a buscar a partir dos handlers, executa um {@code unionAll} para
-	 * todas elas, aplica cada handler ao resultado (coletando os {@link CcpBulkItem}s) e dispara a
-	 * operação bulk com todos os itens coletados.
+	 * Extracts the set of entities to search from the handlers, runs a {@code unionAll} over
+	 * all of them, applies each handler to the result (collecting the {@link CcpBulkItem}s) and triggers the
+	 * bulk operation with every collected item.
 	 *
-	 * @param json JSON com os parâmetros de busca
-	 * @param functionToDeleteKeysInTheCache função para invalidar chaves de cache
-	 * @param handlers handlers que definem entidades e lógica de criação/atualização/exclusão
-	 * @return o {@link CcpSelectUnionAll} com os dados do resultado da busca
+	 * @param json JSON with the search parameters
+	 * @param functionToDeleteKeysInTheCache function that invalidates cache keys
+	 * @param handlers handlers that define the entities and the create/update/delete logic
+	 * @return the {@link CcpSelectUnionAll} with the search result data
 	 */
 	@SuppressWarnings("unchecked")
 	default CcpSelectUnionAll executeSelectUnionAllThenExecuteBulkOperation(CcpJsonRepresentation json,  Consumer<String[]> functionToDeleteKeysInTheCache, CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> ... handlers) {
-		Stream<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> stream = Arrays.asList(handlers).stream();
-		var streamMap = stream.map(x -> x.getEntityToSearch());
-		Set<CcpEntity> collect = streamMap.collect(Collectors.toSet());
-		int collectSize = collect.size();
-		CcpEntity[] array = collect.toArray(new CcpEntity[collectSize]);
+		Stream<CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>> handlersStream = Arrays.asList(handlers).stream();
+		var entitiesToSearchStream = handlersStream.map(x -> x.getEntityToSearch());
+		Set<CcpEntity> entitiesToSearch = entitiesToSearchStream.collect(Collectors.toSet());
+		int entitiesCount = entitiesToSearch.size();
+		CcpEntity[] entitiesToSearchArray = entitiesToSearch.toArray(new CcpEntity[entitiesCount]);
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class); 
-		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, array);
+		CcpSelectUnionAll unionAll = crud.unionAll(json, functionToDeleteKeysInTheCache, entitiesToSearchArray);
 		
-		List<CcpBulkItem> all = new ArrayList<>();
+		List<CcpBulkItem> allBulkItems = new ArrayList<>();
 		
 		for (CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>> handler : handlers) {
-			List<CcpBulkItem> list =  unionAll.handleRecordInUnionAll(json, handler);
-			all.addAll(list);
+			List<CcpBulkItem> handlerBulkItems =  unionAll.handleRecordInUnionAll(json, handler);
+			allBulkItems.addAll(handlerBulkItems);
 		} 
 		
 		
-		this.executeBulk(all, functionToDeleteKeysInTheCache);
+		this.executeBulk(allBulkItems, functionToDeleteKeysInTheCache);
 
 		return unionAll;
 	}
 
 	/**
-	 * Executa efetivamente as operações bulk para a coleção de itens fornecida, delegando ao executor
-	 * concreto e invalidando as chaves de cache necessárias.
+	 * Actually executes the bulk operations for the given collection of items, delegating to the concrete
+	 * executor and invalidating the necessary cache keys.
 	 *
-	 * @param items coleção de itens bulk a processar
-	 * @param functionToDeleteKeysInTheCache função para invalidar chaves de cache
-	 * @return esta instância para encadeamento
+	 * @param items collection of bulk items to process
+	 * @param functionToDeleteKeysInTheCache function that invalidates cache keys
+	 * @return this instance, for chaining
 	 */
 	CcpExecuteBulkOperation executeBulk(Collection<CcpBulkItem> items,  Consumer<String[]> functionToDeleteKeysInTheCache);
 }

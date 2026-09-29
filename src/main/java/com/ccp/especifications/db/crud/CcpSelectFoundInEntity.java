@@ -26,28 +26,28 @@ public class CcpSelectFoundInEntity {
 	}
 
 	public CcpSelectNextStep executeAction(CcpBusiness action) {
-		CcpSelectNextStep addStatement = this.addStatement("action", action);
-		return addStatement;
+		CcpSelectNextStep nextStep = this.addStatement("action", action);
+		return nextStep;
 	}
 
 	public CcpSelectNextStep returnStatus(CcpProcessStatus status) {
-		CcpSelectNextStep addStatement2 = this.addStatement("status", status);
-		return addStatement2;
+		CcpSelectNextStep nextStep = this.addStatement("status", status);
+		return nextStep;
 	}
 
 	private CcpSelectNextStep addStatement(String key, Object obj) {
-		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
-		int listSize = list.size();
-		int listSizeMenos = listSize - 1;
-		CcpJsonRepresentation lastStatement = list.get(listSizeMenos);
-		CcpFieldName ccpFieldName = new CcpFieldName(key);
-		CcpJsonRepresentation put = lastStatement.put(ccpFieldName, obj);
-		int listSize2 = list.size();
-		int listSize2Menos = listSize2 - 1;
-		List<CcpJsonRepresentation> subList = list.subList(0, listSize2Menos);
-		subList.add(put);
-		CcpJsonRepresentation newStatements = this.statements.put(CcpJsonCommonsFields.statements, subList);
-		CcpSelectNextStep ccpSelectNextStep = new CcpSelectNextStep(this.parametersToSearch, newStatements);
-		return ccpSelectNextStep;
+		List<CcpJsonRepresentation> statementList = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
+		int statementCount = statementList.size();
+		int lastIndex = statementCount - 1;
+		CcpJsonRepresentation lastStatement = statementList.get(lastIndex);
+		CcpFieldName statementKey = new CcpFieldName(key);
+		CcpJsonRepresentation updatedLastStatement = lastStatement.put(statementKey, obj);
+		int currentStatementCount = statementList.size();
+		int lastStatementIndex = currentStatementCount - 1;
+		List<CcpJsonRepresentation> statementsWithoutLast = statementList.subList(0, lastStatementIndex);
+		statementsWithoutLast.add(updatedLastStatement);
+		CcpJsonRepresentation newStatements = this.statements.put(CcpJsonCommonsFields.statements, statementsWithoutLast);
+		CcpSelectNextStep nextStep = new CcpSelectNextStep(this.parametersToSearch, newStatements);
+		return nextStep;
 	}
 }

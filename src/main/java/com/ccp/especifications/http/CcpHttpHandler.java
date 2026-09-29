@@ -20,18 +20,27 @@ public final class CcpHttpHandler {
 	private final String url;
 	private final CcpJsonRepresentation flows;
 	private final CcpBusiness alternativeFlow;
+	/**
+	 * Diz se status não mapeado tem para onde ir. Até 2026-09-27 a ausência de fluxo alternativo era
+	 * representada por {@code alternativeFlow = null}; quando o aspecto que proíbe {@code null} entrou
+	 * (commit cd97ba0, 2026-07-31), o valor virou {@code DO_NOTHING} e todo status inesperado — 400, 404,
+	 * 500 — passou a ser tratado como sucesso, com o json de erro do servidor no lugar da resposta.
+	 */
+	private final boolean hasAlternativeFlow;
 	public final CcpHttpRequester ccpHttp = CcpDependencyInjection.getDependency(CcpHttpRequester.class);
 
 	/**
-	 * Cria handler com mapa explícito de fluxos (status → lógica de negócio).
+	 * Cria handler com mapa explícito de fluxos (status → lógica de negócio). Status fora do mapa lança
+	 * {@link CcpErrorHttp}.
 	 * @param flows mapa de status HTTP para fluxos de negócio
 	 * @param url URL alvo das requisições
 	 */
 	public CcpHttpHandler(CcpJsonRepresentation flows, String url) {
 		this.alternativeFlow = CcpOtherConstants.DO_NOTHING;
+		this.hasAlternativeFlow = false;
 		this.flows = flows;
 		this.url = url;
-		
+
 	}
 
 	/**
@@ -43,17 +52,19 @@ public final class CcpHttpHandler {
 	public CcpHttpHandler(Integer httpStatus, CcpBusiness alternativeFlow, String url) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
 		this.alternativeFlow = alternativeFlow;
+		this.hasAlternativeFlow = true;
 		this.url = url;
 	}
-	
+
 	/**
-	 * Cria handler com um único status aceito.
+	 * Cria handler com um único status aceito. Qualquer outro status lança {@link CcpErrorHttp}.
 	 * @param httpStatus status HTTP aceito
 	 * @param url URL alvo das requisições
 	 */
 	public CcpHttpHandler(Integer httpStatus, String url) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
 		this.alternativeFlow = CcpOtherConstants.DO_NOTHING;
+		this.hasAlternativeFlow = false;
 		this.url = url;
 	}
 	
@@ -138,14 +149,16 @@ public final class CcpHttpHandler {
 		int status = response.httpStatus;
 		CcpFieldName ccpFieldName = new CcpFieldName(status);
 
-		CcpBusiness flow = this.flows.getOrDefault(ccpFieldName, () -> this.alternativeFlow);
-		boolean flowIgual = flow == null;
+		boolean statusIsMapped = this.flows.containsAllFields(ccpFieldName);
+		boolean thereIsNoFlowForThisStatus = false == statusIsMapped && false == this.hasAlternativeFlow;
 
-		if(flowIgual) {
+		if(thereIsNoFlowForThisStatus) {
 			Set<String> fieldSet = this.flows.fieldSet(); 
 			CcpErrorHttp httpError = this.ccpHttp.getHttpError(trace, this.url, method, headers, request, status, response.httpResponse, fieldSet);
 			throw httpError;
 		}
+
+		CcpBusiness flow = this.flows.getOrDefault(ccpFieldName, () -> this.alternativeFlow);
 		boolean validSingleJson = response.isValidSingleJson();
 
 		boolean invalidSingleJson = false == validSingleJson;

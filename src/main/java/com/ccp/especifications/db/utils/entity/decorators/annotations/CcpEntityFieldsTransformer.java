@@ -6,15 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marca uma entidade para ter seus campos transformados antes das operações. O atributo indica a classe
- * que contém as definições de transformação de cada campo.
+ * Marks an entity to have its fields transformed before the operations. The attribute points to the class
+ * that holds the transformation definitions of each field.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityFieldsTransformer {
 
 	/**
-	 * Classe que contém os transformadores padrão para os campos desta entidade.
+	 * Class that holds the default transformers for the fields of this entity.
+	
 	 */
 	@SuppressWarnings("rawtypes")
 	Class classReferenceWithTheFields();

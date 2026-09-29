@@ -8,8 +8,8 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Exceção lançada quando nenhum dos itens da coleção de JSONs fornecida conseguiu produzir um id
- * válido para as entidades informadas, tornando a busca {@code multiGet} inviável.
+ * Exception thrown when none of the items of the given JSON collection was able to produce a valid
+ * id for the given entities, making the {@code multiGet} search unfeasible.
  */
 @SuppressWarnings("serial")
 public class CcpErrorCrudMultiGetSearchUnfeasible extends RuntimeException {
@@ -19,15 +19,15 @@ public class CcpErrorCrudMultiGetSearchUnfeasible extends RuntimeException {
 	}
 
 	private static String getMessage(Collection<CcpJsonRepresentation> jsons, CcpEntity... entities) {
-		Stream<CcpEntity> stream = Arrays.asList(entities).stream();
-		var streamMap = stream.map(entity -> entity.getEntityMetaData());
-		var entitiesDetails = streamMap.collect(Collectors.toList());
-		var valorMais = "No item in the following list '" + entitiesDetails;
-		var valorMaisMais = valorMais + "' was able to produce a ";
-		var valorMaisMaisMais = valorMaisMais
+		Stream<CcpEntity> entitiesStream = Arrays.asList(entities).stream();
+		var entitiesMetaDataStream = entitiesStream.map(entity -> entity.getEntityMetaData());
+		var entitiesDetails = entitiesMetaDataStream.collect(Collectors.toList());
+		var messageWithEntities = "No item in the following list '" + entitiesDetails;
+		var messageWithProduceClause = messageWithEntities + "' was able to produce a ";
+		var messageWithItemsLabel = messageWithProduceClause
 				+ "valid id to searching in the database. The list of items used to form ids to searching: ";
-				var valorMaisMaisMaisMais = valorMaisMaisMais + jsons;
-				var valorMaisMaisMaisMaisMais = valorMaisMaisMaisMais + " and ";
-				return valorMaisMaisMaisMaisMais;
+				var messageWithItems = messageWithItemsLabel + jsons;
+				var errorMessage = messageWithItems + " and ";
+				return errorMessage;
 	}
 }

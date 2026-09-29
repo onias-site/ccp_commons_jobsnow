@@ -13,23 +13,23 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 
 /**
- * Implementação base do padrão Decorator para {@code CcpEntity}. Encapsula uma entidade e delega
- * todas as operações a ela, servindo como ponto de extensão para os decorators especializados
- * (cache, twin, versionamento, etc.). O método {@code toString()} exibe a cadeia de decorators
- * aplicados.
+ * Base implementation of the Decorator pattern for {@code CcpEntity}. Wraps an entity and delegates
+ * every operation to it, serving as the extension point for the specialized decorators
+ * (cache, twin, versioning, etc.). The {@code toString()} method shows the chain of applied
+ * decorators.
  */
 public class CcpEntityDelegator implements CcpEntity{
 
 	protected final CcpEntity entity;
 
-	/** Encapsula a entidade alvo da delegação. */
+	/** Wraps the entity targeted by the delegation. */
 	public CcpEntityDelegator(CcpEntity entity) {
 		this.entity = entity;
 	}
 
 	public String calculateId(CcpJsonRepresentation json) {
-		String calculateId = this.entity.calculateId(json);
-		return calculateId;
+		String recordId = this.entity.calculateId(json);
+		return recordId;
 	}
 
 	public CcpEntityMetaData getEntityMetaData() {
@@ -38,13 +38,13 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public boolean delete(CcpJsonRepresentation json) {
-		boolean delete = this.entity.delete(json);
-		return delete;
+		boolean deleted = this.entity.delete(json);
+		return deleted;
 	}
 
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
-		boolean deleteAnyWhere = this.entity.deleteAnyWhere(json);
-		return deleteAnyWhere;
+		boolean deleted = this.entity.deleteAnyWhere(json);
+		return deleted;
 	}
 
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
@@ -77,27 +77,27 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public boolean save(CcpJsonRepresentation json) {
-		boolean save = this.entity.save(json);
-		return save;
+		boolean inserted = this.entity.save(json);
+		return inserted;
 	}
 
 	public String toString() {
 		
 		CcpEntity wrapedEntity = this;
-		Set<String> set = new LinkedHashSet<>();
+		Set<String> decoratorNames = new LinkedHashSet<>();
 		var clazz = this.getClass();
 		var simpleName = clazz.getSimpleName();
-		set.add(simpleName);
+		decoratorNames.add(simpleName);
 		do {
 			
-		}while(set.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
-		String toString = set.toString();
-		String toStringReplace = toString.replace(" ", "");
-		String replace = toStringReplace.replace(",", "->");
+		}while(decoratorNames.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
+		String decoratorNamesAsText = decoratorNames.toString();
+		String withoutSpaces = decoratorNamesAsText.replace(" ", "");
+		String decoratorChain = withoutSpaces.replace(",", "->");
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		String entityNameMais = entityDetails.entityName + " = ";
-		String string = entityNameMais + replace;
-		return string + "\n"; 
+		String entityNameWithSeparator = entityDetails.entityName + " = ";
+		String description = entityNameWithSeparator + decoratorChain;
+		return description + "\n"; 
 	}
 	
 	public boolean equals(Object obj) {
@@ -116,8 +116,8 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public <T> T throwException() {
-		T throwException = this.entity.throwException();
-		return throwException;
+		T result = this.entity.throwException();
+		return result;
 	}
 
 	public List<CcpEntity> getAssociatedEntities() {
@@ -136,18 +136,18 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		boolean copyDataTo = this.entity.copyDataTo(json, entities);
-		return copyDataTo;
+		boolean copied = this.entity.copyDataTo(json, entities);
+		return copied;
 	}
 
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
-		boolean transferDataTo = this.entity.transferDataTo(json, entities);
-		return transferDataTo;
+		boolean transferred = this.entity.transferDataTo(json, entities);
+		return transferred;
 	}
 
 	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
-		CcpJsonRepresentation validateJson = this.entity.validateJson(json);
-		return validateJson;
+		CcpJsonRepresentation validatedJson = this.entity.validateJson(json);
+		return validatedJson;
 	}
 
 	public CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {

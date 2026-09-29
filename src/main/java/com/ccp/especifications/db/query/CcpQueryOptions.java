@@ -13,9 +13,9 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Nó raiz do builder fluent de queries do Elasticsearch.
- * Ponto de entrada único para iniciar a construção de uma query, configurar paginação, ordenação e executar a consulta nos índices desejados.
- * Possui uma instância singleton INSTANCE para uso como ponto de partida.
+ * Root node of the Elasticsearch fluent query builder.
+ * Single entry point to start building a query, configure pagination and sorting, and run the query on the desired indexes.
+ * Has a singleton INSTANCE to be used as the starting point.
  */
 public class CcpQueryOptions extends CcpQueryComponent {
 	enum JsonFieldNames implements CcpJsonFieldName {
@@ -29,31 +29,31 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Inicia o bloco query principal da requisição.
+	 * Starts the main query block of the request.
 	 */
 	public CcpQuery startQuery() {
-		CcpQuery ccpQuery = new CcpQuery(this);
-		return ccpQuery;
+		CcpQuery query = new CcpQuery(this);
+		return query;
 	}
 
 	/**
-	 * Inicia uma query simplificada sem o wrapper bool/filter.
+	 * Starts a simplified query without the bool/filter wrapper.
 	 */
 	public CcpQuerySimplifiedQuery startSimplifiedQuery() {
-		CcpQuerySimplifiedQuery ccpQuerySimplifiedQuery = new CcpQuerySimplifiedQuery(this);
-		return ccpQuerySimplifiedQuery;
+		CcpQuerySimplifiedQuery simplifiedQuery = new CcpQuerySimplifiedQuery(this);
+		return simplifiedQuery;
 	}
 
 	/**
-	 * Inicia o bloco de agregações da requisição.
+	 * Starts the aggregations block of the request.
 	 */
 	public CcpQueryAggregations startAggregations() {
-		CcpQueryAggregations ccpQueryAggregations = new CcpQueryAggregations(this);
-		return ccpQueryAggregations;
+		CcpQueryAggregations aggregations = new CcpQueryAggregations(this);
+		return aggregations;
 	}
 
 	/**
-	 * Adiciona ordenação ascendente pelo(s) campo(s) informado(s).
+	 * Adds ascending sorting by the given field(s).
 	 */
 	public CcpQueryOptions addAscSorting(String fields) {
 		CcpQueryOptions sort = this.addSorting("asc", fields);
@@ -61,7 +61,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adiciona ordenação descendente pelo(s) campo(s) informado(s).
+	 * Adds descending sorting by the given field(s).
 	 */
 	public CcpQueryOptions addDescSorting(String... fields) {
 		CcpQueryOptions sort = this.addSorting("desc", fields);
@@ -69,7 +69,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adiciona ordenação com tipo customizado (asc/desc) para múltiplos campos.
+	 * Adds sorting with a custom type (asc/desc) for several fields.
 	 */
 	public CcpQueryOptions addSorting(String sortType, String... fields) {
 		CcpQueryOptions sort = this;
@@ -81,51 +81,51 @@ public class CcpQueryOptions extends CcpQueryComponent {
 
 	private CcpQueryOptions sort(String fieldName, String sortType) {
 		CcpQueryOptions copy = this.copy();
-		CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName, sortType);
-		Map<String, Object> content = put.getContent();
-		List<Object> asList = Arrays.asList(content);
-		boolean containsAllFields = copy.json.containsAllFields(JsonFieldNames.sort);
-		if (containsAllFields) {
-			List<Object> sort = copy.json.getAsObjectList(JsonFieldNames.sort);
-			asList = new ArrayList<>(sort);
-			asList.add(content);
+		CcpFieldName fieldKey = new CcpFieldName(fieldName);
+		CcpJsonRepresentation sortJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, sortType);
+		Map<String, Object> content = sortJson.getContent();
+		List<Object> sortList = Arrays.asList(content);
+		boolean hasSort = copy.json.containsAllFields(JsonFieldNames.sort);
+		if (hasSort) {
+			List<Object> existingSort = copy.json.getAsObjectList(JsonFieldNames.sort);
+			sortList = new ArrayList<>(existingSort);
+			sortList.add(content);
 		}
-		copy.json = copy.json.put(JsonFieldNames.sort, asList);
+		copy.json = copy.json.put(JsonFieldNames.sort, sortList);
 		return copy;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryOptions ccpQueryOptions = new CcpQueryOptions();
-		T t = (T) ccpQueryOptions;
-		return t;
+		CcpQueryOptions newInstance = new CcpQueryOptions();
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	/**
-	 * Associa esta query a índices pelo nome (string) e retorna um executor pronto para uso.
+	 * Binds this query to indexes by name (string) and returns an executor ready to use.
 	 */
 	public CcpQueryExecutorDecorator selectFrom(String... resourcesNames) {
-		CcpQueryExecutorDecorator ccpQueryExecutorDecorator = new CcpQueryExecutorDecorator(this, resourcesNames);
-		return ccpQueryExecutorDecorator;
+		CcpQueryExecutorDecorator executor = new CcpQueryExecutorDecorator(this, resourcesNames);
+		return executor;
 	}
 
 	/**
-	 * Associa esta query a índices extraídos dos metadados das entidades informadas.
+	 * Binds this query to indexes taken from the metadata of the given entities.
 	 */
 	public CcpQueryExecutorDecorator selectFrom(CcpEntity... entities) {
 		String[] resourcesNames = new String[entities.length];
-		int k = 0;
+		int resourceIndex = 0;
 		for (CcpEntity entity : entities) {
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			resourcesNames[k++] = entityDetails.entityName;
+			resourcesNames[resourceIndex++] = entityDetails.entityName;
 		}
-		CcpQueryExecutorDecorator ccpQueryExecutorDecorator2 = new CcpQueryExecutorDecorator(this, resourcesNames);
-		return ccpQueryExecutorDecorator2;
+		CcpQueryExecutorDecorator executor = new CcpQueryExecutorDecorator(this, resourcesNames);
+		return executor;
 	}
 
 	/**
-	 * Define o ID de scroll para continuar uma iteração paginada.
+	 * Sets the scroll ID to continue a paginated iteration.
 	 */
 	public CcpQueryOptions setScrollId(String scrollId) {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.scroll_id, scrollId);
@@ -133,7 +133,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Define o número máximo de documentos retornados.
+	 * Sets the maximum number of returned documents.
 	 */
 	public CcpQueryOptions setSize(int size) {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, size);
@@ -141,7 +141,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Define o tamanho máximo como 10.000 documentos.
+	 * Sets the maximum size to 10,000 documents.
 	 */
 	public CcpQueryOptions maxResults() {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, 10000);
@@ -149,7 +149,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Define o tamanho como 0 (útil para consultas que retornam apenas metadados ou agregações).
+	 * Sets the size to 0 (useful for queries that return only metadata or aggregations).
 	 */
 	public CcpQueryOptions zeroResults() {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.size, 0);
@@ -157,7 +157,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Define o offset (paginação por deslocamento) dos resultados.
+	 * Sets the offset (offset pagination) of the results.
 	 */
 	public CcpQueryOptions setFrom(int from) {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.from, from);
@@ -165,7 +165,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Define o tempo de expiração do contexto de scroll (ex: "1m", "5m").
+	 * Sets the expiration time of the scroll context (e.g. "1m", "5m").
 	 */
 	public CcpQueryOptions setScrollTime(String scrollTime) {
 		CcpQueryOptions clone = super.putProperty(JsonFieldNames.scroll, scrollTime);
@@ -173,97 +173,97 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adiciona uma cláusula match_all que retorna todos os documentos sem filtro.
+	 * Adds a match_all clause that returns every document without filtering.
 	 */
 	public CcpQueryOptions matchAll() {
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.match_all, CcpOtherConstants.EMPTY_JSON.content);
-		CcpQueryOptions clone = super.putProperty(JsonFieldNames.query, put2.content);
+		CcpJsonRepresentation matchAllJson = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.match_all, CcpOtherConstants.EMPTY_JSON.content);
+		CcpQueryOptions clone = super.putProperty(JsonFieldNames.query, matchAllJson.content);
 		return clone;
 	}
 
 	/**
-	 * Base abstrata para todos os operadores booleanos de query do Elasticsearch (must, should, filter, must_not, should_not).
-	 * Gerencia a coleção de condições e fornece métodos genéricos para adicionar diferentes tipos de filtro.
+	 * Abstract base of every Elasticsearch boolean query operator (must, should, filter, must_not, should_not).
+	 * Manages the collection of conditions and provides generic methods to add different kinds of filter.
 	 */
 
 
 	/**
-	 * Representa o nó query dentro do builder fluent de queries do Elasticsearch.
-	 * Serve como ponto de entrada para construir o bloco de consulta principal de uma requisição.
+	 * Represents the query node within the Elasticsearch fluent query builder.
+	 * Serves as the entry point to build the main query block of a request.
 	 */
 
 
 	/**
-	 * Representa o nó bool dentro de uma query booleana do Elasticsearch.
-	 * É o ponto central de composição de filtros booleanos, permitindo criar cláusulas filter, must, should, must_not e should_not.
+	 * Represents the bool node within an Elasticsearch boolean query.
+	 * It is the central point for composing boolean filters, allowing filter, must, should, must_not and should_not clauses to be created.
 	 */
 
 
 	/**
-	 * Representa o nó filter dentro de uma query booleana do Elasticsearch.
-	 * Diferentemente de must, as condições de filtro não afetam a pontuação de relevância dos documentos.
+	 * Represents the filter node within an Elasticsearch boolean query.
+	 * Unlike must, filter conditions do not affect the relevance score of the documents.
 	 */
 
 
 	/**
-	 * Representa o nó must dentro de uma query booleana do Elasticsearch.
-	 * As condições adicionadas aqui são obrigatórias e impactam a pontuação de relevância dos documentos retornados.
+	 * Represents the must node within an Elasticsearch boolean query.
+	 * The conditions added here are mandatory and affect the relevance score of the returned documents.
 	 */
 
 
 	/**
-	 * Representa o nó must_not dentro de uma query booleana do Elasticsearch.
-	 * As condições aqui presentes excluem documentos que as satisfaçam.
+	 * Represents the must_not node within an Elasticsearch boolean query.
+	 * The conditions present here exclude the documents that satisfy them.
 	 */
 
 
 	/**
-	 * Representa o nó should dentro de uma query booleana do Elasticsearch.
-	 * As condições adicionadas aqui são opcionais e incrementam a pontuação de relevância dos documentos que as satisfaçam.
-	 * Suporta o parâmetro minimum_should_match para exigir que pelo menos N condições sejam verdadeiras.
+	 * Represents the should node within an Elasticsearch boolean query.
+	 * The conditions added here are optional and increase the relevance score of the documents that satisfy them.
+	 * Supports the minimum_should_match parameter to require that at least N conditions are true.
 	 */
 
 
 	/**
-	 * Representa o nó should_not dentro de uma query booleana.
-	 * As condições aqui são opcionais e penalizam a pontuação de documentos que as satisfaçam (semântica negativa opcional).
+	 * Represents the should_not node within a boolean query.
+	 * The conditions here are optional and penalize the score of the documents that satisfy them (optional negative semantics).
 	 */
 
 
 	/**
-	 * Componente de query simplificada que estende {@code CcpQueryBooleanOperator}. Permite construir consultas
-	 * com cláusulas {@code term}, {@code terms}, {@code match}, {@code matchPhrase}, {@code prefix} e {@code exists}
-	 * de forma fluente, retornando ao {@code CcpQueryOptions} pai ao chamar {@code endSimplifiedQueryAndBackToRequest()}.
+	 * Simplified query component that extends {@code CcpQueryBooleanOperator}. Allows building queries
+	 * with {@code term}, {@code terms}, {@code match}, {@code matchPhrase}, {@code prefix} and {@code exists} clauses
+	 * fluently, returning to the parent {@code CcpQueryOptions} when {@code endSimplifiedQueryAndBackToRequest()} is called.
 	 */
 
 
 	/**
-	 * Representa o nó aggs (agregações) no builder fluent de queries do Elasticsearch.
-	 * Permite adicionar agregações métricas (min, max, avg, sum) e iniciar buckets (agrupamentos).
+	 * Represents the aggs (aggregations) node in the Elasticsearch fluent query builder.
+	 * Allows adding metric aggregations (min, max, avg, sum) and starting buckets (groupings).
 	 */
 
 
 	/**
-	 * Representa um bucket de agregação do Elasticsearch (terms ou histogram) dentro do builder fluent de queries.
-	 * Permite configurar um agrupamento por campo e tamanho, e encerrar voltando ao nó pai de agregações.
+	 * Represents an Elasticsearch aggregation bucket (terms or histogram) within the fluent query builder.
+	 * Allows configuring a grouping by field and size, and ending it by going back to the parent aggregations node.
 	 */
 
 
 	/**
-	 * Representa o nó range no builder de queries do Elasticsearch.
-	 * Serve como contêiner para definições de intervalo de um ou mais campos, permitindo retornar ao contexto pai correto após a definição.
+	 * Represents the range node in the Elasticsearch query builder.
+	 * Serves as a container for the range definitions of one or more fields, allowing a return to the correct parent context after the definition.
 	 */
 
 
 	/**
-	 * Representa as condições de intervalo para um campo específico dentro de um bloco range do Elasticsearch.
-	 * Permite encadear operadores de comparação (lt, lte, gt, gte) de forma fluent.
+	 * Represents the range conditions of a specific field within an Elasticsearch range block.
+	 * Allows chaining comparison operators (lt, lte, gt, gte) fluently.
 	 */
 
 
 	/**
-	 * Decorator sobre CcpQueryExecutor que captura a query e os nomes de índices no construtor, simplificando as chamadas ao executor real.
-	 * Cada método delega ao CcpQueryExecutor injetado via DI sem precisar que o chamador repasse esses parâmetros repetidamente.
+	 * Decorator over CcpQueryExecutor that captures the query and the index names in the constructor, simplifying the calls to the real executor.
+	 * Each method delegates to the CcpQueryExecutor injected through DI without the caller having to pass these parameters again and again.
 	 */
 
 }

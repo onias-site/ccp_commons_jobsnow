@@ -25,40 +25,40 @@ public class CcpSelectProcedure {
 	}
 
 	public CcpSelectLoadDataFromEntity loadThisIdFromEntity(CcpEntity entity) {
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entity);
-		CcpJsonRepresentation addToList = this.statements.addToList(CcpJsonCommonsFields.statements, put2);
-		CcpSelectLoadDataFromEntity ccpSelectLoadDataFromEntity = new CcpSelectLoadDataFromEntity(this.parametersToSearch, addToList);
-		return ccpSelectLoadDataFromEntity;
+		CcpJsonRepresentation entityStatement = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.entity, entity);
+		CcpJsonRepresentation updatedStatements = this.statements.addToList(CcpJsonCommonsFields.statements, entityStatement);
+		CcpSelectLoadDataFromEntity loadDataStep = new CcpSelectLoadDataFromEntity(this.parametersToSearch, updatedStatements);
+		return loadDataStep;
 	}
 
 	public CcpSelectFoundInEntity ifThisIdIsPresentInEntity(CcpEntity entity) {
-		CcpJsonRepresentation put3 = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.found, true);
-		CcpJsonRepresentation put = put3.put(JsonFieldNames.entity, entity);
-		CcpJsonRepresentation addToList = this.statements.addToList(CcpJsonCommonsFields.statements, put);
-		CcpSelectFoundInEntity ccpSelectFoundInEntity = new CcpSelectFoundInEntity(this.parametersToSearch, addToList);
-		return ccpSelectFoundInEntity;
+		CcpJsonRepresentation foundStatement = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.found, true);
+		CcpJsonRepresentation entityFoundStatement = foundStatement.put(JsonFieldNames.entity, entity);
+		CcpJsonRepresentation updatedStatements = this.statements.addToList(CcpJsonCommonsFields.statements, entityFoundStatement);
+		CcpSelectFoundInEntity foundStep = new CcpSelectFoundInEntity(this.parametersToSearch, updatedStatements);
+		return foundStep;
 	}
 
 	public CcpSelectFoundInEntity ifThisIdIsNotPresentInEntity(CcpEntity entity) {
-		CcpJsonRepresentation put4 = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.found, false);
-		CcpJsonRepresentation put = put4.put(JsonFieldNames.entity, entity);
-		CcpJsonRepresentation addToList = this.statements.addToList(CcpJsonCommonsFields.statements, put);
-		CcpSelectFoundInEntity ccpSelectFoundInEntity2 = new CcpSelectFoundInEntity(this.parametersToSearch, addToList);
-		return ccpSelectFoundInEntity2;
+		CcpJsonRepresentation notFoundStatement = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.found, false);
+		CcpJsonRepresentation entityNotFoundStatement = notFoundStatement.put(JsonFieldNames.entity, entity);
+		CcpJsonRepresentation updatedStatements = this.statements.addToList(CcpJsonCommonsFields.statements, entityNotFoundStatement);
+		CcpSelectFoundInEntity notFoundStep = new CcpSelectFoundInEntity(this.parametersToSearch, updatedStatements);
+		return notFoundStep;
 	}
 
 	public CcpSelectNextStep executeAction(CcpBusiness action) {
-		CcpSelectNextStep addStatement = this.addStatement("action", action);
-		return addStatement;
+		CcpSelectNextStep nextStep = this.addStatement("action", action);
+		return nextStep;
 	}
 
 	private CcpSelectNextStep addStatement(String key, Object obj) {
-		List<CcpJsonRepresentation> list = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
-		CcpFieldName ccpFieldName = new CcpFieldName(key);
-		CcpJsonRepresentation put5 = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName, obj);
-		list.add(put5);
-		CcpJsonRepresentation newStatements = this.statements.put(CcpJsonCommonsFields.statements, list);
-		CcpSelectNextStep ccpSelectNextStep = new CcpSelectNextStep(this.parametersToSearch, newStatements);
-		return ccpSelectNextStep;
+		List<CcpJsonRepresentation> statementList = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
+		CcpFieldName statementKey = new CcpFieldName(key);
+		CcpJsonRepresentation newStatement = CcpOtherConstants.EMPTY_JSON.put(statementKey, obj);
+		statementList.add(newStatement);
+		CcpJsonRepresentation newStatements = this.statements.put(CcpJsonCommonsFields.statements, statementList);
+		CcpSelectNextStep nextStep = new CcpSelectNextStep(this.parametersToSearch, newStatements);
+		return nextStep;
 	}
 }

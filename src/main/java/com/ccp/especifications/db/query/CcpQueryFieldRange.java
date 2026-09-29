@@ -13,8 +13,8 @@ public class CcpQueryFieldRange extends CcpQueryComponent {
 
 	@SuppressWarnings("unchecked")
 	protected CcpQueryFieldRange getInstanceCopy() {
-		CcpQueryFieldRange ccpQueryFieldRange = new CcpQueryFieldRange(this.parent, this.name);
-		return ccpQueryFieldRange;
+		CcpQueryFieldRange newInstance = new CcpQueryFieldRange(this.parent, this.name);
+		return newInstance;
 	}
 
 	private CcpQueryFieldRange putOperator(CcpJsonFieldName operatorName, Object value) {
@@ -24,23 +24,23 @@ public class CcpQueryFieldRange extends CcpQueryComponent {
 	}
 
 	public CcpQueryFieldRange lessThan(Object value) {
-		CcpQueryFieldRange putOperator = this.putOperator(JsonFieldNames.lt, value);
-		return putOperator;
+		CcpQueryFieldRange fieldRange = this.putOperator(JsonFieldNames.lt, value);
+		return fieldRange;
 	}
 
 	public CcpQueryFieldRange lessThanEquals(Object value) {
-		CcpQueryFieldRange putOperator2 = this.putOperator(JsonFieldNames.lte, value);
-		return putOperator2;
+		CcpQueryFieldRange fieldRange = this.putOperator(JsonFieldNames.lte, value);
+		return fieldRange;
 	}
 
 	public CcpQueryFieldRange greaterThan(Object value) {
-		CcpQueryFieldRange putOperator3 = this.putOperator(JsonFieldNames.gt, value);
-		return putOperator3;
+		CcpQueryFieldRange fieldRange = this.putOperator(JsonFieldNames.gt, value);
+		return fieldRange;
 	}
 
 	public CcpQueryFieldRange greaterThanEquals(Object value) {
-		CcpQueryFieldRange putOperator4 = this.putOperator(JsonFieldNames.gte, value);
-		return putOperator4;
+		CcpQueryFieldRange fieldRange = this.putOperator(JsonFieldNames.gte, value);
+		return fieldRange;
 	}
 
 	public CcpQueryRange endFieldRangeAndBackToRange() {

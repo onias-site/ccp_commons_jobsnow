@@ -14,15 +14,15 @@ public final class CcpQueryShouldNot extends CcpQueryBooleanOperator {
 
 	public CcpQueryBool endShouldNotAndBackToBool() {
 		CcpQueryComponent copy = this.parent.copy();
-		CcpQueryBool addChild = copy.addChild(this);
-		return addChild;
+		CcpQueryBool boolQuery = copy.addChild(this);
+		return boolQuery;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryShouldNot ccpQueryShouldNot = new CcpQueryShouldNot(this.parent);
-		T t = (T) ccpQueryShouldNot;
-		return t;
+		CcpQueryShouldNot newInstance = new CcpQueryShouldNot(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,7 +40,7 @@ public final class CcpQueryShouldNot extends CcpQueryBooleanOperator {
 	}
 
 	public CcpQueryBool startBool() {
-		CcpQueryBool ccpQueryBool = new CcpQueryBool(this);
-		return ccpQueryBool;
+		CcpQueryBool boolQuery = new CcpQueryBool(this);
+		return boolQuery;
 	}
 }

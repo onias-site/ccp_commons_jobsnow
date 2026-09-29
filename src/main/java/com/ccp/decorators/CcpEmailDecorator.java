@@ -7,8 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Decorator especializado em endereços de e-mail. Oferece validação robusta (com regras de negócio específicas
- * do domínio jobsnow), normalização de acentos, extração de e-mails a partir de texto livre e cálculo de hash do endereço.
+ * Decorator specialized in e-mail addresses. Offers robust validation (with business rules specific
+ * to the jobsnow domain), accent normalization, extraction of e-mails from free text and hash calculation of the address.
  */
 public class CcpEmailDecorator implements  CcpDecorator<String>{
 	public static final String	EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
@@ -39,8 +39,8 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	public final String content;
 
 	/**
-	 * Encapsula a string como e-mail.
-	 * @param content o endereço de e-mail
+	 * Wraps the string as an e-mail.
+	 * @param content the e-mail address
 	 */
 	protected CcpEmailDecorator(String content) {
 		this.content = content;
@@ -51,126 +51,126 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	/**
-	 * Remove acentos do endereço. Se já for um e-mail válido, trata as partes local e domínio separadamente
-	 * para preservar o {@code @}; caso contrário, aplica normalização NFD genérica.
+	 * Removes accents from the address. If it is already a valid e-mail, handles the local and domain parts separately
+	 * to preserve the {@code @}; otherwise applies a generic NFD normalization.
 	 */
 	public CcpEmailDecorator stripAccents() {
 		boolean valid = this.isValid();
 		if(valid) {
 			String[] split = this.content.split("@");
-			String s1 = split[0];
-			String s2 = split[1];
-			CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(s1);
-			CcpTextDecorator stripAccents2 = ccpTextDecorator.stripAccents();
-			String p1 = stripAccents2.content;
-			CcpTextDecorator ccpTextDecorator2 = new CcpTextDecorator(s2);
-			CcpTextDecorator stripAccents3 = ccpTextDecorator2.stripAccents();
-			String p2 = stripAccents3.content;
-			String p1Mais = p1 + "@";
-			String p1MaisMais = p1Mais + p2;
-			CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(p1MaisMais);
+			String localPart = split[0];
+			String domainPart = split[1];
+			CcpTextDecorator localPartText = new CcpTextDecorator(localPart);
+			CcpTextDecorator strippedLocalPart = localPartText.stripAccents();
+			String localPartWithoutAccents = strippedLocalPart.content;
+			CcpTextDecorator domainPartText = new CcpTextDecorator(domainPart);
+			CcpTextDecorator strippedDomainPart = domainPartText.stripAccents();
+			String domainPartWithoutAccents = strippedDomainPart.content;
+			String localPartWithAt = localPartWithoutAccents + "@";
+			String emailWithoutAccents = localPartWithAt + domainPartWithoutAccents;
+			CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(emailWithoutAccents);
 			return ccpEmailDecorator;
 		}
 		
-		String s = Normalizer.normalize(this.content, Normalizer.Form.NFD);
-		String replaceAll = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-		CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(replaceAll);
+		String normalizedContent = Normalizer.normalize(this.content, Normalizer.Form.NFD);
+		String contentWithoutAccents = normalizedContent.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(contentWithoutAccents);
 		return ccpEmailDecorator;
 	}
 	
 	/**
-	 * Verifica se a string é um endereço de e-mail válido segundo a regex padrão e regras de negócio do domínio.
-	 * @return {@code true} se o endereço for válido
+	 * Checks whether the string is a valid e-mail address according to the default regex and the domain business rules.
+	 * @return {@code true} if the address is valid
 	 */
 	public boolean isValid() {
 		String[] split = this.content.split("@");
-		boolean lengthDiferente = split.length != 2;
+		boolean hasNotExactlyOneAt = split.length != 2;
 
-		if(lengthDiferente) {
+		if(hasNotExactlyOneAt) {
 			return false;
 		}
-		String splitTrim = split[0].trim();
-		boolean splitTrimEmpty = splitTrim.isEmpty();
-		if(splitTrimEmpty) {
+		String localPartTrimmed = split[0].trim();
+		boolean localPartIsEmpty = localPartTrimmed.isEmpty();
+		if(localPartIsEmpty) {
 			return false;
 		}
-		String contentTrim = this.content.trim();
-		String toLowerCase = contentTrim.toLowerCase();
-		boolean endsWith = toLowerCase.endsWith(".digital");
-		if(endsWith) {
+		String trimmedForDigitalCheck = this.content.trim();
+		String lowerForDigitalCheck = trimmedForDigitalCheck.toLowerCase();
+		boolean isDigitalDomain = lowerForDigitalCheck.endsWith(".digital");
+		if(isDigitalDomain) {
 			return true;
 		}
-		String contentTrim2 = this.content.trim();
-		String toLowerCase2 = contentTrim2.toLowerCase();
-		boolean endsWith2 = toLowerCase2.endsWith("@wayon.global");
-		if(endsWith2) {
+		String trimmedForWayonCheck = this.content.trim();
+		String lowerForWayonCheck = trimmedForWayonCheck.toLowerCase();
+		boolean isWayonDomain = lowerForWayonCheck.endsWith("@wayon.global");
+		if(isWayonDomain) {
 			return true;
 		}
-		String contentTrim3 = this.content.trim();
-		String toLowerCase3 = contentTrim3.toLowerCase();
-		boolean endsWith3 = toLowerCase3.endsWith("@corp.inovation.com.br");
-		if(endsWith3) { 
+		String trimmedForInovationCheck = this.content.trim();
+		String lowerForInovationCheck = trimmedForInovationCheck.toLowerCase();
+		boolean isInovationDomain = lowerForInovationCheck.endsWith("@corp.inovation.com.br");
+		if(isInovationDomain) { 
 			return true;
 		}
-		String toLowerCase4 = this.content.toLowerCase();
-		boolean endsWith4 = toLowerCase4.endsWith(".docx");
-		if(endsWith4) {
+		String lowerForDocxCheck = this.content.toLowerCase();
+		boolean endsWithDocx = lowerForDocxCheck.endsWith(".docx");
+		if(endsWithDocx) {
 			return false;
 		}
-		String toLowerCase5 = this.content.toLowerCase();
-		boolean endsWith5 = toLowerCase5.endsWith(".digi");
-		if(endsWith5) {
+		String lowerForDigiCheck = this.content.toLowerCase();
+		boolean endsWithDigi = lowerForDigiCheck.endsWith(".digi");
+		if(endsWithDigi) {
 			return false;
 		}
-		String toLowerCase6 = this.content.toLowerCase();
-		boolean endsWith6 = toLowerCase6.endsWith(".onli");
-		if(endsWith6) {
+		String lowerForOnliCheck = this.content.toLowerCase();
+		boolean endsWithOnli = lowerForOnliCheck.endsWith(".onli");
+		if(endsWithOnli) {
 			return false;
 		}
-		String toLowerCase7 = this.content.toLowerCase();
-		boolean endsWith7 = toLowerCase7.endsWith(".glob");
-		if(endsWith7) {
+		String lowerForGlobCheck = this.content.toLowerCase();
+		boolean endsWithGlob = lowerForGlobCheck.endsWith(".glob");
+		if(endsWithGlob) {
 			return false;
 		}
-		String toLowerCase8 = this.content.toLowerCase();
-		boolean endsWith8 = toLowerCase8.endsWith(".soci");
-		if(endsWith8) {
+		String lowerForSociCheck = this.content.toLowerCase();
+		boolean endsWithSoci = lowerForSociCheck.endsWith(".soci");
+		if(endsWithSoci) {
 			return false;
 		}
-		String toLowerCase9 = this.content.toLowerCase();
-		boolean endsWith9 = toLowerCase9.endsWith(".bren");
-		if(endsWith9) {
+		String lowerForBrenCheck = this.content.toLowerCase();
+		boolean endsWithBren = lowerForBrenCheck.endsWith(".bren");
+		if(endsWithBren) {
 			return false;
 		}
-		String toLowerCase10 = this.content.toLowerCase();
-		boolean contains = toLowerCase10.contains(".coom");
+		String lowerForCoomCheck = this.content.toLowerCase();
+		boolean containsCoom = lowerForCoomCheck.contains(".coom");
 
-		if(contains) {
+		if(containsCoom) {
 			return false;
 		}
 
 		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(this.content);
-		boolean find = matcher.find();
-		boolean valorIgual = false == find;
+		boolean matchesRegex = matcher.find();
+		boolean doesNotMatchRegex = false == matchesRegex;
 
-		if(valorIgual) {
+		if(doesNotMatchRegex) {
 			return false;
 		}
 		
 		String domain = split[1];
-		String[] split2 = domain.split("\\.");
-		int lengthMenos = split2.length - 1;
-		String last = split2[lengthMenos];
-		String toLowerCase11 = last.toLowerCase();
-		boolean startsWith = toLowerCase11.startsWith("com");
-		boolean startsWithE = startsWith && false == last.toLowerCase().equalsIgnoreCase("com");
-		if(startsWithE) {
+		String[] domainParts = domain.split("\\.");
+		int lastPartIndex = domainParts.length - 1;
+		String topLevelDomain = domainParts[lastPartIndex];
+		String lowerTopLevelDomain = topLevelDomain.toLowerCase();
+		boolean startsWithCom = lowerTopLevelDomain.startsWith("com");
+		boolean isMisspelledCom = startsWithCom && false == topLevelDomain.toLowerCase().equalsIgnoreCase("com");
+		if(isMisspelledCom) {
 			return false;
 		}
-		String toLowerCase12 = last.toLowerCase();
-		boolean startsWith2 = toLowerCase12.startsWith("br");
-		boolean startsWith2E = startsWith2 && false == last.toLowerCase().equalsIgnoreCase("br");
-		if(startsWith2E) {
+		String lowerTopLevelDomainForBrCheck = topLevelDomain.toLowerCase();
+		boolean startsWithBr = lowerTopLevelDomainForBrCheck.startsWith("br");
+		boolean isMisspelledBr = startsWithBr && false == topLevelDomain.toLowerCase().equalsIgnoreCase("br");
+		if(isMisspelledBr) {
 			return false;
 		}
 		
@@ -180,55 +180,55 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		    Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
 	/**
-	 * Percorre as "palavras" obtidas ao dividir o conteúdo pelos delimitadores fornecidos e retorna
-	 * o primeiro trecho reconhecido como e-mail válido. Retorna {@code CcpEmailDecorator("")} se nenhum for encontrado.
-	 * @param delimitadores expressão de delimitadores para divisão do texto
+	 * Walks through the "words" obtained by splitting the content by the given delimiters and returns
+	 * the first piece recognized as a valid e-mail. Returns {@code CcpEmailDecorator("")} if none is found.
+	 * @param delimiters expression of the delimiters used to split the text
 	 */
-	public CcpEmailDecorator findFirst(String delimitadores) {
-		String toLowerCase13 = this.content.toLowerCase();
+	public CcpEmailDecorator findFirst(String delimiters) {
+		String lowerContent = this.content.toLowerCase();
 	
-		String[] palavras = toLowerCase13.split(delimitadores);
-		for (String palavra : palavras) {
-			boolean contains2 = palavra.contains("+");
-			if(contains2) {
-				String palavraReplace = palavra.replace("+", " ");
-				String[] split = palavraReplace.split(" ");
-				int lengthMenos2 = split.length - 1;
-				String email = split[lengthMenos2];
+		String[] words = lowerContent.split(delimiters);
+		for (String word : words) {
+			boolean containsPlus = word.contains("+");
+			if(containsPlus) {
+				String wordWithSpaces = word.replace("+", " ");
+				String[] split = wordWithSpaces.split(" ");
+				int lastPieceIndex = split.length - 1;
+				String email = split[lastPieceIndex];
 				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(email);
-				boolean valid2 = ccpEmailDecorator.isValid();
-				if(valid2) {
+				boolean isValidEmail = ccpEmailDecorator.isValid();
+				if(isValidEmail) {
 					return ccpEmailDecorator;
 				}
 			}
-			boolean endsWith10 = palavra.endsWith(".");
+			boolean endsWithDot = word.endsWith(".");
 
-			if(endsWith10) {
-				int palavraLength = palavra.length();
-				int palavraLengthMenos = palavraLength - 1;
-				palavra = palavra.substring(0, palavraLengthMenos);
+			if(endsWithDot) {
+				int wordLength = word.length();
+				int lengthWithoutDot = wordLength - 1;
+				word = word.substring(0, lengthWithoutDot);
 			}
-			String[] split = palavra.split("@");
+			String[] split = word.split("@");
 			
-			String str = "";
+			String rebuiltEmail = "";
 			
-			for (String string : split) {
-				CcpTextDecorator ccpTextDecorator3 = new CcpTextDecorator(string);
-				CcpTextDecorator stripAccents4 = ccpTextDecorator3.stripAccents();
-				String content = stripAccents4.getContent();
-				String contentMais = content + "@";
-				str += (contentMais);
+			for (String piece : split) {
+				CcpTextDecorator pieceText = new CcpTextDecorator(piece);
+				CcpTextDecorator strippedPiece = pieceText.stripAccents();
+				String pieceWithoutAccents = strippedPiece.getContent();
+				String pieceWithAt = pieceWithoutAccents + "@";
+				rebuiltEmail += (pieceWithAt);
 			}
-			int strLength = str.length();
-			int strLengthMenos = strLength - 1;
-			String substring = str.substring(0, strLengthMenos);
-			CcpEmailDecorator ced = new CcpEmailDecorator(substring);
-			boolean valid3 = ced.isValid();
-			if(valid3) {
-				CcpEmailDecorator stripAccents = ced.stripAccents();
-				String toLowerCase14 = stripAccents.content.toLowerCase();
-				String retorno = toLowerCase14.trim();
-				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(retorno);
+			int rebuiltEmailLength = rebuiltEmail.length();
+			int lengthWithoutLastAt = rebuiltEmailLength - 1;
+			String substring = rebuiltEmail.substring(0, lengthWithoutLastAt);
+			CcpEmailDecorator candidateEmail = new CcpEmailDecorator(substring);
+			boolean candidateIsValid = candidateEmail.isValid();
+			if(candidateIsValid) {
+				CcpEmailDecorator candidateWithoutAccents = candidateEmail.stripAccents();
+				String lowerCandidate = candidateWithoutAccents.content.toLowerCase();
+				String normalizedEmail = lowerCandidate.trim();
+				CcpEmailDecorator ccpEmailDecorator = new CcpEmailDecorator(normalizedEmail);
 				return ccpEmailDecorator;
 			}
 		}
@@ -237,9 +237,9 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	/**
-	 * Divide o texto pelo delimitador e coleta em um {@code TreeSet} todos os trechos que são e-mails válidos (em minúsculas).
-	 * @param delimiter o delimitador para divisão do texto
-	 * @return conjunto de e-mails válidos encontrados no texto
+	 * Splits the text by the delimiter and collects in a {@code TreeSet} every piece that is a valid e-mail (in lower case).
+	 * @param delimiter the delimiter used to split the text
+	 * @return set of valid e-mails found in the text
 	 */
 	public Set<String> extractFromText(String delimiter) {
 		String[] split = this.content.split(delimiter);
@@ -248,8 +248,8 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		for (String piece : split) {
 			String trim = piece.trim();
 			CcpEmailDecorator decorator = new CcpEmailDecorator(trim);
-			boolean valid4 = decorator.isValid();
-			boolean invalid = false == valid4;
+			boolean isValidEmail = decorator.isValid();
+			boolean invalid = false == isValidEmail;
 			if (invalid) {
 				continue;
 			}
@@ -262,13 +262,13 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 
 	
 	/**
-	 * Retorna a parte do domínio (após {@code @}). Retorna string vazia se o endereço não tiver exatamente um {@code @}.
+	 * Returns the domain part (after {@code @}). Returns an empty string if the address does not have exactly one {@code @}.
 	 */
 	public String getDomain() {
 		String[] split = this.content.split("@");
-		boolean lengthDiferente2 = split.length != 2;
+		boolean hasNotExactlyOneAt = split.length != 2;
 
-		if (lengthDiferente2) {
+		if (hasNotExactlyOneAt) {
 			return "";
 		}
 
@@ -277,13 +277,13 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; devolve o endereço.
+	 * Implementation of {@code CcpDecorator}; returns the address.
 	 */
 	public String getContent() {
 		return this.content;
 	}
 	/**
-	 * Cria um {@code CcpHashDecorator} sobre o endereço para cálculo de hash.
+	 * Creates a {@code CcpHashDecorator} over the address for hash calculation.
 	 */
 	public CcpHashDecorator hash() {
 		CcpHashDecorator ccpHashDecorator = new CcpHashDecorator(this.content);

@@ -6,29 +6,29 @@ public final class CcpQueryBool extends CcpQueryComponent {
 	}
 
 	public CcpQueryFilter startFilter() {
-		CcpQueryFilter ccpQueryFilter = new CcpQueryFilter(this);
-		return ccpQueryFilter;
+		CcpQueryFilter filter = new CcpQueryFilter(this);
+		return filter;
 	}
 
 	public CcpQueryMust startMust() {
-		CcpQueryMust ccpQueryMust = new CcpQueryMust(this);
-		return ccpQueryMust;
+		CcpQueryMust must = new CcpQueryMust(this);
+		return must;
 	}
 
 	public CcpQueryShould startShould(int minimumShouldMatch) {
-		CcpQueryShould ccpQueryShould = new CcpQueryShould(this);
-		CcpQueryShould setMinimumShouldMatch = ccpQueryShould.setMinimumShouldMatch(minimumShouldMatch);
-		return setMinimumShouldMatch;
+		CcpQueryShould should = new CcpQueryShould(this);
+		CcpQueryShould shouldWithMinimumMatch = should.setMinimumShouldMatch(minimumShouldMatch);
+		return shouldWithMinimumMatch;
 	}
 
 	public CcpQueryMustNot startMustNot() {
-		CcpQueryMustNot ccpQueryMustNot = new CcpQueryMustNot(this);
-		return ccpQueryMustNot;
+		CcpQueryMustNot mustNot = new CcpQueryMustNot(this);
+		return mustNot;
 	}
 
 	public CcpQueryShouldNot startShouldNot() {
-		CcpQueryShouldNot ccpQueryShouldNot = new CcpQueryShouldNot(this);
-		return ccpQueryShouldNot;
+		CcpQueryShouldNot shouldNot = new CcpQueryShouldNot(this);
+		return shouldNot;
 	}
 
 	public CcpQueryShould endBoolAndBackToShould() {
@@ -57,8 +57,8 @@ public final class CcpQueryBool extends CcpQueryComponent {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryBool ccpQueryBool = new CcpQueryBool(this.parent);
-		T t = (T) ccpQueryBool;
-		return t;
+		CcpQueryBool newInstance = new CcpQueryBool(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 }

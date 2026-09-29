@@ -10,56 +10,56 @@ import com.ccp.especifications.http.CcpHttpResponseTransform;
 import com.ccp.especifications.db.utils.entity.fields.CcpErrorDbUtilsIncorrectEntityFields;
 
 /**
- * Contrato de baixo nível para execução de requisições ao banco de dados (Elasticsearch). Abstrai o
- * transporte HTTP e os detalhes de conexão, fornecendo métodos para executar requisições com diferentes
- * assinaturas e utilitários de configuração.
+ * Low-level contract for executing requests against the database (Elasticsearch). Abstracts the
+ * HTTP transport and the connection details, providing methods to execute requests with different
+ * signatures, plus configuration utilities.
  */
 public interface CcpDbRequester {
 
 	/**
-	 * Executa uma requisição HTTP com corpo JSON, recursos (índices), status esperado e transforma a resposta.
+	 * Executes an HTTP request with a JSON body, resources (indexes) and expected status, and transforms the response.
 	 */
 	<V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, Integer expectedStatus, CcpJsonRepresentation body, String[] resources, CcpHttpResponseTransform<V> transformer);
 
 	/**
-	 * Variante que aceita o corpo como string e cabeçalhos explícitos.
+	 * Variant that accepts the body as a string and explicit headers.
 	 */
 	<V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, Integer expectedStatus, String body, CcpJsonRepresentation headers, CcpHttpResponseTransform<V> transformer);
 
 	/**
-	 * Variante que aceita um JSON de fluxos de tratamento de erros em vez de status esperado fixo.
+	 * Variant that accepts a JSON of error-handling flows instead of a fixed expected status.
 	 */
 	<V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation flows, CcpJsonRepresentation body, CcpHttpResponseTransform<V> transformer);
 
 	/**
-	 * Variante sem lista de recursos.
+	 * Variant without a list of resources.
 	 */
 	<V> V executeHttpRequest(String trace, String url, CcpHttpMethods method, Integer expectedStatus, CcpJsonRepresentation body, CcpHttpResponseTransform<V> transformer);
 
 	/**
-	 * Executa a configuração inicial do banco de dados (criação de índices/mapeamentos), relatando erros
-	 * de mapeamento e erros gerais via consumers.
+	 * Runs the initial database setup (creation of indexes/mappings), reporting mapping errors
+	 * and general errors through consumers.
 	 */
 	List<CcpBulkOperationResult> executeDatabaseSetup(String pathToJavaClasses, String hostFolder, String pathToCreateEntityScript, Consumer<CcpErrorDbUtilsIncorrectEntityFields> whenIsIncorrectMapping, Consumer<Throwable> whenOccursAnError);
 
 	/**
-	 * Retorna os detalhes de conexão com o banco (host, porta, credenciais, etc.).
+	 * Returns the database connection details (host, port, credentials, etc.).
 	 */
 	CcpJsonRepresentation getConnectionDetails();
 
 	/**
-	 * Retorna o nome do campo usado para identificar o índice/entidade nas requisições de multi-get.
+	 * Returns the name of the field used to identify the index/entity in multi-get requests.
 	 */
 	String getFieldNameToEntity();
 
 	/**
-	 * Retorna o nome do campo usado para identificar o ID do documento nas requisições de multi-get.
+	 * Returns the name of the field used to identify the document ID in multi-get requests.
 	 */
 	String getFieldNameToId();
 
 	/**
-	 * Cria os índices/tabelas no banco com base nos scripts e classes informados, registrando erros
-	 * nos destinos indicados.
+	 * Creates the indexes/tables in the database based on the given scripts and classes, recording errors
+	 * in the given destinations.
 	 */
 	CcpDbRequester createTables(String pathToCreateEntityScript, String pathToJavaClasses, String mappingJnEntitiesErrors,
 			String insertErrors);

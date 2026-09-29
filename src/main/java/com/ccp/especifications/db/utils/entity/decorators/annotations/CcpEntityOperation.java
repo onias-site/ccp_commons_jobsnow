@@ -8,27 +8,28 @@ import java.lang.annotation.Target;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityOperationType;
 
 /**
- * Configura uma operação com side effects para uma entidade (save, delete, deleteAnyWhere). A
- * combinação de momento de execução, tipo de operação e entidade de origem vem encapsulada em um
- * único item de {@code CcpEntityOperationType}.
+ * Configures an operation with side effects for an entity (save, delete, deleteAnyWhere). The
+ * combination of execution moment, operation type and source entity comes encapsulated in a
+ * single item of {@code CcpEntityOperationType}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface CcpEntityOperation {
 
 	/**
-	 * Combinação de {@code operationPhase}, {@code operationType} e {@code entityPhase} desta
-	 * operação.
+	 * Combination of {@code operationPhase}, {@code operationType} and {@code entityPhase} of this
+	 * operation.
 	 */
 	CcpEntityOperationType operationType();
 
 	/**
-	 * Tratadores de exceção específicos desta operação.
+	 * Exception handlers specific to this operation.
 	 */
 	CcpExceptionFlow[] operationHandlers();
 
 	/**
-	 * Classes de negócio a executar durante a operação.
+	 * Business classes to execute during the operation.
+	
 	 */
 	@SuppressWarnings("rawtypes")
 	Class[] execute();

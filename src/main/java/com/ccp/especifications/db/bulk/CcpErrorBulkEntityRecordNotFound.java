@@ -7,29 +7,29 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * Exceção lançada quando uma operação bulk de delete ou update tenta acessar um registro que não
- * existe na entidade do banco de dados. A mensagem inclui o id e o nome da entidade, e
- * opcionalmente os valores que compõem a chave primária.
+ * Exception thrown when a delete or update bulk operation tries to access a record that does not
+ * exist in the database entity. The message includes the id and the entity name and,
+ * optionally, the values that make up the primary key.
  */
 @SuppressWarnings("serial")
 public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 
 	/**
-	 * Cria a exceção informando diretamente o nome da entidade e o id não encontrado.
+	 * Creates the exception directly from the entity name and the id that was not found.
 	 *
-	 * @param entityName nome da entidade
-	 * @param id identificador não encontrado
+	 * @param entityName entity name
+	 * @param id identifier that was not found
 	 */
 	public CcpErrorBulkEntityRecordNotFound(String entityName, String id) {
 		super(getErrorMessage(entityName, id));
 	}
 
 	/**
-	 * Cria a exceção calculando o id a partir do JSON e da entidade, incluindo na mensagem os
-	 * valores dos campos da chave primária que foram usados para compor o id.
+	 * Creates the exception computing the id from the JSON and the entity, including in the message the
+	 * values of the primary key fields that were used to compose the id.
 	 *
-	 * @param entity entidade onde o registro não foi encontrado
-	 * @param json JSON com os valores usados para calcular o id
+	 * @param entity entity where the record was not found
+	 * @param json JSON with the values used to compute the id
 	 */
 	public CcpErrorBulkEntityRecordNotFound(CcpEntity entity, CcpJsonRepresentation json) {
 		super(getErrorMessage(entity, json));
@@ -47,8 +47,8 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 	private static String getErrorMessage(CcpEntity entity, CcpJsonRepresentation json) {
 
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-		Supplier<CcpJsonRepresentation> supplier = json.getJsonSupplier();
-		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(supplier);
+		Supplier<CcpJsonRepresentation> jsonSupplier = json.getJsonSupplier();
+		CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(jsonSupplier);
 		String id = entity.calculateId(json);
 		
 		String errorMessage = String.format("Does not exist an id '%s' registered in the entity '%s'. Values to compose this id are: %s ", 

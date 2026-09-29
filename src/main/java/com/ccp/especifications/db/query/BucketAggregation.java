@@ -21,37 +21,37 @@ public final class BucketAggregation extends CcpQueryComponent {
 	}
 
 	public CcpQueryAggregations endTermsBuckedAndBackToAggregations() {
-		CcpQueryAggregations addChild = this.getStatisRequest("size", "terms");
-		return addChild;
+		CcpQueryAggregations aggregations = this.getStatisRequest("size", "terms");
+		return aggregations;
 	}
 
 	public CcpQueryAggregations endHistogramBuckedAndBackToAggregations() {
-		CcpQueryAggregations addChild = this.getStatisRequest("interval", "histogram");
-		return addChild;
+		CcpQueryAggregations aggregations = this.getStatisRequest("interval", "histogram");
+		return aggregations;
 	}
 
-	private CcpQueryAggregations getStatisRequest(String p1, String p2) {
+	private CcpQueryAggregations getStatisRequest(String sizeParameterName, String aggregationType) {
 		CcpQueryComponent copy = this.copy();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, this.fieldName);
-		CcpFieldName ccpFieldName = new CcpFieldName(p1);
-		var put2 = put
-				.put(ccpFieldName, this.size);
-				Map<String, Object> content = put2.getContent();
-				CcpFieldName ccpFieldName2 = new CcpFieldName(p2);
-				copy.json = copy.json.put(ccpFieldName2, content);
-		CcpQueryAggregations addChild = this.parent.addChild(copy);
-		return addChild;
+		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, this.fieldName);
+		CcpFieldName sizeParameterKey = new CcpFieldName(sizeParameterName);
+		var aggregationSettings = fieldJson
+				.put(sizeParameterKey, this.size);
+				Map<String, Object> content = aggregationSettings.getContent();
+				CcpFieldName aggregationTypeKey = new CcpFieldName(aggregationType);
+				copy.json = copy.json.put(aggregationTypeKey, content);
+		CcpQueryAggregations aggregations = this.parent.addChild(copy);
+		return aggregations;
 	}
 
 	public CcpQueryAggregations startAggregations() {
-		CcpQueryAggregations ccpQueryAggregations = new CcpQueryAggregations(this);
-		return ccpQueryAggregations;
+		CcpQueryAggregations aggregations = new CcpQueryAggregations(this);
+		return aggregations;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
 		BucketAggregation bucketAggregation = new BucketAggregation(this.parent, this.name, this.fieldName, this.size);
-		T t = (T) bucketAggregation;
-		return t;
+		T typedCopy = (T) bucketAggregation;
+		return typedCopy;
 	}
 }

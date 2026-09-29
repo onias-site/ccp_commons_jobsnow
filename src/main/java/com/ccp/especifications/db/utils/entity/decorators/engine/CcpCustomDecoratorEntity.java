@@ -7,9 +7,9 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDe
 public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType{
 
 	/**
-	 * Localiza, dentro de {@code @CcpEntityCustomDecorators}, o item cujo {@code value()} é a classe
-	 * deste decorator e devolve a prioridade ali declarada. A anotação {@code @CcpEntityCustomDecorator}
-	 * não é aplicada diretamente na classe configuradora: ela só existe aninhada no container.
+	 * Finds, within {@code @CcpEntityCustomDecorators}, the item whose {@code value()} is the class
+	 * of this decorator and returns the priority declared there. The {@code @CcpEntityCustomDecorator} annotation
+	 * is not applied directly to the configurator class: it only exists nested in the container.
 	 */
 	public final int getPriority(Class<?> configurationClass) {
 		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
@@ -18,9 +18,9 @@ public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType
 
 		for (CcpEntityCustomDecorator customDecorator : customDecorators) {
 			Class<?> builderClass = customDecorator.value();
-			boolean builderClassEquals = builderClass.equals(thisDecorator);
+			boolean isThisDecorator = builderClass.equals(thisDecorator);
 
-			boolean isAnotherDecorator = false == builderClassEquals;
+			boolean isAnotherDecorator = false == isThisDecorator;
 
 			if(isAnotherDecorator) {
 				continue;
@@ -29,16 +29,16 @@ public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType
 			return priority;
 		}
 
-		CcpEntityCustomDecoratorIsNotDeclared ccpEntityCustomDecoratorIsNotDeclared = new CcpEntityCustomDecoratorIsNotDeclared(configurationClass, thisDecorator);
-		throw ccpEntityCustomDecoratorIsNotDeclared;
+		CcpEntityCustomDecoratorIsNotDeclared notDeclaredError = new CcpEntityCustomDecoratorIsNotDeclared(configurationClass, thisDecorator);
+		throw notDeclaredError;
 	}
 
 	/**
-	 * Dois decorators custom são o mesmo decorator quando são da mesma classe. A identidade não serve:
-	 * {@code CcpEntityFactory} instancia cada builder por reflexão a cada montagem de entidade, então o
-	 * objeto passado em {@code decoratorsToAvoid} nunca é o mesmo que está na cadeia. Sem esta
-	 * comparação por classe o {@code contains} do filtro de exclusão devolve sempre {@code false} e o
-	 * decorator que se pediu para evitar continua na cadeia.
+	 * Two custom decorators are the same decorator when they are of the same class. Identity does not work:
+	 * {@code CcpEntityFactory} instantiates each builder through reflection every time an entity is assembled, so the
+	 * object passed in {@code decoratorsToAvoid} is never the same one that is in the chain. Without this
+	 * comparison by class, the {@code contains} of the exclusion filter always returns {@code false} and the
+	 * decorator that was asked to be avoided stays in the chain.
 	 */
 	public final boolean equals(Object obj) {
 

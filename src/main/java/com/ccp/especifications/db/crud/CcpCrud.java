@@ -12,9 +12,9 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpErrorEntityPrimaryKeyIsMissing;
 
 /**
- * Contrato central de acesso ao banco de dados (Elasticsearch). Fornece operações CRUD básicas
- * (busca por id, save, exists, delete) e o mecanismo de busca em múltiplas entidades
- * simultaneamente via {@code unionAll}, com integração automática à invalidação de cache.
+ * Central database access contract (Elasticsearch). Provides basic CRUD operations
+ * (find by id, save, exists, delete) and the mechanism to search several entities
+ * at once through {@code unionAll}, with automatic integration with cache invalidation.
  */
 public interface CcpCrud {
 
@@ -24,9 +24,9 @@ public interface CcpCrud {
 
 	default CcpSelectUnionAll unionAll(CcpJsonRepresentation[] jsons, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		this.deleteKeysInCache(jsons, functionToDeleteKeysInTheCache, entities);
-		List<CcpJsonRepresentation> asList = Arrays.asList(jsons);
+		List<CcpJsonRepresentation> jsonList = Arrays.asList(jsons);
 		CcpUnionAllExecutor unionAllExecutor = this.getUnionAllExecutor();
-		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(asList, entities);
+		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(jsonList, entities);
 		return unionAll;
 	}
 
@@ -39,13 +39,13 @@ public interface CcpCrud {
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
 	/**
-	 * Informa se a resposta devolvida por {@code save} corresponde à inclusão de um documento novo,
-	 * e não à atualização de um documento que já existia. Quem implementa este contrato é o único que
-	 * conhece o formato da resposta do banco e o status HTTP que a acompanha, por isso é aqui que a
-	 * resposta é interpretada.
+	 * Tells whether the response returned by {@code save} corresponds to the insertion of a new document,
+	 * rather than to the update of a document that already existed. The implementer of this contract is the only one
+	 * that knows the format of the database response and the HTTP status that comes with it, which is why the
+	 * response is interpreted here.
 	 *
-	 * @param saveResponse a resposta devolvida por {@code save}
-	 * @return {@code true} se o documento foi incluído, {@code false} se ele foi atualizado
+	 * @param saveResponse the response returned by {@code save}
+	 * @return {@code true} if the document was inserted, {@code false} if it was updated
 	 */
 	boolean isInsertedDocument(CcpJsonRepresentation saveResponse);
 
@@ -58,16 +58,16 @@ public interface CcpCrud {
 		for (CcpEntity entity : entities) {
 			for (CcpJsonRepresentation json : jsons) {
 				try {
-					String calculateId = entity.calculateId(json);
-					CcpCacheDecorator cache = new CcpCacheDecorator(entity, calculateId);
+					String recordId = entity.calculateId(json);
+					CcpCacheDecorator cache = new CcpCacheDecorator(entity, recordId);
 					keysToDeleteInCache.add(cache.key);
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 				}
 			}
 		}
 		int keysToDeleteInCacheSize = keysToDeleteInCache.size();
-		String[] array = keysToDeleteInCache.toArray(new String[keysToDeleteInCacheSize]);
-		functionToDeleteKeysInTheCache.accept(array);
+		String[] keysToDeleteArray = keysToDeleteInCache.toArray(new String[keysToDeleteInCacheSize]);
+		functionToDeleteKeysInTheCache.accept(keysToDeleteArray);
 		return this;
 	}
 }

@@ -26,10 +26,10 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 import java.util.stream.Stream;
 
 /**
- * Contém todos os metadados de uma entidade: nome do índice, classe configuradora, campos, chave
- * primária e campos atualizáveis. Fornece operações utilitárias para cálculo de ID, extração de
- * campos, busca e montagem de itens bulk. Instâncias são criadas e usadas internamente por
- * {@code CcpEntityFactory} e {@code DefaultImplementationEntity}.
+ * Holds all the metadata of an entity: index name, configurator class, fields, primary
+ * key and updatable fields. Provides utility operations for ID computation, field
+ * extraction, search and assembly of bulk items. Instances are created and used internally by
+ * {@code CcpEntityFactory} and {@code DefaultImplementationEntity}.
  */
 public final class CcpEntityMetaData { 
 
@@ -47,21 +47,21 @@ public final class CcpEntityMetaData {
 		this.allFields = CcpEntityFactory.getFields(configurationClass);
 		
 		this.entityName = entityNameProducer.apply(configurationClass);
-		Stream<CcpEntityField> stream = Arrays.asList(this.allFields).stream();
-		var filter = stream.filter(field -> field.primaryKey);
-		var filterMap = filter.map(field -> field.name());
+		Stream<CcpEntityField> allFieldsStream = Arrays.asList(this.allFields).stream();
+		var primaryKeyFieldsStream = allFieldsStream.filter(field -> field.primaryKey);
+		var primaryKeyNamesStream = primaryKeyFieldsStream.map(field -> field.name());
 
-		this.primaryKeyNames = filterMap.collect(Collectors.toList());
-		Stream<CcpEntityField> stream2 = Arrays.asList(this.allFields).stream();
-		var filter2 = stream2
+		this.primaryKeyNames = primaryKeyNamesStream.collect(Collectors.toList());
+		Stream<CcpEntityField> fieldsStream = Arrays.asList(this.allFields).stream();
+		var nonPrimaryKeyFieldsStream = fieldsStream
 				.filter(field -> false == field.primaryKey);
-				var filter3 = filter2
+				var updatableFieldsStream = nonPrimaryKeyFieldsStream
 				.filter(field -> field.updatable);
-				var filter3Map = filter3
+				var updatableFieldNamesStream = updatableFieldsStream
 				
 				.map(field -> field.name());
 
-				this.onlyUpdatableFields = filter3Map
+				this.onlyUpdatableFields = updatableFieldNamesStream
 				.collect(Collectors.toList());
 		
 		this.entity = null;
@@ -79,108 +79,108 @@ public final class CcpEntityMetaData {
 	boolean isTwinEntity() {
 		
 		CcpEntityTwin annotation = this.configurationClass.getAnnotation(CcpEntityTwin.class);
-		boolean annotationIgual = annotation == null;
+		boolean isNotATwinConfiguration = annotation == null;
 
-		if(annotationIgual) {
+		if(isNotATwinConfiguration) {
 			return false;
 		}
 		
 		String twinEntityName = annotation.twinEntityName();
-		boolean equals = this.entityName.equals(twinEntityName);
-		return equals;
+		boolean isTheTwinEntity = this.entityName.equals(twinEntityName);
+		return isTheTwinEntity;
 	}
 	
 	
 	CcpEntityMetaData associateEntity() {
-		boolean twinEntity = this.isTwinEntity();
-		if(twinEntity) {
+		boolean isTwin = this.isTwinEntity();
+		if(isTwin) {
 			CcpEntity twin = CcpEntityFactory.getEntity(this.configurationClass, x -> x.getAnnotation(CcpEntityTwin.class).twinEntityName());
-			CcpEntityMetaData ccpEntityMetaData = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
-			return ccpEntityMetaData;
+			CcpEntityMetaData twinMetaData = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, twin);
+			return twinMetaData;
 		}
 		
 		Field field = this.configurationClass.getDeclaredField("ENTITY");
 		Object object = field.get(null);
 		CcpEntity entity = (CcpEntity) object;
-		CcpEntityMetaData ccpEntityMetaData2 = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
-		return ccpEntityMetaData2;
+		CcpEntityMetaData mainMetaData = new CcpEntityMetaData(this.configurationClass, this.primaryKeyNames, this.onlyUpdatableFields, this.allFields, this.entityName, entity);
+		return mainMetaData;
 		
 	}
 
-	/** Retorna um JSON contendo apenas os campos atualizáveis (não chave primária) presentes em {@code json}. */
+	/** Returns a JSON containing only the updatable fields (non primary key) present in {@code json}. */
 	public CcpJsonRepresentation getOnlyUpdatableFields(CcpJsonRepresentation json) {
 		CcpJsonRepresentation jsonPiece = json.getJsonPiece(this.onlyUpdatableFields);
 		return jsonPiece;
 	}
 
 	private CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
-		boolean containsAllFields = json.containsAllFields(this.primaryKeyNames);
+		boolean containsPrimaryKey = json.containsAllFields(this.primaryKeyNames);
 	
-		boolean primaryKeyMissing = false == containsAllFields;
+		boolean primaryKeyMissing = false == containsPrimaryKey;
 		
 		if(primaryKeyMissing) {
-			CcpErrorEntityPrimaryKeyIsMissing ccpErrorEntityPrimaryKeyIsMissing = new CcpErrorEntityPrimaryKeyIsMissing(this.entity, json);
-			throw ccpErrorEntityPrimaryKeyIsMissing;
+			CcpErrorEntityPrimaryKeyIsMissing primaryKeyMissingError = new CcpErrorEntityPrimaryKeyIsMissing(this.entity, json);
+			throw primaryKeyMissingError;
 		}
 		
 		CcpJsonRepresentation jsonPiece = json.getJsonPiece(this.primaryKeyNames);
 		return jsonPiece;
 	}
 
-	/** Retorna os valores dos campos de chave primária ordenados alfabeticamente pelo nome do campo. */
+	/** Returns the values of the primary key fields sorted alphabetically by field name. */
 	public ArrayList<Object> getSortedPrimaryKeyValues(CcpJsonRepresentation json) {
 
 		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
 		
 		TreeMap<String, Object> treeMap = new TreeMap<>(primaryKeyValues.content);
-		Collection<Object> values2 = treeMap.values();
-		ArrayList<Object> onlyPrimaryKeys = new ArrayList<>(values2);
+		Collection<Object> sortedValues = treeMap.values();
+		ArrayList<Object> onlyPrimaryKeys = new ArrayList<>(sortedValues);
 		return onlyPrimaryKeys;
 	}
 
-	/** Retorna um JSON contendo apenas os campos declarados nos metadados desta entidade. */
+	/** Returns a JSON containing only the fields declared in this entity's metadata. */
 	public CcpJsonRepresentation getOnlyExistingFields(CcpJsonRepresentation json) {
-		CcpJsonRepresentation subMap = json.getJsonPiece(this.allFields);
-		return subMap;
+		CcpJsonRepresentation existingFieldsJson = json.getJsonPiece(this.allFields);
+		return existingFieldsJson;
 	}
 	
-	/** Retorna os nomes dos índices de todas as entidades associadas (incluindo twin). */
+	/** Returns the index names of every associated entity (twin included). */
 	public String[] getEntitiesToSelect() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
-		Stream<CcpEntity> stream3 = associatedEntities.stream();
-		var stream3Map = stream3.map(x -> x.getEntityMetaData().entityName);
-		List<String> collect = stream3Map.collect(Collectors.toList());
-		int collectSize = collect.size();
-		String[] array = collect.toArray(new String[collectSize]);
-		return array;
+		Stream<CcpEntity> associatedEntitiesStream = associatedEntities.stream();
+		var entityNamesStream = associatedEntitiesStream.map(x -> x.getEntityMetaData().entityName);
+		List<String> entityNames = entityNamesStream.collect(Collectors.toList());
+		int entityNamesCount = entityNames.size();
+		String[] entityNamesArray = entityNames.toArray(new String[entityNamesCount]);
+		return entityNamesArray;
 	}
 	
 	/**
-	 * Busca o documento pelo ID calculado; se não encontrado, executa {@code ifNotFound} e retorna
-	 * seu resultado.
+	 * Finds the document by the computed ID; if it is not found, executes {@code ifNotFound} and returns
+	 * its result.
 	 */
 	public CcpJsonRepresentation getOneByIdOrHandleItIfThisIdWasNotFound(CcpJsonRepresentation json, CcpBusiness ifNotFound) {
 		try {
 			CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-			String calculateId = this.entity.calculateId(json);
-			CcpJsonRepresentation oneById = crud.getOneById(this.entityName, calculateId);
+			String recordId = this.entity.calculateId(json);
+			CcpJsonRepresentation oneById = crud.getOneById(this.entityName, recordId);
 			return oneById;
 			
 		} catch (CcpErrorBulkEntityRecordNotFound e) {
-			CcpJsonRepresentation execute = ifNotFound.execute(json);
-			return execute;
+			CcpJsonRepresentation notFoundResult = ifNotFound.execute(json);
+			return notFoundResult;
 		}
 	}
 
-	/** Retorna {@code true} se a entidade não possui campos atualizáveis (somente leitura efetiva). */
+	/** Returns {@code true} if the entity has no updatable fields (effectively read-only). */
 	public boolean isNotAnUpdatableEntity() {
-		boolean empty = this.onlyUpdatableFields.isEmpty();
-		return empty;
+		boolean hasNoUpdatableFields = this.onlyUpdatableFields.isEmpty();
+		return hasNoUpdatableFields;
 	}
 
-	/** Busca múltiplos documentos por seus IDs e retorna os resultados agrupados por esta entidade. */
-	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> asList) {
-		boolean hasNoIdsToSearch = asList.isEmpty();
+	/** Finds several documents by their IDs and returns the results grouped by this entity. */
+	public CcpJsonRepresentation getMultipleByIds(Collection<CcpJsonRepresentation> jsonsToSearch) {
+		boolean hasNoIdsToSearch = jsonsToSearch.isEmpty();
 
 		if (hasNoIdsToSearch) {
 			return CcpOtherConstants.EMPTY_JSON; 
@@ -190,14 +190,14 @@ public final class CcpEntityMetaData {
 
 		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
 
-		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(asList, this.entity);
+		CcpSelectUnionAll unionAll = unionAllExecutor.unionAll(jsonsToSearch, this.entity);
 		CcpJsonRepresentation entityRowsGroupedById = unionAll.getEntityRowsGroupedById(this.entity);
 		return entityRowsGroupedById;
 	}
 	
-	public CcpJsonRepresentation getPrimaryKeyValues(Supplier<CcpJsonRepresentation> supplier) {
+	public CcpJsonRepresentation getPrimaryKeyValues(Supplier<CcpJsonRepresentation> jsonSupplier) {
 		
-		CcpJsonRepresentation json = supplier.get();
+		CcpJsonRepresentation json = jsonSupplier.get();
 		
 		CcpJsonRepresentation primaryKeyValues = this.getPrimaryKeyValues(json);
 		
@@ -215,20 +215,20 @@ public final class CcpEntityMetaData {
 
 	public CcpBulkItem toCreateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
-		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.create, this.entity, id);
-		return response;
+		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, this.entity, id);
+		return bulkItem;
 	}
 	public CcpBulkItem toUpdateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
-		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.update, this.entity, id);
-		return response;
+		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.update, this.entity, id);
+		return bulkItem;
 	}
 	
 	
 	public CcpBulkItem toDeleteBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
-		CcpBulkItem response = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entity, id);
-		return response;
+		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entity, id);
+		return bulkItem;
 	}
 
 	

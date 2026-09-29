@@ -6,64 +6,65 @@ import java.util.function.Consumer;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.http.CcpHttpMethods;
 /**
- * Contrato de execução de queries no Elasticsearch.
- * Define todas as operações de consulta que podem ser realizadas com base em um CcpQueryOptions (a query construída) e os nomes dos índices alvo.
+ * Contract for executing queries on Elasticsearch.
+ * Defines every query operation that can be performed based on a CcpQueryOptions (the built query) and the names of the target indexes.
  */
 public interface CcpQueryExecutor {
 
 	/**
-	 * Executa uma agregação de termos e retorna estatísticas dos valores do campo informado.
+	 * Runs a terms aggregation and returns statistics of the values of the given field.
 	 */
 	CcpJsonRepresentation getTermsStatis(CcpQueryOptions elasticQuery, String[] resourcesNames, String fieldName);
 
 	/**
-	 * Apaga todos os documentos que correspondam à query nos índices informados.
+	 * Deletes every document matching the query in the given indexes.
 	 */
 	CcpJsonRepresentation delete(CcpQueryOptions elasticQuery, String... resourcesNames);
 	
 	/**
-	 * Atualiza os documentos correspondentes à query com os novos valores fornecidos.
+	 * Updates the documents matching the query with the given new values.
 	 */
 	CcpJsonRepresentation update(CcpQueryOptions elasticQuery, String[] resourcesNames, CcpJsonRepresentation newValues) ;
 	
 	/**
-	 * Itera sobre os resultados da query em lotes usando scroll, passando cada lote para o consumer informado.
+	 * Iterates over the query results in batches using scroll, passing each batch to the given consumer.
 	 */
 	CcpQueryExecutor consumeQueryResult(CcpQueryOptions elasticQuery, String[] resourcesNames, String scrollTime, Long size,
 			Consumer<List<CcpJsonRepresentation>> consumer, String...fields);
 
 	/**
-	 * Retorna o total de documentos que correspondem à query.
+	 * Returns the total number of documents matching the query.
 	 */
 	long total(CcpQueryOptions elasticQuery, String[] resourcesNames);
 
 	/**
-	 * Retorna os resultados da query como uma lista de documentos JSON.
+	 * Returns the query results as a list of JSON documents.
 	 */
 	List<CcpJsonRepresentation> getResultAsList(CcpQueryOptions elasticQuery, String[] resourcesNames, String... fieldsToSearch);
 	
 	/**
-	 * Retorna os resultados agrupados como um mapa indexado pelo campo informado.
+	 * Returns the results grouped as a map indexed by the given field.
 	 */
 	CcpJsonRepresentation getResultAsMap(CcpQueryOptions elasticQuery, String[] resourcesNames, String field);
 
 	/**
-	 * Executa a query via uma requisição HTTP personalizada e retorna o resultado bruto.
+	 * Runs the query through a custom HTTP request and returns the raw result.
 	 */
 	CcpJsonRepresentation getResultAsPackage(String url, CcpHttpMethods method, int expectedStatus, CcpQueryOptions elasticQuery, String[] resourcesNames, String ...array);
 
 	/**
-	 * Variante de getResultAsMap com semântica ligeiramente diferente de agrupamento.
+	 * Variant of getResultAsMap with slightly different grouping semantics.
 	 */
 	CcpJsonRepresentation getMap(CcpQueryOptions elasticQuery, String[] resourcesNames, String field);
 	
 	/**
-	 * Executa a query e retorna apenas o bloco de agregações do resultado.
+	 * Runs the query and returns only the aggregations block of the result.
 	 */
 	CcpJsonRepresentation getAggregations(CcpQueryOptions elasticQuery, String... resourcesNames) ;
 
 	/**
-	 * Variante de scroll que entrega um documento por vez ao consumer (em vez de listas).
+	 * Scroll variant that hands one document at a time to the consumer (instead of lists).
+	
 	 */
 	CcpQueryExecutor consumeQueryResult(CcpQueryOptions elasticQuery, String[] resourcesNames, String scrollTime, Integer size,
 			Consumer<CcpJsonRepresentation> consumer, String... fields);

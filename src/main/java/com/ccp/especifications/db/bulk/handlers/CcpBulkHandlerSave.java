@@ -12,85 +12,85 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 import java.util.stream.Stream;
 
 /**
- * Handler bulk que implementa a lógica de "upsert" inteligente: se o registro existe, gera itens
- * de {@code update} mesclando os dados novos com os existentes (respeitando campos atualizáveis e
- * versão); se não existe, gera itens de {@code create}. Respeita as regras de imutabilidade
- * configuradas na entidade ({@code isNotAnUpdatableEntity}).
+ * Bulk handler that implements a smart "upsert" logic: if the record exists, produces
+ * {@code update} items merging the new data with the existing data (respecting updatable fields and
+ * version); if it does not exist, produces {@code create} items. Honors the immutability rules
+ * configured in the entity ({@code isNotAnUpdatableEntity}).
  */
 public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
 	private final CcpEntity mainEntity;
 
 	/**
-	 * Inicializa o handler com a entidade alvo do upsert.
+	 * Initializes the handler with the entity targeted by the upsert.
 	 *
-	 * @param mainEntity entidade na qual os registros serão criados ou atualizados
+	 * @param mainEntity entity in which the records will be created or updated
 	 */
 	public CcpBulkHandlerSave(CcpEntity mainEntity) {
 		this.mainEntity = mainEntity;
 	}
 	
 	/**
-	 * Gera itens de {@code update}; para entidades imutáveis retorna {@code noop}; para entidades
-	 * versionáveis, mescla os dados novos sobre os existentes preservando apenas os campos atualizáveis.
+	 * Produces {@code update} items; for immutable entities returns {@code noop}; for versionable
+	 * entities, merges the new data over the existing data keeping only the updatable fields.
 	 *
-	 * @param searchParameter parâmetros da busca com os novos dados
-	 * @param recordFound dados do registro existente no banco
-	 * @return lista de itens bulk de atualização ou noop
+	 * @param searchParameter search parameters with the new data
+	 * @param recordFound data of the record existing in the database
+	 * @return list of update or noop bulk items
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation searchParameter,	CcpJsonRepresentation recordFound) {
-		List<CcpBulkItem> toBulkItems = this.mainEntity
+		List<CcpBulkItem> updateItems = this.mainEntity
 			.toBulkItems(searchParameter, CcpBulkEntityOperationType.update);
-			Stream<CcpBulkItem> stream = toBulkItems
+			Stream<CcpBulkItem> updateItemsStream = updateItems
 			.stream();
-			var streamMap = stream.map(x -> this.toUpdateRecord(searchParameter, recordFound, x));
+			var mergedItemsStream = updateItemsStream.map(x -> this.toUpdateRecord(searchParameter, recordFound, x));
 
-			var asList = streamMap	
+			var mergedUpdateItems = mergedItemsStream	
 			.collect(Collectors.toList())
 				;
-		return asList;
+		return mergedUpdateItems;
 	}
 
-	private CcpBulkItem toUpdateRecord(CcpJsonRepresentation searchParameter, CcpJsonRepresentation recordFound , CcpBulkItem x) {
+	private CcpBulkItem toUpdateRecord(CcpJsonRepresentation searchParameter, CcpJsonRepresentation recordFound , CcpBulkItem bulkItem) {
 
-		CcpEntityMetaData entityDetails = x.entity.getEntityMetaData();
+		CcpEntityMetaData entityDetails = bulkItem.entity.getEntityMetaData();
 		
 		boolean isNotAnUpdatableEntity = entityDetails.isNotAnUpdatableEntity();
 		
 		if(isNotAnUpdatableEntity) {
-			CcpBulkItem updatedBulkItem = new CcpBulkItem(x.json, CcpBulkEntityOperationType.noop, x.entity, x.id);
+			CcpBulkItem updatedBulkItem = new CcpBulkItem(bulkItem.json, CcpBulkEntityOperationType.noop, bulkItem.entity, bulkItem.id);
 			return updatedBulkItem;
 		}
-		boolean valorIgual = false == x.operation.createsVersionsToSameRecord;
+		boolean doesNotCreateVersions = false == bulkItem.operation.createsVersionsToSameRecord;
 
-		if(valorIgual) {
-			return x;
+		if(doesNotCreateVersions) {
+			return bulkItem;
 		}
 		
-		CcpJsonRepresentation updatablePiece = x.json.getJsonPiece(entityDetails.onlyUpdatableFields);
-		CcpJsonRepresentation mergeWithAnotherJson2 = x.json.mergeWithAnotherJson(recordFound);
-		CcpJsonRepresentation mergeWithAnotherJson = mergeWithAnotherJson2.mergeWithAnotherJson(updatablePiece);
-		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(mergeWithAnotherJson);
-		CcpBulkItem updatedBulkItem = new CcpBulkItem(onlyExistingFields, x.operation, x.entity, x.id);
+		CcpJsonRepresentation updatablePiece = bulkItem.json.getJsonPiece(entityDetails.onlyUpdatableFields);
+		CcpJsonRepresentation jsonMergedWithRecordFound = bulkItem.json.mergeWithAnotherJson(recordFound);
+		CcpJsonRepresentation mergedJson = jsonMergedWithRecordFound.mergeWithAnotherJson(updatablePiece);
+		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(mergedJson);
+		CcpBulkItem updatedBulkItem = new CcpBulkItem(onlyExistingFields, bulkItem.operation, bulkItem.entity, bulkItem.id);
 
 		return updatedBulkItem;
 	}
 
 	/**
-	 * Gera itens de {@code create} com os dados do {@code searchParameter}.
+	 * Produces {@code create} items with the data of {@code searchParameter}.
 	 *
-	 * @param searchParameter parâmetros da busca usados para criar o registro
-	 * @return lista de itens bulk de criação
+	 * @param searchParameter search parameters used to create the record
+	 * @return list of create bulk items
 	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation searchParameter) {
-		List<CcpBulkItem> asList = this.mainEntity.toBulkItems(searchParameter, CcpBulkEntityOperationType.create);
-		return asList;
+		List<CcpBulkItem> createItems = this.mainEntity.toBulkItems(searchParameter, CcpBulkEntityOperationType.create);
+		return createItems;
 	}
 
 	/**
-	 * Retorna a entidade alvo.
+	 * Returns the target entity.
 	 *
-	 * @return entidade alvo
+	 * @return target entity
 	 */
 	public CcpEntity getEntityToSearch() {
 		return this.mainEntity;

@@ -1,16 +1,17 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
+import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Implementação base e mínima de {@code CcpEntity} que encapsula os metadados de uma entidade e
- * delega todas as operações ao sistema de CRUD/bulk via {@code CcpEntityMetaData}. É a camada mais
- * interna da cadeia de decorators construída por {@code CcpEntityFactory}.
+ * Minimal base implementation of {@code CcpEntity} that wraps the metadata of an entity and
+ * delegates every operation to the CRUD/bulk system through {@code CcpEntityMetaData}. It is the innermost
+ * layer of the decorator chain built by {@code CcpEntityFactory}.
  */
 class DefaultImplementationEntity implements CcpEntity{
 	final CcpEntityMetaData entityDetails;
 
-	/** Armazena os metadados da entidade a ser representada. */
+	/** Stores the metadata of the entity to be represented. */
 	public DefaultImplementationEntity(CcpEntityMetaData entityDetails) {
 		this.entityDetails = entityDetails;
 	}
@@ -23,9 +24,9 @@ class DefaultImplementationEntity implements CcpEntity{
 	public boolean equals(Object obj) {
 		if(obj instanceof CcpEntity other) {
 			CcpEntityMetaData entityDetails = this.getEntityMetaData();
-			CcpEntityMetaData entityDetails2 = other.getEntityMetaData();
-			boolean equals = entityDetails.entityName.equals(entityDetails2.entityName);
-			return equals;
+			CcpEntityMetaData otherEntityDetails = other.getEntityMetaData();
+			boolean sameEntityName = entityDetails.entityName.equals(otherEntityDetails.entityName);
+			return sameEntityName;
 		}
 		return false;
 	}
@@ -37,7 +38,21 @@ class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	public CcpEntityMetaData getEntityMetaData() {
-		CcpEntityMetaData addEntity = this.entityDetails.associateEntity();
-		return addEntity;
+		CcpEntityMetaData associatedMetaData = this.entityDetails.associateEntity();
+		return associatedMetaData;
+	}
+
+	/**
+	 * Transfer in the innermost layer: it is what serves the entities without a decorator that extends the
+	 * default delegator. The cache of whoever is outside has already been cleared by {@code DecoratorCacheEntity}.
+	 */
+	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
+		boolean transfered = CcpEntityDataMover.transfer(this, entityToTransferData, json, CcpEntityDataMover.DIRECT_BULK, CcpEntityDataMover.NO_CACHE_TO_CLEAN);
+		return transfered;
+	}
+
+	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToCopyData) {
+		boolean copied = CcpEntityDataMover.copy(this, entityToCopyData, json, CcpEntityDataMover.DIRECT_BULK, CcpEntityDataMover.NO_CACHE_TO_CLEAN);
+		return copied;
 	}
 }

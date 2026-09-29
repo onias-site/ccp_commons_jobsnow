@@ -10,15 +10,16 @@ import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.bulk.CcpExecuteBulkOperation;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
+import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 
 /**
- * Define os tipos de operação que podem ser executados sobre uma entidade: {@code save}, {@code delete},
- * {@code deleteAnyWhere}, {@code transferDataTo} e {@code copyDataTo}. Cada constante implementa o método
- * {@code execute} com a lógica específica da operação, funcionando como um command pattern.
+ * Defines the types of operation that can be executed on an entity: {@code save}, {@code delete},
+ * {@code deleteAnyWhere}, {@code transferDataTo} and {@code copyDataTo}. Each constant implements the
+ * {@code execute} method with the operation-specific logic, working as a command pattern.
  */
 public enum CcpEntityOperationType {
 	/**
-	 * Operação de persistência (criação ou atualização) do registro.
+	 * Persistence operation (creation or update) of the record.
 	 */
 	save {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
@@ -27,7 +28,7 @@ public enum CcpEntityOperationType {
 		}
 	},
 	/**
-	 * Operação de exclusão do registro.
+	 * Record deletion operation.
 	 */
 	delete {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
@@ -36,7 +37,7 @@ public enum CcpEntityOperationType {
 		}
 	},
 	/**
-	 * Operação de exclusão sem restrições adicionais.
+	 * Deletion operation without additional restrictions.
 	 */
 	deleteAnyWhere {
 		@Override
@@ -46,7 +47,7 @@ public enum CcpEntityOperationType {
 		}
 	},
 	/**
-	 * Operação de transferência (mover) de dados desta entidade para outra, removendo o registro de origem.
+	 * Operation that transfers (moves) data from this entity to another, removing the source record.
 	 */
 	transferDataTo {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
@@ -56,7 +57,7 @@ public enum CcpEntityOperationType {
 		}
 	},
 	/**
-	 * Operação de cópia de dados desta entidade para outra, sem remover o registro de origem.
+	 * Operation that copies data from this entity to another, without removing the source record.
 	 */
 	copyDataTo {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
@@ -66,23 +67,53 @@ public enum CcpEntityOperationType {
 		}
 	};
 
+	/**
+	 * The target entity of an asynchronous transfer or copy, sent as the name of its configuration class
+	 * ({@code entityToTransfer}) and the name of the entity ({@code entityNameToTransfer}), which tells whether
+	 * the target is the twin. Up to 2026-09-28 the entity object itself went in the message, and this method
+	 * tried to load a class named after its {@code toString()} (a json) and to cast the configurator to
+	 * {@code CcpEntity}, so no asynchronous transfer or copy ever worked.
+	 */
 	CcpEntity getEntities(CcpJsonRepresentation json) {
-		String entityToTransfer = json.getAsString(CcpEntityOperationType.Fields.entityToTransfer);
-		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(entityToTransfer);
-		CcpReflectionConstructorDecorator reflection2 = ccpStringDecorator.reflection();
-		CcpEntity entity = reflection2.newInstance();
-		return entity;
+		String configurationClassName = json.getAsString(CcpEntityOperationType.Fields.entityToTransfer);
+		String entityName = json.getAsString(CcpEntityOperationType.Fields.entityNameToTransfer);
+		CcpStringDecorator classNameDecorator = new CcpStringDecorator(configurationClassName);
+		CcpReflectionConstructorDecorator reflection = classNameDecorator.reflection();
+		CcpEntityConfigurator configurator = reflection.newInstance();
+		CcpEntity entity = configurator.getEntity();
+
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
+		boolean isTheMainEntity = entityName.isEmpty() || entityName.equals(entityDetails.entityName);
+
+		if(isTheMainEntity) {
+			return entity;
+		}
+
+		CcpEntity twinEntity = entity.getTwinEntity();
+		return twinEntity;
 	}
 
 	/**
-	 * Executa a operação representada pela constante sobre a entidade e o JSON informados.
-	 * Como as operações de escrita da entidade devolvem apenas um booleano, o JSON de entrada é
-	 * repassado adiante para manter o contrato de {@code CcpBusiness}.
+	 * Puts in the json the target entity of a transfer or copy that will be executed asynchronously, in the form
+	 * {@link #getEntities(CcpJsonRepresentation)} reads it back.
+	 */
+	public static CcpJsonRepresentation putEntityToTransfer(CcpJsonRepresentation json, CcpEntity targetEntity) {
+		CcpEntityMetaData targetDetails = targetEntity.getEntityMetaData();
+		String configurationClassName = targetDetails.configurationClass.getName();
+		CcpJsonRepresentation jsonWithConfigurationClass = json.put(CcpEntityOperationType.Fields.entityToTransfer, configurationClassName);
+		CcpJsonRepresentation jsonWithEntityName = jsonWithConfigurationClass.put(CcpEntityOperationType.Fields.entityNameToTransfer, targetDetails.entityName);
+		return jsonWithEntityName;
+	}
+
+	/**
+	 * Executes the operation represented by the constant on the given entity and JSON.
+	 * Since the entity's write operations return only a boolean, the input JSON is
+	 * passed along to keep the {@code CcpBusiness} contract.
 	 */
 	public abstract CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json);
 
 	/**
-	 * Retorna um {@code CcpBusiness} que executa esta operação sobre a entidade informada.
+	 * Returns a {@code CcpBusiness} that executes this operation on the given entity.
 	 */
 	public CcpBusiness getOperationCallback(CcpEntity entity) {
 		CcpBusiness operationCallback = json -> this.execute(entity, json);
@@ -90,19 +121,19 @@ public enum CcpEntityOperationType {
 	}
 
 	/**
-	 * Retorna um {@code CcpBusiness} (função lambda) que encapsula a execução desta operação sobre a entidade
-	 * informada; usado como handler de tópicos/mensagens.
+	 * Returns a {@code CcpBusiness} (lambda function) that encapsulates the execution of this operation on the given
+	 * entity; used as a topic/message handler.
 	 */
 	public CcpBusiness getTopicHandler(CcpEntity entity, CcpExecuteBulkOperation executeBulkOperation, Consumer<String[]> functionToDeleteKeysInTheCache) {
-		CcpBusiness topicHandler = jsn -> this.execute(entity, jsn);
+		CcpBusiness topicHandler = json -> this.execute(entity, json);
 		return topicHandler;
 	}
 
 	/**
-	 * Instancia via reflexão uma classe que implementa {@code CcpBusiness} e a retorna.
+	 * Instantiates, through reflection, a class that implements {@code CcpBusiness} and returns it.
 	 */
-	public static CcpBusiness instanciateFunction(Class<?> x) {
-		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(x);
+	public static CcpBusiness instanciateFunction(Class<?> businessClass) {
+		CcpReflectionConstructorDecorator reflection = new CcpReflectionConstructorDecorator(businessClass);
 
 		CcpBusiness newInstance = reflection.newInstance();
 
@@ -110,8 +141,8 @@ public enum CcpEntityOperationType {
 	}
 
 	/**
-	 * Retorna a classe de validação de campos JSON associada à entidade (anotada com
-	 * {@code @CcpEntityFieldsValidator}). Se não houver anotação, retorna a própria classe da constante de enum.
+	 * Returns the JSON field validation class associated with the entity (annotated with
+	 * {@code @CcpEntityFieldsValidator}). If there is no annotation, returns the class of the enum constant itself.
 	 */
 	public Class<?> getJsonValidationClass(CcpEntity entity){
 
@@ -130,6 +161,6 @@ public enum CcpEntityOperationType {
 	}
 
 	public static enum Fields implements CcpJsonFieldName{
-		entityToTransferTheData, entityToTransfer
+		entityToTransferTheData, entityToTransfer, entityNameToTransfer
 	}
 }

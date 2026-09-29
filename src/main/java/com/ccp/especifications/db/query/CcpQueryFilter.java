@@ -6,8 +6,8 @@ public final class CcpQueryFilter extends CcpQueryComponent {
 	}
 
 	public CcpQueryBool startBool() {
-		CcpQueryBool ccpQueryBool = new CcpQueryBool(this);
-		return ccpQueryBool;
+		CcpQueryBool boolQuery = new CcpQueryBool(this);
+		return boolQuery;
 	}
 
 	public CcpQueryBool endFilterAndBackToBool() {
@@ -16,8 +16,8 @@ public final class CcpQueryFilter extends CcpQueryComponent {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryFilter ccpQueryFilter = new CcpQueryFilter(this.parent);
-		T t = (T) ccpQueryFilter;
-		return t;
+		CcpQueryFilter newInstance = new CcpQueryFilter(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 }

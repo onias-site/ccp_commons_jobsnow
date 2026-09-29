@@ -7,14 +7,14 @@ public class CcpQueryRange extends CcpQueryComponent {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryRange ccpQueryRange = new CcpQueryRange(this.parent);
-		T t = (T) ccpQueryRange;
-		return t;
+		CcpQueryRange newInstance = new CcpQueryRange(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	public CcpQueryFieldRange startFieldRange(String fieldName) {
-		CcpQueryFieldRange ccpQueryFieldRange = new CcpQueryFieldRange(this, fieldName);
-		return ccpQueryFieldRange;
+		CcpQueryFieldRange fieldRange = new CcpQueryFieldRange(this, fieldName);
+		return fieldRange;
 	}
 
 	public CcpQuerySimplifiedQuery endRangeAndBackToSimplifiedQuery() {

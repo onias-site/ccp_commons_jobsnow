@@ -20,10 +20,10 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpErrorEntityP
 import java.util.stream.Stream;
 
 /**
- * Representa o resultado condensado de uma busca {@code unionAll} — múltiplas entidades buscadas
- * em uma única chamada ao banco. Internamente organiza os resultados em um mapa aninhado
- * {@code { entidade → { id → dadosDoRegistro } }}, onde cada registro carrega em
- * {@code explainedSearch} a chave primária que o localizou.
+ * Represents the condensed result of a {@code unionAll} search — several entities searched
+ * in a single call to the database. Internally it organizes the results in a nested map
+ * {@code { entityUnderTest → { id → recordData } }}, where each record carries in
+ * {@code explainedSearch} the primary key that located it.
  */
 public class CcpSelectUnionAll {
 
@@ -41,39 +41,39 @@ public class CcpSelectUnionAll {
 			for (var searchParameter : searchParameters) {
 				try {
 					CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-					Supplier<CcpJsonRepresentation> supplier = searchParameter.getJsonSupplier();
-					CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(supplier);
+					Supplier<CcpJsonRepresentation> jsonSupplier = searchParameter.getJsonSupplier();
+					CcpJsonRepresentation primaryKeyValues = entityDetails.getPrimaryKeyValues(jsonSupplier);
 					CcpEntity customEntity = CcpEntityFactory.getCustomEntity(entity, CcpEntityDecoratorTypes.FieldsValidator);
 					CcpJsonRepresentation handledJson = customEntity.getHandledJson(primaryKeyValues);
 					String id = entity.calculateId(handledJson);
-					CcpFieldName ccpFieldName = new CcpFieldName(id);
-					explainedSearch = explainedSearch.addToItem(entity, ccpFieldName, primaryKeyValues);
+					CcpFieldName idKey = new CcpFieldName(id);
+					explainedSearch = explainedSearch.addToItem(entity, idKey, primaryKeyValues);
 				} catch (CcpErrorEntityPrimaryKeyIsMissing e) {
 				}
 			}
 		}
 
-		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
-		String fieldNameToEntity = dependency.getFieldNameToEntity();
-		String fieldNameToId = dependency.getFieldNameToId();
+		CcpDbRequester dbRequester = CcpDependencyInjection.getDependency(CcpDbRequester.class);
+		String fieldNameToEntity = dbRequester.getFieldNameToEntity();
+		String fieldNameToId = dbRequester.getFieldNameToId();
 
 		CcpJsonRepresentation condensed = CcpOtherConstants.EMPTY_JSON;
 
 		for (CcpJsonRepresentation result : results) {
-			CcpFieldName ccpFieldName2 = new CcpFieldName(fieldNameToId);
-			String id = result.getAsString(ccpFieldName2);
-			CcpFieldName ccpFieldName3 = new CcpFieldName(fieldNameToEntity);
-			String entityName = result.getAsString(ccpFieldName3);
-			CcpFieldName ccpFieldName4 = new CcpFieldName(fieldNameToEntity);
-			CcpFieldName ccpFieldName5 = new CcpFieldName(fieldNameToId);
-			CcpJsonRepresentation removeKeys = result.removeFields(ccpFieldName4, ccpFieldName5);
-			CcpFieldName ccpFieldName6 = new CcpFieldName(entityName);
-			CcpFieldName ccpFieldName7 = new CcpFieldName(id);
-			CcpJsonRepresentation innerJsonFromPath = explainedSearch.getInnerJsonFromPath(ccpFieldName6, ccpFieldName7);
-			CcpJsonRepresentation recordWithExplainedSearch = removeKeys.put(JsonFieldNames.explainedSearch, innerJsonFromPath);
-			CcpFieldName ccpFieldName8 = new CcpFieldName(entityName);
-			CcpFieldName ccpFieldName9 = new CcpFieldName(id);
-			condensed = condensed.addToItem(ccpFieldName8, ccpFieldName9, recordWithExplainedSearch);
+			CcpFieldName idKey = new CcpFieldName(fieldNameToId);
+			String id = result.getAsString(idKey);
+			CcpFieldName entityKey = new CcpFieldName(fieldNameToEntity);
+			String entityName = result.getAsString(entityKey);
+			CcpFieldName entityKeyToRemove = new CcpFieldName(fieldNameToEntity);
+			CcpFieldName idKeyToRemove = new CcpFieldName(fieldNameToId);
+			CcpJsonRepresentation recordWithoutEntityAndId = result.removeFields(entityKeyToRemove, idKeyToRemove);
+			CcpFieldName entityNamePathStep = new CcpFieldName(entityName);
+			CcpFieldName idPathStep = new CcpFieldName(id);
+			CcpJsonRepresentation recordExplainedSearch = explainedSearch.getInnerJsonFromPath(entityNamePathStep, idPathStep);
+			CcpJsonRepresentation recordWithExplainedSearch = recordWithoutEntityAndId.put(JsonFieldNames.explainedSearch, recordExplainedSearch);
+			CcpFieldName entityNameGroup = new CcpFieldName(entityName);
+			CcpFieldName idGroup = new CcpFieldName(id);
+			condensed = condensed.addToItem(entityNameGroup, idGroup, recordWithExplainedSearch);
 		}
 		this.condensed = condensed;
 	}
@@ -93,65 +93,65 @@ public class CcpSelectUnionAll {
 		boolean recordNotFound = false == presentInThisUnionAll;
 		CcpJsonRepresentation handledJson = entity.getHandledJson(searchParameter);
 		if (recordNotFound) {
-			T whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(handledJson);
-			return whenRecordWasNotFoundInTheEntitySearch;
+			T notFoundResult = handler.whenRecordWasNotFoundInTheEntitySearch(handledJson);
+			return notFoundResult;
 		}
 		Supplier<CcpJsonRepresentation> jsonSupplier = searchParameter.getJsonSupplier();
 		CcpJsonRepresentation recordFound = entity.getRecordFromUnionAll(this, jsonSupplier);
-		CcpJsonRepresentation apply = recordFound.mergeWithAnotherJson(handledJson);
-		T whenRecordWasFoundInTheEntitySearch = handler.whenRecordWasFoundInTheEntitySearch(apply, recordFound);
-		return whenRecordWasFoundInTheEntitySearch;
+		CcpJsonRepresentation recordMergedWithSearch = recordFound.mergeWithAnotherJson(handledJson);
+		T foundResult = handler.whenRecordWasFoundInTheEntitySearch(recordMergedWithSearch, recordFound);
+		return foundResult;
 	}
 
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
-		CcpFieldName ccpFieldName15 = new CcpFieldName(index);
-		boolean containsAllFields2 = this.condensed.containsAllFields(ccpFieldName15);
-		boolean indexNotFound = false == containsAllFields2;
+		CcpFieldName indexKey = new CcpFieldName(index);
+		boolean containsIndex = this.condensed.containsAllFields(indexKey);
+		boolean indexNotFound = false == containsIndex;
 		if (indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		CcpFieldName ccpFieldName16 = new CcpFieldName(index);
-		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(ccpFieldName16);
-		CcpFieldName ccpFieldName17 = new CcpFieldName(id);
-		boolean containsAllFields3 = innerJson.containsAllFields(ccpFieldName17);
-		boolean idNotFound = false == containsAllFields3;
+		CcpFieldName indexKeyToRead = new CcpFieldName(index);
+		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(indexKeyToRead);
+		CcpFieldName idKey = new CcpFieldName(id);
+		boolean containsId = innerJson.containsAllFields(idKey);
+		boolean idNotFound = false == containsId;
 		if (idNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		CcpFieldName ccpFieldName18 = new CcpFieldName(id);
-		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(ccpFieldName18);
+		CcpFieldName idKeyToRead = new CcpFieldName(id);
+		CcpJsonRepresentation jsonValue = innerJson.getInnerJson(idKeyToRead);
 		CcpJsonRepresentation withoutExplainedSearch = jsonValue.removeFields(JsonFieldNames.explainedSearch);
 		return withoutExplainedSearch;
 	}
 
 	public String toString() {
-		String toString = this.condensed.toString();
-		return toString;
+		String condensedAsString = this.condensed.toString();
+		return condensedAsString;
 	}
 
 	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity) {
-		boolean containsAllFields4 = this.condensed.containsAllFields(entity);
-		boolean indexNotFound = false == containsAllFields4;
+		boolean containsEntity = this.condensed.containsAllFields(entity);
+		boolean indexNotFound = false == containsEntity;
 		if (indexNotFound) {
 			return new ArrayList<>();
 		}
 		CcpJsonRepresentation innerJson = this.condensed.getInnerJson(entity);
 		Set<String> fieldSet = innerJson.fieldSet();
-		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
-		String fieldNameToId = dependency.getFieldNameToId();
-		Stream<String> stream = fieldSet.stream();
-		var streamMap = stream.map(id -> innerJson.getInnerJson(new CcpFieldName(id)).removeFields(JsonFieldNames.explainedSearch).put(new CcpFieldName(fieldNameToId), id));
-		List<CcpJsonRepresentation> collect = streamMap.collect(Collectors.toList());
-		return collect;
+		CcpDbRequester dbRequester = CcpDependencyInjection.getDependency(CcpDbRequester.class);
+		String fieldNameToId = dbRequester.getFieldNameToId();
+		Stream<String> idsStream = fieldSet.stream();
+		var entityRowsStream = idsStream.map(id -> innerJson.getInnerJson(new CcpFieldName(id)).removeFields(JsonFieldNames.explainedSearch).put(new CcpFieldName(fieldNameToId), id));
+		List<CcpJsonRepresentation> entityRows = entityRowsStream.collect(Collectors.toList());
+		return entityRows;
 	}
 
 	/**
-	 * Retorna os registros encontrados para a entidade informada no formato {@code { id → dadosDoRegistro }},
-	 * sem o {@code explainedSearch} que acompanha cada registro no mapa condensado.
+	 * Returns the records found for the given entity in the format {@code { id → recordData }},
+	 * without the {@code explainedSearch} that comes with each record in the condensed map.
 	 */
 	public CcpJsonRepresentation getEntityRowsGroupedById(CcpEntity entity) {
-		boolean containsAllFields5 = this.condensed.containsAllFields(entity);
-		boolean indexNotFound = false == containsAllFields5;
+		boolean containsEntity = this.condensed.containsAllFields(entity);
+		boolean indexNotFound = false == containsEntity;
 		if (indexNotFound) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
@@ -159,10 +159,10 @@ public class CcpSelectUnionAll {
 		Set<String> fieldSet = innerJson.fieldSet();
 		CcpJsonRepresentation groupedById = CcpOtherConstants.EMPTY_JSON;
 		for (String id : fieldSet) {
-			CcpFieldName ccpFieldName19 = new CcpFieldName(id);
-			CcpJsonRepresentation entityRow = innerJson.getInnerJson(ccpFieldName19);
+			CcpFieldName idKey = new CcpFieldName(id);
+			CcpJsonRepresentation entityRow = innerJson.getInnerJson(idKey);
 			CcpJsonRepresentation withoutExplainedSearch = entityRow.removeFields(JsonFieldNames.explainedSearch);
-			groupedById = groupedById.put(ccpFieldName19, withoutExplainedSearch);
+			groupedById = groupedById.put(idKey, withoutExplainedSearch);
 		}
 		return groupedById;
 	}

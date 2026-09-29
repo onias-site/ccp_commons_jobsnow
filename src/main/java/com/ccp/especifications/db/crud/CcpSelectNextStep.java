@@ -16,19 +16,19 @@ public class CcpSelectNextStep {
 	}
 
 	public CcpSelectFinally andFinallyReturningTheseFields(Collection<CcpJsonFieldName> fields) {
-		int fieldsSize = fields.size();
-		CcpJsonFieldName[] array = fields.toArray(new CcpJsonFieldName[fieldsSize]);
-		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, array);
-		return ccpSelectFinally;
+		int fieldsCount = fields.size();
+		CcpJsonFieldName[] fieldsArray = fields.toArray(new CcpJsonFieldName[fieldsCount]);
+		CcpSelectFinally finalStep = new CcpSelectFinally(this.parametersToSearch, this.statements, fieldsArray);
+		return finalStep;
 	}
 
 	public CcpSelectFinally andFinallyReturningTheseFields(CcpJsonFieldName... fields) {
-		CcpSelectFinally ccpSelectFinally = new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
-		return ccpSelectFinally;
+		CcpSelectFinally finalStep = new CcpSelectFinally(this.parametersToSearch, this.statements, fields);
+		return finalStep;
 	}
 
 	public CcpSelectProcedure and() {
-		CcpSelectProcedure ccpSelectProcedure = new CcpSelectProcedure(this.parametersToSearch, this.statements);
-		return ccpSelectProcedure;
+		CcpSelectProcedure procedure = new CcpSelectProcedure(this.parametersToSearch, this.statements);
+		return procedure;
 	}
 }

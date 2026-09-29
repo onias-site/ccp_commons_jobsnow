@@ -3,8 +3,8 @@ package com.ccp.especifications.db.crud;
 import com.ccp.decorators.CcpJsonFieldName;
 
 /**
- * Exceção lançada no encerramento de um fluxo de busca ({@link CcpSelectFinally}) quando nenhum
- * campo de retorno foi especificado.
+ * Exception thrown at the end of a search flow ({@link CcpSelectFinally}) when no
+ * return field was specified.
  */
 @SuppressWarnings("serial")
 public class CcpErrorFlowFieldsToReturnNotMentioned extends RuntimeException {
@@ -15,7 +15,7 @@ public class CcpErrorFlowFieldsToReturnNotMentioned extends RuntimeException {
 
 	private static String getMessage(CcpJsonFieldName origin) {
 		String originName = origin.name();
-		String valorMais2 = "at least one field must be mentioned. Origin: " + originName;
-		return valorMais2;
+		String errorMessage = "at least one field must be mentioned. Origin: " + originName;
+		return errorMessage;
 	}
 }

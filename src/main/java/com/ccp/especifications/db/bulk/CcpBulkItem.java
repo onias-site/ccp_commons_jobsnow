@@ -12,9 +12,9 @@ enum CcpBulkItemFields implements CcpJsonFieldName{
 
 
 /**
- * Representa um único item (registro) dentro de uma operação bulk, agregando o JSON do registro,
- * o tipo de operação ({@link CcpBulkEntityOperationType}), a entidade de destino ({@link CcpEntity})
- * e o identificador calculado. Utilizado como unidade de trabalho no pipeline de bulk operations.
+ * Represents a single item (record) within a bulk operation, gathering the record JSON,
+ * the operation type ({@link CcpBulkEntityOperationType}), the target entity ({@link CcpEntity})
+ * and the computed identifier. Used as the unit of work in the bulk operations pipeline.
  */
 public class CcpBulkItem {
 	enum JsonFieldNames implements CcpJsonFieldName{
@@ -27,11 +27,11 @@ public class CcpBulkItem {
 	public final String id;
 	
 	/**
-	 * Cria um novo item copiando todos os campos de {@code other}, mas substituindo o tipo de operação.
-	 * Útil no reprocessamento (ex.: trocar {@code create} por {@code update}).
+	 * Creates a new item copying every field of {@code other}, but replacing the operation type.
+	 * Useful for reprocessing (e.g. switching {@code create} to {@code update}).
 	 *
-	 * @param other item original a ser copiado
-	 * @param operation novo tipo de operação
+	 * @param other original item to copy
+	 * @param operation new operation type
 	 */
 	public CcpBulkItem(CcpBulkItem other, CcpBulkEntityOperationType operation) {
 		this.operation = operation;
@@ -41,12 +41,12 @@ public class CcpBulkItem {
 	}
 
 	/**
-	 * Cria um item com todos os campos explicitamente informados.
+	 * Creates an item with every field explicitly given.
 	 *
-	 * @param json dados do registro
-	 * @param operation tipo de operação bulk
-	 * @param entity entidade de destino
-	 * @param id identificador do registro
+	 * @param json record data
+	 * @param operation bulk operation type
+	 * @param entity target entity
+	 * @param id record identifier
 	 */
 	public CcpBulkItem(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity, String id) {
 		this.operation = operation;
@@ -56,55 +56,55 @@ public class CcpBulkItem {
 	}
 
 	/**
-	 * Retorna representação textual contendo entity, operation e id do item, omitindo o JSON completo.
+	 * Returns a textual representation containing the item's entity, operation and id, omitting the full JSON.
 	 *
-	 * @return representação textual do item
+	 * @return textual representation of the item
 	 */
 	public String toString() {
-		CcpJsonRepresentation put = this.asMap();
-		CcpBulkItemFields[] ccpBulkItemFieldsValues = CcpBulkItemFields.values();
-		CcpJsonRepresentation jsonPiece = put.getJsonPiece(ccpBulkItemFieldsValues);
-		String string = jsonPiece.toString();
-		return string;
+		CcpJsonRepresentation itemAsJson = this.asMap();
+		CcpBulkItemFields[] summaryFields = CcpBulkItemFields.values();
+		CcpJsonRepresentation jsonPiece = itemAsJson.getJsonPiece(summaryFields);
+		String summary = jsonPiece.toString();
+		return summary;
 	}
 
 	/**
-	 * Serializa o item para um {@link CcpJsonRepresentation} contendo os campos {@code operation},
-	 * {@code entity} (nome), {@code json} e {@code id}.
+	 * Serializes the item into a {@link CcpJsonRepresentation} containing the fields {@code operation},
+	 * {@code entity} (name), {@code json} and {@code id}.
 	 *
-	 * @return JSON representando este item
+	 * @return JSON representing this item
 	 */
 	public CcpJsonRepresentation asMap() {
 		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
+		CcpJsonRepresentation jsonWithOperation = CcpOtherConstants.EMPTY_JSON
 				.put(CcpBulkItemFields.operation, this.operation);
-				CcpJsonRepresentation put3 = put2
+				CcpJsonRepresentation jsonWithEntity = jsonWithOperation
 				.put(CcpBulkItemFields.entity, entityDetails.entityName);
-				CcpJsonRepresentation put4 = put3
+				CcpJsonRepresentation jsonWithRecord = jsonWithEntity
 				.put(JsonFieldNames.json, this.json);
-				CcpJsonRepresentation put = put4
+				CcpJsonRepresentation jsonWithId = jsonWithRecord
 				.put(CcpBulkItemFields.id, this.id);
-		return put;
+		return jsonWithId;
 	}
 	
 	/**
-	 * Calcula o hash baseado na combinação {@code entity + "_" + id}, garantindo unicidade por entidade e identificador.
+	 * Computes the hash from the combination {@code entity + "_" + id}, ensuring uniqueness per entity and identifier.
 	 *
-	 * @return hash do item
+	 * @return item hash
 	 */
 	public int hashCode() {
-		String entityMais = this.entity + "_";
-		String string = entityMais + this.id ;
-		int hashCode = string.hashCode();
+		String entityWithSeparator = this.entity + "_";
+		String hashSource = entityWithSeparator + this.id ;
+		int hashCode = hashSource.hashCode();
 		return hashCode;
 	}
 
 	/**
-	 * Compara dois {@link CcpBulkItem} por entidade e id; retorna {@code false} se o objeto for de
-	 * tipo diferente ou se entidade/id diferirem.
+	 * Compares two {@link CcpBulkItem}s by entity and id; returns {@code false} if the object is of
+	 * a different type or if the entity/id differ.
 	 *
-	 * @param obj objeto a comparar
-	 * @return {@code true} se entidade e id forem iguais
+	 * @param obj object to compare
+	 * @return {@code true} if entity and id are equal
 	 */
 	public boolean equals(Object obj) {
 		try {

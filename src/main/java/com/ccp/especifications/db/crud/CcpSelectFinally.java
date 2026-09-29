@@ -38,18 +38,18 @@ public class CcpSelectFinally {
 
 	public CcpSelectFinally endThisProcedure(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
-		int statementsSize = statements.size();
-		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statementsSize]);
-		this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
+		int statementsCount = statements.size();
+		CcpJsonRepresentation[] statementsArray = statements.toArray(new CcpJsonRepresentation[statementsCount]);
+		this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, statementsArray);
 		return this;
 	}
 
 	public CcpJsonRepresentation endThisProcedureRetrievingTheResultingData(CcpJsonFieldName context, CcpBusiness whenFlowError, CcpBusiness whenFlowSuccess, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		List<CcpJsonRepresentation> statements = this.statements.getAsJsonList(CcpJsonCommonsFields.statements);
-		int statementsSize2 = statements.size();
-		CcpJsonRepresentation[] array = statements.toArray(new CcpJsonRepresentation[statementsSize2]);
-		CcpJsonRepresentation findById = this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, array);
-		return findById;
+		int statementsCount = statements.size();
+		CcpJsonRepresentation[] statementsArray = statements.toArray(new CcpJsonRepresentation[statementsCount]);
+		CcpJsonRepresentation resultingData = this.findById(context, whenFlowError, whenFlowSuccess, functionToDeleteKeysInTheCache, statementsArray);
+		return resultingData;
 	}
 
 	private CcpJsonRepresentation findById(
@@ -58,18 +58,18 @@ public class CcpSelectFinally {
 			CcpBusiness whenFlowSuccess,
 			Consumer<String[]> functionToDeleteKeysInTheCache,
 			CcpJsonRepresentation... specifications) {
-				Stream<CcpJsonRepresentation> stream = Arrays.asList(specifications).stream();
-				var filter = stream
+				Stream<CcpJsonRepresentation> specificationsStream = Arrays.asList(specifications).stream();
+				var entitySpecificationsStream = specificationsStream
 				.filter(x -> x.containsAllFields(JsonFieldNames.entity));
-				var filterMap = filter
+				var entitiesStream = entitySpecificationsStream
 				.map(x -> (CcpEntity) x.get(JsonFieldNames.entity));
 
-				List<CcpEntity> keySet = filterMap
+				List<CcpEntity> entitiesFound = entitiesStream
 				.collect(Collectors.toList());
 
-		LinkedHashSet<CcpEntity> set = new LinkedHashSet<>(keySet);
-		int setSize = set.size();
-		CcpEntity[] entities = set.toArray(new CcpEntity[setSize]);
+		LinkedHashSet<CcpEntity> distinctEntities = new LinkedHashSet<>(entitiesFound);
+		int distinctEntitiesCount = distinctEntities.size();
+		CcpEntity[] entities = distinctEntities.toArray(new CcpEntity[distinctEntitiesCount]);
 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		int parametersToSearchSize = this.parametersToSearch.size();
@@ -81,9 +81,9 @@ public class CcpSelectFinally {
 		CcpJsonRepresentation json = jsons[0];
 
 		for (CcpJsonRepresentation specification : specifications) {
-			boolean containsField = specification.containsField(JsonFieldNames.entity);
+			boolean hasEntity = specification.containsField(JsonFieldNames.entity);
 
-			boolean executeFreeAction = false == containsField;
+			boolean executeFreeAction = false == hasEntity;
 
 			if (executeFreeAction) {
 				CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
@@ -100,8 +100,8 @@ public class CcpSelectFinally {
 			CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
 
 			if (itWasNotForeseen) {
-				boolean valorIgual = false == wasActuallyFound;
-				if (valorIgual) {
+				boolean wasNotFound = false == wasActuallyFound;
+				if (wasNotFound) {
 					continue;
 				}
 
@@ -109,53 +109,53 @@ public class CcpSelectFinally {
 				json = json.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
 				continue;
 			}
-			boolean containsField2 = specification.containsField(JsonFieldNames.action);
+			boolean hasAction = specification.containsField(JsonFieldNames.action);
 
-			boolean willNotExecuteAction = false == containsField2;
+			boolean willNotExecuteAction = false == hasAction;
 
 			if (willNotExecuteAction) {
-				boolean containsField3 = specification.containsField(JsonFieldNames.status);
-				boolean willNotThrowException = false == containsField3;
+				boolean hasStatus = specification.containsField(JsonFieldNames.status);
+				boolean willNotThrowException = false == hasStatus;
 				if (willNotThrowException) {
 					continue;
 				}
 				CcpProcessStatus status = specification.getAsObject(JsonFieldNames.status);
 				String message = specification.getOrDefault(JsonFieldNames.message, () -> status.name());
-				CcpJsonRepresentation addToItem = json.addToItem(CcpJsonCommonsFields.errorDetails, JsonFieldNames.message, message);
-				CcpJsonRepresentation put = addToItem
+				CcpJsonRepresentation jsonWithErrorMessage = json.addToItem(CcpJsonCommonsFields.errorDetails, JsonFieldNames.message, message);
+				CcpJsonRepresentation jsonWithErrorDetails = jsonWithErrorMessage
 						.addToItem(CcpJsonCommonsFields.errorDetails, JsonFieldNames.status, status);
 				CcpJsonRepresentation dataBaseRow = this.getRecordFromUnionAll(unionAll, entity);
-				CcpJsonRepresentation context = put.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
-				CcpJsonRepresentation apply = whenFlowError.execute(context);
-				Stream<CcpJsonRepresentation> stream2 = Arrays.asList(specifications).stream();
-				var stream2Map = stream2
+				CcpJsonRepresentation errorContext = jsonWithErrorDetails.addToItem(CcpEntity.JsonFieldNames._entities, entity, dataBaseRow);
+				CcpJsonRepresentation errorResult = whenFlowError.execute(errorContext);
+				Stream<CcpJsonRepresentation> specificationsStreamForFlow = Arrays.asList(specifications).stream();
+				var flowWithEntityNames = specificationsStreamForFlow
 						.map(j -> j.whenAnyFieldsAreFound(FunctionPutEntity.INSTANCE, JsonFieldNames.entity));
-						var stream2MapMap = stream2Map
+						var flowWithStatusNames = flowWithEntityNames
 						.map(j -> j.whenAnyFieldsAreFound(FunctionPutStatus.INSTANCE, JsonFieldNames.status));
-						List<CcpJsonRepresentation> asList = stream2MapMap
+						List<CcpJsonRepresentation> flowDescription = flowWithStatusNames
 						.collect(Collectors.toList());
-				CcpJsonRepresentation result = apply.put(JsonFieldNames.flow, asList);
-				String valorMais = "Context: " + origin;
-				String valorMaisMais = valorMais + ". Entity: ";
-				String valorMaisMaisMais = valorMaisMais + entityMetaData.entityName;
-				String valorMaisMaisMaisMais = valorMaisMaisMais
+				CcpJsonRepresentation result = errorResult.put(JsonFieldNames.flow, flowDescription);
+				String reasonWithContext = "Context: " + origin;
+				String reasonWithEntityLabel = reasonWithContext + ". Entity: ";
+				String reasonWithEntity = reasonWithEntityLabel + entityMetaData.entityName;
+				String reasonWithStatusLabel = reasonWithEntity
 						+ ". status: ";
-						String valorMaisMaisMaisMaisMais = valorMaisMaisMaisMais + status;
-						String valorMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMais
+						String reasonWithStatus = reasonWithStatusLabel + status;
+						String reasonWithShouldHaveBeenFoundLabel = reasonWithStatus
 						+ ". shouldHaveBeenFound: ";
-						String valorMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMais + shouldHaveBeenFound;
-						String valorMaisMaisMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMaisMaisMais + ". wasActuallyFound: ";
+						String reasonWithShouldHaveBeenFound = reasonWithShouldHaveBeenFoundLabel + shouldHaveBeenFound;
+						String reasonWithWasActuallyFoundLabel = reasonWithShouldHaveBeenFound + ". wasActuallyFound: ";
 
-						String reason = valorMaisMaisMaisMaisMaisMaisMaisMais + wasActuallyFound;
-						CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(result, status, reason, this.fields);
+						String reason = reasonWithWasActuallyFoundLabel + wasActuallyFound;
+						CcpErrorFlowDisturb flowDisturbError = new CcpErrorFlowDisturb(result, status, reason, this.fields);
 
-						throw ccpErrorFlowDisturb;
+						throw flowDisturbError;
 			}
 
 			CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
-			boolean valorIgual2 = false == shouldHaveBeenFound;
+			boolean shouldNotHaveBeenFound = false == shouldHaveBeenFound;
 
-			if (valorIgual2) {
+			if (shouldNotHaveBeenFound) {
 				json = action.execute(json);
 				continue;
 			}
@@ -167,28 +167,28 @@ public class CcpSelectFinally {
 		boolean zeroFields = this.fields.length <= 0;
 		
 		if (zeroFields) {
-			CcpErrorFlowFieldsToReturnNotMentioned ccpErrorFlowFieldsToReturnNotMentioned = new CcpErrorFlowFieldsToReturnNotMentioned(origin);
-			throw ccpErrorFlowFieldsToReturnNotMentioned;
+			CcpErrorFlowFieldsToReturnNotMentioned fieldsNotMentionedError = new CcpErrorFlowFieldsToReturnNotMentioned(origin);
+			throw fieldsNotMentionedError;
 		}
 		
-		CcpJsonRepresentation apply = whenFlowSuccess.execute(json);
-		CcpJsonRepresentation jsonPiece = apply.getJsonPiece(this.fields);
-		CcpJsonRepresentation subMap = jsonPiece.put(JsonFieldNames.origin, origin);
+		CcpJsonRepresentation successResult = whenFlowSuccess.execute(json);
+		CcpJsonRepresentation jsonPiece = successResult.getJsonPiece(this.fields);
+		CcpJsonRepresentation resultingData = jsonPiece.put(JsonFieldNames.origin, origin);
 
-		return subMap;
+		return resultingData;
 	}
 	
 	private boolean isPresentInUnionAll(CcpSelectUnionAll unionAll, CcpEntity entity) {
 		
 		for (CcpJsonRepresentation parameterToSearch : this.parametersToSearch) {
 			CcpEntityMetaData metaData = entity.getEntityMetaData();
-			boolean containsAllFields = parameterToSearch.containsAllFields(metaData.primaryKeyNames);
-			boolean isNotParameterToSearch = false == containsAllFields;
+			boolean containsPrimaryKey = parameterToSearch.containsAllFields(metaData.primaryKeyNames);
+			boolean isNotParameterToSearch = false == containsPrimaryKey;
 			if(isNotParameterToSearch) {
 				continue;
 			}
-			boolean presentInThisUnionAll = entity.isPresentInThisUnionAll(unionAll, parameterToSearch);
-			if(presentInThisUnionAll) {
+			boolean isPresent = entity.isPresentInThisUnionAll(unionAll, parameterToSearch);
+			if(isPresent) {
 				return true;
 			}
 		}
@@ -199,14 +199,14 @@ public class CcpSelectFinally {
 		
 		for (CcpJsonRepresentation parameterToSearch : this.parametersToSearch) {
 			CcpEntityMetaData metaData = entity.getEntityMetaData();
-			boolean containsAllFields2 = parameterToSearch.containsAllFields(metaData.primaryKeyNames);
-			boolean isNotParameterToSearch = false == containsAllFields2;
+			boolean containsPrimaryKey = parameterToSearch.containsAllFields(metaData.primaryKeyNames);
+			boolean isNotParameterToSearch = false == containsPrimaryKey;
 			if(isNotParameterToSearch) {
 				continue;
 			}
-			boolean presentInThisUnionAll2 = entity.isPresentInThisUnionAll(unionAll, parameterToSearch);
+			boolean isPresent = entity.isPresentInThisUnionAll(unionAll, parameterToSearch);
 
-			boolean isNotPresentInThisUnionAll = false == presentInThisUnionAll2;
+			boolean isNotPresentInThisUnionAll = false == isPresent;
 			
 			if(isNotPresentInThisUnionAll) {
 				continue;

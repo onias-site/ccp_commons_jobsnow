@@ -6,53 +6,53 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Contrato para acumulação e execução de operações bulk no banco de dados. Permite adicionar itens
- * individualmente ou em lote, limpar o buffer e disparar a execução, retornando os resultados de
- * cada operação.
+ * Contract for accumulating and executing bulk operations on the database. Allows adding items
+ * one by one or in batches, clearing the buffer and triggering the execution, returning the result of
+ * each operation.
  */
 public interface CcpBulkExecutor {
 
 	/**
-	 * Remove todos os itens acumulados no buffer da operação bulk, reiniciando o executor.
+	 * Removes every item accumulated in the bulk operation buffer, resetting the executor.
 	 *
-	 * @return esta instância para encadeamento
+	 * @return this instance, for chaining
 	 */
 	CcpBulkExecutor clearRecords();
 
 	/**
-	 * Converte o JSON e a entidade em {@link CcpBulkItem}s e adiciona cada um ao buffer.
+	 * Converts the JSON and the entity into {@link CcpBulkItem}s and adds each one to the buffer.
 	 *
-	 * @param json dados do registro
-	 * @param operation tipo de operação bulk
-	 * @param entity entidade de destino
-	 * @return esta instância para encadeamento
+	 * @param json record data
+	 * @param operation bulk operation type
+	 * @param entity target entity
+	 * @return this instance, for chaining
 	 */
 	default CcpBulkExecutor addRecord(CcpJsonRepresentation json, CcpBulkEntityOperationType operation, CcpEntity entity) {
 		
 		List<CcpBulkItem> bulkItems =  entity.toBulkItems(json, operation);
 		
-		CcpBulkExecutor addRecord = this;
+		CcpBulkExecutor executor = this;
 		
 		for (CcpBulkItem bulkItem : bulkItems) {
-			addRecord = this.addRecord(bulkItem);
+			executor = this.addRecord(bulkItem);
 		}
 		
-		return addRecord;
+		return executor;
 	}
 	
 	/**
-	 * Adiciona um único {@link CcpBulkItem} já construído ao buffer do executor.
+	 * Adds a single, already built {@link CcpBulkItem} to the executor buffer.
 	 *
-	 * @param bulkItem item a adicionar
-	 * @return esta instância para encadeamento
+	 * @param bulkItem item to add
+	 * @return this instance, for chaining
 	 */
 	CcpBulkExecutor addRecord(CcpBulkItem bulkItem);
 
 	/**
-	 * Adiciona uma lista de {@link CcpBulkItem}s ao buffer, iterando e chamando {@link #addRecord} para cada um.
+	 * Adds a list of {@link CcpBulkItem}s to the buffer, iterating and calling {@link #addRecord} for each one.
 	 *
-	 * @param items lista de itens a adicionar
-	 * @return esta instância para encadeamento
+	 * @param items list of items to add
+	 * @return this instance, for chaining
 	 */
 	default CcpBulkExecutor addRecords(List<CcpBulkItem> items) {
 		CcpBulkExecutor bulk = this;
@@ -63,25 +63,25 @@ public interface CcpBulkExecutor {
 	}
 	
 	/**
-	 * Adiciona múltiplos registros JSON ao buffer convertendo cada um conforme a operação e entidade informadas.
+	 * Adds several JSON records to the buffer, converting each one according to the given operation and entity.
 	 *
-	 * @param records lista de JSONs a adicionar
-	 * @param operation tipo de operação bulk
-	 * @param entity entidade de destino
-	 * @return esta instância para encadeamento
+	 * @param records list of JSONs to add
+	 * @param operation bulk operation type
+	 * @param entity target entity
+	 * @return this instance, for chaining
 	 */
 	default CcpBulkExecutor addRecords(List<CcpJsonRepresentation> records, CcpBulkEntityOperationType operation, CcpEntity entity) {
 		CcpBulkExecutor bulk = this;
-		for (CcpJsonRepresentation _record : records) {
-			bulk = bulk.addRecord(_record, operation, entity);
+		for (CcpJsonRepresentation jsonRecord : records) {
+			bulk = bulk.addRecord(jsonRecord, operation, entity);
 		}
 		return bulk;
 	}
 	
 	/**
-	 * Executa as operações bulk acumuladas e retorna a lista de resultados de cada item processado.
+	 * Executes the accumulated bulk operations and returns the list of results of each processed item.
 	 *
-	 * @return lista de resultados da operação bulk
+	 * @return list of bulk operation results
 	 */
 	List<CcpBulkOperationResult> getBulkOperationResult();
 	

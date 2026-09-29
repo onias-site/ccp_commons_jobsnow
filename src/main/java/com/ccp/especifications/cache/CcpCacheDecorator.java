@@ -15,10 +15,10 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * Wrapper orientado a objetos sobre {@link CcpCache} que encapsula tanto a chave de cache quanto
- * parâmetros contextuais ({@link CcpJsonRepresentation}). Simplifica o uso do cache nas camadas de
- * negócio, permitindo construir chaves compostas de forma fluente a partir de entidades e
- * identificadores, sem expor diretamente a interface {@link CcpCache}.
+ * Object-oriented wrapper over {@link CcpCache} that holds both the cache key and
+ * contextual parameters ({@link CcpJsonRepresentation}). Simplifies the use of the cache in the business
+ * layers, allowing composite keys to be built fluently from entities and
+ * identifiers, without directly exposing the {@link CcpCache} interface.
  */
 public final class CcpCacheDecorator {
 	
@@ -29,32 +29,32 @@ public final class CcpCacheDecorator {
 	public final String key;
 	
 	/**
-	 * Cria o decorator a partir de um {@link CcpBulkItem}, derivando a chave cache do nome da entidade e do id do item.
+	 * Creates the decorator from a {@link CcpBulkItem}, deriving the cache key from the entity name and the item id.
 	 *
-	 * @param bulkItem item bulk cujos metadados definem a chave de cache
+	 * @param bulkItem bulk item whose metadata defines the cache key
 	 */
 	public CcpCacheDecorator(CcpBulkItem bulkItem) {
 		this(bulkItem.entity, bulkItem.id);
 	}
 	
 	/**
-	 * Cria o decorator com chave no formato {@code records.entity.<nome>.id.<id>}.
+	 * Creates the decorator with a key in the format {@code records.entity.<name>.id.<id>}.
 	 *
-	 * @param entity entidade cujo nome compõe a chave
-	 * @param id identificador do registro
+	 * @param entity entity whose name makes up the key
+	 * @param id identifier of the record
 	 */
 	public CcpCacheDecorator(CcpEntity entity, String id) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
-		String valorMais = "records.entity." + entityDetails.entityName;
-		String valorMaisMais = valorMais + ".id.";
-		this.key = valorMaisMais + id ;
+		String entityKeyPrefix = "records.entity." + entityDetails.entityName;
+		String recordKeyPrefix = entityKeyPrefix + ".id.";
+		this.key = recordKeyPrefix + id ;
 	}
 	
 	/**
-	 * Cria o decorator diretamente com uma chave arbitrária.
+	 * Creates the decorator directly with an arbitrary key.
 	 *
-	 * @param key chave de cache a ser usada
+	 * @param key cache key to use
 	 */
 	public CcpCacheDecorator(String key) {
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
@@ -67,46 +67,46 @@ public final class CcpCacheDecorator {
 	}
 
 	/**
-	 * Delega para {@link CcpCache#get} usando a chave e parâmetros internos; executa
-	 * {@code taskToGetValue} se o cache estiver vazio e armazena o resultado.
+	 * Delegates to {@link CcpCache#get} using the internal key and parameters; executes
+	 * {@code taskToGetValue} if the cache is empty and stores the result.
 	 *
-	 * @param taskToGetValue função executada quando o cache está vazio
-	 * @param cacheSeconds TTL em segundos para o valor gravado
-	 * @return o valor obtido do cache ou produzido pela função
+	 * @param taskToGetValue function executed when the cache is empty
+	 * @param cacheSeconds TTL in seconds for the stored value
+	 * @return the value obtained from the cache or produced by the function
 	 */
 	public <V> V get(Function<CcpJsonRepresentation,V> taskToGetValue, int cacheSeconds) {
 		return this.cache.get(this.key, this.cacheParameters, taskToGetValue, cacheSeconds);
 	}
 
 	public CcpJsonRepresentation get(CcpBusiness taskToGetValue, CcpJsonRepresentation json, int cacheSeconds) {
-		CcpJsonRepresentation get = this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
-		return get;
+		CcpJsonRepresentation cachedValue = this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
+		return cachedValue;
 	}
 
 	/**
-	 * Retorna o valor em cache ou {@code defaultValue} caso ausente.
+	 * Returns the cached value or {@code defaultValue} when absent.
 	 *
-	 * @param defaultValue valor retornado quando a chave não está no cache
-	 * @return o valor armazenado ou {@code defaultValue}
+	 * @param defaultValue value returned when the key is not in the cache
+	 * @return the stored value or {@code defaultValue}
 	 */
 	public <V> V getOrDefault(V defaultValue) {
 		return this.cache.getOrDefault(this.key, defaultValue);
 	}
 
 	/**
-	 * Retorna o valor em cache ou lança a exceção fornecida caso ausente.
+	 * Returns the cached value or throws the given exception when absent.
 	 *
-	 * @param e exceção lançada quando a chave não está no cache
-	 * @return o valor armazenado
+	 * @param e exception thrown when the key is not in the cache
+	 * @return the stored value
 	 */
 	public <V> V getOrThrowException(RuntimeException e) {
 		return this.cache.getOrThrowException(this.key, e);
 	}
 
 	/**
-	 * Verifica se existe valor para a chave deste decorator no cache.
+	 * Checks whether there is a value in the cache for this decorator's key.
 	 *
-	 * @return {@code true} se o valor estiver presente no cache
+	 * @return {@code true} if the value is present in the cache
 	 */
 	public boolean isPresentInTheCache() {
 		boolean cachePresent = this.cache.isPresent(this.key);
@@ -114,11 +114,11 @@ public final class CcpCacheDecorator {
 	}
 
 	/**
-	 * Grava {@code value} no cache com TTL e retorna {@code this} para encadeamento.
+	 * Stores {@code value} in the cache with a TTL and returns {@code this} for chaining.
 	 *
-	 * @param value valor a armazenar
-	 * @param secondsDelay TTL em segundos
-	 * @return esta instância para encadeamento
+	 * @param value value to store
+	 * @param secondsDelay TTL in seconds
+	 * @return this instance, for chaining
 	 */
 	public CcpCacheDecorator put(Object value, int secondsDelay) {
 		this.cache.put(this.key, value, secondsDelay);
@@ -126,21 +126,21 @@ public final class CcpCacheDecorator {
 	}
 
 	/**
-	 * Remove do cache a entrada da chave deste decorator.
+	 * Removes from the cache the entry of this decorator's key.
 	 */
 	public void delete() {
 		this.cache.delete(this.key);
 	}
 
 	/**
-	 * Remove de uma vez todas as chaves informadas, numa única conversa com o servidor de cache
-	 * quando a implementação suporta lote.
+	 * Removes all the given keys at once, in a single round trip to the cache server
+	 * when the implementation supports batches.
 	 *
-	 * <p>É estático porque quem invalida cache em massa — {@code JnDeleteKeysFromCache} — parte de um
-	 * conjunto de chaves já prontas, e não de uma entidade: construir um decorator por chave só para
-	 * apagá-la era justamente o que transformava uma invalidação em N idas à rede.</p>
+	 * <p>It is static because whoever invalidates the cache in bulk ({@code JnDeleteKeysFromCache}) starts from a
+	 * set of keys that are already built, not from an entity: building a decorator per key just to
+	 * delete it was exactly what turned one invalidation into N network round trips.</p>
 	 *
-	 * @param keys as chaves a remover; coleção vazia não gera chamada alguma
+	 * @param keys the keys to remove; an empty collection makes no call at all
 	 */
 	public static void deleteAll(Collection<String> keys) {
 
@@ -155,31 +155,31 @@ public final class CcpCacheDecorator {
 	}
 	
 	/**
-	 * Cria um novo decorator com chave estendida por {@code .<key>.<value>} e com o par adicionado
-	 * ao JSON de parâmetros, permitindo chaves hierárquicas/compostas.
+	 * Creates a new decorator with the key extended by {@code .<key>.<value>} and with the pair added
+	 * to the parameters JSON, allowing hierarchical/composite keys.
 	 *
-	 * @param key segmento de chave a acrescentar
-	 * @param value valor correspondente ao segmento
-	 * @return novo decorator com chave acumulada
+	 * @param key key segment to append
+	 * @param value value matching the segment
+	 * @return new decorator with the accumulated key
 	 */
 	public CcpCacheDecorator incrementKey(String key, Object value) {
-		String keyMais = this.key + ".";
-		String keyMaisMais = keyMais + key;
-		String keyMaisMaisMais = keyMaisMais + ".";
-		String _key = keyMaisMaisMais + value;
+		String currentKeyWithDot = this.key + ".";
+		String keyWithSegment = currentKeyWithDot + key;
+		String keyWithSegmentAndDot = keyWithSegment + ".";
+		String extendedKey = keyWithSegmentAndDot + value;
 		CcpFieldName ccpFieldName = new CcpFieldName(key);
-		CcpJsonRepresentation put = this.cacheParameters.put(ccpFieldName, value);
-		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(put, _key);
+		CcpJsonRepresentation extendedParameters = this.cacheParameters.put(ccpFieldName, value);
+		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(extendedParameters, extendedKey);
 		return ccpCacheDecorator;
 	}
 	
 	/**
-	 * Extrai um subconjunto de campos do JSON fornecido e aplica {@link #incrementKey} para cada um,
-	 * retornando um novo decorator com chave acumulada.
+	 * Extracts a subset of fields from the given JSON and applies {@link #incrementKey} to each one,
+	 * returning a new decorator with the accumulated key.
 	 *
-	 * @param json JSON de onde os campos serão extraídos
-	 * @param keys nomes dos campos a incluir na chave
-	 * @return novo decorator com chave acumulada
+	 * @param json JSON from which the fields will be extracted
+	 * @param keys names of the fields to include in the key
+	 * @return new decorator with the accumulated key
 	 */
 	public CcpCacheDecorator incrementKeys(CcpJsonRepresentation json, String... keys) {
 		
@@ -191,10 +191,10 @@ public final class CcpCacheDecorator {
 	}
 
 	/**
-	 * Itera sobre todos os campos do JSON informado e aplica {@link #incrementKey} para cada par campo/valor.
+	 * Iterates over all the fields of the given JSON and applies {@link #incrementKey} to each field/value pair.
 	 *
-	 * @param jsonPiece JSON cujos campos compõem a extensão da chave
-	 * @return novo decorator com chave acumulada
+	 * @param jsonPiece JSON whose fields make up the key extension
+	 * @return new decorator with the accumulated key
 	 */
 	public CcpCacheDecorator incrementKeys(CcpJsonRepresentation jsonPiece) {
 		CcpCacheDecorator result = this;
@@ -202,17 +202,17 @@ public final class CcpCacheDecorator {
 		Set<String> keySet = jsonPiece.fieldSet();
 		
 		for (String key : keySet) {
-			CcpFieldName ccpFieldName2 = new CcpFieldName(key);
-			Object value = jsonPiece.get(ccpFieldName2);
+			CcpFieldName ccpFieldName = new CcpFieldName(key);
+			Object value = jsonPiece.get(ccpFieldName);
 			result = result.incrementKey(key, value);
 		}
 		return result;
 	}
 	
 	/**
-	 * Retorna a chave de cache atual do decorator.
+	 * Returns the current cache key of the decorator.
 	 *
-	 * @return a chave de cache
+	 * @return the cache key
 	 */
 	public String toString() {
 		return this.key;

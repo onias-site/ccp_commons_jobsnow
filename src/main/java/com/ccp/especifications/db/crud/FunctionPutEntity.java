@@ -16,15 +16,15 @@ class FunctionPutEntity implements CcpBusiness{
 	private FunctionPutEntity() {}
 
 	/**
-	 * Extrai o objeto {@code CcpEntity} do campo {@code entity}, obtém seu nome via {@code getEntityMetaData()}
-	 * e substitui o campo pelo nome textual.
+	 * Extracts the {@code CcpEntity} object from the {@code entity} field, gets its name through {@code getEntityMetaData()}
+	 * and replaces the field with the textual name.
 	 */
-	public CcpJsonRepresentation apply(CcpJsonRepresentation j) {
+	public CcpJsonRepresentation apply(CcpJsonRepresentation statement) {
 
-		CcpEntity ent = j.getAsObject(JsonFieldNames.entity);
-		CcpEntityMetaData entityDetails = ent.getEntityMetaData();
+		CcpEntity entity = statement.getAsObject(JsonFieldNames.entity);
+		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		String entityName = entityDetails.entityName;
-		CcpJsonRepresentation put2 = j.put(JsonFieldNames.entity, entityName);
-		return put2;
+		CcpJsonRepresentation statementWithEntityName = statement.put(JsonFieldNames.entity, entityName);
+		return statementWithEntityName;
 	}
 }

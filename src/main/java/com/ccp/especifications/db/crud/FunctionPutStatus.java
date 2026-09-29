@@ -17,18 +17,18 @@ class FunctionPutStatus implements CcpBusiness {
 	private FunctionPutStatus() {}
 
 	/**
-	 * Lê o {@code CcpProcessStatus} do campo {@code status}, adiciona {@code statusName} e {@code statusNumber}
-	 * ao JSON e remove o campo {@code status} original.
+	 * Reads the {@code CcpProcessStatus} from the {@code status} field, adds {@code statusName} and {@code statusNumber}
+	 * to the JSON and removes the original {@code status} field.
 	 */
-	public CcpJsonRepresentation apply(CcpJsonRepresentation j) {
-		CcpProcessStatus stats = j.getAsObject(JsonFieldNames.status);
-		String statsName = stats.name();
-		CcpJsonRepresentation put = j.put(CcpJsonCommonsFields.statusName, statsName);
-		int asNumber = stats.asNumber();
-		CcpJsonRepresentation put3 = put
+	public CcpJsonRepresentation apply(CcpJsonRepresentation statement) {
+		CcpProcessStatus status = statement.getAsObject(JsonFieldNames.status);
+		String statusName = status.name();
+		CcpJsonRepresentation statementWithStatusName = statement.put(CcpJsonCommonsFields.statusName, statusName);
+		int asNumber = status.asNumber();
+		CcpJsonRepresentation statementWithStatusNumber = statementWithStatusName
 				.put(CcpJsonCommonsFields.statusNumber, asNumber);
-		CcpJsonRepresentation removeField = put3.removeFields(JsonFieldNames.status);
-		return removeField;
+		CcpJsonRepresentation statementWithoutStatus = statementWithStatusNumber.removeFields(JsonFieldNames.status);
+		return statementWithoutStatus;
 
 	}
 

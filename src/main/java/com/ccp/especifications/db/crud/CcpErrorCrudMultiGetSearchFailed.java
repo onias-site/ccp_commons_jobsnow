@@ -5,7 +5,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.json.fields.validation.CcpJsonCommonsFields;
 
 /**
- * Exceção lançada quando uma operação de multi-get no banco de dados retorna um erro explícito.
+ * Exception thrown when a multi-get operation on the database returns an explicit error.
  */
 @SuppressWarnings("serial")
 public class CcpErrorCrudMultiGetSearchFailed extends RuntimeException {
@@ -16,10 +16,10 @@ public class CcpErrorCrudMultiGetSearchFailed extends RuntimeException {
 	}
 
 	private static String getMessage(CcpJsonRepresentation error) {
-		String asString = error.getAsString(CcpJsonCommonsFields.type);
-		String asStringMais = asString + ". Reason: ";
-		String asString2 = error.getAsString(CcpJsonCommonsFields.reason);
-		String asStringMaisMais = asStringMais + asString2;
-		return asStringMaisMais;
+		String errorType = error.getAsString(CcpJsonCommonsFields.type);
+		String errorTypeWithReasonLabel = errorType + ". Reason: ";
+		String reason = error.getAsString(CcpJsonCommonsFields.reason);
+		String errorMessage = errorTypeWithReasonLabel + reason;
+		return errorMessage;
 	}
 }

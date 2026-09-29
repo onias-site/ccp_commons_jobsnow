@@ -17,9 +17,9 @@ import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
- * Validadores transversais de campo: tipo incompatível, campo obrigatório ausente e conflito
- * coleção/valor único.
- * Constantes: {@code incompatibleType} (breakFieldValidation), {@code requiredFieldIsMissing}
+ * Cross-cutting field validators: incompatible type, missing required field and
+ * collection/single value conflict.
+ * Constants: {@code incompatibleType} (breakFieldValidation), {@code requiredFieldIsMissing}
  * (continueFieldValidation), {@code validateCollectionOrSigleValue} (breakFieldValidation).
  */
 public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
@@ -31,17 +31,17 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		    String fieldName = field.getName();
 			   CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
 			   Object value = json.getAsObject(ccpFieldName);
-			   boolean valueIgual = value == null;
+			   boolean isNull = value == null;
 
-			   if (valueIgual) {
+			   if (isNull) {
 				return false;
 			}
 
 			Predicate<CcpJsonRepresentation> evaluateCorrectType = type.evaluateCompatibleType(fieldName);
-			boolean test = evaluateCorrectType.test(json);
-			boolean incompatibleType = false == test;
-			
-			if(incompatibleType) {
+			boolean matchesExpectedType = evaluateCorrectType.test(json);
+			boolean hasIncompatibleType = false == matchesExpectedType;
+
+			if(hasIncompatibleType) {
 				return true;
 			}
 			return false;
@@ -49,29 +49,29 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
-			CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
-			var get = json.get(ccpFieldName2);
-			var getClass = get.getClass();
-			String providedType = getClass.getName();
+			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+			var providedValue = json.get(ccpFieldName);
+			var providedValueClass = providedValue.getClass();
+			String providedType = providedValueClass.getName();
 			String expectedType = type.name();
 			boolean isArray = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 			
 			if(isArray) {
-				String valorMais = "The field " + fieldName;
-				String valorMaisMais = valorMais + " must be a collection ";
-				String valorMaisMaisMais = valorMaisMais + expectedType;
-				String valorMaisMaisMaisMais = valorMaisMaisMais + " but some item in this collection is the ";
-				String valorMaisMaisMaisMaisMais = valorMaisMaisMaisMais+ providedType;
-				String valorMaisMaisMaisMaisMaisMais = valorMaisMaisMaisMaisMais + " type";
-				return valorMaisMaisMaisMaisMaisMais;
+				String fieldLabel = "The field " + fieldName;
+				String messageBeforeExpectedType = fieldLabel + " must be a collection ";
+				String messageWithExpectedType = messageBeforeExpectedType + expectedType;
+				String messageBeforeProvidedType = messageWithExpectedType + " but some item in this collection is the ";
+				String messageWithProvidedType = messageBeforeProvidedType+ providedType;
+				String errorMessage = messageWithProvidedType + " type";
+				return errorMessage;
 			}
-			String valorMais2 = "The field " + fieldName;
-			String valorMais2Mais = valorMais2 + " must be a ";
-			String valorMais2MaisMais = valorMais2Mais + expectedType;
-			String valorMais2MaisMaisMais = valorMais2MaisMais + " type, but this field is ";
-			String valorMais2MaisMaisMaisMais = valorMais2MaisMaisMais + providedType;
-			String valorMais2MaisMaisMaisMaisMais = valorMais2MaisMaisMaisMais + " type";
-			return valorMais2MaisMaisMaisMaisMais;
+			String fieldLabel = "The field " + fieldName;
+			String messageBeforeExpectedType = fieldLabel + " must be a ";
+			String messageWithExpectedType = messageBeforeExpectedType + expectedType;
+			String messageBeforeProvidedType = messageWithExpectedType + " type, but this field is ";
+			String messageWithProvidedType = messageBeforeProvidedType + providedType;
+			String errorMessage = messageWithProvidedType + " type";
+			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
@@ -83,11 +83,11 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			
 			String fieldName = field.getName();
 			String expectedType = type.name();
-			String valorMais3 = "The field " + fieldName;
-			String valorMais3Mais = valorMais3 + " must be ";
-			String valorMais3MaisMais = valorMais3Mais + expectedType;
-			String valorMais3MaisMaisMais = valorMais3MaisMais + " type";
-			return valorMais3MaisMaisMais;
+			String fieldLabel = "The field " + fieldName;
+			String explanationBeforeExpectedType = fieldLabel + " must be ";
+			String explanationWithExpectedType = explanationBeforeExpectedType + expectedType;
+			String ruleExplanation = explanationWithExpectedType + " type";
+			return ruleExplanation;
 		}
 
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
@@ -107,8 +107,8 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			
 			
 			String fieldName = field.getName();
-			CcpFieldName ccpFieldName3 = new CcpFieldName(fieldName);
-			boolean containsAllFields = json.containsAllFields(ccpFieldName3);
+			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+			boolean containsAllFields = json.containsAllFields(ccpFieldName);
 			boolean thisFieldIsNotPresent = false == containsAllFields;
 			return thisFieldIsNotPresent;
 		}
@@ -120,15 +120,15 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 				return true;
 			}
 
-			boolean hasNoAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
+			boolean hasAnnotationRequired = field.isAnnotationPresent(CcpJsonFieldValidatorRequired.class);
 
-			if(hasNoAnnotationRequired) {
+			if(hasAnnotationRequired) {
 				return false;
 			}
 
-			boolean hasNoAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
+			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
 
-			if(hasNoAnnotationPrimaryKey) {
+			if(hasAnnotationPrimaryKey) {
 				return false;
 			}
 
@@ -136,10 +136,10 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 
 		/**
-		 * Campo com valor padrão nunca é obrigatório: se vier ausente, quem o preenche é a
-		 * {@code CcpJsonFieldDefaultValuesEngine}. A anotação é procurada também no campo de onde
-		 * as validações são copiadas, já que {@code CcpJsonFieldValidatorRequired} costuma ser
-		 * declarada no campo local e {@code CcpJsonFieldDefaultValue} na classe de origem.
+		 * A field with a default value is never required: if it is absent, the
+		 * {@code CcpJsonFieldDefaultValuesEngine} fills it in. The annotation is also searched in the field from which
+		 * the validations are copied, since {@code CcpJsonFieldValidatorRequired} is usually
+		 * declared in the local field and {@code CcpJsonFieldDefaultValue} in the source class.
 		 */
 		private boolean hasAnnotationDefaultValue(Field field) {
 			boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldDefaultValue.class);
@@ -156,29 +156,29 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
-			String valorMais4 = "The field " + fieldName;
-			String errorMessage = valorMais4 + " is missing";
+			String fieldLabel = "The field " + fieldName;
+			String errorMessage = fieldLabel + " is missing";
 			return errorMessage;
 		}
 
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
-			String valorMais5 = "The field " + fieldName;
-			String ruleExplanation = valorMais5 + " is required";
+			String fieldLabel = "The field " + fieldName;
+			String ruleExplanation = fieldLabel + " is required";
 			return ruleExplanation;
 		}
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			boolean notValidated = this.isNotValidated(field);
-			boolean valorIgual = false == notValidated;
-			return valorIgual;
+			boolean isValidated = false == notValidated;
+			return isValidated;
 		}
 	},
 	
 	validateCollectionOrSigleValue(CcpJsonFieldErrorHandleType.breakFieldValidation){
 		
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			boolean error = this.hasError(json, field, type);
-			boolean hasNoError = false == error;
+			boolean hasError = this.hasError(json, field, type);
+			boolean hasNoError = false == hasError;
 			
 			if(hasNoError) {
 				return "";
@@ -189,32 +189,32 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		
 			if(mustBeCollection) {
 				Object providedValue = this.getProvidedValue(json, field, type);
-				String valorMais6 = "The field " + fieldName;
-				String valorMais6Mais = valorMais6 + " has a value ";
-				String valorMais6MaisMais = valorMais6Mais + providedValue;
-				String errorMessage = valorMais6MaisMais + " that is not a collection";
+				String fieldLabel = "The field " + fieldName;
+				String fieldWithValueLabel = fieldLabel + " has a value ";
+				String messageWithProvidedValue = fieldWithValueLabel + providedValue;
+				String errorMessage = messageWithProvidedValue + " that is not a collection";
 				return errorMessage;
 			}
-			CcpFieldName ccpFieldName4 = new CcpFieldName(fieldName);
+			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
 
-			List<Object> providedValue = json.getAsObjectList(ccpFieldName4);
-			String valorMais7 = "The field " + fieldName;
-			String valorMais7Mais = valorMais7 + " has a value ";
-			String valorMais7MaisMais = valorMais7Mais + providedValue;
-			String errorMessage = valorMais7MaisMais + " that can not be a collection";
+			List<Object> providedValue = json.getAsObjectList(ccpFieldName);
+			String fieldLabel = "The field " + fieldName;
+			String fieldWithValueLabel = fieldLabel + " has a value ";
+			String messageWithProvidedValue = fieldWithValueLabel + providedValue;
+			String errorMessage = messageWithProvidedValue + " that can not be a collection";
 			return errorMessage;
 		}
 
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
 			String fieldName = field.getName();
-			CcpFieldName ccpFieldName5 = new CcpFieldName(fieldName);
-			CcpStringDecorator asStringDecorator = json.getAsStringDecorator(ccpFieldName5);
+			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+			CcpStringDecorator asStringDecorator = json.getAsStringDecorator(ccpFieldName);
 			boolean isCollection = asStringDecorator.isList();
 			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
-			boolean isCollectionResultado = isCollection ^ mustBeCollection;
+			boolean collectionMismatch = isCollection ^ mustBeCollection;
 
-			boolean hasError = (isCollectionResultado);
+			boolean hasError = (collectionMismatch);
 			return hasError;
 		}
 
@@ -224,18 +224,18 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			String expectedType = type.name();
 
 			if(mustBeCollection) {
-				String valorMais8 = "The field " + fieldName;
-				String valorMais8Mais = valorMais8 + " accepts only ";
-				String valorMais8MaisMais = valorMais8Mais + expectedType;
-				String errorMessage = valorMais8MaisMais + " collection values";
-				return errorMessage;
+				String fieldLabel = "The field " + fieldName;
+				String explanationBeforeExpectedType = fieldLabel + " accepts only ";
+				String explanationWithExpectedType = explanationBeforeExpectedType + expectedType;
+				String ruleExplanation = explanationWithExpectedType + " collection values";
+				return ruleExplanation;
 				
 			}
-			String valorMais9 = "The field " + fieldName;
-			String valorMais9Mais = valorMais9 + " accepts ";
-			String valorMais9MaisMais = valorMais9Mais + expectedType;
-			String errorMessage = valorMais9MaisMais + " value";
-			return errorMessage;
+			String fieldLabel = "The field " + fieldName;
+			String explanationBeforeExpectedType = fieldLabel + " accepts ";
+			String explanationWithExpectedType = explanationBeforeExpectedType + expectedType;
+			String ruleExplanation = explanationWithExpectedType + " value";
+			return ruleExplanation;
 		}
 		
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
@@ -268,8 +268,8 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 	protected final Object getProvidedValue(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 
 		String fieldName = field.getName();
-		CcpFieldName ccpFieldName6 = new CcpFieldName(fieldName);
-		Object value = json.get(ccpFieldName6);
+		CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+		Object value = json.get(ccpFieldName);
 
 		return value;
 	}

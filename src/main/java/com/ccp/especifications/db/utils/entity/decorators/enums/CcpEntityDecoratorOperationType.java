@@ -13,10 +13,15 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 
 /**
  * Define os tipos de operação com side effects que podem ser configurados para uma entidade via
- * {@code @CcpEntityOperation}: {@code save}, {@code delete} e {@code deleteAnyWhere}. Cada constante
- * implementa a operação sobre a entidade e expõe os fluxos {@code before} e {@code after} em métodos
- * separados ({@code executeBefore} e {@code executeAfter}), porque cada fluxo é aplicado por um
- * decorator próprio e em posição própria da cadeia.
+ * {@code @CcpEntityOperation}: {@code save}, {@code insert}, {@code update}, {@code delete} e
+ * {@code deleteAnyWhere}. Cada constante implementa a operação sobre a entidade e expõe os fluxos
+ * {@code before} e {@code after} em métodos separados ({@code executeBefore} e {@code executeAfter}),
+ * porque cada fluxo é aplicado por um decorator próprio e em posição própria da cadeia.
+ *
+ * <p>{@code insert} e {@code update} são desfechos do {@code save}: {@code insert} quando o
+ * {@code save} devolve {@code true} (o documento não existia) e {@code update} quando devolve
+ * {@code false} (o documento já existia). O {@code save} configurado cobre os dois desfechos, ou seja,
+ * é o que se usa quando o retorno do {@code save} não interessa.
  */
 public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	deleteAnyWhere{
@@ -38,6 +43,37 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			boolean result = entity.save(json);
 			return result;
 		}
+
+		public boolean covers(CcpEntityDecoratorOperationType executed) {
+			boolean isSave = save.equals(executed);
+			boolean isInsert = insert.equals(executed);
+			boolean isUpdate = update.equals(executed);
+			boolean covers = isSave || isInsert || isUpdate;
+			return covers;
+		}
+
+		public boolean isAfterFlowDispensed(boolean result) {
+			return false;
+		}
+
+		public CcpEntityDecoratorOperationType getOutcome(boolean result) {
+			if(result) {
+				return insert;
+			}
+			return update;
+		}
+	},
+	insert{
+		boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
+			boolean result = save.executeEntityOperation(json, entity);
+			return result;
+		}
+	},
+	update{
+		boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity) {
+			boolean result = save.executeEntityOperation(json, entity);
+			return result;
+		}
 	},
 ;
 	abstract boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
@@ -57,11 +93,11 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	}
 
 	/**
-	 * Delega a operação ao restante da cadeia de decorators e executa o fluxo {@code after} somente se
-	 * a operação tiver acontecido de fato. Ou seja, o {@code after} é dispensado quando o {@code save}
-	 * apenas atualizou um documento que já existia ou quando o {@code delete} não encontrou registro
-	 * para remover. Como a operação devolve apenas o resultado booleano, o fluxo {@code after} recebe o
-	 * mesmo JSON que chegou a este decorator.
+	 * Delega a operação ao restante da cadeia de decorators e executa o fluxo {@code after} do desfecho
+	 * obtido. No {@code delete} o {@code after} é dispensado quando nenhum registro foi removido; no
+	 * {@code save} ele sempre roda, e o desfecho ({@code insert} ou {@code update}) decide quais itens
+	 * configurados disparam. Como a operação devolve apenas o resultado booleano, o fluxo {@code after}
+	 * recebe o mesmo JSON que chegou a este decorator.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
 	 * @param entity a entidade alvo da operação
@@ -69,14 +105,47 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
 		boolean result = this.executeEntityOperation(json, entity);
 
-		boolean operationDidNotHappen = false == result;
+		boolean afterFlowIsDispensed = this.isAfterFlowDispensed(result);
 
-		if(operationDidNotHappen) {
-			return false;
+		if(afterFlowIsDispensed) {
+			return result;
 		}
 
-		this.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity);
+		CcpEntityDecoratorOperationType outcome = this.getOutcome(result);
+		outcome.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity);
 		return result;
+	}
+
+	/**
+	 * Informa se o item configurado com esta operação dispara quando a operação {@code executed}
+	 * acontece. Por padrão, só a própria operação; o {@code save} cobre também {@code insert} e
+	 * {@code update}.
+	 * @param executed a operação (ou o desfecho dela) que de fato aconteceu
+	 */
+	public boolean covers(CcpEntityDecoratorOperationType executed) {
+		boolean covers = this.equals(executed);
+		return covers;
+	}
+
+	/**
+	 * Informa se o fluxo {@code after} deve ser dispensado dado o retorno da operação. Por padrão é
+	 * dispensado quando a operação devolve {@code false} (o {@code delete} não encontrou registro); o
+	 * {@code save} nunca dispensa, porque o {@code false} dele significa {@code update}.
+	 * @param result o retorno da operação
+	 */
+	public boolean isAfterFlowDispensed(boolean result) {
+		boolean operationDidNotHappen = false == result;
+		return operationDidNotHappen;
+	}
+
+	/**
+	 * Traduz o retorno da operação no desfecho que casa os itens do fluxo {@code after}. Por padrão o
+	 * desfecho é a própria operação; no {@code save} é {@code insert} ({@code true}) ou {@code update}
+	 * ({@code false}).
+	 * @param result o retorno da operação
+	 */
+	public CcpEntityDecoratorOperationType getOutcome(boolean result) {
+		return this;
 	}
 
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity) {
@@ -92,8 +161,8 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			CcpEntityOperationType configuredOperationType = operation.operationType();
 
 			CcpEntityDecoratorOperationType operationType = configuredOperationType.operationType;
-			boolean operationTypeEquals = operationType.equals(this);
-			boolean valorIgual = false == operationTypeEquals;
+			boolean operationTypeCovers = operationType.covers(this);
+			boolean valorIgual = false == operationTypeCovers;
 
 			if(valorIgual) {
 				continue;

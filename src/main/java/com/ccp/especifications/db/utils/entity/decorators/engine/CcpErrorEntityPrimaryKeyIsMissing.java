@@ -17,8 +17,8 @@ public class CcpErrorEntityPrimaryKeyIsMissing extends RuntimeException {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		List<String> onlyPrimaryKey = entityDetails.primaryKeyNames;
 		Set<String> fieldSet = json.fieldSet();
-		CcpCollectionDecorator ccd = new CcpCollectionDecorator(onlyPrimaryKey);
-		List<String> primaryKeyMissing = ccd.getExclusiveList(fieldSet);
+		CcpCollectionDecorator primaryKeyDecorator = new CcpCollectionDecorator(onlyPrimaryKey);
+		List<String> primaryKeyMissing = primaryKeyDecorator.getExclusiveList(fieldSet);
 		String entityName = entityDetails.entityName;
 		String message = String.format("The json %s does not provide the required keys '%s' the entity '%s'", json, primaryKeyMissing, entityName);
 		return message;

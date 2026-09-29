@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marca uma entidade como somente leitura. Quando presente, o decorator {@code DecoratorReadOnlyEntity}
- * é aplicado, impedindo qualquer operação de escrita ({@code save}, {@code delete}, {@code transferDataTo})
- * e lançando exceção ao tentar executá-las.
+ * Marks an entity as read-only. When present, the {@code DecoratorReadOnlyEntity} decorator
+ * is applied, preventing any write operation ({@code save}, {@code delete}, {@code transferDataTo})
+ * and throwing an exception when one is attempted.
+
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

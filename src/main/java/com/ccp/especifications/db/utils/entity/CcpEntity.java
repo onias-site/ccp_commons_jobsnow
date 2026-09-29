@@ -25,9 +25,9 @@ import com.ccp.hash.CcpHashAlgorithm;
 import com.ccp.process.CcpProcessStatusDefault;
 
 /**
- * Contrato central do sistema de entidades do jobsnow. Representa um índice/tabela no Elasticsearch e define
- * todas as operações CRUD, além de utilitários para cálculo de ID, busca em union-all, transferência de dados
- * e validação. Todo enum de entidade do sistema implementa esta interface.
+ * Central contract of the jobsnow entity system. Represents an index/table in Elasticsearch and defines
+ * every CRUD operation, plus utilities for ID computation, union-all search, data transfer
+ * and validation. Every entity enum of the system implements this interface.
  */
 public interface CcpEntity  extends CcpJsonFieldName{
 	public static enum JsonFieldNames implements CcpJsonFieldName{
@@ -37,7 +37,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Retorna o nome da entidade (nome do índice no Elasticsearch) a partir dos metadados.
+	 * Returns the entity name (the index name in Elasticsearch) from the metadata.
 	 */
 	default String name() {
 		CcpEntityMetaData entityMetaData = this.getEntityMetaData();
@@ -45,8 +45,8 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Calcula o ID SHA-1 do documento com base nos campos de chave primária definidos nos metadados.
-	 * Se não houver chave primária, gera um UUID aleatório.
+	 * Computes the SHA-1 ID of the document from the primary key fields defined in the metadata.
+	 * If there is no primary key, generates a random UUID.
 	 */
 	default String calculateId(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
@@ -54,52 +54,52 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		boolean hasNoPrimaryKey = entityDetails.primaryKeyNames.isEmpty();
 
 		if(hasNoPrimaryKey) {
-			CcpEntityNoDefinedPrimaryKey ccpEntityNoDefinedPrimaryKey = new CcpEntityNoDefinedPrimaryKey(this);
-			throw ccpEntityNoDefinedPrimaryKey;
+			CcpEntityNoDefinedPrimaryKey noPrimaryKeyError = new CcpEntityNoDefinedPrimaryKey(this);
+			throw noPrimaryKeyError;
 		}
 
 		ArrayList<Object> sortedPrimaryKeyValues = entityDetails.getSortedPrimaryKeyValues(json);
-		String toString = sortedPrimaryKeyValues.toString();
-		String toStringReplace = toString.replace("[", "");
+		String primaryKeyValuesAsText = sortedPrimaryKeyValues.toString();
+		String withoutOpeningBracket = primaryKeyValuesAsText.replace("[", "");
 
-		String replace = toStringReplace.replace("]", "");
-		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(replace);
-		CcpHashDecorator hash2 = ccpStringDecorator.hash();
-		String hash = hash2.asString(CcpHashAlgorithm.SHA1);
+		String hashInput = withoutOpeningBracket.replace("]", "");
+		CcpStringDecorator hashInputDecorator = new CcpStringDecorator(hashInput);
+		CcpHashDecorator hashDecorator = hashInputDecorator.hash();
+		String hash = hashDecorator.asString(CcpHashAlgorithm.SHA1);
 		return hash;
 	}
 
 	/**
-	 * Copia dados desta entidade para outra entidade sem remover o registro original.
-	 * Por padrão a operação não é suportada, retornando {@code false}.
+	 * Copies data from this entity to another entity without removing the original record.
+	 * By default the operation is not supported and returns {@code false}.
 	 */
 	default boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		return false;
 	}
 
 	/**
-	 * Retorna os metadados da entidade (campos, chave primária, nome do índice, etc.).
-	 * Método obrigatório a ser implementado por cada entidade.
+	 * Returns the entity metadata (fields, primary key, index name, etc.).
+	 * Mandatory method to be implemented by every entity.
 	 */
 	CcpEntityMetaData getEntityMetaData();
 
 	/**
-	 * Remove o documento correspondente ao JSON informado do índice desta entidade.
-	 * O retorno vem da análise que o {@code CcpCrud} faz da resposta da remoção, considerando o json
-	 * devolvido pelo banco e o status HTTP: {@code true} quando o registro existia e foi removido
-	 * (200, com {@code result} igual a {@code deleted}) e {@code false} quando ele não foi encontrado
-	 * (404, com {@code result} igual a {@code not_found}).
+	 * Removes the document matching the given JSON from this entity's index.
+	 * The return value comes from the analysis {@code CcpCrud} makes of the removal response, considering the json
+	 * returned by the database and the HTTP status: {@code true} when the record existed and was removed
+	 * (200, with {@code result} equal to {@code deleted}) and {@code false} when it was not found
+	 * (404, with {@code result} equal to {@code not_found}).
 	 */
 	default boolean delete(CcpJsonRepresentation json) {
 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
-		String calculateId = this.calculateId(json);
+		String recordId = this.calculateId(json);
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		boolean deleted = crud.delete(entityDetails.entityName, calculateId);
+		boolean deleted = crud.delete(entityDetails.entityName, recordId);
 		return deleted;
 	}
 	/**
-	 * Variante de delete sem restrições adicionais; delega para {@code delete} por padrão.
+	 * Delete variant without additional restrictions; delegates to {@code delete} by default.
 	 */
 	default boolean deleteAnyWhere(CcpJsonRepresentation json) {
 		boolean deleted = this.delete(json);
@@ -107,7 +107,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Verifica se existe um documento com o ID calculado a partir do JSON informado.
+	 * Checks whether there is a document with the ID computed from the given JSON.
 	 */
 	default boolean exists(CcpJsonRepresentation json) {
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
@@ -118,72 +118,72 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Retorna a lista de entidades associadas. Por padrão, uma lista contendo apenas a própria entidade;
-	 * sobrescrito em entidades com twin.
+	 * Returns the list of associated entities. By default, a list containing only the entity itself;
+	 * overridden in entities with a twin.
 	 */
 	default List<CcpEntity> getAssociatedEntities(){
-		List<CcpEntity> asList = Arrays.asList(this);
-		return asList;
+		List<CcpEntity> associatedEntities = Arrays.asList(this);
+		return associatedEntities;
 	}
 
 	/**
-	 * Retorna o JSON possivelmente transformado antes de operações. Por padrão retorna o mesmo JSON sem alterações.
+	 * Returns the JSON, possibly transformed, before operations. By default returns the same JSON unchanged.
 	 */
 	default CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
 		return json;
 	}
 
 	/**
-	 * Busca um documento pelo ID calculado; lança {@code CcpErrorFlowDisturb} com status {@code NOT_FOUND}
-	 * se não encontrado.
+	 * Finds a document by the computed ID; throws {@code CcpErrorFlowDisturb} with status {@code NOT_FOUND}
+	 * if it is not found.
 	 */
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpBusiness arara = x -> {
-			CcpJsonRepresentation put = x.put(JsonFieldNames.entity, this);
-			CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(put, CcpProcessStatusDefault.NOT_FOUND);
-			throw ccpErrorFlowDisturb;
+		CcpBusiness whenNotFound = notFoundContext -> {
+			CcpJsonRepresentation notFoundContextWithEntity = notFoundContext.put(JsonFieldNames.entity, this);
+			CcpErrorFlowDisturb notFoundError = new CcpErrorFlowDisturb(notFoundContextWithEntity, CcpProcessStatusDefault.NOT_FOUND);
+			throw notFoundError;
 		};
-		CcpJsonRepresentation md = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, arara);
-		return md;
+		CcpJsonRepresentation recordFound = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, whenNotFound);
+		return recordFound;
 	}
 
 	/**
-	 * Busca o documento e retorna envolvendo o resultado sob a chave da própria entidade.
+	 * Finds the document and returns it wrapped under the key of the entity itself.
 	 */
 	default CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation oneById = this.getOneById(json);
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(this, oneById);
-		return put;
+		CcpJsonRepresentation recordUnderEntity = CcpOtherConstants.EMPTY_JSON.put(this, oneById);
+		return recordUnderEntity;
 	}
 
 	/**
-	 * Monta a lista de parâmetros (entity + id) necessária para uma busca do tipo union-all.
+	 * Builds the list of parameters (entity + id) needed for a union-all search.
 	 */
 	default List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 
 		String id = this.calculateId(json);
 
-		CcpDbRequester dependency = CcpDependencyInjection.getDependency(CcpDbRequester.class);
+		CcpDbRequester dbRequester = CcpDependencyInjection.getDependency(CcpDbRequester.class);
 
-		String fieldNameToEntity = dependency.getFieldNameToEntity();
-		String fieldNameToId = dependency.getFieldNameToId();
+		String fieldNameToEntity = dbRequester.getFieldNameToEntity();
+		String fieldNameToId = dbRequester.getFieldNameToId();
 
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpFieldName ccpFieldName = new CcpFieldName(fieldNameToEntity);
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
-		.put(ccpFieldName, entityDetails.entityName);
-		CcpFieldName ccpFieldName2 = new CcpFieldName(fieldNameToId);
+		CcpFieldName entityKey = new CcpFieldName(fieldNameToEntity);
+		CcpJsonRepresentation searchParameterWithEntity = CcpOtherConstants.EMPTY_JSON
+		.put(entityKey, entityDetails.entityName);
+		CcpFieldName idKey = new CcpFieldName(fieldNameToId);
 
-		CcpJsonRepresentation mainRecord = put2
-		.put(ccpFieldName2, id)
+		CcpJsonRepresentation mainRecord = searchParameterWithEntity
+		.put(idKey, id)
 		;
-		List<CcpJsonRepresentation> asList = Arrays.asList(mainRecord);
-		return asList;
+		List<CcpJsonRepresentation> parametersToSearch = Arrays.asList(mainRecord);
+		return parametersToSearch;
 	}
 
 	/**
-	 * Extrai o registro desta entidade de um resultado de union-all já executado.
+	 * Extracts this entity's record from a union-all result that has already been executed.
 	 */
 	default CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, Supplier<CcpJsonRepresentation> jsonSupplier) {
 
@@ -201,34 +201,34 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Retorna a entidade twin correspondente. Por padrão lança {@code UnsupportedOperationException}.
+	 * Returns the matching twin entity. By default throws {@code UnsupportedOperationException}.
 	 */
 	default CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
-		CcpEntity throwException = this.throwException();
-		return throwException;
+		CcpEntity twinEntity = this.throwException();
+		return twinEntity;
 	}
 
 	/**
-	 * Lança {@code UnsupportedOperationException} indicando que a operação não é suportada por esta entidade.
-	 * Usado como proteção em operações de escrita em entidades somente leitura.
+	 * Throws {@code UnsupportedOperationException} stating that the operation is not supported by this entity.
+	 * Used as a safeguard for write operations on read-only entities.
 	 */
 	default <T>T throwException() {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		String valorMais = "The entity '" + entityDetails.entityName;
-		String valorMaisMais = valorMais + "' is just to read only";
-		UnsupportedOperationException unsupportedOperationException = new UnsupportedOperationException(valorMaisMais);
-		throw unsupportedOperationException;
+		String messageWithEntity = "The entity '" + entityDetails.entityName;
+		String errorMessage = messageWithEntity + "' is just to read only";
+		UnsupportedOperationException readOnlyError = new UnsupportedOperationException(errorMessage);
+		throw readOnlyError;
 	}
 
 	/**
-	 * Retorna a entidade "embrulhada" (a entidade base dentro de um decorator). Por padrão retorna {@code this}.
+	 * Returns the "wrapped" entity (the base entity inside a decorator). By default returns {@code this}.
 	 */
 	default CcpEntity getWrapedEntity() {
 		return this;
 	}
 
 	/**
-	 * Verifica se o documento desta entidade está presente em um resultado de union-all.
+	 * Checks whether this entity's document is present in a union-all result.
 	 */
 	default boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
@@ -242,10 +242,10 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Salva o documento no índice desta entidade, filtrando apenas os campos existentes nos metadados.
-	 * O retorno vem da análise que o {@code CcpCrud} faz da própria resposta da gravação, considerando
-	 * tanto o json devolvido pelo banco quanto o status HTTP que o acompanha: {@code true} quando o
-	 * documento foi incluído (201) e {@code false} quando ele já existia e foi apenas atualizado (200).
+	 * Saves the document in this entity's index, keeping only the fields that exist in the metadata.
+	 * The return value comes from the analysis {@code CcpCrud} makes of the save response itself, considering
+	 * both the json returned by the database and the HTTP status that comes with it: {@code true} when the
+	 * document was inserted (201) and {@code false} when it already existed and was only updated (200).
 	 */
 	default boolean save(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
@@ -258,38 +258,38 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Converte o JSON em itens de operação bulk para uso no executor de bulk.
+	 * Converts the JSON into bulk operation items to be used by the bulk executor.
 	 */
 	default List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		CcpJsonRepresentation onlyExistingFields = entityDetails.getOnlyExistingFields(json);
-		String calculateId = this.calculateId(onlyExistingFields);
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(onlyExistingFields, operation, entityDetails.entity, calculateId);
-		return Arrays.asList(ccpBulkItem);
+		String recordId = this.calculateId(onlyExistingFields);
+		CcpBulkItem bulkItem = new CcpBulkItem(onlyExistingFields, operation, entityDetails.entity, recordId);
+		return Arrays.asList(bulkItem);
 	}
 
 	/**
-	 * Transfere (move) dados desta entidade para outra entidade, removendo o registro original.
-	 * Por padrão a operação não é suportada, retornando {@code false}.
+	 * Transfers (moves) data from this entity to another entity, removing the original record.
+	 * By default the operation is not supported and returns {@code false}.
 	 */
 	default boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		return false;
 	}
 
 	/**
-	 * Valida o JSON antes de operações de escrita. Por padrão retorna o JSON sem validação.
+	 * Validates the JSON before write operations. By default returns the JSON without validation.
 	 */
 	default CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
 		return json;
 	}
 
 	/**
-	 * Retorna o ID para buscar um registro descartável (disposable).
-	 * Por padrão lança {@code UnsupportedOperationException}.
+	 * Returns the ID used to search a disposable record.
+	 * By default throws {@code UnsupportedOperationException}.
 	 */
 	default CcpJsonRepresentation getIdToSearchDisposableRecord(CcpJsonRepresentation json) {
-		CcpJsonRepresentation throwException = this.throwException();
-		return throwException;
+		CcpJsonRepresentation idToSearch = this.throwException();
+		return idToSearch;
 	}
 
 	@SuppressWarnings("serial")

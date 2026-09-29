@@ -30,13 +30,13 @@ public final class CcpQueryAggregations extends CcpQueryComponent {
 
 	private CcpQueryAggregations createAggregation(String aggregationName, CcpEntityField fieldName, String key) {
 		CcpQueryAggregations copy = this.copy();
-		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldName);
-		Map<String, Object> c1 = put.getContent();
-		CcpFieldName ccpFieldName = new CcpFieldName(key);
-		CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON.put(ccpFieldName, c1);
-		Map<String, Object> c2 = put2.getContent();
-		CcpFieldName ccpFieldName2 = new CcpFieldName(aggregationName);
-		copy.json = copy.json.put(ccpFieldName2, c2);
+		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldName);
+		Map<String, Object> fieldContent = fieldJson.getContent();
+		CcpFieldName aggregationTypeKey = new CcpFieldName(key);
+		CcpJsonRepresentation aggregationJson = CcpOtherConstants.EMPTY_JSON.put(aggregationTypeKey, fieldContent);
+		Map<String, Object> aggregationContent = aggregationJson.getContent();
+		CcpFieldName aggregationNameKey = new CcpFieldName(aggregationName);
+		copy.json = copy.json.put(aggregationNameKey, aggregationContent);
 		return copy;
 	}
 
@@ -57,9 +57,9 @@ public final class CcpQueryAggregations extends CcpQueryComponent {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
-		CcpQueryAggregations ccpQueryAggregations = new CcpQueryAggregations(this.parent);
-		T t = (T) ccpQueryAggregations;
-		return t;
+		CcpQueryAggregations newInstance = new CcpQueryAggregations(this.parent);
+		T typedInstance = (T) newInstance;
+		return typedInstance;
 	}
 
 	public CcpQueryAggregations addSumAggregation(String aggregationName, CcpEntityField fieldName) {

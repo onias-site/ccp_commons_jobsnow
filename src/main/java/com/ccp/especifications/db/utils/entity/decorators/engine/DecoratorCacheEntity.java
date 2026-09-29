@@ -7,9 +7,9 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 
 /**
- * Decorator que adiciona cache às operações de leitura e escrita de uma entidade anotada com
- * {@code @CcpEntityCache}. Nas leituras retorna o resultado do cache quando disponível; nas
- * escritas atualiza ou invalida o cache conforme a operação realizada.
+ * Decorator that adds caching to the read and write operations of an entity annotated with
+ * {@code @CcpEntityCache}. On reads it returns the cached result when available; on
+ * writes it updates or invalidates the cache according to the operation performed.
  */
 class DecoratorCacheEntity extends CcpEntityDelegator {
 	
@@ -21,38 +21,38 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		this.cacheExpires = annotation.value();
 	}
 	
-	private CcpCacheDecorator getCache(String calculateId) {
-		CcpCacheDecorator ccpCacheDecorator = new CcpCacheDecorator(this, calculateId);
-		return ccpCacheDecorator;
+	private CcpCacheDecorator getCache(String recordId) {
+		CcpCacheDecorator cache = new CcpCacheDecorator(this, recordId);
+		return cache;
 	}
 
 	public boolean delete(CcpJsonRepresentation json) {
 
-		boolean delete = this.entity.delete(json);
-		String calculateId = this.entity.calculateId(json);
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		boolean deleted = this.entity.delete(json);
+		String recordId = this.entity.calculateId(json);
+		CcpCacheDecorator cache = this.getCache(recordId);
 
 		cache.delete();
 
-		return delete;
+		return deleted;
 	}
 
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 
-		boolean delete = this.entity.deleteAnyWhere(json);
+		boolean deleted = this.entity.deleteAnyWhere(json);
 
-		String calculateId = this.entity.calculateId(json);
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		String recordId = this.entity.calculateId(json);
+		CcpCacheDecorator cache = this.getCache(recordId);
 		
 		cache.delete();
 		
-		return delete;
+		return deleted;
 	}
 	
 	public boolean exists(CcpJsonRepresentation json) {
 		
-		String calculateId = this.entity.calculateId(json);		
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		String recordId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(recordId);
 
 		boolean presentInTheCache = cache.isPresentInTheCache();
 		
@@ -61,9 +61,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		}
 		
 		boolean exists = this.entity.exists(json);
-		boolean valorIgual = false == exists;
+		boolean doesNotExist = false == exists;
 
-		if(valorIgual) {
+		if(doesNotExist) {
 			cache.delete();
 			return false;
 		}
@@ -74,8 +74,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		
-		String calculateId = this.entity.calculateId(json);		
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		String recordId = this.entity.calculateId(json);		
+		CcpCacheDecorator cache = this.getCache(recordId);
 		
 		CcpJsonRepresentation result = cache.get(x -> this.entity.getOneById(json), this.cacheExpires);
 		
@@ -83,15 +83,15 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Devolve o registro do resultado de union-all <b>sem passar pelo cache</b>.
+	 * Returns the record from the union-all result <b>without going through the cache</b>.
 	 *
-	 * <p>O {@code CcpSelectUnionAll} é uma estrutura em memória: o {@code _mget} já trouxe todos os
-	 * registros antes desta chamada. Consultar o cache aqui não pode economizar ida nenhuma ao banco —
-	 * na melhor hipótese evita uma leitura de RAM, e na pior paga uma leitura e uma gravação no
-	 * servidor de cache para obter o que já estava na mão.</p>
+	 * <p>{@code CcpSelectUnionAll} is an in-memory structure: the {@code _mget} has already brought every
+	 * record before this call. Checking the cache here cannot save any round trip to the database —
+	 * at best it avoids a RAM read, and at worst it pays for a read and a write on the
+	 * cache server to get what was already at hand.</p>
 	 *
-	 * <p>O cache continua valendo em {@code getOneById} e {@code exists}, onde a alternativa é
-	 * realmente ir ao banco.</p>
+	 * <p>The cache is still used in {@code getOneById} and {@code exists}, where the alternative is
+	 * actually going to the database.</p>
 	 */
 	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
@@ -101,12 +101,12 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Informa se o registro está no resultado de union-all, <b>sem tocar no cache</b>.
+	 * Tells whether the record is in the union-all result, <b>without touching the cache</b>.
 	 *
-	 * <p>Além de a consulta ser em memória (ver {@code getRecordFromUnionAll}), a versão anterior
-	 * desfazia o próprio trabalho: {@code CcpCrud.unionAll} apaga a chave logo antes do {@code _mget},
-	 * e este método a regravava em seguida com o dado recém-lido. Eram três conversas com o servidor
-	 * de cache — apagar, ler, gravar — para terminar no mesmo estado de quem não faz nada.</p>
+	 * <p>Besides the lookup being in memory (see {@code getRecordFromUnionAll}), the previous version
+	 * undid its own work: {@code CcpCrud.unionAll} deletes the key right before the {@code _mget},
+	 * and this method wrote it back right after with the freshly read data. That was three conversations with the cache
+	 * server — delete, read, write — to end up in the same state as doing nothing.</p>
 	 */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
@@ -119,8 +119,8 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 
 		boolean inserted = this.entity.save(json);
 
-		String calculateId = this.entity.calculateId(json);
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		String recordId = this.entity.calculateId(json);
+		CcpCacheDecorator cache = this.getCache(recordId);
 
 		cache.put(json, this.cacheExpires);
 
@@ -130,11 +130,11 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 
 
-		String calculateId = this.entity.calculateId(json);
-		CcpCacheDecorator cache = this.getCache(calculateId);
+		String recordId = this.entity.calculateId(json);
+		CcpCacheDecorator cache = this.getCache(recordId);
 		cache.delete();
 
-		boolean transferDataTo = this.entity.transferDataTo(json, entities);
-		return transferDataTo;
+		boolean transferred = this.entity.transferDataTo(json, entities);
+		return transferred;
 	}
 }

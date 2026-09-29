@@ -11,9 +11,9 @@ import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Handler bulk que implementa a lógica de exclusão: se o registro existe, gera itens de
- * {@code delete}; se não existe, aplica uma função customizável (padrão: lista vazia). Permite
- * tratar ausência do registro de forma configurável — ignorando silenciosamente ou lançando exceção.
+ * Bulk handler that implements the delete logic: if the record exists, produces
+ * {@code delete} items; if it does not exist, applies a customizable function (default: empty list). Allows
+ * handling the missing record in a configurable way — silently ignoring it or throwing an exception.
  */
 public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
@@ -22,9 +22,9 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 	private final Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch;
 
 	/**
-	 * Cria o handler com comportamento padrão ao não encontrar o registro: lista vazia.
+	 * Creates the handler with the default behavior when the record is not found: empty list.
 	 *
-	 * @param entityToDelete entidade da qual o registro será excluído
+	 * @param entityToDelete entity from which the record will be deleted
 	 */
 	public CcpBulkHandlerDelete(CcpEntity entityToDelete) {
 		this(entityToDelete, json -> new ArrayList<>());
@@ -33,10 +33,10 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 	
 
 	/**
-	 * Cria o handler com comportamento customizado ao não encontrar o registro.
+	 * Creates the handler with a custom behavior when the record is not found.
 	 *
-	 * @param entityToDelete entidade da qual o registro será excluído
-	 * @param whenRecordWasNotFoundInTheEntitySearch função aplicada quando o registro não é encontrado
+	 * @param entityToDelete entity from which the record will be deleted
+	 * @param whenRecordWasNotFoundInTheEntitySearch function applied when the record is not found
 	 */
 	public CcpBulkHandlerDelete(CcpEntity entityToDelete, Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch) {
 		this.entityToDelete = entityToDelete;
@@ -46,35 +46,35 @@ public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEnti
 
 
 	/**
-	 * Gera itens bulk de {@code delete} para a entidade configurada.
+	 * Produces {@code delete} bulk items for the configured entity.
 	 *
-	 * @param json parâmetros da busca
-	 * @param recordFound dados do registro encontrado
-	 * @return lista de itens bulk de exclusão
+	 * @param json search parameters
+	 * @param recordFound data of the record found
+	 * @return list of delete bulk items
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 
-		List<CcpBulkItem> asList = this.entityToDelete.toBulkItems(json, CcpBulkEntityOperationType.delete);
-		return asList;
+		List<CcpBulkItem> deleteItems = this.entityToDelete.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		return deleteItems;
 	}
 
 	/**
-	 * Aplica a função de "não encontrado" fornecida no construtor ao item bulk correspondente.
+	 * Applies the "not found" function given in the constructor to the matching bulk item.
 	 *
-	 * @param json parâmetros da busca
-	 * @return resultado da função customizada de "não encontrado"
+	 * @param json search parameters
+	 * @return result of the custom "not found" function
 	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
-		String calculateId = this.entityToDelete.calculateId(json);
-		CcpBulkItem ccpBulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToDelete, calculateId);
-		List<CcpBulkItem> apply = this.whenRecordWasNotFoundInTheEntitySearch.apply(ccpBulkItem);
-		return apply;
+		String recordId = this.entityToDelete.calculateId(json);
+		CcpBulkItem deleteItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entityToDelete, recordId);
+		List<CcpBulkItem> notFoundItems = this.whenRecordWasNotFoundInTheEntitySearch.apply(deleteItem);
+		return notFoundItems;
 	}
 
 	/**
-	 * Retorna a entidade alvo de exclusão.
+	 * Returns the entity targeted by the deletion.
 	 *
-	 * @return entidade alvo
+	 * @return target entity
 	 */
 	public CcpEntity getEntityToSearch() {
 		return this.entityToDelete;

@@ -23,16 +23,16 @@ import com.ccp.especifications.json.CcpJsonHandler;
 
 
 /**
- * Decorator sobre um caminho de arquivo do sistema de arquivos. Encapsula operações de leitura, escrita, acréscimo,
- * compactação ZIP, remoção e conversão do conteúdo para outros tipos do framework (JSON, lista de JSONs).
- * Garante criação automática do diretório pai quando necessário.
+ * Decorator over a file path of the file system. Wraps read, write, append,
+ * ZIP compression, removal and conversion of the content to other framework types (JSON, list of JSONs).
+ * Ensures the automatic creation of the parent directory when needed.
  */
 public class CcpFileDecorator implements CcpDecorator<String> {
 	public final String content;
 	public final CcpFileDecorator parent;
 	/**
-	 * Encapsula o caminho e resolve automaticamente o decorator do diretório pai.
-	 * @param content o caminho do arquivo
+	 * Wraps the path and automatically resolves the decorator of the parent directory.
+	 * @param content the file path
 	 */
 	protected CcpFileDecorator(String content) {
 		this.parent = this.getParent(content);
@@ -43,12 +43,12 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	private CcpFileDecorator getParent(String content) {
 		
 		File file = new File(content);
-		String ap = file.getAbsolutePath();
-		String replace = ap.replace('\\', File.separatorChar);
-		File file2 = new File(replace);
-		File parentFile = file2.getParentFile();
-		boolean parentFileIgual = parentFile == null;
-		if(parentFileIgual) {
+		String rawAbsolutePath = file.getAbsolutePath();
+		String normalizedPath = rawAbsolutePath.replace('\\', File.separatorChar);
+		File normalizedFile = new File(normalizedPath);
+		File parentFile = normalizedFile.getParentFile();
+		boolean hasNoParent = parentFile == null;
+		if(hasNoParent) {
 			return null;
 		}
 		String absolutePath = parentFile.getAbsolutePath();
@@ -57,7 +57,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Compacta o arquivo ou diretório em um arquivo {@code .zip} com o mesmo nome no diretório corrente.
+	 * Compresses the file or directory into a {@code .zip} file with the same name in the current directory.
 	 */
 	public CcpFileDecorator zip() {
 		
@@ -65,16 +65,16 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		
 		String fileName = fileToZip.getName();
 		
-		try(FileOutputStream fos = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fos);) {
-			CcpFileDecorator zip = this.zip(fileToZip, zipOut);
-			return zip;
+		try(FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fileOutputStream);) {
+			CcpFileDecorator zippedFile = this.zip(fileToZip, zipOut);
+			return zippedFile;
 		} 
 		
 		
 	}
 	
 	/**
-	 * Retorna apenas o nome do arquivo (sem o caminho).
+	 * Returns only the file name (without the path).
 	 */
 	public String getName() {
 		File file = tryToCreateParentFolder();
@@ -82,7 +82,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return name;
 	}
 	/**
-	 * Retorna o caminho absoluto completo do arquivo.
+	 * Returns the complete absolute path of the file.
 	 */
 	public String getPath() {
 		File file = tryToCreateParentFolder();
@@ -95,110 +95,110 @@ public class CcpFileDecorator implements CcpDecorator<String> {
        if (hidden) {
             return this;
         }
-        boolean directory2 = fileToZip.isDirectory();
-        if (directory2) {
-            String terminacao = "/";
+        boolean isDirectory = fileToZip.isDirectory();
+        if (isDirectory) {
+            String trailingSlash = "/";
         	   boolean endsWith = this.content.endsWith("/");
         	   if (endsWith) {
-        		terminacao = ""; 
+        		trailingSlash = ""; 
             } 
-            String contentMais = this.content + terminacao;
-            ZipEntry e = new ZipEntry(contentMais);
-			zipOut.putNextEntry(e);
+            String directoryEntryName = this.content + trailingSlash;
+            ZipEntry directoryEntry = new ZipEntry(directoryEntryName);
+			zipOut.putNextEntry(directoryEntry);
             zipOut.closeEntry();
             File[] children = fileToZip.listFiles();
             for (File childFile : children) {
-                String contentMais2 = this.content + "/";
+                String childPathPrefix = this.content + "/";
                 String childFileName = childFile.getName();
-                String contentMais2Mais = contentMais2 + childFileName;
-                CcpFileDecorator ccpFileDecorator2 = new CcpFileDecorator(contentMais2Mais);
-                ccpFileDecorator2.zip(childFile, zipOut);
+                String childPath = childPathPrefix + childFileName;
+                CcpFileDecorator childFileDecorator = new CcpFileDecorator(childPath);
+                childFileDecorator.zip(childFile, zipOut);
             }
             return this;
         }
-        try(FileInputStream fis = new FileInputStream(fileToZip)) {
+        try(FileInputStream fileInputStream = new FileInputStream(fileToZip)) {
             ZipEntry zipEntry = new ZipEntry(this.content);
             zipOut.putNextEntry(zipEntry);
             byte[] bytes = new byte[1024];
             int length;
-            while ((length = fis.read(bytes)) >= 0) {
+            while ((length = fileInputStream.read(bytes)) >= 0) {
                 zipOut.write(bytes, 0, length);
             }
 			return this;
 		}
     }
 	/**
-	 * Lê todo o conteúdo do arquivo como string UTF-8. Lança {@code CcpErrorFolderParentIsMissing} se o arquivo não existir.
+	 * Reads the whole file content as a UTF-8 string. Throws {@code CcpErrorFolderParentIsMissing} if the file does not exist.
 	 */
 	public  String getStringContent() {
 		File file = tryToCreateParentFolder();
 		boolean exists = file.exists();
 		boolean fileIsMissing = false == exists;
 		if(fileIsMissing) {
-			CcpErrorFolderParentIsMissing ccpErrorFolderParentIsMissing = new CcpErrorFolderParentIsMissing(this);
-			throw ccpErrorFolderParentIsMissing;
+			CcpErrorFolderParentIsMissing fileMissingError = new CcpErrorFolderParentIsMissing(this);
+			throw fileMissingError;
 		}
 		Path path = file.toPath();
 		byte[] fileContent = Files.readAllBytes(path);
-		String string = new String(fileContent, "UTF-8");
-		return string;
+		String fileText = new String(fileContent, "UTF-8");
+		return fileText;
 	}
 	/**
-	 * Sobrescreve o arquivo com o conteúdo fornecido (limpa antes de escrever).
-	 * @param content o conteúdo a ser escrito
+	 * Overwrites the file with the given content (clears it before writing).
+	 * @param content the content to write
 	 */
 	public CcpFileDecorator write(String content) {
 		this.reset();
-		CcpFileDecorator append = this.append(content);
-		return append;
+		CcpFileDecorator writtenFile = this.append(content);
+		return writtenFile;
 		
 	}
 	
 	/**
-	 * Acrescenta o conteúdo ao final do arquivo (cria o arquivo se não existir).
-	 * @param content o conteúdo a ser acrescentado
+	 * Appends the content to the end of the file (creates the file if it does not exist).
+	 * @param content the content to append
 	 */
 	public CcpFileDecorator append(String content) {
 		File file = new File(this.content);
-		boolean exists2 = file.exists();
-		boolean valorIgual = false == exists2;
-		if (valorIgual) {
+		boolean exists = file.exists();
+		boolean fileIsMissing = false == exists;
+		if (fileIsMissing) {
 			file.createNewFile();
 		}
-		String contentMais3 = content + "\n";
-		byte[] bytes = (contentMais3).getBytes();
-		Path get = Paths.get(this.content);
-		Files.write(get, bytes, StandardOpenOption.APPEND);
+		String contentWithLineBreak = content + "\n";
+		byte[] bytes = (contentWithLineBreak).getBytes();
+		Path path = Paths.get(this.content);
+		Files.write(path, bytes, StandardOpenOption.APPEND);
 		return this;
 	}
 	/**
-	 * Apaga o conteúdo do arquivo, deixando-o vazio (apaga e recria).
+	 * Erases the file content, leaving it empty (deletes and recreates it).
 	 */
 	public CcpFileDecorator reset() {
 
-		File f = this.tryToCreateParentFolder();
+		File file = this.tryToCreateParentFolder();
 		
-		f.delete();
-		f.createNewFile();
+		file.delete();
+		file.createNewFile();
 		return this;
 	}
 
 	private File tryToCreateParentFolder() {
-		File f = new File(this.content);
-		String parent = f.getParent();
+		File file = new File(this.content);
+		String parent = file.getParent();
 		CcpFolderDecorator folder = new CcpFolderDecorator(parent);
 		folder.createFolderIfNotExists();
-		return f;
+		return file;
 	}
 	/**
-	 * Lê todas as linhas do arquivo e as retorna como lista de strings.
+	 * Reads all the lines of the file and returns them as a list of strings.
 	 */
 	public List<String> getLines(){
 		String filePath = this.content;
 		ArrayList<String> linesFromFile = new ArrayList<>();
 		String line;
-		try (FileReader fr = new FileReader(filePath); BufferedReader br = new BufferedReader(fr)) {
-			while ((line = br.readLine()) != null) {
+		try (FileReader fileReader = new FileReader(filePath); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+			while ((line = bufferedReader.readLine()) != null) {
 				linesFromFile.add(line);
 			}
 		}
@@ -207,14 +207,14 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 
 
 	/**
-	 * Lê o arquivo linha a linha, chamando o callback {@code reader.onRead(linha, índice)} para cada linha.
-	 * @param reader o callback a ser chamado para cada linha
+	 * Reads the file line by line, calling the callback {@code reader.onRead(line, index)} for each line.
+	 * @param reader the callback to call for each line
 	 */
 	public  CcpFileDecorator readLines(FileLineReader reader){
 		String line;
-		try (FileReader fr = new FileReader(this.content); BufferedReader br = new BufferedReader(fr)) {
+		try (FileReader fileReader = new FileReader(this.content); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 			int k = 0;
-			while ((line = br.readLine()) != null) {
+			while ((line = bufferedReader.readLine()) != null) {
 				reader.onRead(line, k++);
 			}
 			return this;
@@ -223,26 +223,26 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	
 	
 	public String toString() {
-		File file3 = new File(this.content);
-		String file3Name = file3.getName();
-		return file3Name;
+		File file = new File(this.content);
+		String fileName = file.getName();
+		return fileName;
 	}
 
 	/**
-	 * Verifica se o arquivo existe no sistema de arquivos.
+	 * Checks whether the file exists in the file system.
 	 */
 	public boolean exists() {
 		File file = tryToCreateParentFolder();
-		boolean exists3 = file.exists();
-		return exists3;
+		boolean exists = file.exists();
+		return exists;
 	}
 	/**
-	 * Retorna {@code true} se o caminho existe e aponta para um arquivo (não um diretório).
+	 * Returns {@code true} if the path exists and points to a file (not a directory).
 	 */
 	public boolean isFile() {
-		boolean exists4 = this.exists();
-		boolean valorIgual2 = false == exists4;
-		if(valorIgual2) {
+		boolean exists = this.exists();
+		boolean doesNotExist = false == exists;
+		if(doesNotExist) {
 			return false;
 		}
 		File file = new File(this.content);
@@ -253,7 +253,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return true;
 	}
 	/**
-	 * Reinterpreta o caminho como um diretório.
+	 * Reinterprets the path as a directory.
 	 */
 	public CcpFolderDecorator asFolder() {
 		CcpFolderDecorator ccpFolderDecorator = new CcpFolderDecorator(this.content);
@@ -261,29 +261,29 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Lê o conteúdo do arquivo e o desserializa como um único JSON.
+	 * Reads the file content and deserializes it as a single JSON.
 	 */
 	public CcpJsonRepresentation asSingleJson() {
-		String string = this.getStringContent();
-		CcpJsonRepresentation json = new CcpJsonRepresentation(string);
+		String fileText = this.getStringContent();
+		CcpJsonRepresentation json = new CcpJsonRepresentation(fileText);
 		return json;
 	}
 	
 	/**
-	 * Lê o conteúdo do arquivo e o desserializa como uma lista de objetos JSON.
+	 * Reads the file content and deserializes it as a list of JSON objects.
 	 */
 	public List<CcpJsonRepresentation> asJsonList(){
-		CcpJsonHandler dependency = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-		String string = this.getStringContent();
-		List<Map<String, Object>> list = dependency.fromJson(string);
-		var stream = list.stream();
-		var streamMap = stream.map(x -> new CcpJsonRepresentation(x));
-		List<CcpJsonRepresentation> collect = streamMap.collect(Collectors.toList());
-		return collect;
+		CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
+		String fileText = this.getStringContent();
+		List<Map<String, Object>> list = jsonHandler.fromJson(fileText);
+		var jsonMapsStream = list.stream();
+		var jsonStream = jsonMapsStream.map(x -> new CcpJsonRepresentation(x));
+		List<CcpJsonRepresentation> jsonList = jsonStream.collect(Collectors.toList());
+		return jsonList;
 	}
 	
 	/**
-	 * Remove o arquivo do sistema de arquivos.
+	 * Removes the file from the file system.
 	 */
 	public CcpFileDecorator remove() {
 
@@ -293,15 +293,15 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Renomeia o arquivo para o novo nome informado e retorna o decorator do novo arquivo.
-	 * @param newFileName o novo nome do arquivo
+	 * Renames the file to the given new name and returns the decorator of the new file.
+	 * @param newFileName the new file name
 	 */
 	public CcpFileDecorator rename(String newFileName) {
 		
 		File file = new File(this.content);
-		File file4 = new File(newFileName);
+		File renamedFile = new File(newFileName);
 
-		file.renameTo(file4);
+		file.renameTo(renamedFile);
 		
 		CcpFileDecorator newFile = new CcpFileDecorator(newFileName);
 		
@@ -309,7 +309,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o caminho do arquivo.
+	 * Implementation of {@code CcpDecorator}; returns the file path.
 	 */
 	public String getContent() {
 		return this.content;

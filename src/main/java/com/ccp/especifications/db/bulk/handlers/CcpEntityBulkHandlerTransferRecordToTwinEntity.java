@@ -11,10 +11,10 @@ import com.ccp.especifications.db.crud.CcpHandleWithSearchResultsInTheEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 
 /**
- * Handler bulk que implementa a transferência atômica de um registro de uma entidade para sua
- * entidade twin: se o registro é encontrado, gera um {@code create} na entidade twin e um
- * {@code delete} na entidade de origem; se não é encontrado, não gera nenhuma operação. Usado para
- * mover registros entre entidades espelhadas (twin pattern).
+ * Bulk handler that implements the atomic transfer of a record from an entity to its
+ * twin entity: if the record is found, produces a {@code create} in the twin entity and a
+ * {@code delete} in the source entity; if it is not found, produces no operation. Used to
+ * move records between mirrored entities (twin pattern).
  */
 public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
@@ -22,9 +22,9 @@ public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandle
 	private final Function<CcpBulkItem, List<CcpBulkItem>> handlerWhenNotFound;
 
 	/**
-	 * Inicializa com a entidade de origem da transferência.
+	 * Initializes with the source entity of the transfer.
 	 *
-	 * @param entity entidade de origem de onde o registro será transferido
+	 * @param entity source entity from which the record will be transferred
 	 */
 	public CcpEntityBulkHandlerTransferRecordToTwinEntity(CcpEntity entity, Function<CcpBulkItem, List<CcpBulkItem>> handlerWhenNotFound) {
 		this.handlerWhenNotFound = handlerWhenNotFound;
@@ -32,40 +32,40 @@ public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandle
 	}
 	
 	/**
-	 * Gera um item {@code create} para a entidade twin e um item {@code delete} para a entidade de
-	 * origem, efetuando a transferência em uma única operação bulk.
+	 * Produces a {@code create} item for the twin entity and a {@code delete} item for the source
+	 * entity, performing the transfer in a single bulk operation.
 	 *
-	 * @param json parâmetros da busca
-	 * @param recordFound dados do registro encontrado
-	 * @return lista com itens de create (twin) e delete (origem)
+	 * @param json search parameters
+	 * @param recordFound data of the record found
+	 * @return list with the create (twin) and delete (source) items
 	 */
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpEntity twinEntity = entityToSearch.getTwinEntity();
-		var itemTo = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
-		var itemFrom = entityToSearch.toBulkItems(json, CcpBulkEntityOperationType.delete);
-		var asList = new ArrayList<CcpBulkItem>();
-		asList.addAll(itemTo);
-		asList.addAll(itemFrom);
-		return asList;
+		var twinCreateItems = twinEntity.toBulkItems(json, CcpBulkEntityOperationType.create);
+		var sourceDeleteItems = entityToSearch.toBulkItems(json, CcpBulkEntityOperationType.delete);
+		var transferItems = new ArrayList<CcpBulkItem>();
+		transferItems.addAll(twinCreateItems);
+		transferItems.addAll(sourceDeleteItems);
+		return transferItems;
 	}
 
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpBulkHandlerDelete handler = new CcpBulkHandlerDelete(entityToSearch, this.handlerWhenNotFound);
-		List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch = handler.whenRecordWasNotFoundInTheEntitySearch(json);
-		return whenRecordWasNotFoundInTheEntitySearch;
+		List<CcpBulkItem> notFoundItems = handler.whenRecordWasNotFoundInTheEntitySearch(json);
+		return notFoundItems;
 	}
 
 	/**
-	 * Retorna a entidade de origem da transferência.
+	 * Returns the source entity of the transfer.
 	 *
-	 * @return entidade de origem
+	 * @return source entity
 	 */
 	public CcpEntity getEntityToSearch() {
 		return this.entity;
 	}
-	//ATTENTION EM CASO DE VALORES SENDO TRANSFERIDOS DE UMA ENTIDADE PARA OUTRA, CURRICULO POR EXEMPLO, OS FIELDS QUE ESTIVEREM VINDO NO 'SEARCHPARAMETER' SERAO OS NOVOS VALORES 
+	//ATTENTION WHEN VALUES ARE TRANSFERRED FROM ONE ENTITY TO ANOTHER (A RESUME, FOR EXAMPLE), THE FIELDS COMING IN THE 'SEARCHPARAMETER' WILL BE THE NEW VALUES
 	
 }

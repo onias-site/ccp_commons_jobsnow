@@ -5,11 +5,11 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecoratorOperationType;
 
 /**
- * Decorator que intercepta as operações de escrita ({@code save}, {@code delete},
- * {@code deleteAnyWhere}) para executar apenas os fluxos {@code after} configurados em
- * {@code @CcpEntityOperations}. Fica na parte interna da cadeia (prioridade baixa) para que os side
- * effects posteriores só aconteçam depois que a gravação de fato tiver ocorrido. O fluxo
- * {@code before} é responsabilidade de {@code DecoratorBeforeOperationsWriterEntity}.
+ * Decorator that intercepts the write operations ({@code save}, {@code delete},
+ * {@code deleteAnyWhere}) to execute only the {@code after} flows configured in
+ * {@code @CcpEntityOperations}. It stays in the inner part of the chain (low priority) so that the subsequent side
+ * effects only happen after the write has actually taken place. The
+ * {@code before} flow is the responsibility of {@code DecoratorBeforeOperationsWriterEntity}.
  */
 class DecoratorAfterOperationsWriterEntity extends CcpEntityDelegator {
 
@@ -21,17 +21,17 @@ class DecoratorAfterOperationsWriterEntity extends CcpEntityDelegator {
 	}
 
 	public boolean save(CcpJsonRepresentation json) {
-		boolean execute = CcpEntityDecoratorOperationType.save.executeAfter(json, this.clazz, this.entity);
-		return execute;
+		boolean outcome = CcpEntityDecoratorOperationType.save.executeAfter(json, this.clazz, this.entity);
+		return outcome;
 	}
 
 	public boolean delete(CcpJsonRepresentation json) {
-		boolean execute = CcpEntityDecoratorOperationType.delete.executeAfter(json, this.clazz, this.entity);
-		return execute;
+		boolean outcome = CcpEntityDecoratorOperationType.delete.executeAfter(json, this.clazz, this.entity);
+		return outcome;
 	}
 
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
-		boolean execute = CcpEntityDecoratorOperationType.deleteAnyWhere.executeAfter(json, this.clazz, this.entity);
-		return execute;
+		boolean outcome = CcpEntityDecoratorOperationType.deleteAnyWhere.executeAfter(json, this.clazz, this.entity);
+		return outcome;
 	}
 }
