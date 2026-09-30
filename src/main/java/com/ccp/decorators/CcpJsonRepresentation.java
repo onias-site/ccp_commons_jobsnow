@@ -39,7 +39,7 @@ public class CcpJsonRepresentation  {
 	/**
 	 * Default fields used to serialize exception details: cause, message, stack trace, type, stack trace hash and complete stack trace.
 	 */
-	public static enum Fields implements CcpJsonFieldName{
+	public static enum CcpStackTraceFields implements CcpJsonFieldName{
 		cause, message, stackTrace, type, stackTraceHash, completeStackTrace
 	}
 	/**
@@ -175,7 +175,7 @@ public class CcpJsonRepresentation  {
 		}
 		Object causeDetails = getCauseDetails(cause, stackTraceElements);
 		var completeStackTrace = getCompleteStackTrace(e).stream().map(x -> x.toString()).collect(Collectors.toList());
-		errorDetails = errorDetails.put(Fields.completeStackTrace, completeStackTrace).put(Fields.type, e.getClass().getName()).put(Fields.stackTrace, stackTrace).put(Fields.message, message).put(Fields.cause, causeDetails);
+		errorDetails = errorDetails.put(CcpStackTraceFields.completeStackTrace, completeStackTrace).put(CcpStackTraceFields.type, e.getClass().getName()).put(CcpStackTraceFields.stackTrace, stackTrace).put(CcpStackTraceFields.message, message).put(CcpStackTraceFields.cause, causeDetails);
 		return errorDetails;
 	}
 
