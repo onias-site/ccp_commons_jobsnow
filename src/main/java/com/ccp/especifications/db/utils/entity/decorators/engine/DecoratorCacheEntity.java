@@ -115,6 +115,12 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return presentInThisUnionAll;
 	}
 
+	/**
+	 * Caches only the fields the entity stores, the same record a {@code getOneById} brings from the
+	 * database. Up to 2026-09-30 the whole json went to the cache: a save arriving through the messaging
+	 * cached the message envelope ({@code operation}, {@code messageId}...) and the request's session fields
+	 * along with the record, and whoever read it back got a record the database does not have.
+	 */
 	public boolean save(CcpJsonRepresentation json) {
 
 		boolean inserted = this.entity.save(json);
@@ -122,7 +128,9 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		String recordId = this.entity.calculateId(json);
 		CcpCacheDecorator cache = this.getCache(recordId);
 
-		cache.put(json, this.cacheExpires);
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
+		CcpJsonRepresentation storedRecord = entityDetails.getOnlyExistingFields(json);
+		cache.put(storedRecord, this.cacheExpires);
 
 		return inserted;
 	}

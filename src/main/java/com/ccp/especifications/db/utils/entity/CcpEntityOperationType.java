@@ -35,6 +35,11 @@ public enum CcpEntityOperationType {
 			entity.delete(json);
 			return json;
 		}
+
+		public Class<?> getJsonValidationClass(CcpEntity entity){
+			Class<?> withoutValidation = this.getWithoutValidation();
+			return withoutValidation;
+		}
 	},
 	/**
 	 * Deletion operation without additional restrictions.
@@ -44,6 +49,11 @@ public enum CcpEntityOperationType {
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			entity.deleteAnyWhere(json);
 			return json;
+		}
+
+		public Class<?> getJsonValidationClass(CcpEntity entity){
+			Class<?> withoutValidation = this.getWithoutValidation();
+			return withoutValidation;
 		}
 	},
 	/**
@@ -152,12 +162,24 @@ public enum CcpEntityOperationType {
 		boolean entityWithoutValidation = annotation == null;
 
 		if(entityWithoutValidation) {
-			Class<? extends CcpEntityOperationType> clazz = this.getClass();
-			return clazz;
+			Class<?> withoutValidation = this.getWithoutValidation();
+			return withoutValidation;
 		}
 
 		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
 		return jsonValidationClass;
+	}
+
+	/**
+	 * The class of the enum constant itself, which declares no field and so validates nothing. The deletions
+	 * ({@code delete} and {@code deleteAnyWhere}) use it even when the entity has rules: they need only the
+	 * primary key, while the entity's rules describe the whole record. Up to 2026-09-30 an asynchronous
+	 * deletion was validated against the whole record, so deleting by the primary key alone was refused
+	 * (422) with the required non-key fields missing.
+	 */
+	Class<?> getWithoutValidation() {
+		Class<? extends CcpEntityOperationType> clazz = this.getClass();
+		return clazz;
 	}
 
 	public static enum Fields implements CcpJsonFieldName{
