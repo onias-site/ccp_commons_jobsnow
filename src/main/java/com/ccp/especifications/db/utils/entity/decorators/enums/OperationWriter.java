@@ -27,20 +27,44 @@ interface OperationWriter {
 			CcpJsonRepresentation apply = business.execute(json);
 			return apply;
 		} catch (RuntimeException e) {
-			Class<? extends RuntimeException> clazz = e.getClass();
-			List<CcpBusiness> list = exceptionHandlers.get(clazz);
-			
-			boolean notForeseen = list == null; 
-			 
-			if(notForeseen) { 
-				throw e;
-			}
-			
-			for (CcpBusiness ccpBusiness : list) {
-				json = this.executeBusiness(json, ccpBusiness, exceptionHandlers);
-			}
-			return json;
+			CcpJsonRepresentation handledJson = this.handleException(json, e, exceptionHandlers);
+			return handledJson;
 		}
+	}
+
+	/**
+	 * Like {@link #executeBusiness(CcpJsonRepresentation, CcpBusiness, Map)}, but for a business that guards
+	 * the operation (the {@code before} flow): once a foreseen exception is handled, the operation it guards
+	 * must not happen, so {@link CcpErrorEntityOperationCanceled} is thrown for the caller to give up on it.
+	 */
+	default CcpJsonRepresentation executeBusinessCancelingTheOperationWhenHandled(CcpJsonRepresentation json, CcpBusiness business, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
+		try {
+			CcpJsonRepresentation apply = business.execute(json);
+			return apply;
+		} catch (RuntimeException e) {
+			this.handleException(json, e, exceptionHandlers);
+			CcpErrorEntityOperationCanceled operationCanceled = new CcpErrorEntityOperationCanceled(e);
+			throw operationCanceled;
+		}
+	}
+
+	/**
+	 * Executes, in sequence, the handlers foreseen for the exception's type, or rethrows it when none is.
+	 */
+	private CcpJsonRepresentation handleException(CcpJsonRepresentation json, RuntimeException e, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
+		Class<? extends RuntimeException> clazz = e.getClass();
+		List<CcpBusiness> list = exceptionHandlers.get(clazz);
+
+		boolean notForeseen = list == null;
+
+		if(notForeseen) {
+			throw e;
+		}
+
+		for (CcpBusiness ccpBusiness : list) {
+			json = this.executeBusiness(json, ccpBusiness, exceptionHandlers);
+		}
+		return json;
 	}
 
 	/** Constrói o mapa de handlers a partir de um array de {@code @CcpExceptionFlow}. */

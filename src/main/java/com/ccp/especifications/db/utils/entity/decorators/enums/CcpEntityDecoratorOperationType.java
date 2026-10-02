@@ -82,14 +82,23 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	 * Executa o fluxo {@code before} e, na sequência, delega a operação ao restante da cadeia de
 	 * decorators. O JSON produzido pelo fluxo {@code before} é o que segue para os decorators
 	 * internos, de modo que tudo o que vem depois enxerga o resultado dos side effects prévios.
+	 *
+	 * <p>A business of the {@code before} flow guards the operation: when it throws an exception that a
+	 * configured {@code @CcpExceptionFlow} handles, the handlers run and the operation is canceled, returning
+	 * {@code false} without reaching the rest of the chain. Up to 2026-10-02 the operation went on after the
+	 * handlers, so a {@code before} validation could not refuse a write without making it fail.
 	 * @param json o JSON de entrada
 	 * @param clazz a classe com as anotações {@code @CcpEntityOperations}
 	 * @param entity a entidade alvo da operação
 	 */
 	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
-		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
-		boolean result = this.executeEntityOperation(before, entity);
-		return result;
+		try {
+			CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
+			boolean result = this.executeEntityOperation(before, entity);
+			return result;
+		} catch (CcpErrorEntityOperationCanceled e) {
+			return false;
+		}
 	}
 
 	/**
@@ -192,9 +201,12 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 			Map<Class<?>, List<CcpBusiness>> globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
 			globalExceptionHandlers.putAll(localExceptionHandlers);
 			Class<?>[] execute = operation.execute();
-			for (Class<?> businessClass : execute) { 
+			boolean isBeforeFlow = CcpEntityOperationPhase._before.equals(when);
+			for (Class<?> businessClass : execute) {
 				CcpBusiness business = this.getBusiness(businessClass);
-				json = this.executeBusiness(json, business, globalExceptionHandlers);
+				json = isBeforeFlow
+						? this.executeBusinessCancelingTheOperationWhenHandled(json, business, globalExceptionHandlers)
+						: this.executeBusiness(json, business, globalExceptionHandlers);
 			}
 			return json;
 		} 
