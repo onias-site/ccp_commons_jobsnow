@@ -2,54 +2,61 @@ package com.ccp.flow;
 
 
 /**
- * Ponto de entrada da API fluente de controle de fluxo condicional do framework.
- * Permite construir pipelines do tipo "tente executar X; se retornar status Y, execute Z;
- * ao final, encerre o statement". A API modela cenários de fluxo com tratamento de
- * exceções de negócio ({@code CcpErrorFlowDisturb}) de forma declarativa.
+ * Entry point of the fluent conditional-flow API of the framework. It builds pipelines such as "try to run X; if it
+ * returns status Y, run Z; then end the statement", modeling business exceptions ({@code CcpErrorFlowDisturb})
+ * declaratively:
+ * <pre>
+ * CcpTreeFlow.beginThisStatement()
+ * .tryToExecuteTheGivenFinalTargetProcess(mainProcess)
+ * .usingTheGivenJson(json)
+ * .butIfThisExecutionReturns(STATUS_A).thenExecuteTheGivenProcesses(handlerA1, handlerA2)
+ * .and().ifThisExecutionReturns(STATUS_B).thenExecuteTheGivenProcesses(handlerB)
+ * .and().endThisStatement(afterSuccess);
+ * </pre>
  */
 public final class CcpTreeFlow {
 
 	/**
-	 * Inicia a construção de um statement de fluxo. É o único ponto de entrada;
-	 * os demais passos seguem a cadeia fluente.
+	 * Starts building a flow statement. It is the only entry point; the other steps follow the fluent chain.
+	 * @return the first link of the chain
 	 */
 	public static CcpBeginThisStatement beginThisStatement() {
 		CcpBeginThisStatement ccpBeginThisStatement = new CcpBeginThisStatement();
 		return ccpBeginThisStatement;
 	}
 
-	/**
-	 * Primeiro elo da cadeia fluente de fluxo.
-	 * Recebe o processo principal que se deseja tentar executar.
+	/*
+	 * First link of the fluent chain (CcpBeginThisStatement):
+	 * receives the main process to be attempted.
 	 */
 
 
-	/**
-	 * Segundo elo da cadeia fluente. Recebe o JSON de entrada que será passado ao processo principal.
+	/*
+	 * Second link of the chain (CcpTryToExecuteTheGivenFinalTargetProcess): receives the input JSON passed to the main process.
 	 */
 
 
-	/**
-	 * Terceiro elo da cadeia. Permite declarar o primeiro tratamento condicional:
-	 * "mas se esta execução retornar o status X, então...".
+	/*
+	 * Third link of the chain (CcpUsingTheGivenJson): declares the first conditional handling,
+	 * "but if this execution returns status X, then...".
 	 */
 
 
-	/**
-	 * Quarto elo da cadeia. Associa um status de processo a uma lista de {@code CcpBusiness}
-	 * que devem ser executados como tratamento alternativo quando aquele status ocorrer.
+	/*
+	 * Fourth link of the chain (CcpIfThisExecutionReturns): associates a process status with the list of
+	 * {@code CcpBusiness} executed as alternative handling when that status occurs.
 	 */
 
 
-	/**
-	 * Quinto elo da cadeia. Permite adicionar mais ramificações condicionais (via {@code and()}) ou encerrar o statement.
+	/*
+	 * Fifth link of the chain (CcpExecuteTheGivenProcess): adds more conditional branches (through {@code and()}) or ends the statement.
 	 */
 
 
-	/**
-	 * Sexto e último elo da cadeia fluente de fluxo. Contém a lógica real de execução: tenta executar o processo
-	 * principal e, se uma {@code CcpErrorFlowDisturb} for lançada, localiza no mapa de fluxo os processos de
-	 * tratamento para aquele status e os executa recursivamente.
+	/*
+	 * Sixth and last link of the chain (CcpAndIfThisExecutionReturns). Holds the actual execution logic: tries to run
+	 * the main process and, if a {@code CcpErrorFlowDisturb} is thrown, looks up in the flow map the handling
+	 * processes of that status and runs them, then tries the main process again.
 	 */
 
 }

@@ -7,13 +7,21 @@ import com.ccp.process.CcpProcessStatus;
 
 import com.ccp.json.fields.validation.CcpJsonCommonsFields;
 
+/**
+ * Business that replaces the {@code status} field of a statement, which carries a {@code CcpProcessStatus}, with
+ * {@code statusName} and {@code statusNumber}, to describe the flow of a search in error messages.
+ */
 class FunctionPutStatus implements CcpBusiness {
+	/** Fields of a statement. */
 	enum JsonFieldNames implements CcpJsonFieldName{
+		/** The status of the statement. */
 		status
 	}
 
+	/** The single instance. */
 	public static final FunctionPutStatus INSTANCE = new FunctionPutStatus();
 
+	/** Singleton. */
 	private FunctionPutStatus() {}
 
 	/**

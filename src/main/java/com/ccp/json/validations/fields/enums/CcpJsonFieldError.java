@@ -24,8 +24,19 @@ import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
  */
 public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidatorInterface {
 	
+	/**
+	 * The value must be of the declared type of the field (for a collection, every item); breaks the other validations of
+	 * the field when broken.
+	 */
 	incompatibleType(CcpJsonFieldErrorHandleType.breakFieldValidation) {
 
+		/**
+		 * Tells whether the value is not compatible with the declared type.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return {@code true} when the type is incompatible
+		 */
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			
 		    String fieldName = field.getName();
@@ -47,6 +58,13 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return false;
 		}
 		
+		/**
+		 * Names the expected and the provided types.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the error message
+		 */
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
 			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
@@ -74,6 +92,12 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return errorMessage;
 		}
 
+		/**
+		 * Explains the expected type; nothing for collections, whose type is explained by {@code validateCollectionOrSigleValue}.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the explanation
+		 */
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
 			boolean isArray = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 			
@@ -90,13 +114,30 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return ruleExplanation;
 		}
 
+		/**
+		 * The type rule is always explained.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return always {@code true}
+		 */
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 
 			return true;
 		}
 	},
+	/**
+	 * The field must be present when it is required ({@code @CcpJsonFieldValidatorRequired} or primary key) and has no
+	 * default value.
+	 */
 	requiredFieldIsMissing(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
+		/**
+		 * Tells whether a required field is absent.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return {@code true} when a required field is missing
+		 */
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 			
 			boolean notValidated = this.isNotValidated(field);
@@ -113,6 +154,12 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return thisFieldIsNotPresent;
 		}
 
+		/**
+		 * Tells whether the presence of the field is not checked: it has a default value, or it is neither required nor
+		 * primary key.
+		 * @param field the field
+		 * @return {@code true} when the field is optional
+		 */
 		private boolean isNotValidated(Field field) {
 			boolean hasAnnotationDefaultValue = this.hasAnnotationDefaultValue(field);
 
@@ -154,6 +201,13 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return annotationPresentInTheReplacedField;
 		}
 
+		/**
+		 * Tells that the field is missing.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the error message
+		 */
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
 			String fieldLabel = "The field " + fieldName;
@@ -161,12 +215,24 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return errorMessage;
 		}
 
+		/**
+		 * Tells that the field is required.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the explanation
+		 */
 		public String getRuleExplanation(Field field, CcpJsonFieldType type) {
 			String fieldName = field.getName();
 			String fieldLabel = "The field " + fieldName;
 			String ruleExplanation = fieldLabel + " is required";
 			return ruleExplanation;
 		}
+		/**
+		 * The rule is explained only for required fields.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return {@code true} when the field is required
+		 */
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			boolean notValidated = this.isNotValidated(field);
 			boolean isValidated = false == notValidated;
@@ -174,8 +240,19 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 	},
 	
+	/**
+	 * A field annotated with {@code @CcpJsonFieldValidatorArray} must hold a collection, and any other field must not;
+	 * breaks the other validations of the field when broken. Checked only in the single-value context.
+	 */
 	validateCollectionOrSigleValue(CcpJsonFieldErrorHandleType.breakFieldValidation){
 		
+		/**
+		 * Tells whether the value should or should not be a collection.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the error message, or {@code ""} when there is no error
+		 */
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			boolean hasError = this.hasError(json, field, type);
 			boolean hasNoError = false == hasError;
@@ -205,6 +282,13 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return errorMessage;
 		}
 
+		/**
+		 * Tells whether the value being a JSON list disagrees with the presence of {@code @CcpJsonFieldValidatorArray}.
+		 * @param json the JSON being validated
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return {@code true} on a mismatch
+		 */
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			
 			String fieldName = field.getName();
@@ -218,6 +302,12 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return hasError;
 		}
 
+		/**
+		 * Explains whether the field accepts a collection or a single value of its type.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return the explanation
+		 */
 		public Object getRuleExplanation(Field field, CcpJsonFieldType type) {
 			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
 			String fieldName = field.getName();
@@ -238,6 +328,12 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return ruleExplanation;
 		}
 		
+		/**
+		 * Explained for every type except {@code Array}.
+		 * @param field the field
+		 * @param type the declared type of the field
+		 * @return {@code false} only for the {@code Array} type
+		 */
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			boolean arrayEquals = CcpJsonFieldDefaultTypes.Array.equals(type);
 			if(arrayEquals){
@@ -246,6 +342,11 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 			return true;
 		}
 
+		/**
+		 * Applies only to the single-value context.
+		 * @param context the validation context
+		 * @return {@code true} for {@code single}
+		 */
 		public boolean isValidValidationContext(CcpJsonFieldsValidationContext context) {
 			boolean singleEquals = CcpJsonFieldsValidationContext.single.equals(context);
 			return singleEquals;
@@ -255,16 +356,32 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 
 	;
 	
+	/**
+	 * Associates the rule with what happens to the other validations of the field when it is broken.
+	 * @param handleType the error handling strategy
+	 */
 	private CcpJsonFieldError(CcpJsonFieldErrorHandleType handleType) {
 		this.errorHandleType = handleType;
 	}
 
+	/** What happens to the other validations of the field when this rule is broken. */
 	private final CcpJsonFieldErrorHandleType errorHandleType;
 
+	/**
+	 * Returns what happens to the other validations of the field when this rule is broken.
+	 * @return the error handling strategy
+	 */
 	public CcpJsonFieldErrorHandleType getErrorHandleType() {
 		return this.errorHandleType;
 	}
 	
+	/**
+	 * Returns the value of the field in the JSON.
+	 * @param json the JSON being validated
+	 * @param field the field
+	 * @param type the declared type of the field
+	 * @return the value
+	 */
 	protected final Object getProvidedValue(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
 
 		String fieldName = field.getName();

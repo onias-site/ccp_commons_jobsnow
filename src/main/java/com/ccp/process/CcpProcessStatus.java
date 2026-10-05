@@ -5,19 +5,22 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.flow.CcpErrorFlowDisturb;
 
 /**
- * Contrato para representação de status de processo (análogo a códigos HTTP de resposta). Estende {@code CcpJsonFieldName},
- * permitindo uso direto em JSONs como chave de campo. Oferece métodos de verificação de status para uso em testes e de
- * lançamento de exceção de fluxo.
+ * Contract of a process status (analogous to HTTP response codes). It extends {@code CcpJsonFieldName}, so a status
+ * can be used directly as a JSON key, and offers status verification for tests and the flow-disturbing exception.
  */
 public interface CcpProcessStatus extends CcpJsonFieldName{
-	/** Retorna o código numérico do status (ex.: 200, 404, 409). */
+	/**
+	 * Returns the numeric code of the status (e.g. 200, 404, 409).
+	 * @return the numeric code
+	 */
 	int asNumber();
 
 	/**
-	 * Compara {@code actualStatus} com o esperado; retorna o nome do status se correto ou lança
-	 * {@code RuntimeException} com mensagem descritiva se incorreto. Usado em testes de integração.
-	 * @param actualStatus o código de status recebido
-	 * @param message mensagem adicional para diagnóstico
+	 * Compares the received status code with the expected one.
+	 * @param actualStatus the received status code
+	 * @param message additional diagnostic message appended to the error
+	 * @return the name of this status when the codes match
+	 * @throws UnexpectedProcessStatus when the codes differ
 	 */
 	default String verifyStatus(int actualStatus, String message) {
 		int expectedStatus = this.asNumber();
@@ -34,10 +37,11 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	}
 	
 	/**
-	 * Verifica tanto o código numérico quanto o nome do status. Retorna {@code this} se correto ou lança
-	 * {@code RuntimeException} se houver divergência.
-	 * @param actualStatus o código de status recebido
-	 * @param actualStatusName o nome do status recebido
+	 * Checks the numeric code and, when the received name is not blank, the status name as well.
+	 * @param actualStatus the received status code
+	 * @param actualStatusName the received status name; blank means "do not check the name"
+	 * @return this status when everything matches
+	 * @throws UnexpectedProcessStatus when the code or the name differs
 	 */
 	default CcpProcessStatus verifyStatusNames(int actualStatus, String actualStatusName) {
 		String expectedStatusName = this.verifyStatus(actualStatus, "");
@@ -59,20 +63,34 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 	
 	
 	/**
-	 * Lança uma {@code CcpErrorFlowDisturb} com o JSON fornecido e este status.
-	 * Usado para interromper o fluxo de forma controlada.
-	 * @param json o JSON de contexto da exceção
+	 * Throws a {@code CcpErrorFlowDisturb} carrying the JSON and this status, to interrupt the flow in a controlled way
+	 * so that the flow engine can route it to the handler of this status.
+	 * @param json context JSON of the exception
+	 * @return never returns
 	 */
 	default CcpJsonRepresentation throwException(CcpJsonRepresentation json) {
 		CcpErrorFlowDisturb ccpErrorFlowDisturb = new CcpErrorFlowDisturb(json, this);
 		throw ccpErrorFlowDisturb;
 	}
 
+	/** Raised by the verification methods when the received status (code or name) differs from the expected one. */
 	@SuppressWarnings("serial")
 	public static class UnexpectedProcessStatus extends RuntimeException {
+		/**
+		 * Builds the error of a code mismatch.
+		 * @param message additional diagnostic message
+		 * @param testName name of the expected status
+		 * @param expectedStatus expected code
+		 * @param actualStatus received code
+		 */
 		private UnexpectedProcessStatus(String message, String testName, int expectedStatus, int actualStatus) {
 			super(String.format("In the test '%s' it was expected the status '%s', but status '%s' was received. Message: " + message, testName, expectedStatus, actualStatus));
 		}
+		/**
+		 * Builds the error of a name mismatch.
+		 * @param expectedStatusName expected name
+		 * @param actualStatusName received name
+		 */
 		private UnexpectedProcessStatus(String expectedStatusName, String actualStatusName) {
 			super(String.format("It was expected the status name '%s' but status name '%s' was received insted", expectedStatusName, actualStatusName));
 		}

@@ -9,6 +9,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  * layer of the decorator chain built by {@code CcpEntityFactory}.
  */
 class DefaultImplementationEntity implements CcpEntity{
+	/** The metadata of the entity, not yet bound to the decorated entity. */
 	final CcpEntityMetaData entityDetails;
 
 	/** Stores the metadata of the entity to be represented. */
@@ -16,11 +17,20 @@ class DefaultImplementationEntity implements CcpEntity{
 		this.entityDetails = entityDetails;
 	}
 
+	/**
+	 * Returns the entity name.
+	 * @return the entity name
+	 */
 	public String toString() {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		return entityDetails.entityName;
 	}
 	
+	/**
+	 * Two entities are equal when they have the same name.
+	 * @param obj the other object
+	 * @return {@code true} for an entity with the same name
+	 */
 	public boolean equals(Object obj) {
 		if(obj instanceof CcpEntity other) {
 			CcpEntityMetaData entityDetails = this.getEntityMetaData();
@@ -31,12 +41,21 @@ class DefaultImplementationEntity implements CcpEntity{
 		return false;
 	}
 
+	/**
+	 * Consistent with {@link #equals(Object)}: the hash code of the entity name.
+	 * @return the hash code
+	 */
 	public int hashCode() {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		int hashCode = entityDetails.entityName.hashCode();
 		return hashCode;
 	}
 
+	/**
+	 * Returns the metadata bound to its decorated entity; a new binding is built on every call (for the twin side this
+	 * builds the twin entity through {@code CcpEntityFactory} each time).
+	 * @return the bound metadata
+	 */
 	public CcpEntityMetaData getEntityMetaData() {
 		CcpEntityMetaData associatedMetaData = this.entityDetails.associateEntity();
 		return associatedMetaData;
@@ -51,6 +70,12 @@ class DefaultImplementationEntity implements CcpEntity{
 		return transfered;
 	}
 
+	/**
+	 * Copy in the innermost layer, for the entities without a decorator that extends the default delegator.
+	 * @param json the record plus overriding fields
+	 * @param entityToCopyData the target entity
+	 * @return {@code false} when the record does not exist here, {@code true} otherwise
+	 */
 	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToCopyData) {
 		boolean copied = CcpEntityDataMover.copy(this, entityToCopyData, json, CcpEntityDataMover.DIRECT_BULK, CcpEntityDataMover.NO_CACHE_TO_CLEAN);
 		return copied;

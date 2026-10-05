@@ -9,17 +9,17 @@ import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 import java.util.stream.Stream;
 
 /**
- * Contrato para publicação de mensagens em tópicos GCP PubSub. Valida as mensagens antes de publicar
- * usando a engine de validação JSON.
+ * Contract for publishing messages to GCP PubSub topics. The JSON variants validate each message with the JSON
+ * validation engine before publishing.
  */
 public interface CcpMensageriaSender {
 
 	/**
-	 * Converte lista para array e delega ao método varargs.
-	 * @param topic nome do tópico PubSub
-	 * @param jsonValidationClass classe de validação do JSON
-	 * @param msgs lista de mensagens a publicar
-	 * @return this para encadeamento
+	 * List variant of {@link #sendToMensageria(String, Class, CcpJsonRepresentation...)}.
+	 * @param topic the PubSub topic
+	 * @param jsonValidationClass the validation class of the messages
+	 * @param msgs the messages to publish
+	 * @return this sender
 	 */
 	default CcpMensageriaSender sendToMensageria(String topic, Class<?> jsonValidationClass, List<CcpJsonRepresentation> msgs) {
 		int size = msgs.size();
@@ -30,11 +30,13 @@ public interface CcpMensageriaSender {
 	}
 	
 	/**
-	 * Valida cada JSON e converte para String antes de publicar no tópico.
-	 * @param topic nome do tópico PubSub
-	 * @param jsonValidationClass classe de validação do JSON
-	 * @param msgs mensagens a validar e publicar
-	 * @return this para encadeamento
+	 * Validates every message against the validation class (all of them before publishing any) and publishes their
+	 * compact JSON texts.
+	 * @param topic the PubSub topic, also used as the feature name in validation errors
+	 * @param jsonValidationClass the validation class of the messages
+	 * @param msgs the messages to publish
+	 * @return this sender
+	 * @throws com.ccp.json.validations.global.engine.CcpJsonValidationError when a message breaks a rule
 	 */
 	default CcpMensageriaSender sendToMensageria(String topic, Class<?> jsonValidationClass, CcpJsonRepresentation... msgs) {
 		Stream<CcpJsonRepresentation> stream = Arrays.asList(msgs).stream();
@@ -48,10 +50,10 @@ public interface CcpMensageriaSender {
 	}
 	
 	/**
-	 * Publica as strings diretamente no tópico sem validação adicional.
-	 * @param topic nome do tópico PubSub
-	 * @param msgs mensagens já serializadas a publicar
-	 * @return this para encadeamento
+	 * Publishes the already serialized messages, without validation.
+	 * @param topic the PubSub topic
+	 * @param msgs the serialized messages
+	 * @return this sender
 	 */
 	CcpMensageriaSender sendToMensageria(String topic, String... msgs);
  

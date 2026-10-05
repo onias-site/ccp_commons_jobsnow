@@ -30,22 +30,40 @@ import com.ccp.process.CcpProcessStatusDefault;
  */
 class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 	
+	/** The configurator class that carries {@code @CcpEntityTwin}. */
 	private final Class<?> clazz;
 
+	/** The twin entity, resolved lazily. */
 	private CcpEntity twin;
 	
 	
+	/**
+	 * Wraps the entity with the bulk executor and the cache cleaner named by {@code @CcpEntityTwin}.
+	 * @param entity the wrapped entity
+	 * @param clazz the configurator class
+	 */
 	public DecoratorTwinEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
 		this.clazz = clazz; 
 	}
 
+	/**
+	 * Wraps the entity with an already resolved twin.
+	 * @param entity the wrapped entity
+	 * @param twin the twin entity
+	 * @param clazz the configurator class
+	 */
 	private DecoratorTwinEntity(CcpEntity entity, CcpEntity twin, Class<?> clazz) {
 		super(entity, instanciateBulkExecutor(clazz), instanciateFunctionToDeleteKeysInTheCache(clazz));
 		this.clazz = clazz;
 		this.twin = twin;
 	}
 
+	/**
+	 * Instantiates the cache cleaner named by {@code @CcpEntityTwin}.
+	 * @param clazz the configurator class
+	 * @return the cache cleaner
+	 */
 	private static Consumer<String[]> instanciateFunctionToDeleteKeysInTheCache(Class<?> clazz) {
 		CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
 		Class<?> cacheCleanerClass = annotation.functionToDeleteKeysInTheCacheClass();
@@ -54,6 +72,11 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return cacheCleaner;
 	}
 
+	/**
+	 * Instantiates the bulk executor named by {@code @CcpEntityTwin}.
+	 * @param clazz the configurator class
+	 * @return the bulk executor
+	 */
 	private static CcpExecuteBulkOperation instanciateBulkExecutor(Class<?> clazz) {
 		CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
 		Class<?> bulkExecutorClass = annotation.bulkExecutorClass();
@@ -80,6 +103,10 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return existedBeforeTheDeletion;
 	}
 
+	/**
+	 * Returns the distinct associated entities of this side plus the ones of the twin side.
+	 * @return the associated entities
+	 */
 	public List<CcpEntity> getAssociatedEntities() {
 		List<CcpEntity> associatedEntities = this.entity.getAssociatedEntities();
 		ArrayList<CcpEntity> result = new ArrayList<CcpEntity>(associatedEntities);
@@ -140,6 +167,12 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return oneById;
 	}
 	
+	/**
+	 * Builds the {@code REDIRECT} disturbance telling that the record was moved to the twin.
+	 * @param json the record
+	 * @param twinEntity the twin entity
+	 * @return the disturbance (not thrown)
+	 */
 	private CcpErrorFlowDisturb getRedirect(CcpJsonRepresentation json, CcpEntity twinEntity) {
 		String id = twinEntity.calculateId(json);
 		String errorMessage = String.format("The id '%s' has been moved from '%s' to '%s' ", id, this,  twinEntity);
@@ -147,6 +180,13 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return redirectError;
 	}
 
+	/**
+	 * Returns the other side of the twin pair, resolved once: for the main side, the twin built by
+	 * {@code CcpEntityFactory} (without the decorators to avoid, on the first call); for the twin side, the {@code ENTITY}
+	 * of the configurator class.
+	 * @param decoratorsToAvoid decorators left out of the twin built on the first call
+	 * @return the twin entity
+	 */
 	public CcpEntity getTwinEntity(CcpEntityDecoratorType... decoratorsToAvoid) {
 		boolean twinAlreadyResolved = this.twin != null;
 	
@@ -186,6 +226,11 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return inserted;
 	}
 	
+	/**
+	 * Returns the search parameters of this side plus the ones of the twin side.
+	 * @param json the record
+	 * @return the search parameters
+	 */
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 		List<CcpJsonRepresentation> mainParametersToSearch = this.entity.getParametersToSearch(json);
 		List<CcpJsonRepresentation> parametersToSearch =  new ArrayList<CcpJsonRepresentation>(mainParametersToSearch);
@@ -195,6 +240,11 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		return parametersToSearch;
 	}
 	
+	/**
+	 * Returns the entity right inside the {@code DecoratorTwinEntity} of the twin side.
+	 * @return the inner entity of the twin side
+	 * @throws CcpErrorEntityIsNotTwin when the twin side has no twin decorator
+	 */
 	private CcpEntity getWrapedTwinEntity() {
 		CcpEntity customEntity = CcpEntityFactory.getCustomEntity(this);
 		CcpEntity twinEntity = customEntity.getTwinEntity();

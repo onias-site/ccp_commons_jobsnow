@@ -4,13 +4,18 @@ package com.ccp.especifications.db.utils.entity.fields
 import com.ccp.business.CcpBusiness;
 
 /**
- * Contrato para transformadores padrão de campos de entidade. Estende {@code CcpBusiness} para
- * poder ser usado como função de transformação e acrescenta os métodos de verificação de
- * elegibilidade como chave primária e de retorno do nome do campo.
+ * Contract of the default transformers of entity fields: a {@code CcpBusiness} that transforms the JSON, plus whether
+ * it may be applied to a primary key field and the name of the field it applies to.
  */
 public interface CcpJsonTransformersDefaultEntityField extends CcpBusiness{
-	/** Retorna {@code true} se este transformador pode ser aplicado a campos de chave primária. */
+	/**
+	 * Tells whether this transformer may be applied to a primary key field.
+	 * @return {@code true} when it can transform a primary key
+	 */
 	boolean canBePrimaryKey();
-	/** Retorna o nome do campo associado a este transformador. */
+	/**
+	 * Returns the name of the field this transformer applies to.
+	 * @return the field name
+	 */
 	String name();
 }

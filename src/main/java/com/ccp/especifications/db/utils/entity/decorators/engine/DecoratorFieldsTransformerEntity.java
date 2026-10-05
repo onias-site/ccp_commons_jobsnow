@@ -16,22 +16,42 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerEr
  */
 class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	
+	/**
+	 * Wraps the entity.
+	 * @param entity the wrapped entity
+	 * @param clazz the configurator class (unused)
+	 */
 	public DecoratorFieldsTransformerEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 	}
 	
+	/**
+	 * Transforms the fields and then deletes.
+	 * @param json the record
+	 * @return the outcome of the wrapped delete
+	 */
 	public boolean delete(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.delete(transformedJsonByEachFieldInJson);
 		return result;
 	}
 
+	/**
+	 * Transforms the fields and then deletes everywhere.
+	 * @param json the record
+	 * @return the outcome of the wrapped deleteAnyWhere
+	 */
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.deleteAnyWhere(transformedJsonByEachFieldInJson);
 		return result;
 	}
 
+	/**
+	 * Transforms the fields and then checks the existence.
+	 * @param json the record
+	 * @return the outcome of the wrapped exists
+	 */
 	public boolean exists(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.exists(transformedJsonByEachFieldInJson);
@@ -40,6 +60,13 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	
 
 	
+	/**
+	 * Applies, in field order, the transformer of every field that has one; a transformer that raises
+	 * {@code CcpEntityJsonTransformerError} is skipped. An already transformed JSON is returned as is, and the result is
+	 * marked as transformed.
+	 * @param json the record
+	 * @return the transformed record
+	 */
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
 		
 		boolean alreadyTransformedJson = json instanceof AlreadyTransformedJson;
@@ -68,6 +95,11 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 		return transformedJson;
 	}
 
+	/**
+	 * Transforms the fields and then reads the record.
+	 * @param json the record (at least its primary key)
+	 * @return the record
+	 */
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.getOneById(transformedJsonByEachFieldInJson);
@@ -75,30 +107,58 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	}
 	
 
+	/**
+	 * Transforms the fields and then builds the search parameters.
+	 * @param json the record
+	 * @return the search parameters
+	 */
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.getParametersToSearch(transformedJsonByEachFieldInJson);
 		return result;
 	}	
 
+	/**
+	 * Transforms the fields and then checks the union-all result.
+	 * @param unionAll the search result
+	 * @param json the record
+	 * @return {@code true} when the record was found
+	 */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.isPresentInThisUnionAll(unionAll, transformedJsonByEachFieldInJson);
 		return result;
 	}
 	
+	/**
+	 * Transforms the fields and then saves.
+	 * @param json the record
+	 * @return the outcome of the wrapped save
+	 */
 	public boolean save(CcpJsonRepresentation json) {
 		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
 		var result = this.entity.save(transformedJsonByEachFieldInJson);
 		return result;
 	}
 
+	/**
+	 * Transforms the fields and then transfers.
+	 * @param json the record
+	 * @param entities the target entity
+	 * @return the outcome of the wrapped transfer
+	 */
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		boolean result = this.entity.transferDataTo(handledJson, entities);
 		return result;
 	}
 
+	/**
+	 * Transforms the fields and then copies.
+	 * @param json the record
+	 * @param entities the target entity
+	 * @return the outcome of the wrapped copy
+	 */
 	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 		CcpJsonRepresentation handledJson = this.getHandledJson(json);
 		boolean result = this.entity.copyDataTo(handledJson, entities);

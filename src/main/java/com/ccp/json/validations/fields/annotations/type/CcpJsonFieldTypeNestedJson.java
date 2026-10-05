@@ -6,21 +6,19 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Indica que o valor é um JSON aninhado, com opção de validação recursiva e controle de JSONs vazios.
- */
+/** Declares that the value is a nested JSON, optionally validated by its own class and optionally forbidden to be empty. */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonFieldTypeNestedJson {
 	/**
-	 * Classe de validação do JSON interno (padrão: sem validação).
-	 * @return classe de validação do JSON aninhado
+	 * Validation class of the nested JSON (the default, this annotation itself, declares no rule).
+	 * @return the validation class of the nested JSON
 	 */
 	Class<?> jsonValidation() default CcpJsonFieldTypeNestedJson.class;
 
 	/**
-	 * Se JSON interno vazio é aceito.
-	 * @return true se JSON vazio é permitido (padrão: true)
+	 * Whether an empty nested JSON is accepted.
+	 * @return {@code true} (the default) when an empty JSON is accepted
 	 */
 	boolean allowsEmptyJson() default true;
 }

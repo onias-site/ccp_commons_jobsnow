@@ -6,19 +6,30 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Restrições para campos numéricos double: valor mínimo, máximo, exato e lista de permitidos.
- */
+/** Constraints of decimal fields: minimum, maximum, exact and allowed values. */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonFieldTypeNumber {
-	/** Valores permitidos para o campo. */
+	/**
+	 * The values allowed for the field.
+	 * @return the allowed values (empty means any)
+	 */
 	double[] allowedValues() default {};
-	/** Valor mínimo permitido. */
+	/**
+	 * Minimum value allowed. The default is {@code Double.MIN_VALUE}, the smallest POSITIVE double, not the most negative
+	 * one.
+	 * @return the minimum value
+	 */
 	double minValue() default Double.MIN_VALUE;
-	/** Valor máximo permitido. */
+	/**
+	 * Maximum value allowed.
+	 * @return the maximum value ({@code Double.MAX_VALUE} means no constraint)
+	 */
 	double maxValue() default Double.MAX_VALUE;
-	/** Valor exato obrigatório. */
+	/**
+	 * Mandatory exact value.
+	 * @return the exact value ({@code Double.MIN_VALUE} means no constraint)
+	 */
 	double exactValue() default Double.MIN_VALUE;
 
 }

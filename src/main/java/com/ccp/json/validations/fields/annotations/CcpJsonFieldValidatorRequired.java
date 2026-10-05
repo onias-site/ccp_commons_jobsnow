@@ -6,9 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Marca o campo como obrigatório na validação do JSON de entrada.
- */
+/** Marks the field as required in the validation of the input JSON (unless it declares a default value). */
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface CcpJsonFieldValidatorRequired {

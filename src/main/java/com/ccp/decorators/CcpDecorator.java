@@ -1,13 +1,15 @@
 package com.ccp.decorators;
 
 /**
- * Contrato base do padrão Decorator do framework. Todo wrapper de tipo específico implementa esta interface,
- * garantindo que o conteúdo encapsulado possa ser recuperado de forma tipada.
+ * Base contract of the framework's decorator pattern. Every wrapper of a specific type implements it, so the wrapped
+ * content can be retrieved with its type.
+ * @param <T> the wrapped type
  */
 public interface CcpDecorator<T> {
 
 	/**
-	 * Retorna o objeto interno encapsulado pelo decorator.
+	 * Returns the object wrapped by the decorator.
+	 * @return the wrapped object
 	 */
 	T getContent();
 

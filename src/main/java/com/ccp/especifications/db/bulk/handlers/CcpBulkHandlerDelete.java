@@ -17,8 +17,10 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 public class CcpBulkHandlerDelete implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
+	/** The entity from which the records are deleted. */
 	private final CcpEntity entityToDelete;
 
+	/** Decides what to do with the (would-be) delete item of a record that was not found. */
 	private final Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch;
 
 	/**

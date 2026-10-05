@@ -3,21 +3,28 @@ package com.ccp.decorators;
 import java.io.InputStream;
 
 /**
- * Decorator especializado em leitura de arquivos de configuração (formato {@code .properties} ou JSON).
- * Delega a abertura do stream para {@code CcpInputStreamDecorator} e converte o resultado em
- * {@code CcpJsonRepresentation}, permitindo acessar configurações como um mapa JSON uniforme.
+ * Decorator that reads configuration resources (JSON or {@code .properties} content). It delegates the opening of the
+ * stream to {@code CcpInputStreamDecorator} and converts the result into {@code CcpJsonRepresentation}, so settings are
+ * read as a uniform JSON map.
  */
 public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecorator> {
 
+	/** Opens the stream of the resource. */
 	private final CcpInputStreamDecorator content;
 
 	/**
-	 * Encapsula o identificador do recurso.
+	 * Wraps the identifier of the resource.
+	 * @param content the resource identifier (environment variable name, classpath resource or file path)
 	 */
 	protected CcpPropertiesDecorator(String content) {
 		this.content = new CcpInputStreamDecorator(content);
 	}
 
+	/**
+	 * Reads the stream as a JSON map.
+	 * @param is the stream of the resource
+	 * @return the settings
+	 */
 	private CcpJsonRepresentation getMapInInputStream(InputStream is) {
 		CcpJsonRepresentation response = new CcpJsonRepresentation(is);
 		return response;
@@ -25,7 +32,8 @@ public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecora
 	}
 	
 	/**
-	 * Carrega as configurações a partir de uma variável de ambiente.
+	 * Loads the settings from the environment variable named by the identifier.
+	 * @return the settings
 	 */
 	public CcpJsonRepresentation environmentVariables() {
 		InputStream is = this.content.environmentVariables();
@@ -34,7 +42,8 @@ public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecora
 	}
 
 	/**
-	 * Carrega as configurações a partir do classpath.
+	 * Loads the settings from the classpath resource named by the identifier.
+	 * @return the settings
 	 */
 	public CcpJsonRepresentation classLoader() {
 		InputStream is = this.content.classLoader();
@@ -43,7 +52,8 @@ public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecora
 	}
 
 	/**
-	 * Carrega as configurações a partir de um arquivo no sistema de arquivos.
+	 * Loads the settings from the file system path named by the identifier.
+	 * @return the settings
 	 */
 	public CcpJsonRepresentation file() {
 		InputStream is = this.content.file();
@@ -52,7 +62,9 @@ public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecora
 	}
 
 	/**
-	 * Tenta as três fontes em sequência e retorna as configurações da primeira disponível.
+	 * Tries the environment variable, the classpath and the file system, in this order, and loads the settings from the
+	 * first available source.
+	 * @return the settings
 	 */
 	public CcpJsonRepresentation environmentVariablesOrClassLoaderOrFile() {
 		InputStream is = this.content.fromEnvironmentVariablesOrClassLoaderOrFile();
@@ -61,7 +73,8 @@ public class CcpPropertiesDecorator implements CcpDecorator<CcpInputStreamDecora
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o decorator de stream interno.
+	 * Returns the inner stream decorator.
+	 * @return the stream decorator
 	 */
 	public CcpInputStreamDecorator getContent() {
 		return this.content;

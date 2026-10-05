@@ -13,18 +13,36 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecorat
  */
 class DecoratorBeforeTransferDataEntity extends CcpEntityDelegator {
 
+	/** The configurator class that carries {@code @CcpEntityDataTransfers}. */
 	private final Class<?> clazz;
 
+	/**
+	 * Wraps the entity.
+	 * @param entity the wrapped entity
+	 * @param clazz the configurator class
+	 */
 	public DecoratorBeforeTransferDataEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 		this.clazz = clazz;
 	}
 
+	/**
+	 * Runs {@code copyDataTo} through {@code CcpEntityDecoratorTransferType.copyDataTo.executeBefore}, which applies only the {@code before} flows.
+	 * @param json the record
+	 * @param entityToTransferData the target entity
+	 * @return the outcome of the operation; {@code false} when a handled exception canceled it
+	 */
 	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
 		boolean outcome = CcpEntityDecoratorTransferType.copyDataTo.executeBefore(json, this.clazz, this.entity, entityToTransferData);
 		return outcome;
 	}
 
+	/**
+	 * Runs {@code transferDataTo} through {@code CcpEntityDecoratorTransferType.transferDataTo.executeBefore}, which applies only the {@code before} flows.
+	 * @param json the record
+	 * @param entityToTransferData the target entity
+	 * @return the outcome of the operation; {@code false} when a handled exception canceled it
+	 */
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
 		boolean outcome = CcpEntityDecoratorTransferType.transferDataTo.executeBefore(json, this.clazz, this.entity, entityToTransferData);
 		return outcome;

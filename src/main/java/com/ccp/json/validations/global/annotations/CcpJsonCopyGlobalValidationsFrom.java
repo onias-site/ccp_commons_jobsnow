@@ -7,12 +7,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Indica que as validações globais desta classe devem ser herdadas de outra classe, evitando
- * duplicação de anotações {@code @CcpJsonGlobalValidations} em classes de validação derivadas.
+ * Tells that the global validations of this class are the ones of another class, avoiding repeated
+ * {@code @CcpJsonGlobalValidations}. Followed by the validation, but not by the rules explanation.
  */
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface CcpJsonCopyGlobalValidationsFrom {
-	/** Classe de origem das validações globais a ser copiadas. */
+	/**
+	 * The class whose global validations are used.
+	 * @return the source class
+	 */
 	Class<?> value();
 }

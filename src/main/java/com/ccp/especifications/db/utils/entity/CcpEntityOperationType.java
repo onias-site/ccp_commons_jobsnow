@@ -22,6 +22,12 @@ public enum CcpEntityOperationType {
 	 * Persistence operation (creation or update) of the record.
 	 */
 	save {
+		/**
+		 * Saves the record.
+		 * @param entity the entity
+		 * @param json the record
+		 * @return the input JSON
+		 */
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			entity.save(json);
 			return json;
@@ -31,11 +37,22 @@ public enum CcpEntityOperationType {
 	 * Record deletion operation.
 	 */
 	delete {
+		/**
+		 * Deletes the record.
+		 * @param entity the entity
+		 * @param json the record (only the primary key is needed)
+		 * @return the input JSON
+		 */
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			entity.delete(json);
 			return json;
 		}
 
+		/**
+		 * Deletions are not validated against the record rules; see {@link #getWithoutValidation()}.
+		 * @param entity the entity
+		 * @return the class without validation rules
+		 */
 		public Class<?> getJsonValidationClass(CcpEntity entity){
 			Class<?> withoutValidation = this.getWithoutValidation();
 			return withoutValidation;
@@ -45,12 +62,23 @@ public enum CcpEntityOperationType {
 	 * Deletion operation without additional restrictions.
 	 */
 	deleteAnyWhere {
+		/**
+		 * Deletes the record from the entity and from its twin.
+		 * @param entity the entity
+		 * @param json the record (only the primary key is needed)
+		 * @return the input JSON
+		 */
 		@Override
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			entity.deleteAnyWhere(json);
 			return json;
 		}
 
+		/**
+		 * Deletions are not validated against the record rules; see {@link #getWithoutValidation()}.
+		 * @param entity the entity
+		 * @return the class without validation rules
+		 */
 		public Class<?> getJsonValidationClass(CcpEntity entity){
 			Class<?> withoutValidation = this.getWithoutValidation();
 			return withoutValidation;
@@ -60,6 +88,12 @@ public enum CcpEntityOperationType {
 	 * Operation that transfers (moves) data from this entity to another, removing the source record.
 	 */
 	transferDataTo {
+		/**
+		 * Moves the record to the target entity named in the JSON (see {@link #putEntityToTransfer}).
+		 * @param entity the source entity
+		 * @param json the record plus the target entity
+		 * @return the input JSON
+		 */
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			CcpEntity entities = this.getEntities(json);
 			entity.transferDataTo(json, entities);
@@ -70,6 +104,12 @@ public enum CcpEntityOperationType {
 	 * Operation that copies data from this entity to another, without removing the source record.
 	 */
 	copyDataTo {
+		/**
+		 * Copies the record to the target entity named in the JSON (see {@link #putEntityToTransfer}).
+		 * @param entity the source entity
+		 * @param json the record plus the target entity
+		 * @return the input JSON
+		 */
 		public CcpJsonRepresentation execute(CcpEntity entity, CcpJsonRepresentation json) {
 			CcpEntity entities = this.getEntities(json);
 			entity.copyDataTo(json, entities);
@@ -182,7 +222,13 @@ public enum CcpEntityOperationType {
 		return clazz;
 	}
 
+	/** Fields that carry the target entity of an asynchronous transfer or copy. */
 	public static enum Fields implements CcpJsonFieldName{
-		entityToTransferTheData, entityToTransfer, entityNameToTransfer
+		/** Unused. */
+		entityToTransferTheData,
+		/** The name of the configuration class of the target entity. */
+		entityToTransfer,
+		/** The name of the target entity, which tells whether the target is the main entity or its twin. */
+		entityNameToTransfer
 	}
 }

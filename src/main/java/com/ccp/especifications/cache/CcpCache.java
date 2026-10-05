@@ -8,38 +8,35 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Contrato de acesso ao sistema de cache (ex.: GCP Memcache). Define operações básicas de leitura,
- * escrita e remoção de valores em cache, identificados por chave string, com suporte a tempo de
- * expiração e fallback automático quando a chave não está presente.
+ * Contract of the cache system (e.g. GCP Memcache). Defines reading, writing and removal of values identified by a text
+ * key, with expiration time and automatic fallback when the key is not present.
  */
 public interface CcpCache {
 
-	/**
-	 * Recupera o valor armazenado para a chave informada.
-	 *
-	 * @param key a chave de cache
-	 * @return o valor armazenado
-	 */
+	 /**
+	  * Returns the value stored under the key.
+	  * @param key the cache key
+	  * @return the stored value, or {@code null} when the key is not in the cache
+	  */
 	 Object get(String key) ;
 
-	/**
-	 * Tenta recuperar o valor do cache pela chave; se não houver entrada,
-	 * executa {@code taskToGetValue} para obter o valor, grava o resultado no cache com o TTL
-	 * informado e o retorna.
-	 *
-	 * @param key chave de cache
-	 * @param json parâmetros contextuais passados à função de fallback
-	 * @param taskToGetValue função executada quando a chave não está no cache
-	 * @param cacheSeconds tempo de expiração em segundos
-	 * @return o valor obtido do cache ou produzido pela função de fallback
-	 */
+		/**
+		 * Returns the value cached under the key; on a miss, runs {@code taskToGetValue}, caches its result with the given
+		 * expiration and returns it.
+		 * @param <V> the type of the value
+		 * @param key the cache key
+		 * @param json input passed to the fallback function
+		 * @param taskToGetValue function run on a cache miss
+		 * @param cacheSeconds expiration in seconds
+		 * @return the cached value or the one produced by the function
+		 */
 		@SuppressWarnings("unchecked")
 		default <V> V get(String key, CcpJsonRepresentation json, Function<CcpJsonRepresentation, V> taskToGetValue, int cacheSeconds) {
 
 			Object object = this.get(key);
-			boolean objectDiferente = object != null;
+			boolean foundInCache = object != null;
 
-			if (objectDiferente) {
+			if (foundInCache) {
 				V v = (V) object;
 				return v;
 			}
@@ -49,13 +46,22 @@ public interface CcpCache {
 			return value;
 		}
 
+		/**
+		 * JSON variant of the read-through: on a miss, runs {@code taskToGetValue.execute(json)} (validation included), caches
+		 * the map of the result and returns it; on a hit, rebuilds the JSON from the cached map, or parses the cached text.
+		 * @param key the cache key
+		 * @param json input of the business on a miss
+		 * @param taskToGetValue business run on a cache miss
+		 * @param cacheSeconds expiration in seconds
+		 * @return the cached or computed JSON
+		 */
 		@SuppressWarnings("unchecked")
 		default CcpJsonRepresentation get(String key, CcpJsonRepresentation json, CcpBusiness taskToGetValue, int cacheSeconds) {
 
 			Object object = this.get(key);
-			boolean objectIgual = object == null;
+			boolean missingInCache = object == null;
 
-			if (objectIgual) {
+			if (missingInCache) {
 				CcpJsonRepresentation value = taskToGetValue.execute(json);
 				this.put(key, value.content, cacheSeconds);
 				return value;
@@ -74,18 +80,18 @@ public interface CcpCache {
 	
 	
 	/**
-	 * Retorna o valor em cache para a chave ou, se ausente, retorna {@code defaultValue} sem lançar exceção.
-	 *
-	 * @param key a chave de cache
-	 * @param defaultValue valor retornado quando a chave não está no cache
-	 * @return o valor armazenado ou {@code defaultValue}
+	 * Returns the value cached under the key, or the default value on a miss, without throwing.
+	 * @param <V> the type of the value
+	 * @param key the cache key
+	 * @param defaultValue value returned on a miss
+	 * @return the stored value or {@code defaultValue}
 	 */
 	@SuppressWarnings("unchecked")
 	default <V> V getOrDefault(String key, V defaultValue) {
 		Object object = this.get(key);
-		boolean objectIgual2 = object == null;
+		boolean missingInCache2 = object == null;
 
-		if(objectIgual2) {
+		if(missingInCache2) {
 			return defaultValue;
 		}
 		V v2 = (V) object;
@@ -93,19 +99,18 @@ public interface CcpCache {
 	}
 	
 	/**
-	 * Retorna o valor em cache para a chave; se ausente, lança a exceção fornecida,
-	 * forçando o chamador a tratar o caso de cache miss.
-	 *
-	 * @param key a chave de cache
-	 * @param e exceção lançada quando a chave não está no cache
-	 * @return o valor armazenado
+	 * Returns the value cached under the key, throwing the given exception on a miss.
+	 * @param <V> the type of the value
+	 * @param key the cache key
+	 * @param e exception thrown on a miss
+	 * @return the stored value
 	 */
 	@SuppressWarnings("unchecked")
 	default <V> V getOrThrowException(String key, RuntimeException e) {
 		Object object = this.get(key);
-		boolean objectIgual3 = object == null;
+		boolean missingInCache3 = object == null;
 
-		if(objectIgual3) {
+		if(missingInCache3) {
 			throw e;
 		}
 		V v3 = (V) object;
@@ -114,10 +119,9 @@ public interface CcpCache {
 	}
 	
 	/**
-	 * Verifica se existe algum valor associado à chave no cache.
-	 *
-	 * @param key a chave de cache
-	 * @return {@code true} se o valor estiver presente
+	 * Tells whether there is a value cached under the key.
+	 * @param key the cache key
+	 * @return {@code true} when the value is present
 	 */
 	default boolean isPresent(String key) {
 		var get = this.get(key);
@@ -126,37 +130,33 @@ public interface CcpCache {
 	}
 
 	/**
-	 * Armazena {@code value} no cache sob {@code key} com expiração em {@code secondsDelay} segundos.
-	 *
-	 * @param key chave de cache
-	 * @param value valor a armazenar
-	 * @param secondsDelay TTL em segundos
-	 * @return a própria instância para encadeamento
+	 * Stores the value under the key, expiring after the given seconds.
+	 * @param key the cache key
+	 * @param value the value to store
+	 * @param secondsDelay expiration in seconds
+	 * @return this instance, for chaining
 	 */
 	CcpCache put(String key, Object value, int secondsDelay);
 
 	/**
-	 * Remove a entrada da chave informada do cache.
-	 *
-	 * <p>Não devolve o valor removido de propósito. Devolvê-lo obriga a implementação a ler antes de
-	 * apagar — duas idas ao servidor de cache em vez de uma — e nenhum dos chamadores usava o retorno:
-	 * todos os pontos de remoção ({@code JnDeleteKeysFromCache} e os cinco de
-	 * {@code DecoratorCacheEntity}) chamam este método como comando isolado.</p>
-	 *
-	 * @param key a chave de cache
+	 * Removes the entry of the key.
+	 * <p>
+	 * On purpose it does not return the removed value: returning it would force the implementation to read before
+	 * deleting (two round trips to the cache server instead of one), and no caller used the return value: every removal
+	 * point ({@code JnDeleteKeysFromCache} and the ones of {@code DecoratorCacheEntity}) calls this method as a standalone
+	 * command.
+	 * @param key the cache key
 	 */
 	void delete(String key);
 
 	/**
-	 * Remove de uma vez todas as chaves informadas.
-	 *
-	 * <p>A implementação padrão apaga uma a uma, para que qualquer {@code CcpCache} continue
-	 * funcionando sem alteração. Quem fala com um servidor de cache de verdade deve sobrescrever com a
-	 * operação em lote do provedor: a invalidação dispara antes de <b>toda</b> busca
-	 * ({@code CcpCrud.deleteKeysInCache}), e uma busca que toca nove entidades vira nove idas à rede
-	 * quando poderia ser uma.</p>
-	 *
-	 * @param keys as chaves a remover
+	 * Removes all the given keys at once.
+	 * <p>
+	 * The default implementation deletes them one by one, so that any {@code CcpCache} keeps working unchanged.
+	 * Implementations that talk to a real cache server should override it with the provider's batch operation: the
+	 * invalidation runs before <b>every</b> search ({@code CcpCrud.deleteKeysInCache}), and a search touching nine
+	 * entities becomes nine network round trips when it could be one.
+	 * @param keys the keys to remove
 	 */
 	default void deleteAll(Collection<String> keys) {
 		for (String key : keys) {

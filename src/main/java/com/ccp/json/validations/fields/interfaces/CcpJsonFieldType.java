@@ -12,25 +12,26 @@ import com.ccp.json.validations.fields.enums.CcpJsonFieldError;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldsValidationContext;
 
 /**
- * Contrato central para tipos de campo de validação JSON. Orquestra verificação de tipo,
- * acumulação de erros e geração de explicações de regras.
+ * Central contract of the field types of the JSON validation: type compatibility, accumulation of errors and
+ * explanation of the rules.
  */
 public interface CcpJsonFieldType {
 
 	/**
-	 * Verifica se o valor do campo é compatível com o tipo esperado.
-	 * @param fieldName nome do campo a verificar
-	 * @return predicado que testa compatibilidade de tipo
+	 * Returns the check that tells whether the value of the field is compatible with the type.
+	 * @param fieldName the field name
+	 * @return the compatibility check
 	 */
 	abstract Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName);
 
 	
 	/**
-	 * Executa validações e retorna se há erros para o campo.
-	 * @param json JSON sendo validado
-	 * @param field campo a validar
-	 * @param context contexto de validação (single ou collection)
-	 * @return true se houver erros
+	 * Tells whether the field breaks any rule of the type. An absent field has no errors; validations outside the context
+	 * or not configured for the field (see {@code hasRuleExplanation} of each validation) are skipped.
+	 * @param json the JSON being validated
+	 * @param field the field
+	 * @param context the validation context
+	 * @return {@code true} at the first broken rule
 	 */
 	default boolean hasErrors(CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 		java.lang.String fieldName = field.getName();
@@ -68,12 +69,14 @@ public interface CcpJsonFieldType {
 	}
 	
 	/**
-	 * Acumula erros de validação no JSON de erros.
-	 * @param errors JSON de erros acumulados
-	 * @param json JSON sendo validado
-	 * @param field campo a validar
-	 * @param context contexto de validação
-	 * @return JSON de erros atualizado
+	 * Adds to the errors every rule of the type that the field breaks. An absent field has no errors. Unlike
+	 * {@link #hasErrors}, a validation is skipped only when the field does not declare the type, not when the validation
+	 * itself is not configured.
+	 * @param errors the accumulated errors
+	 * @param json the JSON being validated
+	 * @param field the field
+	 * @param context the validation context
+	 * @return the updated errors
 	 */
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Field field, CcpJsonFieldsValidationContext context) {
 
@@ -114,10 +117,10 @@ public interface CcpJsonFieldType {
 	}
 
 	/**
-	 * Adiciona explicações de regras ao JSON de regras.
-	 * @param ruleExplanation JSON de explicações de regras
-	 * @param field campo sendo documentado
-	 * @return JSON de regras atualizado
+	 * Adds the explanations of the rules of the type configured for the field, when the field declares the type.
+	 * @param ruleExplanation the accumulated explanations
+	 * @param field the field
+	 * @return the updated explanations
 	 */
 	default CcpJsonRepresentation updateRuleExplanation(CcpJsonRepresentation ruleExplanation, Field field) {
 		boolean ruleExplanation4 = this.hasRuleExplanation(field);
@@ -133,6 +136,11 @@ public interface CcpJsonFieldType {
 		return ruleExplanation;
 	}
 
+	/**
+	 * Returns the default validations followed by the validations specific to the type.
+	 * @param field the field
+	 * @return the validations
+	 */
 	private List<CcpJsonFieldValidatorInterface> getAllValidations(Field field) {
 		
 		List<CcpJsonFieldValidatorInterface> validations = this.getDefaultValidations();
@@ -144,29 +152,29 @@ public interface CcpJsonFieldType {
 	}
 
 	/**
-	 * Retorna os validadores padrão: {@code incompatibleType} e {@code validateCollectionOrSigleValue}.
-	 * @return lista de validadores padrão
+	 * Returns the validations every type shares: {@code incompatibleType} and {@code validateCollectionOrSigleValue}.
+	 * @return a new modifiable list of the default validations
 	 */
 	default List<CcpJsonFieldValidatorInterface> getDefaultValidations(){
 		List<CcpJsonFieldValidatorInterface> asList = new ArrayList<>(Arrays.asList(CcpJsonFieldError.incompatibleType, CcpJsonFieldError.validateCollectionOrSigleValue));
 		return asList;
 	}
 	/**
-	 * Retorna os validadores específicos do tipo.
-	 * @return array de validadores específicos
+	 * Returns the validations specific to the type.
+	 * @return the specific validations
 	 */
 	CcpJsonFieldValidatorInterface[] getErrorTypes();
 
 	/**
-	 * Indica se há regras ativas para o campo.
-	 * @param field campo a verificar
-	 * @return true se houver regras de validação ativas
+	 * Tells whether the field declares this type.
+	 * @param field the field
+	 * @return {@code true} when the field declares the type
 	 */
 	abstract boolean hasRuleExplanation(Field field);
 
 	/**
-	 * Nome do tipo de campo.
-	 * @return nome do tipo
+	 * Returns the name of the type.
+	 * @return the type name
 	 */
 	String name();
 

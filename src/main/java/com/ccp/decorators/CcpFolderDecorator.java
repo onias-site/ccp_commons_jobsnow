@@ -11,11 +11,13 @@ import java.util.zip.ZipOutputStream;
 import com.ccp.aop.CcpAllowNullReturn;
 
 /**
- * Decorator over a directory path in the file system. Offers operations to create subfolders and files,
- * iterate over the content, ZIP compression and recursive removal.
+ * Decorator over a directory path of the file system. Offers operations to create subfolders and files, iterate over
+ * the content, ZIP compression and removal of the directory with its direct files.
  */
 public class CcpFolderDecorator implements CcpDecorator<String> {
+	/** The directory path. */
 	public final String content;
+	/** The parent directory (absolute path), or {@code null} when the path has no parent. */
 	public final CcpFolderDecorator parent;
 	/**
 	 * Wraps the path and resolves the parent directory.
@@ -26,6 +28,11 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		this.content = content;
 	}
 
+	/**
+	 * Resolves the parent directory of a path.
+	 * @param content the directory path
+	 * @return the parent directory, or {@code null} when the path has no parent
+	 */
 	@CcpAllowNullReturn
 	private CcpFolderDecorator getParent(String content) {
 		File file = new File(content);
@@ -41,6 +48,7 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	
 	/**
 	 * Reinterprets the path as a file.
+	 * @return the file decorator over the same path
 	 */
 	public CcpFileDecorator asFile() {
 		CcpFileDecorator ccpFileDecorator = new CcpFileDecorator(this.content);
@@ -48,7 +56,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Compresses the whole directory into a {@code .zip} file with the same name.
+	 * Compresses the directory, recursively, into a {@code <name>.zip} file created in the working directory of the
+	 * process. Hidden entries are skipped; entry names keep the path given to this decorator.
+	 * @return this decorator
 	 */
 	public CcpFolderDecorator zip() {
 		
@@ -64,6 +74,7 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 
 	/**
 	 * Returns only the directory name (without the parent path).
+	 * @return the directory name
 	 */
 	public String getName() {
 		File file = new File(this.content);
@@ -71,6 +82,13 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return name;
 	}
 
+	/**
+	 * Adds the file, or the directory and its children recursively, to the ZIP stream.
+	 * @param fileToZip the file or directory to add
+	 * @param zipOut the ZIP stream
+	 * @return this decorator
+	 * @throws IOException when reading a file or writing the stream fails
+	 */
 	private CcpFolderDecorator zip(File fileToZip, ZipOutputStream zipOut) throws IOException {
 		boolean hidden = fileToZip.isHidden();
        if (hidden) {
@@ -110,8 +128,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
     }
 	
 	/**
-	 * Iterates over each entry of the directory and calls the {@code consumer} passing a {@code CcpFolderDecorator} for each entry.
-	 * @param consumer the callback to call for each entry
+	 * Calls the consumer with a {@code CcpFolderDecorator} (absolute path) for each entry of the directory, files included.
+	 * Does nothing when the directory does not exist.
+	 * @param consumer the callback called for each entry
+	 * @return this decorator
 	 */
 	public CcpFolderDecorator readFolders(Consumer<CcpFolderDecorator> consumer){
 		File folder = new File(this.content);
@@ -129,8 +149,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Iterates over each entry of the directory and calls the {@code consumer} with a {@code CcpFileDecorator} for each entry.
-	 * @param consumer the callback to call for each file
+	 * Calls the consumer with a {@code CcpFileDecorator} (absolute path) for each entry of the directory, subdirectories
+	 * included. Does nothing when the directory does not exist.
+	 * @param consumer the callback called for each entry
+	 * @return this decorator
 	 */
 	public CcpFolderDecorator readFiles(Consumer<CcpFileDecorator> consumer){
 		File folder = new File(this.content);
@@ -148,6 +170,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	
+	/**
+	 * Returns the directory name (without the parent path).
+	 * @return the directory name
+	 */
 	public String toString() {
 		File folder = new File(this.content);
 		String folderName = folder.getName();
@@ -155,7 +181,8 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Checks whether the directory exists.
+	 * Tells whether the directory exists.
+	 * @return {@code true} when the path exists
 	 */
 	public boolean exists() {
 		File file = new File(this.content);
@@ -164,8 +191,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Creates a subdirectory with the given name (if it does not exist) and returns the decorator of the new directory.
-	 * @param folderName the name of the subdirectory to create
+	 * Creates a subdirectory with the given name (if it does not exist; the parent must exist) and returns its decorator.
+	 * @param folderName the name of the subdirectory
+	 * @return the decorator of the subdirectory
 	 */
 	public CcpFolderDecorator createNewFolderIfNotExists(String folderName) {
 		String completePath = this.getCompletePath(folderName);
@@ -176,7 +204,8 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Creates the directory itself if it does not exist.
+	 * Creates the directory itself if it does not exist (its parent must exist).
+	 * @return a decorator over the directory path followed by a separator
 	 */
 	public CcpFolderDecorator createNewFolderIfNotExists() {
 		String completePath = this.getCompletePath("");
@@ -187,8 +216,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Creates an empty file inside the directory (ensuring that the folder structure exists) and returns its decorator.
-	 * @param fileName the name of the file to create
+	 * Creates the directory structure if needed and then an empty file inside the directory (an existing file keeps its
+	 * content).
+	 * @param fileName the name of the file
+	 * @return the file decorator
 	 */
 	public CcpFileDecorator createNewFileIfNotExists(String fileName) {
 		String completePath = this.getCompletePath(fileName);
@@ -198,6 +229,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return createdFile;
 	}
 	
+	/**
+	 * Creates the directory and, recursively, every missing ancestor.
+	 * @return always {@code true}
+	 */
 	public boolean createFolderIfNotExists() {
 		boolean parentExists = this.parent.exists();
 	
@@ -211,9 +246,10 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Writes {@code fileContent} into the file {@code fileName} inside the directory and returns the file decorator.
+	 * Writes the content into the file inside the directory, replacing the previous content.
 	 * @param fileName the file name
 	 * @param fileContent the content to write
+	 * @return the file decorator
 	 */
 	public CcpFileDecorator writeInTheFile(String fileName, String fileContent) {
 		String completePath = this.getCompletePath(fileName);
@@ -222,6 +258,11 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		return writtenFile;
 	}
 
+	/**
+	 * Joins the directory path and the name with the platform separator.
+	 * @param fileName the name to append
+	 * @return the complete path
+	 */
 	private String getCompletePath(String fileName) {
 		String pathWithSeparator = this.content + File.separator;
 		String completePath = pathWithSeparator + fileName;
@@ -229,7 +270,9 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Removes every file of the directory and then the directory itself.
+	 * Deletes the direct entries of the directory and then the directory itself. It is not recursive: a non-empty
+	 * subdirectory is not deleted, and in that case neither is the directory.
+	 * @return this decorator
 	 */
 	public CcpFolderDecorator remove() {
 		File folder = new File(this.content);
@@ -247,7 +290,8 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementation of {@code CcpDecorator}; returns the directory path.
+	 * Returns the directory path.
+	 * @return the directory path
 	 */
 	public String getContent() {
 		return this.content;

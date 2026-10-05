@@ -13,18 +13,36 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityDecorat
  */
 class DecoratorAfterTransferDataEntity extends CcpEntityDelegator {
 
+	/** The configurator class that carries {@code @CcpEntityDataTransfers}. */
 	private final Class<?> clazz;
 
+	/**
+	 * Wraps the entity.
+	 * @param entity the wrapped entity
+	 * @param clazz the configurator class
+	 */
 	public DecoratorAfterTransferDataEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 		this.clazz = clazz;
 	}
 
+	/**
+	 * Runs {@code copyDataTo} through {@code CcpEntityDecoratorTransferType.copyDataTo.executeAfter}, which applies only the {@code after} flows.
+	 * @param json the record
+	 * @param entityToTransferData the target entity
+	 * @return the outcome of the operation; {@code false} when a handled exception canceled it
+	 */
 	public boolean copyDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
 		boolean outcome = CcpEntityDecoratorTransferType.copyDataTo.executeAfter(json, this.clazz, this.entity, entityToTransferData);
 		return outcome;
 	}
 
+	/**
+	 * Runs {@code transferDataTo} through {@code CcpEntityDecoratorTransferType.transferDataTo.executeAfter}, which applies only the {@code after} flows.
+	 * @param json the record
+	 * @param entityToTransferData the target entity
+	 * @return the outcome of the operation; {@code false} when a handled exception canceled it
+	 */
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entityToTransferData) {
 		boolean outcome = CcpEntityDecoratorTransferType.transferDataTo.executeAfter(json, this.clazz, this.entity, entityToTransferData);
 		return outcome;

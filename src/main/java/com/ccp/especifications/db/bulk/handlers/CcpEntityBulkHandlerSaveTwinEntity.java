@@ -52,6 +52,12 @@ public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTran
 		return saveItems;
 	}
 
+	/**
+	 * Builds the items of the record, with the given operation, in the entity wrapped by the searched entity.
+	 * @param json the record data
+	 * @param operation the operation of the items
+	 * @return the items to save
+	 */
 	private ArrayList<CcpBulkItem> getBulkItemsToSave(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		
 		CcpEntity entityToSearch = this.getEntityToSearch();

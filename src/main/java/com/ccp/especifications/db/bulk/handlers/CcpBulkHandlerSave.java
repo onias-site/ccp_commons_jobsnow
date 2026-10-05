@@ -19,6 +19,7 @@ import java.util.stream.Stream;
  */
 public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
+	/** The entity where the records are created or updated. */
 	private final CcpEntity mainEntity;
 
 	/**
@@ -31,9 +32,7 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	}
 	
 	/**
-	 * Produces {@code update} items; for immutable entities returns {@code noop}; for versionable
-	 * entities, merges the new data over the existing data keeping only the updatable fields.
-	 *
+	 * Produces the {@code update} items of the record, each one adjusted by {@code toUpdateRecord}.
 	 * @param searchParameter search parameters with the new data
 	 * @param recordFound data of the record existing in the database
 	 * @return list of update or noop bulk items
@@ -51,6 +50,15 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 		return mergedUpdateItems;
 	}
 
+	/**
+	 * Adjusts an update item to the rules of the entity: an entity that is not updatable turns the item into
+	 * {@code noop}; otherwise the new data is merged with the stored record, where only the updatable fields of the new
+	 * data overwrite the stored values, and the result is reduced to the fields declared by the entity.
+	 * @param searchParameter search parameters with the new data
+	 * @param recordFound data of the stored record
+	 * @param bulkItem the update item
+	 * @return the adjusted item
+	 */
 	private CcpBulkItem toUpdateRecord(CcpJsonRepresentation searchParameter, CcpJsonRepresentation recordFound , CcpBulkItem bulkItem) {
 
 		CcpEntityMetaData entityDetails = bulkItem.entity.getEntityMetaData();

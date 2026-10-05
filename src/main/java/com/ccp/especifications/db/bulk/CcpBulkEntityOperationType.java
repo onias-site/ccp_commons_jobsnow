@@ -29,33 +29,58 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 	/** Null/no-effect operation; used to mark records that exist but do not need to be changed. */
 	noop(0, false, CcpOtherConstants.EMPTY_JSON),
 	;
+	/**
+	 * Whether the operation merges the new data with the record already stored (only the updatable fields of the new
+	 * data overwrite the stored ones) instead of replacing it; true only for {@code update}.
+	 */
 	public final boolean createsVersionsToSameRecord;
+	/** Reprocessing handlers of the operation, keyed by the HTTP status that triggers them. */
 	private final CcpJsonRepresentation handlers;
+	/**
+	 * Precedence when the same record (entity and id) appears more than once in a bulk: the highest priority wins
+	 * ({@code delete} over {@code update} over {@code create}); items with priority 0 ({@code noop}) are discarded.
+	 */
 	public final int priority;
 
+	/**
+	 * Associates the operation with its priority, versioning behavior and reprocessing handlers.
+	 * @param priority precedence in a bulk
+	 * @param createsVersionsToSameRecord whether the new data is merged with the stored record
+	 * @param handlers reprocessing handlers keyed by HTTP status
+	 */
 	private CcpBulkEntityOperationType(int priority, boolean createsVersionsToSameRecord, CcpJsonRepresentation handlers) {
 		this.createsVersionsToSameRecord = createsVersionsToSameRecord;
 		this.handlers = handlers;
 		this.priority = priority;
 	}
+	/**
+	 * Turns a {@code create} item into an {@code update} of the same record.
+	 * @param originalItem the original item
+	 * @return the update item
+	 */
 	private static CcpBulkItem replaceCreateToUpdate(CcpBulkItem originalItem) {
 		CcpBulkItem updateItem = new CcpBulkItem(originalItem, CcpBulkEntityOperationType.update);
 		return updateItem;
 	}
+	/**
+	 * Turns an {@code update} item into a {@code create} of the same record.
+	 * @param originalItem the original item
+	 * @return the create item
+	 */
 	private static CcpBulkItem replaceUpdateToCreate(CcpBulkItem originalItem) {
 		CcpBulkItem createItem = new CcpBulkItem(originalItem, CcpBulkEntityOperationType.create);
 		return createItem;
 	}
 	
 	/**
-	 * Evaluates the status returned by the bulk operation; if the status has no mapped handler, builds a new
-	 * create {@link CcpBulkItem} through {@code reprocessJsonProducer}; otherwise, applies the matching
-	 * handler (e.g. switches create to update) and returns the reprocessed item.
-	 *
-	 * @param reprocessJsonProducer function that produces the JSON to reprocess when the status is not mapped
-	 * @param result result of the original bulk operation
-	 * @param entityToReprocess target entity of the reprocessing
-	 * @return reprocessed bulk item
+	 * Decides how to reprocess the item of a bulk result. When the operation has a handler for the returned status, the
+	 * handler is applied to the original item (e.g. a conflicting {@code create} becomes an {@code update}). Otherwise a
+	 * {@code create} item is built in {@code entityToReprocess} with the JSON produced by {@code reprocessJsonProducer}
+	 * (typically the error record).
+	 * @param reprocessJsonProducer produces the JSON to record when the status has no handler
+	 * @param result the result of the original bulk operation
+	 * @param entityToReprocess entity where the JSON is created when the status has no handler
+	 * @return the reprocessed bulk item
 	 */
 	public CcpBulkItem getReprocess(Function<CcpBulkOperationResult, CcpJsonRepresentation> reprocessJsonProducer, CcpBulkOperationResult result, CcpEntity entityToReprocess) {
 		

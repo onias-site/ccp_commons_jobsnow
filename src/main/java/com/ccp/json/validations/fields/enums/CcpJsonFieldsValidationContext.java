@@ -1,9 +1,9 @@
 package com.ccp.json.validations.fields.enums;
 
-/**
- * Distingue o contexto de validação: {@code single} (valor único) ou {@code collection} (item dentro de array).
- */
+/** The validation context of a value: the field value itself or an item of a collection. */
 public enum CcpJsonFieldsValidationContext {
+	/** An item of a collection. */
 	collection,
+	/** The value of the field itself. */
 	single
 }

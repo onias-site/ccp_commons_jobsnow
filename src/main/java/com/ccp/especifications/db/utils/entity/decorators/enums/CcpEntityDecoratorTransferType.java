@@ -9,36 +9,59 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExcepti
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * Define os tipos de transferência de dados entre entidades configurados via
- * {@code @CcpEntityDataTransfer}: {@code transferDataTo} (move e remove a origem) e
- * {@code copyDataTo} (copia sem remover a origem). Expõe os fluxos {@code before} e {@code after} em
- * métodos separados ({@code executeBefore} e {@code executeAfter}), porque cada fluxo é aplicado por
- * um decorator próprio e em posição própria da cadeia.
+ * The kinds of data transfer between entities configured through {@code @CcpEntityDataTransfer}:
+ * {@code transferDataTo} (moves and removes the source) and {@code copyDataTo} (copies without removing the source).
+ * Exposes the {@code before} and {@code after} flows in separate methods ({@code executeBefore} and
+ * {@code executeAfter}), because each flow is applied by its own decorator at its own position of the chain.
  */
 public enum CcpEntityDecoratorTransferType implements OperationWriter{
+	/** Moves the record to the target entity, removing it from the source. */
 	transferDataTo{
+		/**
+		 * Runs {@code transferDataTo} on the rest of the chain.
+		 * @param json the record
+		 * @param entity the rest of the chain
+		 * @param entities the target entity
+		 * @return whether the record existed in the source
+		 */
 		boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
 			boolean result = entity.transferDataTo(json, entities);
 			return result;
 		}
 	},
+	/** Copies the record to the target entity, keeping it in the source. */
 	copyDataTo{
+		/**
+		 * Runs {@code copyDataTo} on the rest of the chain.
+		 * @param json the record
+		 * @param entity the rest of the chain
+		 * @param entities the target entity
+		 * @return whether the record existed in the source
+		 */
 		boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, 	CcpEntity entities) {
 			boolean result = entity.copyDataTo(json, entities);
 			return result;
 		}
 	},
 ;
+	/**
+	 * Performs the transfer on the rest of the decorator chain.
+	 * @param json the record
+	 * @param entity the rest of the chain
+	 * @param entityToTransfer the target entity
+	 * @return whether the record existed in the source
+	 */
 	abstract boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
 
 	/**
-	 * Executa o fluxo {@code before} e, na sequência, delega a transferência ao restante da cadeia de
-	 * decorators. O JSON produzido pelo fluxo {@code before} é o que segue para os decorators internos,
-	 * de modo que tudo o que vem depois enxerga o resultado dos side effects prévios.
-	 * @param json o JSON de entrada
-	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
-	 * @param entity a entidade origem
-	 * @param entityToTransfer a entidade destino
+	 * Runs the {@code before} flow and then delegates the transfer to the rest of the decorator chain. The JSON produced by
+	 * the {@code before} flow is the one that goes to the inner decorators. Unlike the write operations, a handled
+	 * exception does not cancel the transfer.
+	 * @param json the input JSON
+	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
+	 * @param entity the source entity
+	 * @param entityToTransfer the target entity
+	 * @return the result of the transfer
 	 */
 	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
@@ -47,14 +70,14 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	}
 
 	/**
-	 * Delega a transferência ao restante da cadeia de decorators e executa o fluxo {@code after} somente
-	 * se a transferência tiver acontecido de fato. Ou seja, o {@code after} é dispensado quando não havia
-	 * registro de origem para transferir ou copiar. Como a transferência devolve apenas o resultado
-	 * booleano, o fluxo {@code after} recebe o mesmo JSON que chegou a este decorator.
-	 * @param json o JSON de entrada
-	 * @param clazz a classe com as anotações {@code @CcpEntityDataTransfers}
-	 * @param entity a entidade origem
-	 * @param entityToTransfer a entidade destino
+	 * Delegates the transfer to the rest of the decorator chain and runs the {@code after} flow only when the transfer
+	 * actually happened (there was a source record). Since the transfer returns only a boolean, the {@code after} flow
+	 * receives the same JSON that reached this decorator.
+	 * @param json the input JSON
+	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
+	 * @param entity the source entity
+	 * @param entityToTransfer the target entity
+	 * @return the result of the transfer
 	 */
 	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		boolean result = this.executeEntityTransfer(json, entity, entityToTransfer);
@@ -69,6 +92,17 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 		return result;
 	}
 
+	/**
+	 * Runs the businesses of the first {@code @CcpEntityDataTransfer} whose transfer type is this one, whose target entity
+	 * is the given one, whose entity phase names the source entity and whose phase is {@code when}, chaining their outputs.
+	 * Only the first matching item runs. Local exception handlers take precedence over the global ones.
+	 * @param json the input JSON
+	 * @param when the phase to run
+	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
+	 * @param entity the source entity
+	 * @param entityToTransfer the target entity
+	 * @return the JSON produced by the businesses, or the input JSON when no item matched
+	 */
 	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
 		
 		CcpEntityDataTransfers annotation = clazz.getAnnotation(CcpEntityDataTransfers.class);

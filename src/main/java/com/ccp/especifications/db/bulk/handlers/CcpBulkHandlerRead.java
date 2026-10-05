@@ -17,8 +17,13 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
+	/** The entity whose records are read. */
 	private final CcpEntity entityToRead;
 
+	/**
+	 * Decides what to do with a record that was not found; it receives an item of the record with the {@code delete}
+	 * operation.
+	 */
 	private final Function<CcpBulkItem, List<CcpBulkItem>> whenRecordWasNotFoundInTheEntitySearch;
 
 	/**
@@ -59,8 +64,8 @@ public class CcpBulkHandlerRead implements CcpHandleWithSearchResultsInTheEntity
 	}
 
 	/**
-	 * Applies the "not found" function given in the constructor to the matching bulk item.
-	 *
+	 * Applies the "not found" function given in the constructor to an item of the record built with the {@code delete}
+	 * operation.
 	 * @param json search parameters
 	 * @return result of the custom "not found" function
 	 */

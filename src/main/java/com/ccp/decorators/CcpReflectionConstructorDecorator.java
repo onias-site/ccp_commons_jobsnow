@@ -3,23 +3,27 @@ package com.ccp.decorators;
 import java.lang.reflect.Constructor;
 
 /**
- * Decorator sobre o nome qualificado de uma classe Java que oferece operações de reflexão: resolução da
- * classe, criação de instâncias e escolha do contexto de invocação (estático ou por instância). É o ponto
- * de entrada da API fluente de reflexão do framework.
+ * Decorator over the fully qualified name of a Java class, offering reflection operations: class resolution, instance
+ * creation and choice of the invocation context (static or instance). It is the entry point of the framework's fluent
+ * reflection API.
  */
 public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 
+	/** The fully qualified class name. */
 	public final String content;
 
 	/**
-	 * Encapsula o nome completo da classe.
+	 * Wraps the fully qualified class name.
+	 * @param content the class name
 	 */
 	protected CcpReflectionConstructorDecorator(String content) {
 		this.content = content;
 	}
 
 	/**
-	 * Extrai o nome da classe a partir de um campo do JSON.
+	 * Reads the class name from a field of the JSON.
+	 * @param json the JSON holding the class name
+	 * @param field the field holding the class name
 	 */
 	public CcpReflectionConstructorDecorator(CcpJsonRepresentation json, String field) {
 		CcpFieldName ccpFieldName = new CcpFieldName(field);
@@ -27,14 +31,17 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Extrai o nome da classe diretamente de um objeto {@code Class}.
+	 * Takes the class name from a {@code Class} object.
+	 * @param clazz the class
 	 */
 	public CcpReflectionConstructorDecorator(Class<?> clazz) {
 		this.content = clazz.getName();
 	}
 
 	/**
-	 * Carrega e retorna o objeto {@code Class} pelo nome. Lança {@code RuntimeException} se a classe não for encontrada.
+	 * Loads the class by name.
+	 * @return the loaded class
+	 * @throws org.aspectj.lang.SoftException wrapping {@code ClassNotFoundException} when the class does not exist
 	 */
 	public Class<?> forName(){
 		Class<?> forName = Class.forName(this.content);
@@ -42,7 +49,8 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Retorna {@code true} se a classe puder ser carregada; {@code false} caso contrário (sem lançar exceção).
+	 * Tells whether the class can be loaded, without throwing.
+	 * @return {@code true} when the class exists
 	 */
 	public boolean thisClassExists(){
 		try {
@@ -54,7 +62,10 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Cria uma nova instância da classe via construtor padrão (sem argumentos), mesmo que o construtor seja privado (usa {@code setAccessible(true)}).
+	 * Creates a new instance of the class through its no-arg constructor, even when that constructor is private
+	 * (it uses {@code setAccessible(true)}).
+	 * @param <T> the expected type of the instance
+	 * @return the new instance
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance() {
@@ -68,21 +79,24 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o nome da classe.
+	 * Returns the class name.
+	 * @return the class name
 	 */
 	public String getContent() {
 		return this.content;
 	}
 
 	/**
-	 * Retorna o nome completo da classe.
+	 * Returns the fully qualified class name.
+	 * @return the class name
 	 */
 	public String toString() {
 		return this.content;
 	}
 
 	/**
-	 * Inicia o contexto de reflexão para chamada de métodos estáticos (retorna {@code CcpReflectionStaticContextDecorator}).
+	 * Starts a static-context reflection, without creating an instance.
+	 * @return a {@code CcpReflectionStaticContextDecorator}
 	 */
 	public CcpReflectionOptionsDecorator fromStaticContext() {
 		CcpReflectionStaticContextDecorator result = new CcpReflectionStaticContextDecorator(this);
@@ -90,7 +104,8 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Inicia o contexto de reflexão criando uma nova instância da classe (retorna {@code CcpReflectionNewInstanceDecorator}).
+	 * Starts an instance reflection over a new instance of the class.
+	 * @return a {@code CcpReflectionNewInstanceDecorator} holding the new instance
 	 */
 	public CcpReflectionOptionsDecorator fromNewInstance() {
 		CcpReflectionOptionsDecorator result = new CcpReflectionNewInstanceDecorator(this);
@@ -98,7 +113,9 @@ public class CcpReflectionConstructorDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Inicia o contexto de reflexão a partir de uma instância já existente.
+	 * Starts an instance reflection over an existing instance (its own class is used, not the wrapped name).
+	 * @param instance the existing instance
+	 * @return a {@code CcpReflectionNewInstanceDecorator} holding the instance
 	 */
 	public CcpReflectionOptionsDecorator fromInstance(Object instance) {
 		Class<?> clazz = instance.getClass();

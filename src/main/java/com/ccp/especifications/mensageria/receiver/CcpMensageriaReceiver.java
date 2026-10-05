@@ -15,26 +15,32 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityPhase;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 
 /**
- * Base para receptores de mensagens GCP PubSub. Resolve o processo de negócio correto a partir
- * do nome do tópico, suportando tanto {@code CcpBusiness} quanto {@code CcpEntityConfigurator} em modo assíncrono.
+ * Base of the receivers of PubSub messages. Resolves the business process of a message from its topic name: either a
+ * {@code CcpBusiness}, or a {@code CcpEntityConfigurator} whose entity runs the {@code CcpEntityOperationType} named by
+ * the operation field of the message (asynchronous writes). As a {@code CcpJsonFieldName}, the receiver is the name of
+ * that operation field.
  */
 public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 
+	/** The name of the field of the message that carries the entity operation. */
 	private final String operationFieldName;
 
 	/**
-	 * Inicializa o nome do campo de operação no JSON.
-	 * @param operationFieldName nome do campo que identifica a operação no JSON recebido
+	 * Builds the receiver.
+	 * @param operationFieldName the name of the field that carries the entity operation
 	 */
 	public CcpMensageriaReceiver(String operationFieldName) {
 		this.operationFieldName = operationFieldName;
 	}
 
 	/**
-	 * Instancia o processo por reflexão e retorna o handler adequado.
-	 * @param processName nome completo da classe do processo
-	 * @param json JSON com os dados da mensagem recebida
-	 * @return handler de negócio correspondente ao processo
+	 * Instantiates the process by reflection and returns its handler: the process itself when it is a
+	 * {@code CcpBusiness}; for an entity configurator, the handler of the operation named in the message, over the custom
+	 * entity (or its twin, when {@code entityName} names the twin).
+	 * @param processName the fully qualified class name of the process (the topic)
+	 * @param json the message
+	 * @return the business that handles the message
+	 * @throws CcpErrorMensageriaInvalidName when the class is neither a business nor an entity configurator
 	 */
 	public CcpBusiness getProcess(String processName, CcpJsonRepresentation json){
 		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(processName);
@@ -64,6 +70,12 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		return topicHandler;
 	}
 
+	/**
+	 * Returns the custom entity of the configurator, or its twin when {@code entityName} of the message names the twin.
+	 * @param json the message
+	 * @param newInstance the entity configurator
+	 * @return the target entity
+	 */
 	private CcpEntity getEntity(CcpJsonRepresentation json, Object newInstance) {
 		CcpEntity entity = this.getCustomEntity(newInstance);
 		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
@@ -80,27 +92,37 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		return twinEntity;
 	}
 
+	/**
+	 * Returns the twin of the entity.
+	 * @param entity the entity
+	 * @return the twin entity
+	 */
 	protected abstract CcpEntity getTwinEntity(CcpEntity entity);
 
+	/**
+	 * Returns the entity of the configurator with the decorators appropriate to the asynchronous execution.
+	 * @param newInstance the entity configurator
+	 * @return the entity
+	 */
 	protected abstract CcpEntity getCustomEntity(Object newInstance);
 	
 
 	/**
-	 * Fornece o executor de operações bulk.
-	 * @return executor de operações bulk
+	 * Returns the bulk executor.
+	 * @return the bulk executor
 	 */
 	public abstract CcpExecuteBulkOperation getExecuteBulkOperation();
 	
 	/**
-	 * Fornece a função de invalidação de cache.
-	 * @return função que recebe as chaves a invalidar no cache
+	 * Returns the cache invalidation function.
+	 * @return the function that receives the cache keys to invalidate
 	 */
 	public abstract Consumer<String[]> getFunctionToDeleteKeysInTheCache();
 	
 	/**
-	 * Cria instância concreta lendo o nome da classe no campo {@code mensageriaReceiver} do JSON.
-	 * @param json JSON contendo o campo com o nome da classe concreta
-	 * @return instância concreta de {@code CcpMensageriaReceiver}
+	 * Instantiates the concrete receiver named in the {@code mensageriaReceiver} field of the JSON.
+	 * @param json the JSON naming the receiver class
+	 * @return the receiver
 	 */
 	public static CcpMensageriaReceiver getInstance(CcpJsonRepresentation json) {
 		String mensageriaReceiverName = JsonFieldNames.mensageriaReceiver.name();
@@ -112,21 +134,30 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		return newInstance;
 	}
 	
+	/** Fields read by the receiver. */
 	public static enum JsonFieldNames implements CcpJsonFieldName{
-		mensageriaReceiver, entityName
+		/** The fully qualified class name of the concrete receiver. */
+		mensageriaReceiver,
+		/** The name of the target entity, which tells whether the twin is the target. */
+		entityName
 		;
 		
 	}
 	/**
-	 * Retorna o nome do campo de operação configurado.
-	 * @return nome do campo de operação
+	 * Returns the name of the operation field.
+	 * @return the operation field name
 	 */
 	public String name() {
 		return this.operationFieldName;
 	}
 
+	/** Raised when the topic names a class that is neither a {@code CcpBusiness} nor an entity configurator. */
 	@SuppressWarnings("serial")
 	public static class CcpErrorMensageriaInvalidName extends RuntimeException {
+		/**
+		 * Builds the error naming the process.
+		 * @param processName the class name of the process
+		 */
 		private CcpErrorMensageriaInvalidName(String processName) {
 			super("The process '" + processName + "' is an invalid topic");
 		}

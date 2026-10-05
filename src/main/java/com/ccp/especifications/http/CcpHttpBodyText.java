@@ -1,18 +1,19 @@
 package com.ccp.especifications.http;
 
-/**
- * Representa uma parte textual de uma requisição HTTP multipart.
- */
+/** A text part of a multipart HTTP request. */
 public class CcpHttpBodyText {
+	/** The content type of the part. */
 	public final CcpHttpContentType contentType;
+	/** The form field name. */
 	public final String name;
+	/** The text content. */
 	public final String text;
 
 	/**
-	 * Inicializa os atributos da parte textual.
-	 * @param contentType tipo de conteúdo do texto
-	 * @param name nome do campo no formulário multipart
-	 * @param text conteúdo textual
+	 * Builds the text part.
+	 * @param contentType the content type of the text
+	 * @param name the form field name
+	 * @param text the text content
 	 */
 	public CcpHttpBodyText(CcpHttpContentType contentType, String name, String text) {
 		this.contentType = contentType;

@@ -1,13 +1,11 @@
 package com.ccp.especifications.main.authentication;
 
-/**
- * Contrato para obtenção de tokens JWT de autenticação (GCP OAuth).
- */
+/** Contract for obtaining authentication JWT tokens (GCP OAuth). */
 public interface CcpAuthenticationProvider {
 
 	/**
-	 * Obtém e retorna o token JWT atual.
-	 * @return token JWT como String
+	 * Obtains the current JWT token.
+	 * @return the JWT token
 	 */
 	String getJwtToken();
 }

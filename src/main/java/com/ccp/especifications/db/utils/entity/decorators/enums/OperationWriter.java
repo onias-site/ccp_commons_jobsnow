@@ -12,15 +12,18 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
 
 /**
- * Interface auxiliar compartilhada por {@code CcpEntityDecoratorOperationType} e
- * {@code CcpEntityDecoratorTransferType}. Fornece a lógica de execução de negócios com suporte a
- * tratamento de exceções configurado via {@code @CcpExceptionFlow}.
+ * Helper shared by {@code CcpEntityDecoratorOperationType} and {@code CcpEntityDecoratorTransferType}: runs businesses
+ * with the exception handling configured through {@code @CcpExceptionFlow}.
  */
 interface OperationWriter {
 
 	/**
-	 * Executa {@code business} com o JSON informado, capturando exceções previstas em
-	 * {@code exceptionHandlers} e executando os negócios de fallback correspondentes.
+	 * Runs the business; when it throws an exception whose exact class has handlers, runs the handlers in sequence
+	 * instead. Exceptions without handlers (including subclasses of a handled class) are rethrown.
+	 * @param json the input JSON
+	 * @param business the business
+	 * @param exceptionHandlers handlers by exception class
+	 * @return the output of the business or of the last handler
 	 */
 	default CcpJsonRepresentation executeBusiness(CcpJsonRepresentation json, CcpBusiness business, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
 		try {
@@ -67,7 +70,11 @@ interface OperationWriter {
 		return json;
 	}
 
-	/** Constrói o mapa de handlers a partir de um array de {@code @CcpExceptionFlow}. */
+	/**
+	 * Builds the handler map from the {@code @CcpExceptionFlow} items: exception class to the instantiated businesses.
+	 * @param flows the configured flows
+	 * @return the handlers by exception class
+	 */
 	default Map<Class<?>, List<CcpBusiness>> getExceptionHandlers(CcpExceptionFlow[] flows){
 		
 		Map<Class<?>, List<CcpBusiness>> result = new HashMap<>();
@@ -88,7 +95,11 @@ interface OperationWriter {
 		return result;
 	}
 	
-	/** Instancia via reflexão a classe informada como {@code CcpBusiness}. */
+	/**
+	 * Instantiates the class as a {@code CcpBusiness} through its no-arg constructor.
+	 * @param clazz the business class
+	 * @return the business
+	 */
 	default CcpBusiness getBusiness(Class<?> clazz) {
 		CcpReflectionConstructorDecorator ccpReflectionConstructorDecorator = new CcpReflectionConstructorDecorator(clazz);
 		CcpBusiness newInstance = ccpReflectionConstructorDecorator.newInstance();

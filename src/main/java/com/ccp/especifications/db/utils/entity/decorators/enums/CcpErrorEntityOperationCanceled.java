@@ -8,6 +8,10 @@ package com.ccp.especifications.db.utils.entity.decorators.enums;
  */
 @SuppressWarnings("serial")
 class CcpErrorEntityOperationCanceled extends RuntimeException {
+	/**
+	 * Wraps the handled exception.
+	 * @param handledException the exception the handlers took care of
+	 */
 	CcpErrorEntityOperationCanceled(RuntimeException handledException) {
 		super(handledException);
 	}

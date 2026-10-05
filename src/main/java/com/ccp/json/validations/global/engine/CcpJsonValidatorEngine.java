@@ -44,16 +44,24 @@ import com.ccp.json.fields.validation.CcpJsonCommonsFields;
  */
 public class CcpJsonValidatorEngine {
 	
+	/** Singleton; use {@link #INSTANCE}. */
 	private CcpJsonValidatorEngine() {}
 	
+	/** The single instance. */
 	public static final CcpJsonValidatorEngine INSTANCE = new CcpJsonValidatorEngine();
 	
 	/**
-	 * Validates the JSON; returns the original JSON if no error is found, or throws
-	 * {@code CcpJsonValidationError} with a complete diagnosis when there are errors.
+	 * Validates the JSON against the global and field rules of the class.
+	 * <p>
+	 * Java arrays are treated as collections. The global validations run first; then each field: a missing required
+	 * field reports only that; a field with a recognized type runs the rules of its type (for collections, the array rules
+	 * and then each item, reporting the first bad item). A rule with {@code breakFieldValidation} stops the other rules of
+	 * its field.
 	 * @param clazz the class that carries the validation rules
-	 * @param json the input JSON to validate
-	 * @param featureName name of the feature, for diagnosis
+	 * @param json the input JSON
+	 * @param featureName name of the feature, for the diagnosis
+	 * @return the same JSON when it is valid
+	 * @throws CcpJsonValidationError with the full diagnosis when there are errors
 	 */
 	public CcpJsonRepresentation validateJson(Class<?> clazz, CcpJsonRepresentation json, String featureName) {
 
@@ -74,9 +82,11 @@ public class CcpJsonValidatorEngine {
 	}
 
 	/**
-	 * Returns the JSON with every field that holds a java array replaced by the equivalent list, so
-	 * that the rest of the validation sees arrays and collections the same way. The original JSON is not
-	 * changed: the replacement applies only to the validation.
+	 * Returns the JSON with every field that holds a java array replaced by the equivalent list, so that the rest of the
+	 * validation sees arrays and collections the same way. The original JSON is not changed: the replacement applies only to
+	 * the validation.
+	 * @param json the input JSON
+	 * @return the JSON with lists instead of arrays
 	 */
 	private CcpJsonRepresentation replaceArraysByCollections(CcpJsonRepresentation json) {
 
@@ -100,6 +110,11 @@ public class CcpJsonValidatorEngine {
 		return jsonWithArraysAsCollections;
 	}
 
+	/**
+	 * Tells whether the value is a java array.
+	 * @param value the value, possibly {@code null}
+	 * @return {@code true} for a non-null array
+	 */
 	private boolean isArray(Object value) {
 		boolean valueIsAbsent = value == null;
 
@@ -112,6 +127,11 @@ public class CcpJsonValidatorEngine {
 		return isArray;
 	}
 
+	/**
+	 * Copies the items of a java array (primitive or not) into a list.
+	 * @param array the array
+	 * @return the list
+	 */
 	private List<Object> toCollection(Object array) {
 		int length = Array.getLength(array);
 		List<Object> collection = new ArrayList<>();
@@ -124,6 +144,12 @@ public class CcpJsonValidatorEngine {
 		return collection;
 	}
 
+	/**
+	 * Collects the global errors and then the field errors.
+	 * @param clazz the validation class
+	 * @param json the JSON
+	 * @return the errors
+	 */
 	private CcpJsonRepresentation getErrors(Class<?> clazz, CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation errors = this.getErrorsFromClass(clazz, json);
@@ -134,8 +160,11 @@ public class CcpJsonValidatorEngine {
 	}
 
 	/**
-	 * Inspects the field annotations and returns the corresponding {@code CcpJsonFieldType}.
-	 * Throws {@code CcpJsonFieldNotValidated} if no type annotation is found.
+	 * Returns the {@code CcpJsonFieldType} declared by the annotations of the field, checked in this order: boolean, nested
+	 * JSON, number, unsigned number, integer number, string, time after, time before, custom.
+	 * @param field the field
+	 * @return the field type
+	 * @throws CcpJsonFieldNotValidated when the field declares no type
 	 */
 	public CcpJsonFieldType getJsonFieldType(Field field) {
 		boolean isBoolean = field.isAnnotationPresent(CcpJsonFieldTypeBoolean.class);
@@ -193,8 +222,10 @@ public class CcpJsonValidatorEngine {
 	}
 	
 	/**
-	 * Returns the reference field when {@code @CcpJsonCopyFieldValidationsFrom} is present;
-	 * otherwise returns the field itself.
+	 * Returns the field of the same name in the class of {@code @CcpJsonCopyFieldValidationsFrom}, when present (the field
+	 * itself when that class does not declare it); otherwise the field itself.
+	 * @param field the field
+	 * @return the field holding the validations
 	 */
 	public Field getReplacedField(Field field) {
 		boolean copiesValidations = field.isAnnotationPresent(CcpJsonCopyFieldValidationsFrom.class);
@@ -215,6 +246,13 @@ public class CcpJsonValidatorEngine {
 		}
 	}
 	
+	/**
+	 * Adds the errors of every field of the class (see {@link #validateJson}).
+	 * @param errors the accumulated errors
+	 * @param json the JSON
+	 * @param clazz the validation class
+	 * @return the updated errors
+	 */
 	private CcpJsonRepresentation addErrorsFromFields(CcpJsonRepresentation errors, CcpJsonRepresentation json, Class<?> clazz) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		Map<Field, CcpJsonRepresentation> map = new LinkedHashMap<>();
@@ -287,6 +325,13 @@ public class CcpJsonValidatorEngine {
 		return errors;
 	}
 
+	/**
+	 * Runs the default and custom global validators of the class (or of the class named by
+	 * {@code @CcpJsonCopyGlobalValidationsFrom}); a critical validator stops the others.
+	 * @param clazz the validation class
+	 * @param json the JSON
+	 * @return the global errors
+	 */
 	private CcpJsonRepresentation getErrorsFromClass(Class<?> clazz, CcpJsonRepresentation json) {
 		boolean copiesGlobalValidations = clazz.isAnnotationPresent(CcpJsonCopyGlobalValidationsFrom.class);
 

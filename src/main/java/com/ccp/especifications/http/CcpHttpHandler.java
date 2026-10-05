@@ -11,29 +11,32 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 
 
 /**
- * Orquestrador de execução de requisições HTTP. Combina {@link CcpHttpRequester} com um mapa de
- * fluxos (status → lógica de negócio), executando a lógica correspondente ao status recebido
- * ou lançando {@link CcpErrorHttp} quando o status não é mapeado.
+ * Runs HTTP requests through {@link CcpHttpRequester} and routes the response by status: each mapped status has a
+ * business run over the JSON response; an unmapped status goes to the alternative flow, when there is one, or raises
+ * {@link CcpErrorHttp}.
  */
 public final class CcpHttpHandler {
 
+	/** The target URL. */
 	private final String url;
+	/** The flows by status (status as field name, business as value). */
 	private final CcpJsonRepresentation flows;
+	/** The flow of the unmapped statuses, when {@link #hasAlternativeFlow} is set. */
 	private final CcpBusiness alternativeFlow;
 	/**
-	 * Diz se status não mapeado tem para onde ir. Até 2026-09-27 a ausência de fluxo alternativo era
-	 * representada por {@code alternativeFlow = null}; quando o aspecto que proíbe {@code null} entrou
-	 * (commit cd97ba0, 2026-07-31), o valor virou {@code DO_NOTHING} e todo status inesperado — 400, 404,
-	 * 500 — passou a ser tratado como sucesso, com o json de erro do servidor no lugar da resposta.
+	 * Tells whether an unmapped status has somewhere to go. Up to 2026-09-27 the absence of an alternative flow was
+	 * represented by {@code alternativeFlow = null}; when the aspect that forbids {@code null} came in (commit cd97ba0,
+	 * 2026-07-31), the value became {@code DO_NOTHING} and every unexpected status (400, 404, 500) started to be treated
+	 * as success, with the error JSON of the server in place of the response.
 	 */
 	private final boolean hasAlternativeFlow;
+	/** The HTTP requester registered in the dependency injection. */
 	public final CcpHttpRequester ccpHttp = CcpDependencyInjection.getDependency(CcpHttpRequester.class);
 
 	/**
-	 * Cria handler com mapa explícito de fluxos (status → lógica de negócio). Status fora do mapa lança
-	 * {@link CcpErrorHttp}.
-	 * @param flows mapa de status HTTP para fluxos de negócio
-	 * @param url URL alvo das requisições
+	 * Creates a handler with an explicit map of flows; a status outside the map raises {@link CcpErrorHttp}.
+	 * @param flows the flows by HTTP status
+	 * @param url the target URL
 	 */
 	public CcpHttpHandler(CcpJsonRepresentation flows, String url) {
 		this.alternativeFlow = CcpOtherConstants.DO_NOTHING;
@@ -44,10 +47,10 @@ public final class CcpHttpHandler {
 	}
 
 	/**
-	 * Cria handler com um status mapeado para fluxo alternativo.
-	 * @param httpStatus status HTTP aceito
-	 * @param alternativeFlow fluxo de negócio alternativo para o status informado
-	 * @param url URL alvo das requisições
+	 * Creates a handler that accepts one status as is and sends every other status to the alternative flow.
+	 * @param httpStatus the status accepted as is
+	 * @param alternativeFlow the flow of every other status
+	 * @param url the target URL
 	 */
 	public CcpHttpHandler(Integer httpStatus, CcpBusiness alternativeFlow, String url) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
@@ -57,9 +60,9 @@ public final class CcpHttpHandler {
 	}
 
 	/**
-	 * Cria handler com um único status aceito. Qualquer outro status lança {@link CcpErrorHttp}.
-	 * @param httpStatus status HTTP aceito
-	 * @param url URL alvo das requisições
+	 * Creates a handler that accepts a single status; any other status raises {@link CcpErrorHttp}.
+	 * @param httpStatus the accepted status
+	 * @param url the target URL
 	 */
 	public CcpHttpHandler(Integer httpStatus, String url) {
 		this.flows = CcpOtherConstants.EMPTY_JSON.addJsonTransformer(httpStatus, CcpOtherConstants.DO_NOTHING);
@@ -70,10 +73,11 @@ public final class CcpHttpHandler {
 	
 	
 	/**
-	 * Executa GET simples sem headers nem corpo.
-	 * @param trace identificador de rastreamento da requisição
-	 * @param transformer transformador da resposta para o tipo desejado
-	 * @return resultado transformado da resposta
+	 * Runs a GET without headers nor body.
+	 * @param <V> the result type
+	 * @param trace identifier of the request in error messages
+	 * @param transformer turns the response into the result
+	 * @return the result
 	 */
 	public <V> V executeHttpSimplifiedGet(String trace, CcpHttpResponseTransform<V> transformer) {
 		V executeHttpRequest = this.executeHttpRequest(trace, CcpHttpMethods.GET, CcpOtherConstants.EMPTY_JSON, CcpOtherConstants.EMPTY_JSON, transformer);
@@ -81,13 +85,14 @@ public final class CcpHttpHandler {
 	}
 	
 	/**
-	 * Executa requisição com corpo JSON.
-	 * @param trace identificador de rastreamento
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param body corpo da requisição como JSON
-	 * @param transformer transformador da resposta
-	 * @return resultado transformado da resposta
+	 * Runs a request with a JSON body (sent as compact JSON).
+	 * @param <V> the result type
+	 * @param trace identifier of the request in error messages
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param body the request body
+	 * @param transformer turns the response into the result
+	 * @return the result
 	 */
 	public <V> V executeHttpRequest(String trace, CcpHttpMethods method, CcpJsonRepresentation headers, CcpJsonRepresentation body, CcpHttpResponseTransform<V> transformer) {
 		
@@ -97,13 +102,14 @@ public final class CcpHttpHandler {
 	}
 
 	/**
-	 * Executa requisição com corpo String.
-	 * @param trace identificador de rastreamento
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param request corpo da requisição como String
-	 * @param transformer transformador da resposta
-	 * @return resultado transformado da resposta
+	 * Runs a request with a text body.
+	 * @param <V> the result type
+	 * @param trace identifier of the request in error messages
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param request the request body
+	 * @param transformer turns the response into the result
+	 * @return the result
 	 */
 	public <V>V executeHttpRequest(String trace,  CcpHttpMethods method, CcpJsonRepresentation headers, String request, CcpHttpResponseTransform<V> transformer) {
 		
@@ -115,14 +121,15 @@ public final class CcpHttpHandler {
 	}
 
 	/**
-	 * Executa requisição multipart com partes textuais e binárias.
-	 * @param trace identificador de rastreamento
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param texts partes textuais do multipart
-	 * @param binaries partes binárias do multipart
-	 * @param transformer transformador da resposta
-	 * @return resultado transformado da resposta
+	 * Runs a multipart request with text and binary parts.
+	 * @param <V> the result type
+	 * @param trace identifier of the request in error messages
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param texts the text parts
+	 * @param binaries the binary parts
+	 * @param transformer turns the response into the result
+	 * @return the result
 	 */
 	public <V>V executeMultiPartHttpRequest(String trace, CcpHttpMethods method, CcpJsonRepresentation headers, List<CcpHttpBodyText> texts, List<CcpHttpBodyBinary> binaries, CcpHttpResponseTransform<V> transformer) {
 		
@@ -134,14 +141,19 @@ public final class CcpHttpHandler {
 	}
 	
 	/**
-	 * Versão completa que recebe resposta já obtida, seleciona fluxo pelo status e executa o {@link CcpBusiness}.
-	 * @param trace identificador de rastreamento
-	 * @param method método HTTP utilizado
-	 * @param headers cabeçalhos da requisição
-	 * @param request corpo da requisição
-	 * @param transformer transformador da resposta
-	 * @param response resposta HTTP já obtida
-	 * @return resultado transformado da resposta
+	 * Routes an already obtained response: an unmapped status without alternative flow raises the error built by
+	 * {@link CcpHttpRequester#getHttpError}; otherwise the response is transformed and, when the body is a JSON object (or
+	 * empty) and the result is a {@code CcpJsonRepresentation}, the flow of the status (or the alternative flow) runs over
+	 * it and its output is returned.
+	 * @param <V> the result type
+	 * @param trace identifier of the request in error messages
+	 * @param method the HTTP method used
+	 * @param headers the request headers
+	 * @param request the request body
+	 * @param transformer turns the response into the result
+	 * @param response the obtained response
+	 * @return the result
+	 * @throws CcpErrorHttp when the status has no flow
 	 */
 	@SuppressWarnings("unchecked")
 	public <V> V executeHttpRequest(String trace, CcpHttpMethods method, CcpJsonRepresentation headers, String request, CcpHttpResponseTransform<V> transformer, CcpHttpResponse response) {
@@ -169,9 +181,9 @@ public final class CcpHttpHandler {
 			return tranform;
 		}
 		boolean isCcpJsonRepresentation = tranform instanceof CcpJsonRepresentation;
-		boolean valorIgual = false == (isCcpJsonRepresentation);
+		boolean isNotJsonRepresentation = false == (isCcpJsonRepresentation);
 
-		if(valorIgual) {
+		if(isNotJsonRepresentation) {
 			return tranform;
 		}
 		CcpJsonRepresentation ccpJsonRepresentation = (CcpJsonRepresentation)tranform;

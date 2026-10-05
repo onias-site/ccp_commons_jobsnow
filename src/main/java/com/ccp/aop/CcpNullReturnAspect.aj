@@ -1,11 +1,15 @@
 package com.ccp.aop;
 
 /**
- * Intercepta todos os métodos não-void de todos os projetos dependentes e lança
- * exceção se o retorno for nulo.
+ * Intercepts every non-void method of the {@code com.ccp}, {@code com.jn}, {@code com.jb} and {@code com.vis} packages
+ * and throws {@link CcpNullReturnException} when it returns {@code null}.
+ * <p>
+ * Methods annotated with {@link CcpAllowNullReturn}, lambdas and the {@code com.ccp.aop} package itself are not
+ * checked.
  */
 public aspect CcpNullReturnAspect {
 
+    /** Execution of any checked non-void method of the covered packages. */
     pointcut anyNonVoidMethod():
         (
             execution(!void com.ccp..*(..))
@@ -17,6 +21,7 @@ public aspect CcpNullReturnAspect {
         && !execution(@CcpAllowNullReturn * *(..))
         && !execution(!void *..*lambda$*(..));
 
+    /** Throws {@link CcpNullReturnException} when the method returned {@code null}. */
     after() returning(Object result): anyNonVoidMethod() {
         if (result == null) {
             String signature = thisJoinPoint.getSignature().toLongString();

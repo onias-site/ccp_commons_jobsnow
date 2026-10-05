@@ -8,24 +8,31 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
- * Especialização de {@code CcpBusiness} para serviços expostos externamente (ex.: endpoints REST).
- * Adiciona a obrigatoriedade de nome ({@code name()}) e validação de JSON de entrada antes da execução,
- * além de converter {@code Map<String, Object>} para {@code CcpJsonRepresentation} automaticamente.
+ * Specialization of {@code CcpBusiness} for services exposed to the outside (e.g. REST endpoints). It makes the name
+ * and the validation class mandatory and converts {@code Map<String, Object>} to {@code CcpJsonRepresentation}.
  */
 public interface CcpService extends CcpBusiness {
 
-	/** Retorna a classe onde estão as anotações de validação do JSON de entrada para este serviço. */
+	/**
+	 * Returns the class holding the validation annotations of the input JSON of this service.
+	 * @return the validation class
+	 */
 	Class<?> getJsonValidationClass();
 
-	/** Retorna o nome identificador do serviço (usado em logs e mensagens de validação). */
+	/**
+	 * Returns the identifier of the service, used in logs and validation messages.
+	 * @return the service name
+	 */
 	String name();
 	
 	/**
-	 * Converte o mapa em {@code CcpJsonRepresentation}, valida via {@code CcpJsonValidatorEngine},
-	 * executa {@code apply()} e retorna o mapa de saída.
-	 * Lança {@code CcpServiceJsonValidationError} se o JSON gerado for inválido durante o processamento.
-	 * @param map o mapa de entrada
-	 * @return o mapa resultante da execução
+	 * Converts the map into {@code CcpJsonRepresentation}, validates it with {@code CcpJsonValidatorEngine}, runs
+	 * {@code apply()} and returns the output map.
+	 * <p>
+	 * Unlike {@link CcpBusiness#execute(CcpJsonRepresentation)}, it does not fill default values.
+	 * @param map the input map
+	 * @return the output map
+	 * @throws CcpServiceJsonValidationError when a JSON built during the processing is invalid
 	 */
 	default Map<String, Object> execute(Map<String, Object> map){
 		CcpJsonRepresentation json = new CcpJsonRepresentation(map);
@@ -41,8 +48,13 @@ public interface CcpService extends CcpBusiness {
 		}
 	}
 
+	/** Wraps a JSON validation error raised during the execution of a service (not during the validation of its input). */
 	@SuppressWarnings("serial")
 	public static class CcpServiceJsonValidationError extends RuntimeException {
+		/**
+		 * Wraps the original validation error.
+		 * @param e the original validation error
+		 */
 		private CcpServiceJsonValidationError(CcpErrorJsonInvalid e) {
 			super(e);
 		}

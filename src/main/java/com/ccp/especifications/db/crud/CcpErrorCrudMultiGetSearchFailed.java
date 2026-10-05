@@ -11,10 +11,19 @@ import com.ccp.json.fields.validation.CcpJsonCommonsFields;
 public class CcpErrorCrudMultiGetSearchFailed extends RuntimeException {
 
 
+	/**
+	 * Builds the message from the {@code type} and {@code reason} of the database error.
+	 * @param error the error returned by the database
+	 */
 	public CcpErrorCrudMultiGetSearchFailed(CcpJsonRepresentation error) {
 		super(getMessage(error));
 	}
 
+	/**
+	 * Formats the message as {@code "<type>. Reason: <reason>"}.
+	 * @param error the error returned by the database
+	 * @return the message
+	 */
 	private static String getMessage(CcpJsonRepresentation error) {
 		String errorType = error.getAsString(CcpJsonCommonsFields.type);
 		String errorTypeWithReasonLabel = errorType + ". Reason: ";

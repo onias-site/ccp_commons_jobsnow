@@ -7,32 +7,50 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Restrições para campos String: comprimento mínimo/máximo/exato, valores permitidos,
- * regex e permissão de string vazia.
+ * Constraints of text fields: minimum, maximum and exact length, allowed values, regular expression, empty text and
+ * java class names.
  */
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface CcpJsonFieldTypeString {
-	/** Comprimento exato obrigatório. */
+	/**
+	 * Mandatory exact length.
+	 * @return the exact length ({@code Integer.MIN_VALUE} means no constraint)
+	 */
 	int exactLength() default Integer.MIN_VALUE;
-	/** Comprimento mínimo permitido. */
+	/**
+	 * Minimum length.
+	 * @return the minimum length ({@code Integer.MIN_VALUE} means no constraint)
+	 */
 	int minLength() default Integer.MIN_VALUE;
-	/** Comprimento máximo permitido. */
+	/**
+	 * Maximum length.
+	 * @return the maximum length ({@code Integer.MAX_VALUE} means no constraint)
+	 */
 	int maxLength() default Integer.MAX_VALUE;
-	/** Se string vazia é aceita (padrão: false). */
+	/**
+	 * Whether the empty text is accepted.
+	 * @return {@code false} (the default) when the empty text is refused
+	 */
 	boolean allowsEmptyString() default false;
 
-	/** Expressão regular de validação. */
+	/**
+	 * Regular expression the text must match.
+	 * @return the regular expression (empty means no constraint)
+	 */
 	String regexValidation() default "";
 	
+	/**
+	 * Enums whose constant names are the only values allowed; empty means any value.
+	 * @return the enums of allowed values
+	 */
 	@SuppressWarnings("rawtypes")
-	/** Valores de enums (concatenados) permitidos. */
 	Class[] allowedValuesEnum() default {};
 
 	/**
-	 * Se o campo transporta o nome completo (pacote incluído) de uma classe java, e não texto livre.
-	 * Quando true, o valor só é aceito se o class loader da aplicação conseguir encontrar a classe
-	 * com aquele nome (padrão: false).
+	 * Whether the field carries the fully qualified name of a java class instead of free text. When {@code true}, the value
+	 * is accepted only if the class loader of the application finds a class with that name.
+	 * @return {@code false} by default
 	 */
 	boolean isJavaClass() default false;
 }

@@ -6,40 +6,43 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Decorator sobre um timestamp em milissegundos ({@code Long}) que oferece operações de calendário com
- * fuso horário brasileiro (America/Sao_Paulo), formatação de data/hora, cálculo de meia-noite e controle
- * de pausa de thread.
+ * Decorator over a timestamp in milliseconds ({@code Long}) offering calendar operations, date/time formatting,
+ * midnight computation and thread sleeping. Midnight is computed in the Brazilian time zone (America/Sao_Paulo); year
+ * and formatting use the JVM default time zone.
  */
 public class CcpTimeDecorator implements CcpDecorator<Long> {
 
+	/** The wrapped timestamp, in milliseconds since the epoch. */
 	public final Long content;
 
 	/**
-	 * Encapsula o timestamp fornecido.
+	 * Wraps the given timestamp.
+	 * @param time the timestamp in milliseconds
 	 */
 	public CcpTimeDecorator(Long time) {
 		this.content = time;
 	}
 
-	/**
-	 * Usa {@code System.currentTimeMillis()} como timestamp atual.
-	 */
+	/** Wraps the current time ({@code System.currentTimeMillis()}). */
 	public CcpTimeDecorator() {
 		this(System.currentTimeMillis());
 	}
 
 	/**
-	 * Calcula quantos segundos se passaram desde a meia-noite do dia atual (fuso de São Paulo).
+	 * Computes how many whole seconds separate the wrapped timestamp from the midnight of the <b>current</b> day in
+	 * the America/Sao_Paulo time zone (see {@link #getMidnight()}); meaningful only for timestamps of the current day.
+	 * @return the elapsed seconds (negative for timestamps before today)
 	 */
 	public long getSecondsEnlapsedSinceMidnight() {
-		Long meiaNoite = this.getMidnight();
-		Long contentMenos = this.content - meiaNoite;
-		long tempo = (contentMenos) / 1000L;
-		return tempo;
+		Long midnight = this.getMidnight();
+		Long millisSinceMidnight = this.content - midnight;
+		long secondsSinceMidnight = (millisSinceMidnight) / 1000L;
+		return secondsSinceMidnight;
 	}
 
 	/**
-	 * Retorna o ano do timestamp.
+	 * Returns the year of the wrapped timestamp, in the JVM default time zone.
+	 * @return the year
 	 */
 	public int getYear() {
 		Calendar instance = Calendar.getInstance();
@@ -49,7 +52,8 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Retorna o timestamp da meia-noite do dia atual no fuso de São Paulo.
+	 * Returns the timestamp of the midnight of the <b>current</b> day in the America/Sao_Paulo time zone. The wrapped timestamp is not used.
+	 * @return the midnight timestamp in milliseconds
 	 */
 	public Long getMidnight() {
 		Calendar cal = this.getBrazilianCalendar();
@@ -63,7 +67,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Formata o timestamp usando o padrão fornecido ({@code SimpleDateFormat}).
+	 * Formats the wrapped timestamp with the given {@code SimpleDateFormat} pattern, in the JVM default time zone.
+	 * @param pattern the {@code SimpleDateFormat} pattern
+	 * @return the formatted date/time
 	 */
 	public String getFormattedDateTime(String pattern) {
 		Date d = new Date();
@@ -74,7 +80,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Retorna um {@code Calendar} configurado com o fuso horário {@code America/Sao_Paulo}.
+	 * Returns a new {@code Calendar} set to the current time in the {@code America/Sao_Paulo} time zone. The wrapped
+	 * timestamp is not used.
+	 * @return the calendar
 	 */
 	public Calendar getBrazilianCalendar() {
 		TimeZone timeZone = TimeZone.getTimeZone("America/Sao_Paulo");
@@ -85,13 +93,14 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Pausa a thread por {@code i} milissegundos. Retorna {@code true} se a pausa foi concluída;
-	 * {@code false} se o valor for &lt;= 0 ou se a thread for interrompida.
+	 * Pauses the current thread.
+	 * @param i the pause in milliseconds
+	 * @return {@code true} when the pause completed; {@code false} when {@code i <= 0} or the thread was interrupted
 	 */
 	public boolean sleep(int i) {
-		boolean iMenorOuIgual = i <= 0;
+		boolean noMoreDays = i <= 0;
 
-		if (iMenorOuIgual) {
+		if (noMoreDays) {
 			return false;
 		}
 
@@ -104,7 +113,8 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o timestamp.
+	 * Returns the wrapped timestamp.
+	 * @return the timestamp in milliseconds
 	 */
 	public Long getContent() {
 		return this.content;

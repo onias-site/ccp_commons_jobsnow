@@ -27,18 +27,47 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 final class CcpEntityDataMover {
 
+	/** Utility class: not instantiable. */
 	private CcpEntityDataMover() {}
 
+	/**
+	 * Moves the record from the source to the target (see the class rules).
+	 * @param source the source entity
+	 * @param target the target entity
+	 * @param json the record (at least its primary key) plus fields that override the stored ones
+	 * @param bulk runs the bulk
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @return {@code false} when the record does not exist in the source, {@code true} otherwise
+	 */
 	static boolean transfer(CcpEntity source, CcpEntity target, CcpJsonRepresentation json, CcpExecuteBulkOperation bulk, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		boolean moved = move(source, target, json, bulk, functionToDeleteKeysInTheCache, true);
 		return moved;
 	}
 
+	/**
+	 * Copies the record from the source to the target, keeping it in the source (see the class rules).
+	 * @param source the source entity
+	 * @param target the target entity
+	 * @param json the record (at least its primary key) plus fields that override the stored ones
+	 * @param bulk runs the bulk
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @return {@code false} when the record does not exist in the source, {@code true} otherwise
+	 */
 	static boolean copy(CcpEntity source, CcpEntity target, CcpJsonRepresentation json, CcpExecuteBulkOperation bulk, Consumer<String[]> functionToDeleteKeysInTheCache) {
 		boolean copied = move(source, target, json, bulk, functionToDeleteKeysInTheCache, false);
 		return copied;
 	}
 
+	/**
+	 * Shared implementation of transfer and copy.
+	 * @param source the source entity
+	 * @param target the target entity
+	 * @param json the record plus overriding fields
+	 * @param bulk runs the bulk
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @param removeFromSource whether the record is deleted from the source
+	 * @return {@code false} when the record does not exist in the source, {@code true} otherwise
+	 */
 	private static boolean move(CcpEntity source, CcpEntity target, CcpJsonRepresentation json, CcpExecuteBulkOperation bulk, Consumer<String[]> functionToDeleteKeysInTheCache, boolean removeFromSource) {
 
 		boolean sourceIsMissing = false == source.exists(json);
@@ -98,10 +127,16 @@ final class CcpEntityDataMover {
 		}
 	};
 
+	/** Cache invalidation of the innermost layer, which has no cache: does nothing. */
 	static final Consumer<String[]> NO_CACHE_TO_CLEAN = keys -> {};
 
+	/** Raised by {@link #DIRECT_BULK} when any item of the bulk fails. */
 	@SuppressWarnings("serial")
 	public static class CcpErrorEntityDataMoveFailed extends RuntimeException {
+		/**
+		 * Builds the error listing the details of the failed items.
+		 * @param errors the error details of the failed items
+		 */
 		private CcpErrorEntityDataMoveFailed(List<CcpJsonRepresentation> errors) {
 			super("The data transfer failed in the bulk: " + errors);
 		}

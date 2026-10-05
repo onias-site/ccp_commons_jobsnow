@@ -50,6 +50,7 @@ public final class CcpToStringBuilder {
 	 */
 	private static final Map<Class<?>, List<Field>> FIELDS_CACHE = new ConcurrentHashMap<>();
 
+	/** Utility class: not instantiable. */
 	private CcpToStringBuilder() {
 	}
 
@@ -107,6 +108,17 @@ public final class CcpToStringBuilder {
 		return instanceFields;
 	}
 
+	/**
+	 * Serializes an object as a JSON object made of its instance attributes, in declaration order (subclass first).
+	 * <p>
+	 * An object already being serialized higher up in the same thread becomes the quoted text
+	 * {@code "<circular reference: ClassName>"}; attributes whose read fails are skipped. The thread-local registry is
+	 * released when the outermost object finishes.
+	 * @param object the object to serialize
+	 * @param fields the object's instance attributes, as returned by {@code getInstanceFields}
+	 * @param depth current nesting depth
+	 * @return the JSON object text
+	 */
 	private static String writeObject(Object object, List<Field> fields, int depth) {
 		IdentityHashMap<Object, Object> inProgress = IN_PROGRESS.get();
 		boolean containsKey = inProgress.containsKey(object);
@@ -154,6 +166,17 @@ public final class CcpToStringBuilder {
 		}
 	}
 
+	/**
+	 * Serializes any value according to its type: {@code null}, booleans and finite numbers as JSON literals;
+	 * texts, characters and enum names as quoted strings; arrays and collections as JSON arrays; maps as JSON objects;
+	 * types with a hand-written {@code toString} as their quoted text; any other object as a nested JSON object.
+	 * <p>
+	 * Beyond {@code MAX_DEPTH}, composite values are summarized by their quoted class name, and objects without
+	 * instance attributes become their quoted class name.
+	 * @param value the value to serialize
+	 * @param depth current nesting depth
+	 * @return the JSON text of the value
+	 */
 	private static String writeValue(Object value, int depth) {
 		boolean isNull = value == null;
 		if (isNull) {
@@ -256,6 +279,12 @@ public final class CcpToStringBuilder {
 		return false;
 	}
 
+	/**
+	 * Serializes a number as a JSON number, except NaN and infinities, which JSON cannot represent and therefore
+	 * become quoted text.
+	 * @param number the number to serialize
+	 * @return the JSON text of the number
+	 */
 	private static String writeNumber(Number number) {
 		double asDouble = number.doubleValue();
 		boolean isNaN = Double.isNaN(asDouble);
@@ -270,6 +299,12 @@ public final class CcpToStringBuilder {
 		return numberText;
 	}
 
+	/**
+	 * Serializes a Java array (primitive or not) as a JSON array, detecting circular references.
+	 * @param array the array to serialize
+	 * @param depth current nesting depth
+	 * @return the JSON array text
+	 */
 	private static String writeArray(Object array, int depth) {
 		IdentityHashMap<Object, Object> inProgress = IN_PROGRESS.get();
 		boolean containsKey = inProgress.containsKey(array);
@@ -303,6 +338,13 @@ public final class CcpToStringBuilder {
 		}
 	}
 
+	/**
+	 * Serializes a collection as a JSON array in iteration order, detecting circular references. If the iteration
+	 * fails (for instance, a concurrent modification), the result is the quoted identity of the collection.
+	 * @param collection the collection to serialize
+	 * @param depth current nesting depth
+	 * @return the JSON array text
+	 */
 	private static String writeCollection(Collection<?> collection, int depth) {
 		IdentityHashMap<Object, Object> inProgress = IN_PROGRESS.get();
 		boolean containsKey = inProgress.containsKey(collection);
@@ -340,6 +382,13 @@ public final class CcpToStringBuilder {
 		}
 	}
 
+	/**
+	 * Serializes a map as a JSON object whose keys are {@code String.valueOf(key)}, detecting circular references.
+	 * If the iteration fails, the result is the quoted identity of the map.
+	 * @param map the map to serialize
+	 * @param depth current nesting depth
+	 * @return the JSON object text
+	 */
 	private static String writeMap(Map<?, ?> map, int depth) {
 		IdentityHashMap<Object, Object> inProgress = IN_PROGRESS.get();
 		boolean containsKey = inProgress.containsKey(map);
@@ -385,6 +434,12 @@ public final class CcpToStringBuilder {
 		}
 	}
 
+	/**
+	 * Returns the default identity text of an object: {@code ClassName@hexIdentityHash}, the same format as
+	 * {@code Object.toString()}.
+	 * @param object the object to identify
+	 * @return the identity text
+	 */
 	private static String identityOf(Object object) {
 		var objectClass = object.getClass();
 		var objectClassName = objectClass.getName();
@@ -395,6 +450,11 @@ public final class CcpToStringBuilder {
 		return identity;
 	}
 
+	/**
+	 * Wraps the text in double quotes, escaping quotes, backslashes and control characters as JSON requires.
+	 * @param text the raw text
+	 * @return the quoted and escaped text
+	 */
 	private static String quote(String text) {
 		int textLength = text.length();
 		int capacity = textLength + 2;

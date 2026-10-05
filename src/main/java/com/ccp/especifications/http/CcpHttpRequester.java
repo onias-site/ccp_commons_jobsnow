@@ -12,57 +12,68 @@ import java.util.stream.Stream;
 
 
 /**
- * Contrato para execução de requisições HTTP brutas. Além dos métodos de envio, fornece método
- * default que valida o status de retorno e factory que constrói a exceção HTTP correta por faixa de status.
+ * Contract for raw HTTP requests, plus the check of the returned status and the factory of the HTTP error by status
+ * range.
  */
 public interface CcpHttpRequester {
+	/** Fields of the details of a failed call. */
 	enum JsonFieldNames implements CcpJsonFieldName{
+		/** The statuses that were expected. */
 		expectedStatusList,
+		/** The call details (url, method, headers, request, status, response). */
 		details,
+		/** Identifier of the request. */
 		trace,
+		/** The response body. */
 		response,
+		/** The returned status. */
 		status,
+		/** The request body. */
 		request,
+		/** The request headers. */
 		headers,
+		/** The HTTP method. */
 		method,
+		/** The target URL. */
 		url,
 	}
 	/**
-	 * Executa requisição HTTP simples.
-	 * @param url URL destino
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param body corpo da requisição
-	 * @return resposta HTTP encapsulada
+	 * Runs a simple HTTP request.
+	 * @param url the target URL
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param body the request body
+	 * @return the response
 	 */
 	CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String body);
 	
 	/**
-	 * Executa requisição HTTP multipart.
-	 * @param url URL destino
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param bodyTexts partes textuais do multipart
-	 * @param bodyBinaries partes binárias do multipart
-	 * @return resposta HTTP encapsulada
+	 * Runs a multipart HTTP request.
+	 * @param url the target URL
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param bodyTexts the text parts
+	 * @param bodyBinaries the binary parts
+	 * @return the response
 	 */
 	CcpHttpResponse executeMultiPartHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, List<CcpHttpBodyText> bodyTexts, List<CcpHttpBodyBinary> bodyBinaries);
 
 	/**
-	 * Executa e valida se o status está entre os esperados; lança {@link CcpErrorHttp} caso contrário.
-	 * @param url URL destino
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param request corpo da requisição
-	 * @param numbers status HTTP esperados
-	 * @return resposta HTTP encapsulada
+	 * Runs the request and checks that the status is one of the expected ones.
+	 * @param url the target URL
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param request the request body
+	 * @param numbers the expected statuses
+	 * @return the response
+	 * @throws CcpErrorHttp when the status is not expected (see {@link #getHttpError})
 	 */
 	default CcpHttpResponse executeHttpRequest(String url, CcpHttpMethods method, CcpJsonRepresentation headers, String request, Integer... numbers) {
 		CcpHttpResponse res = this.executeHttpRequest(url, method, headers, request);
 
 		for (int expectedStatus : numbers) {
-			boolean expectedStatusIgual = expectedStatus == res.httpStatus;
-			if (expectedStatusIgual) {
+			boolean hasExpectedStatus = expectedStatus == res.httpStatus;
+			if (hasExpectedStatus) {
 				return res;
 			}
 		}
@@ -85,16 +96,17 @@ public interface CcpHttpRequester {
 	}
 
 	/**
-	 * Constrói {@link CcpErrorHttpClient} (4xx), {@link CcpErrorHttpServer} (5xx) ou {@link CcpErrorHttp} genérico.
-	 * @param trace identificador de rastreamento
-	 * @param url URL destino
-	 * @param method método HTTP
-	 * @param headers cabeçalhos da requisição
-	 * @param request corpo da requisição
-	 * @param status status HTTP recebido
-	 * @param response corpo da resposta
-	 * @param expectedStatusList lista de status esperados
-	 * @return exceção HTTP adequada ao status recebido
+	 * Builds the error of an unexpected status: {@link CcpErrorHttpClient} for 4xx, {@link CcpErrorHttpServer} for 5xx
+	 * and a plain {@link CcpErrorHttp} for any other status.
+	 * @param trace identifier of the request
+	 * @param url the target URL
+	 * @param method the HTTP method
+	 * @param headers the request headers
+	 * @param request the request body
+	 * @param status the returned status
+	 * @param response the response body
+	 * @param expectedStatusList the expected statuses
+	 * @return the error (not thrown)
 	 */
 	default CcpErrorHttp getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, Integer status, String response, Set<String> expectedStatusList) {
@@ -117,15 +129,15 @@ public interface CcpHttpRequester {
 				.put(JsonFieldNames.details, put.content);
 				CcpJsonRepresentation entity = put8
 				.put(JsonFieldNames.expectedStatusList, expectedStatusList);
-				boolean statusMaiorOuIgual = status >= 600;
+				boolean statusOutOfRange = status >= 600;
 
-				if (statusMaiorOuIgual) {
+				if (statusOutOfRange) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}
-		boolean statusMenor = status < 400;
+		boolean statusBelowClientError = status < 400;
 
-		if (statusMenor) {
+		if (statusBelowClientError) {
 			CcpErrorHttp ccpHttpError = new CcpErrorHttp(entity);
 			return ccpHttpError;
 		}

@@ -36,6 +36,12 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 	}
 	
 
+	/**
+	 * Builds the message naming the id and the entity.
+	 * @param entityName the entity name
+	 * @param id the identifier not found
+	 * @return the message
+	 */
 	private static String getErrorMessage(String entityName, String id) {
 		String errorMessage = String.format("Does not exist an id '%s' registered in the entity '%s'.", 
 				id,	entityName);
@@ -44,6 +50,12 @@ public class CcpErrorBulkEntityRecordNotFound extends RuntimeException{
 	}
 
 
+	/**
+	 * Builds the message naming the id computed from the JSON, the entity and the primary key values used.
+	 * @param entity the entity
+	 * @param json the JSON holding the primary key values
+	 * @return the message
+	 */
 	private static String getErrorMessage(CcpEntity entity, CcpJsonRepresentation json) {
 
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();

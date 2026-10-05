@@ -7,17 +7,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Define as validações globais do JSON de entrada para uma classe de validação: grupos de campos
- * onde ao menos um é obrigatório, grupos de todos-ou-nenhum e validadores customizados de classe.
+ * Declares the global validations of the input JSON of a validation class: groups of fields where at least one is
+ * required, all-or-none groups, and custom class-level validators.
  */
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface CcpJsonGlobalValidations {
-	/** Grupos de campos onde ao menos um deve estar presente no JSON. */
+	/**
+	 * Groups of fields where at least one must be present in the JSON.
+	 * @return the groups
+	 */
 	CcpJsonValidationFieldList[] requiresAtLeastOne() default {};
-	/** Grupos de campos onde todos devem estar presentes ou nenhum. */
+	/**
+	 * Groups of fields where either all or none must be present.
+	 * @return the groups
+	 */
 	CcpJsonValidationFieldList[] requiresAllOrNone() default {};
-	/** Validadores customizados adicionais de nível de classe. */
+	/**
+	 * Additional custom class-level validators (implementations of {@code CcpJsonValidator} with a no-arg constructor).
+	 * @return the validator classes
+	 */
 	@SuppressWarnings("rawtypes")
 	Class[] customJsonValidators() default {};
 }

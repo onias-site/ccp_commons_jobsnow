@@ -10,29 +10,27 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.json.defaultvalues.business.CcpJsonFieldDefaultValueDoNothing;
 
 /**
- * Define o valor padrão de um campo JSON. Funciona como as anotações de validação de campo, mas ao
- * invés de validar, insere valor no campo quando ele não foi informado no JSON em tratamento.
- * Campos já presentes no JSON nunca são sobrescritos.
+ * Declares the default value of a JSON field. It works like the field validation annotations but, instead of
+ * validating, it fills the field when the JSON being handled does not have it. Fields already present are never
+ * overwritten. A field with a default value is never required.
  */
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface CcpJsonFieldDefaultValue {
 
 	/**
-	 * Valores padrão em texto. Cada string passa por {@code resolveTemplate}, de modo que
-	 * {@code {nomeDoCampo}} é trocado pelo valor correspondente do JSON em tratamento.
-	 * Um único item é gravado no campo como String; dois ou mais são gravados como lista de Strings.
-	 * Quando vazio (padrão), o valor padrão passa a ser produzido por {@code jsonProducer}.
-	 * @return os valores padrão do campo
+	 * Default values as text. Each one goes through {@code resolveTemplate}, so {@code {fieldName}} is replaced by the
+	 * matching value of the JSON being handled. A single item is stored as a String; two or more are stored as a list of
+	 * Strings. When empty (the default), the default value is produced by {@code jsonProducer}.
+	 * @return the default values of the field
 	 */
 	String[] defaultStrings() default {};
 
 	/**
-	 * {@code CcpBusiness} que produz o JSON com o campo já preenchido. Só é acionado quando
-	 * {@code defaultStrings} está vazio. É instanciado por reflexão (construtor sem argumentos) e
-	 * recebe, no método {@code execute}, o JSON em tratamento; o JSON devolvido substitui o original.
-	 * O padrão devolve o JSON inalterado, isto é, não define valor padrão algum.
-	 * @return a classe produtora do JSON
+	 * {@code CcpBusiness} that produces the JSON with the field filled. Used only when {@code defaultStrings} is empty. It is
+	 * instantiated by reflection (no-arg constructor) and receives, in {@code execute}, the JSON being handled; the returned
+	 * JSON replaces the original. The default returns the JSON unchanged, that is, it sets no default value.
+	 * @return the producer class
 	 */
 	Class<? extends CcpBusiness> jsonProducer() default CcpJsonFieldDefaultValueDoNothing.class;
 }

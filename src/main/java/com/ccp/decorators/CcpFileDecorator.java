@@ -23,12 +23,16 @@ import com.ccp.especifications.json.CcpJsonHandler;
 
 
 /**
- * Decorator over a file path of the file system. Wraps read, write, append,
- * ZIP compression, removal and conversion of the content to other framework types (JSON, list of JSONs).
- * Ensures the automatic creation of the parent directory when needed.
+ * Decorator over a file path of the file system. Wraps reading, writing, appending, ZIP compression, removal and
+ * conversion of the content into framework types (JSON, list of JSONs).
+ * <p>
+ * Most operations ({@code exists}, {@code getName}, {@code getPath}, {@code reset}, {@code remove}, {@code zip},
+ * {@code getStringContent}) create the missing parent directories as a side effect before acting.
  */
 public class CcpFileDecorator implements CcpDecorator<String> {
+	/** The file path. */
 	public final String content;
+	/** The parent directory (absolute path), or {@code null} when the path has no parent. */
 	public final CcpFileDecorator parent;
 	/**
 	 * Wraps the path and automatically resolves the decorator of the parent directory.
@@ -39,6 +43,11 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		this.content = content;
 	}
 
+	/**
+	 * Resolves the parent directory of a path, after making it absolute.
+	 * @param content the file path
+	 * @return the parent directory, or {@code null} when the path has no parent
+	 */
 	@CcpAllowNullReturn
 	private CcpFileDecorator getParent(String content) {
 		
@@ -57,7 +66,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Compresses the file or directory into a {@code .zip} file with the same name in the current directory.
+	 * Compresses the file (or the directory, recursively) into a {@code <name>.zip} file created in the working directory
+	 * of the process. Hidden entries are skipped; entry names keep the path given to this decorator.
+	 * @return this decorator
 	 */
 	public CcpFileDecorator zip() {
 		
@@ -75,6 +86,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	
 	/**
 	 * Returns only the file name (without the path).
+	 * @return the file name
 	 */
 	public String getName() {
 		File file = tryToCreateParentFolder();
@@ -82,7 +94,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return name;
 	}
 	/**
-	 * Returns the complete absolute path of the file.
+	 * Returns the absolute path of the file.
+	 * @return the absolute path
 	 */
 	public String getPath() {
 		File file = tryToCreateParentFolder();
@@ -90,6 +103,13 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return absolutePath;
 	}
 
+	/**
+	 * Adds the file, or the directory and its children recursively, to the ZIP stream.
+	 * @param fileToZip the file or directory to add
+	 * @param zipOut the ZIP stream
+	 * @return this decorator
+	 * @throws IOException when reading a file or writing the stream fails
+	 */
 	private CcpFileDecorator zip(File fileToZip, ZipOutputStream zipOut) throws IOException {
 		boolean hidden = fileToZip.isHidden();
        if (hidden) {
@@ -128,7 +148,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		}
     }
 	/**
-	 * Reads the whole file content as a UTF-8 string. Throws {@code CcpErrorFolderParentIsMissing} if the file does not exist.
+	 * Reads the whole file content as UTF-8 text.
+	 * @return the file content
+	 * @throws CcpErrorFolderParentIsMissing when the file does not exist
 	 */
 	public  String getStringContent() {
 		File file = tryToCreateParentFolder();
@@ -144,8 +166,9 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return fileText;
 	}
 	/**
-	 * Overwrites the file with the given content (clears it before writing).
+	 * Replaces the file content with the given text followed by a line feed.
 	 * @param content the content to write
+	 * @return this decorator
 	 */
 	public CcpFileDecorator write(String content) {
 		this.reset();
@@ -155,8 +178,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Appends the content to the end of the file (creates the file if it does not exist).
+	 * Appends the text followed by a line feed ({@code \n}) to the end of the file, creating the file when it does not
+	 * exist (its parent directory must exist). The bytes use the platform default charset.
 	 * @param content the content to append
+	 * @return this decorator
 	 */
 	public CcpFileDecorator append(String content) {
 		File file = new File(this.content);
@@ -172,7 +197,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return this;
 	}
 	/**
-	 * Erases the file content, leaving it empty (deletes and recreates it).
+	 * Empties the file (deletes and recreates it), creating the parent directories when needed.
+	 * @return this decorator
 	 */
 	public CcpFileDecorator reset() {
 
@@ -183,6 +209,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return this;
 	}
 
+	/**
+	 * Creates the missing parent directories of the file.
+	 * @return the file
+	 */
 	private File tryToCreateParentFolder() {
 		File file = new File(this.content);
 		String parent = file.getParent();
@@ -191,7 +221,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return file;
 	}
 	/**
-	 * Reads all the lines of the file and returns them as a list of strings.
+	 * Reads every line of the file (platform default charset).
+	 * @return the lines, without terminators
 	 */
 	public List<String> getLines(){
 		String filePath = this.content;
@@ -207,8 +238,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 
 
 	/**
-	 * Reads the file line by line, calling the callback {@code reader.onRead(line, index)} for each line.
-	 * @param reader the callback to call for each line
+	 * Reads the file line by line (platform default charset), calling {@code reader.onRead(line, index)} for each line;
+	 * the index starts at zero.
+	 * @param reader the callback called for each line
+	 * @return this decorator
 	 */
 	public  CcpFileDecorator readLines(FileLineReader reader){
 		String line;
@@ -222,6 +255,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	
+	/**
+	 * Returns the file name (without the path).
+	 * @return the file name
+	 */
 	public String toString() {
 		File file = new File(this.content);
 		String fileName = file.getName();
@@ -229,7 +266,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Checks whether the file exists in the file system.
+	 * Tells whether the path exists (file or directory), creating the missing parent directories as a side effect.
+	 * @return {@code true} when the path exists
 	 */
 	public boolean exists() {
 		File file = tryToCreateParentFolder();
@@ -237,7 +275,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		return exists;
 	}
 	/**
-	 * Returns {@code true} if the path exists and points to a file (not a directory).
+	 * Tells whether the path exists and is not a directory.
+	 * @return {@code true} when the path is an existing file
 	 */
 	public boolean isFile() {
 		boolean exists = this.exists();
@@ -254,6 +293,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	/**
 	 * Reinterprets the path as a directory.
+	 * @return the folder decorator over the same path
 	 */
 	public CcpFolderDecorator asFolder() {
 		CcpFolderDecorator ccpFolderDecorator = new CcpFolderDecorator(this.content);
@@ -261,7 +301,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Reads the file content and deserializes it as a single JSON.
+	 * Reads the file content and deserializes it as a single JSON object.
+	 * @return the JSON
 	 */
 	public CcpJsonRepresentation asSingleJson() {
 		String fileText = this.getStringContent();
@@ -270,7 +311,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Reads the file content and deserializes it as a list of JSON objects.
+	 * Reads the file content and deserializes it as a list of JSON objects, using the registered {@code CcpJsonHandler}.
+	 * @return the list of JSONs
 	 */
 	public List<CcpJsonRepresentation> asJsonList(){
 		CcpJsonHandler jsonHandler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
@@ -283,7 +325,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Removes the file from the file system.
+	 * Deletes the file (a no-op when it does not exist).
+	 * @return this decorator
 	 */
 	public CcpFileDecorator remove() {
 
@@ -293,8 +336,10 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Renames the file to the given new name and returns the decorator of the new file.
-	 * @param newFileName the new file name
+	 * Renames (moves) the file to the given path and returns the decorator of the new path. A failure to rename is
+	 * silently ignored.
+	 * @param newFileName the new path of the file
+	 * @return the decorator of the new path
 	 */
 	public CcpFileDecorator rename(String newFileName) {
 		
@@ -309,7 +354,8 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementation of {@code CcpDecorator}; returns the file path.
+	 * Returns the file path.
+	 * @return the file path
 	 */
 	public String getContent() {
 		return this.content;

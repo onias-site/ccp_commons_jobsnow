@@ -6,8 +6,14 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
+/** Fields of the summary of a bulk item. */
 enum CcpBulkItemFields implements CcpJsonFieldName{
-	id,  entity, operation 
+	/** The identifier of the record. */
+	id,
+	/** The name of the target entity. */
+	entity,
+	/** The operation applied to the record. */
+	operation
 }
 
 
@@ -17,13 +23,19 @@ enum CcpBulkItemFields implements CcpJsonFieldName{
  * and the computed identifier. Used as the unit of work in the bulk operations pipeline.
  */
 public class CcpBulkItem {
+	/** Fields of the full JSON form of a bulk item. */
 	enum JsonFieldNames implements CcpJsonFieldName{
+		/** The record data. */
 		json
 	}
 
+	/** The operation applied to the record. */
 	public final CcpBulkEntityOperationType operation;
+	/** The record data. */
 	public final CcpJsonRepresentation json;
+	/** The target entity. */
 	public final CcpEntity entity;
+	/** The identifier of the record in the entity. */
 	public final String id;
 	
 	/**

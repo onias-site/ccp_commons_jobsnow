@@ -6,24 +6,25 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 
 /**
- * Repositório de constantes globais compartilhadas em todo o sistema.
- * Define instâncias reusáveis de negócios triviais, um JSON vazio canônico, delimitadores de texto e um campo de nome vazio.
+ * Repository of global constants shared by the whole system: trivial reusable business rules, the canonical empty
+ * JSON, text delimiters and an empty field name.
  */
 public interface CcpOtherConstants {
 
-	/** {@code CcpBusiness} que ignora o JSON de entrada e sempre retorna {@code EMPTY_JSON}. Útil como valor padrão ou no-op que zera o resultado. */
+	/** {@code CcpBusiness} that ignores the input JSON and always returns {@link #EMPTY_JSON}. Useful as a default value or as a no-op that clears the result. */
 	CcpBusiness RETURNS_EMPTY_JSON = x -> CcpOtherConstants.EMPTY_JSON;
-	/** {@code CcpBusiness} que devolve o próprio JSON de entrada sem modificação. Padrão pass-through. */
+	/** {@code CcpBusiness} that returns the input JSON untouched (pass-through). */
 	CcpBusiness DO_NOTHING = json -> json;
-	/** Instância canônica de {@code CcpJsonRepresentation} vazio. Evita criação repetida de mapas vazios. */
+	/** Canonical empty {@code CcpJsonRepresentation}; avoids creating empty maps repeatedly. */
 	CcpJsonRepresentation EMPTY_JSON = CcpJsonRepresentation.getEmptyJson();
-	/** Array de strings com os delimitadores textuais mais comuns (barra, ponto, vírgula, etc.), usado para tokenizar e sanitizar texto. */
+	/** The most common textual delimiters (slash, backslash, dot, tab, line feed, punctuation, brackets, quotes), used to tokenize and sanitize text. */
 	String[] DELIMITERS_ARRAY = new String[] {"/", "\\", ".","\t", "\n", ":", "," , ";", "!", "?", "[", "]", "{", "}", "<", ">", "=", "(", ")", "'", "`",  "\""};
-	/** Expressão regular equivalente ao array de delimitadores, pronta para uso com {@code String.split()} ou {@code Pattern}. */
+	/** Regular expression of text delimiters, ready to be used with {@code String.split()} or {@code Pattern}. Note that it does not match exactly the same set as {@link #DELIMITERS_ARRAY}. */
 	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)\\ |\\'|\\\"|\\`|\\.";
-	/** Implementação de {@code CcpJsonFieldName} cujo valor é a string vazia. Representa ausência de nome de campo. */
+	/** {@code CcpJsonFieldName} whose value is the empty string; represents the absence of a field name. */
 	CcpFieldName EMPTY_STRING = new CcpFieldName("");
 
+	/** Uppercase letters A-Z followed by the digits 0-9: the alphabet used to generate random codes. */
 	CcpStringDecorator LETTERS_AND_NUMBERS = new CcpStringDecorator("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 }

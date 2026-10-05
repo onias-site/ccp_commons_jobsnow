@@ -22,10 +22,13 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
  */
 public final class CcpCacheDecorator {
 	
+	/** The cache implementation registered in the dependency injection. */
 	private final CcpCache cache = CcpDependencyInjection.getDependency(CcpCache.class);
 	
+	/** The key segments accumulated by {@link #incrementKey(String, Object)}, passed to the fallback functions. */
 	private final CcpJsonRepresentation cacheParameters;
 
+	/** The cache key. */
 	public final String key;
 	
 	/**
@@ -61,6 +64,11 @@ public final class CcpCacheDecorator {
 		this.key = key;
 	}
 	
+	/**
+	 * Creates a decorator with an already extended key and its accumulated parameters.
+	 * @param json the accumulated parameters
+	 * @param key the cache key
+	 */
 	private CcpCacheDecorator(CcpJsonRepresentation json, String key) {
 		this.cacheParameters = json;
 		this.key = key;
@@ -78,6 +86,13 @@ public final class CcpCacheDecorator {
 		return this.cache.get(this.key, this.cacheParameters, taskToGetValue, cacheSeconds);
 	}
 
+	/**
+	 * JSON read-through on this key: see {@link CcpCache#get(String, CcpJsonRepresentation, CcpBusiness, int)}.
+	 * @param taskToGetValue business run on a cache miss
+	 * @param json input of the business on a miss
+	 * @param cacheSeconds expiration in seconds
+	 * @return the cached or computed JSON
+	 */
 	public CcpJsonRepresentation get(CcpBusiness taskToGetValue, CcpJsonRepresentation json, int cacheSeconds) {
 		CcpJsonRepresentation cachedValue = this.cache.get(this.key, json, taskToGetValue, cacheSeconds);
 		return cachedValue;

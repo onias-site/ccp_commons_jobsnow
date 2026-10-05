@@ -1,15 +1,14 @@
 package com.ccp.aop;
 
 /**
- * Interface marcadora aplicada por {@code CcpToStringAspect} (via {@code declare parents})
- * a todas as classes dos pacotes cobertos pelo aspecto.
- *
- * A implementação de {@code toString()} é introduzida nesta interface por ITD
- * (inter-type declaration). O AspectJ só injeta o método nas classes que NÃO possuem
- * {@code toString()} próprio (declarado nelas ou herdado de uma superclasse), portanto
- * nenhuma implementação existente é sobrescrita.
- *
- * Não deve ser implementada manualmente.
+ * Marker interface applied by {@code CcpToStringAspect} (through {@code declare parents}) to every class of the
+ * packages covered by the aspect.
+ * <p>
+ * The {@code toString()} implementation is introduced into this interface by ITD (inter-type declaration). AspectJ
+ * only injects the method into classes that do NOT already have their own {@code toString()} (declared in them or
+ * inherited from a superclass), so no existing implementation is overwritten.
+ * <p>
+ * Not meant to be implemented by hand.
  */
 public interface CcpToString {
 

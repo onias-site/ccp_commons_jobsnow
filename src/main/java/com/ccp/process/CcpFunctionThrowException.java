@@ -4,22 +4,27 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.business.CcpBusiness;
 
 /**
- * Implementação de {@code CcpBusiness} que sempre lança uma exceção pré-definida ao ser executada.
- * Útil em cenários de fluxo condicional onde uma determinada ramificação deve obrigatoriamente falhar.
+ * {@code CcpBusiness} that always throws a predefined exception when executed. Useful in conditional flows where a
+ * given branch must necessarily fail.
  */
 public class CcpFunctionThrowException implements CcpBusiness{
 
+	/** The exception thrown on every execution. */
 	private final RuntimeException exception;
 	
 	/**
-	 * Armazena a exceção que será lançada.
-	 * @param exception a exceção a ser lançada quando {@code apply} for chamado
+	 * Stores the exception that will be thrown.
+	 * @param exception the exception thrown when {@code apply} is called
 	 */
 	public CcpFunctionThrowException(RuntimeException exception) {
 		this.exception = exception;
 	}
 
-	/** Lança imediatamente a exceção armazenada, sem processar o JSON. */
+	/**
+	 * Throws the stored exception immediately, without processing the JSON.
+	 * @param json ignored
+	 * @return never returns
+	 */
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		throw this.exception;
 	}

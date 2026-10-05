@@ -1,22 +1,20 @@
 package com.ccp.especifications.password;
 
-/**
- * Contrato para hash e verificação de senhas (BCrypt via Mindrot).
- */
+/** Contract for hashing and checking passwords (BCrypt through Mindrot). */
 public interface CcpPasswordHandler {
 
 	/**
-	 * Verifica se a senha em texto plano corresponde ao hash.
-	 * @param password senha em texto plano
-	 * @param hash hash BCrypt armazenado
-	 * @return true se a senha corresponde ao hash
+	 * Tells whether the plain password matches the hash.
+	 * @param password the plain password
+	 * @param hash the stored BCrypt hash
+	 * @return {@code true} when the password matches
 	 */
 	boolean matches(String password, String hash);
 
 	/**
-	 * Gera e retorna o hash BCrypt da senha.
-	 * @param password senha em texto plano
-	 * @return hash BCrypt da senha
+	 * Generates the BCrypt hash of the password (a new salt each time).
+	 * @param password the plain password
+	 * @return the BCrypt hash
 	 */
 	String getHash(String password);
 

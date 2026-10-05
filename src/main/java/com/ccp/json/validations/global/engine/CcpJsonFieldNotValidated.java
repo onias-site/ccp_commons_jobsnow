@@ -1,11 +1,9 @@
 package com.ccp.json.validations.global.engine;
 
 
-/**
- * Exceção de controle de fluxo lançada quando um campo não possui nenhuma anotação de tipo
- * reconhecida. Capturada silenciosamente para pular o campo.
- */
+/** Flow-control exception thrown when a field has no recognized type annotation; caught silently to skip the field. */
 @SuppressWarnings("serial")
 public class CcpJsonFieldNotValidated extends RuntimeException {
+	/** Builds the signal. */
 	CcpJsonFieldNotValidated() {}
 }

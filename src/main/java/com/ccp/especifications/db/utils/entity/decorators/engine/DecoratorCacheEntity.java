@@ -13,19 +13,35 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityC
  */
 class DecoratorCacheEntity extends CcpEntityDelegator {
 	
+	/** How long, in seconds, a record stays cached. */
 	final int cacheExpires;
 	
+	/**
+	 * Wraps the entity, reading the expiration from {@code @CcpEntityCache}.
+	 * @param entity the wrapped entity
+	 * @param clazz the configurator class
+	 */
 	public DecoratorCacheEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 		CcpEntityCache annotation = clazz.getAnnotation(CcpEntityCache.class);
 		this.cacheExpires = annotation.value();
 	}
 	
+	/**
+	 * Returns the cache entry of the record ({@code records.entity.<name>.id.<id>}).
+	 * @param recordId the record id
+	 * @return the cache entry
+	 */
 	private CcpCacheDecorator getCache(String recordId) {
 		CcpCacheDecorator cache = new CcpCacheDecorator(this, recordId);
 		return cache;
 	}
 
+	/**
+	 * Deletes the record and then its cache entry.
+	 * @param json the record
+	 * @return the outcome of the wrapped delete
+	 */
 	public boolean delete(CcpJsonRepresentation json) {
 
 		boolean deleted = this.entity.delete(json);
@@ -37,6 +53,11 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return deleted;
 	}
 
+	/**
+	 * Deletes the record everywhere and then its cache entry.
+	 * @param json the record
+	 * @return the outcome of the wrapped deleteAnyWhere
+	 */
 	public boolean deleteAnyWhere(CcpJsonRepresentation json) {
 
 		boolean deleted = this.entity.deleteAnyWhere(json);
@@ -49,6 +70,12 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return deleted;
 	}
 	
+	/**
+	 * Tells whether the record exists: {@code true} when it is cached; otherwise asks the wrapped entity, caching the
+	 * record when it exists and clearing the entry when it does not.
+	 * @param json the record (at least its primary key)
+	 * @return {@code true} when the record exists
+	 */
 	public boolean exists(CcpJsonRepresentation json) {
 		
 		String recordId = this.entity.calculateId(json);		
@@ -72,6 +99,12 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return true;
 	}
 	
+	/**
+	 * Reads the record through the cache: a cached record is returned; otherwise it is read from the wrapped entity and
+	 * cached.
+	 * @param json the record (at least its primary key)
+	 * @return the record
+	 */
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		
 		String recordId = this.entity.calculateId(json);		
@@ -83,15 +116,18 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Returns the record from the union-all result <b>without going through the cache</b>.
-	 *
-	 * <p>{@code CcpSelectUnionAll} is an in-memory structure: the {@code _mget} has already brought every
-	 * record before this call. Checking the cache here cannot save any round trip to the database —
-	 * at best it avoids a RAM read, and at worst it pays for a read and a write on the
-	 * cache server to get what was already at hand.</p>
-	 *
-	 * <p>The cache is still used in {@code getOneById} and {@code exists}, where the alternative is
-	 * actually going to the database.</p>
+	 * Returns the record from the union-all result <b>without going through the cache</b>. Note that this is an overload
+	 * taking the JSON itself, not an override of {@code CcpEntity.getRecordFromUnionAll(CcpSelectUnionAll, Supplier)}.
+	 * <p>
+	 * {@code CcpSelectUnionAll} is an in-memory structure: the {@code _mget} has already brought every record before this
+	 * call. Checking the cache here cannot save any round trip to the database: at best it avoids a RAM read, and at worst
+	 * it pays for a read and a write on the cache server to get what was already at hand.
+	 * <p>
+	 * The cache is still used in {@code getOneById} and {@code exists}, where the alternative is actually going to the
+	 * database.
+	 * @param unionAll the search result
+	 * @param json the search parameters
+	 * @return the record, or an empty JSON
 	 */
 	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 
@@ -135,6 +171,12 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 		return inserted;
 	}
 
+	/**
+	 * Clears the cache entry of the record and then transfers it.
+	 * @param json the record
+	 * @param entities the target entity
+	 * @return the outcome of the wrapped transfer
+	 */
 	public boolean transferDataTo(CcpJsonRepresentation json, CcpEntity entities) {
 
 

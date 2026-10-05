@@ -2,14 +2,14 @@ package com.ccp.decorators;
 
 
 /**
- * Exceção lançada quando métodos de navegação por caminho em {@code CcpJsonRepresentation} recebem um array de campos vazio,
- * o que indica erro de programação (caminho não informado).
+ * Raised when a path-navigation method of {@code CcpJsonRepresentation} receives an empty array of fields, which is a
+ * programming error (path not informed).
  */
 @SuppressWarnings("serial")
 public class CcpErrorJsonPathIsMissing extends RuntimeException {
 	/**
-	 * Monta a mensagem pedindo que o caminho seja preenchido, incluindo o JSON que recebeu a chamada.
-	 * @param json o JSON no momento do erro
+	 * Builds the message asking for the path to be filled, including the JSON that received the call.
+	 * @param json the JSON at the moment of the error
 	 */
 	CcpErrorJsonPathIsMissing(CcpJsonRepresentation json) {
 		super("The path is empty, please fill the missing path in the json: " + json);

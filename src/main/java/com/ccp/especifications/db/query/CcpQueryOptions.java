@@ -13,17 +13,33 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Root node of the Elasticsearch fluent query builder.
- * Single entry point to start building a query, configure pagination and sorting, and run the query on the desired indexes.
- * Has a singleton INSTANCE to be used as the starting point.
+ * Root node (the request) of the Elasticsearch fluent query builder: starts the query and the aggregations, sets
+ * pagination, scroll and sorting, and binds the request to the target indexes. Every method returns a copy; start from
+ * {@link #INSTANCE}.
  */
 public class CcpQueryOptions extends CcpQueryComponent {
+	/** Fields of the request. */
 	enum JsonFieldNames implements CcpJsonFieldName {
-		sort, match_all, scroll_id, size, from, scroll, query
+		/** The sorting list. */
+		sort,
+		/** The query that matches every document. */
+		match_all,
+		/** The id of a scroll context being continued. */
+		scroll_id,
+		/** The maximum number of documents returned. */
+		size,
+		/** The offset of the first document returned. */
+		from,
+		/** The expiration of the scroll context. */
+		scroll,
+		/** The query block. */
+		query
 	}
 
+	/** The empty request, starting point of every query. */
 	public static final CcpQueryOptions INSTANCE = new CcpQueryOptions();
 
+	/** Creates an empty request; use {@link #INSTANCE}. */
 	private CcpQueryOptions() {
 		super(null, "");
 	}
@@ -53,7 +69,9 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adds ascending sorting by the given field(s).
+	 * Adds ascending sorting by the field.
+	 * @param fields the field
+	 * @return a copy of the request with the sorting
 	 */
 	public CcpQueryOptions addAscSorting(String fields) {
 		CcpQueryOptions sort = this.addSorting("asc", fields);
@@ -61,7 +79,9 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adds descending sorting by the given field(s).
+	 * Adds descending sorting by the fields, in order.
+	 * @param fields the fields
+	 * @return a copy of the request with the sorting
 	 */
 	public CcpQueryOptions addDescSorting(String... fields) {
 		CcpQueryOptions sort = this.addSorting("desc", fields);
@@ -69,7 +89,10 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adds sorting with a custom type (asc/desc) for several fields.
+	 * Adds sorting by the fields, in order, with the given direction.
+	 * @param sortType {@code asc} or {@code desc}
+	 * @param fields the fields
+	 * @return a copy of the request with the sorting
 	 */
 	public CcpQueryOptions addSorting(String sortType, String... fields) {
 		CcpQueryOptions sort = this;
@@ -79,6 +102,12 @@ public class CcpQueryOptions extends CcpQueryComponent {
 		return sort;
 	}
 
+	/**
+	 * Appends {@code {fieldName: sortType}} to the sorting list of a copy of the request.
+	 * @param fieldName the field
+	 * @param sortType {@code asc} or {@code desc}
+	 * @return the copy
+	 */
 	private CcpQueryOptions sort(String fieldName, String sortType) {
 		CcpQueryOptions copy = this.copy();
 		CcpFieldName fieldKey = new CcpFieldName(fieldName);
@@ -95,6 +124,10 @@ public class CcpQueryOptions extends CcpQueryComponent {
 		return copy;
 	}
 
+	/**
+	 * Creates an empty request.
+	 * @return the new instance
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryComponent> T getInstanceCopy() {
 		CcpQueryOptions newInstance = new CcpQueryOptions();
@@ -181,87 +214,87 @@ public class CcpQueryOptions extends CcpQueryComponent {
 		return clone;
 	}
 
-	/**
+	/*
 	 * Abstract base of every Elasticsearch boolean query operator (must, should, filter, must_not, should_not).
 	 * Manages the collection of conditions and provides generic methods to add different kinds of filter.
 	 */
 
 
-	/**
+	/*
 	 * Represents the query node within the Elasticsearch fluent query builder.
 	 * Serves as the entry point to build the main query block of a request.
 	 */
 
 
-	/**
+	/*
 	 * Represents the bool node within an Elasticsearch boolean query.
 	 * It is the central point for composing boolean filters, allowing filter, must, should, must_not and should_not clauses to be created.
 	 */
 
 
-	/**
+	/*
 	 * Represents the filter node within an Elasticsearch boolean query.
 	 * Unlike must, filter conditions do not affect the relevance score of the documents.
 	 */
 
 
-	/**
+	/*
 	 * Represents the must node within an Elasticsearch boolean query.
 	 * The conditions added here are mandatory and affect the relevance score of the returned documents.
 	 */
 
 
-	/**
+	/*
 	 * Represents the must_not node within an Elasticsearch boolean query.
 	 * The conditions present here exclude the documents that satisfy them.
 	 */
 
 
-	/**
+	/*
 	 * Represents the should node within an Elasticsearch boolean query.
 	 * The conditions added here are optional and increase the relevance score of the documents that satisfy them.
 	 * Supports the minimum_should_match parameter to require that at least N conditions are true.
 	 */
 
 
-	/**
+	/*
 	 * Represents the should_not node within a boolean query.
 	 * The conditions here are optional and penalize the score of the documents that satisfy them (optional negative semantics).
 	 */
 
 
-	/**
+	/*
 	 * Simplified query component that extends {@code CcpQueryBooleanOperator}. Allows building queries
 	 * with {@code term}, {@code terms}, {@code match}, {@code matchPhrase}, {@code prefix} and {@code exists} clauses
 	 * fluently, returning to the parent {@code CcpQueryOptions} when {@code endSimplifiedQueryAndBackToRequest()} is called.
 	 */
 
 
-	/**
+	/*
 	 * Represents the aggs (aggregations) node in the Elasticsearch fluent query builder.
 	 * Allows adding metric aggregations (min, max, avg, sum) and starting buckets (groupings).
 	 */
 
 
-	/**
+	/*
 	 * Represents an Elasticsearch aggregation bucket (terms or histogram) within the fluent query builder.
 	 * Allows configuring a grouping by field and size, and ending it by going back to the parent aggregations node.
 	 */
 
 
-	/**
+	/*
 	 * Represents the range node in the Elasticsearch query builder.
 	 * Serves as a container for the range definitions of one or more fields, allowing a return to the correct parent context after the definition.
 	 */
 
 
-	/**
+	/*
 	 * Represents the range conditions of a specific field within an Elasticsearch range block.
 	 * Allows chaining comparison operators (lt, lte, gt, gte) fluently.
 	 */
 
 
-	/**
+	/*
 	 * Decorator over CcpQueryExecutor that captures the query and the index names in the constructor, simplifying the calls to the real executor.
 	 * Each method delegates to the CcpQueryExecutor injected through DI without the caller having to pass these parameters again and again.
 	 */

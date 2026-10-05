@@ -18,10 +18,28 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpErrorEntityP
  */
 public interface CcpCrud {
 
+	/**
+	 * Reads one document by id.
+	 * @param entityName the entity (index) name
+	 * @param id the document id
+	 * @return the document
+	 */
 	CcpJsonRepresentation getOneById(String entityName, String id);
 
+	/**
+	 * Returns the executor of union-all searches of the database.
+	 * @return the union-all executor
+	 */
 	CcpUnionAllExecutor getUnionAllExecutor();
 
+	/**
+	 * Invalidates the cache keys of the records searched and then searches, in a single call, the records of every entity
+	 * whose id can be computed from each of the JSONs.
+	 * @param jsons the search parameters
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @param entities the entities searched
+	 * @return the condensed result of the search
+	 */
 	default CcpSelectUnionAll unionAll(CcpJsonRepresentation[] jsons, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		this.deleteKeysInCache(jsons, functionToDeleteKeysInTheCache, entities);
 		List<CcpJsonRepresentation> jsonList = Arrays.asList(jsons);
@@ -30,12 +48,26 @@ public interface CcpCrud {
 		return unionAll;
 	}
 
+	/**
+	 * Single-JSON variant of {@link #unionAll(CcpJsonRepresentation[], Consumer, CcpEntity...)}.
+	 * @param json the search parameters
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @param entities the entities searched
+	 * @return the condensed result of the search
+	 */
 	default CcpSelectUnionAll unionAll(CcpJsonRepresentation json, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		CcpJsonRepresentation[] jsons = new CcpJsonRepresentation[]{json};
 		CcpSelectUnionAll unionAll = this.unionAll(jsons, functionToDeleteKeysInTheCache, entities);
 		return unionAll;
 	}
 
+	/**
+	 * Creates or replaces the document.
+	 * @param entityName the entity (index) name
+	 * @param json the document data
+	 * @param id the document id
+	 * @return the raw response of the database, to be read by {@link #isInsertedDocument(CcpJsonRepresentation)}
+	 */
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
 	/**
@@ -49,10 +81,30 @@ public interface CcpCrud {
 	 */
 	boolean isInsertedDocument(CcpJsonRepresentation saveResponse);
 
+	/**
+	 * Tells whether the document exists.
+	 * @param entityName the entity (index) name
+	 * @param id the document id
+	 * @return {@code true} when the document exists
+	 */
 	boolean exists(String entityName, String id);
 
+	/**
+	 * Deletes the document.
+	 * @param entityName the entity (index) name
+	 * @param id the document id
+	 * @return {@code true} when the document existed and was deleted, {@code false} when it was not found
+	 */
 	boolean delete(String entityName, String id);
 
+	/**
+	 * Computes the cache key of every pair entity/JSON whose primary key is complete (pairs with missing primary key fields
+	 * are skipped) and hands the distinct keys to the given function.
+	 * @param jsons the search parameters
+	 * @param functionToDeleteKeysInTheCache receives the cache keys to invalidate
+	 * @param entities the entities searched
+	 * @return this instance
+	 */
 	default CcpCrud deleteKeysInCache(CcpJsonRepresentation[] jsons, Consumer<String[]> functionToDeleteKeysInTheCache, CcpEntity... entities) {
 		Set<String> keysToDeleteInCache = new HashSet<>();
 		for (CcpEntity entity : entities) {

@@ -11,16 +11,17 @@ import java.util.stream.Collectors;
 
 
 /**
- * Decorator sobre {@code Collection<Object>} que adiciona operações de análise de tipo, comparação entre coleções e fatiamento.
- * Permite verificar se todos os elementos são de um determinado tipo JSON, calcular interseções/diferenças e iterar de forma padronizada.
+ * Decorator over {@code Collection<Object>} adding type checks of the items, comparison between collections and
+ * slicing.
  */
 public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Collection<Object>>{
 
+	/** The wrapped collection. */
 	public final Collection<Object> content;
 
 	/**
-	 * Encapsula qualquer {@code Collection} já existente.
-	 * @param content a coleção a ser encapsulada
+	 * Wraps an existing collection (no copy is made).
+	 * @param content the collection to wrap
 	 */
 	@SuppressWarnings("unchecked")
 	public CcpCollectionDecorator(Collection<?> content) {
@@ -28,17 +29,17 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 	
 	/**
-	 * Converte um array em coleção encapsulada.
-	 * @param array o array a ser encapsulado
+	 * Wraps an array as a fixed-size list backed by it.
+	 * @param array the array to wrap
 	 */
 	public CcpCollectionDecorator(Object[] array) {
 		this.content = Arrays.asList(array);
 	}
 
 	/**
-	 * Extrai a lista do campo {@code key} dentro do JSON fornecido.
-	 * @param json o JSON de origem
-	 * @param key o nome do campo que contém a lista
+	 * Wraps the list held by a field of the JSON.
+	 * @param json the source JSON
+	 * @param key the field holding the list
 	 */
 	public CcpCollectionDecorator(CcpJsonRepresentation json, String key) {
 		CcpFieldName ccpFieldName = new CcpFieldName(key);
@@ -46,7 +47,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Retorna {@code true} se todos os elementos da coleção podem ser interpretados como números {@code long}.
+	 * Tells whether every item, in its text form, is an integer number. An empty collection is valid.
+	 * @return {@code true} when every item is an integer number
 	 */
 	public boolean isLongNumberList() {
 		
@@ -55,7 +57,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Retorna {@code true} se todos os elementos podem ser interpretados como {@code double}.
+	 * Tells whether every item, in its text form, is a decimal number. An empty collection is valid.
+	 * @return {@code true} when every item is a number
 	 */
 	public boolean isDoubleNumberList() {
 		
@@ -64,7 +67,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Retorna {@code true} se todos os elementos são {@code "true"} ou {@code "false"}.
+	 * Tells whether every item, in its text form, is {@code true} or {@code false}. An empty collection is valid.
+	 * @return {@code true} when every item is a boolean
 	 */
 	public boolean isBooleanList() {
 		
@@ -72,7 +76,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 		return validList;
 	}
 	/**
-	 * Retorna {@code true} se todos os elementos são strings que representam JSON de objeto válido.
+	 * Tells whether every item, in its text form, is a valid JSON object. An empty collection is valid.
+	 * @return {@code true} when every item is a JSON object
 	 */
 	public boolean isJsonList() {
 		
@@ -80,11 +85,16 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 		return validList;
 	}
 
+	/**
+	 * Tells whether the text form of every item passes the predicate.
+	 * @param predicate the check applied to each item
+	 * @return {@code false} at the first item that fails, {@code true} otherwise
+	 */
 	private boolean isValidList(Predicate<CcpStringDecorator> predicate) {
 		
 		for (Object object : this.content) {
-			String valorMais = "" + object;
-			CcpStringDecorator t = new CcpStringDecorator(valorMais);
+			String objectAsText = "" + object;
+			CcpStringDecorator t = new CcpStringDecorator(objectAsText);
 			boolean test = predicate.test(t);
 			boolean failed = false ==  test;
 			if(failed) {
@@ -95,7 +105,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Implementação de {@code Iterable}; permite uso em {@code for-each}.
+	 * Iterates over the wrapped collection, allowing {@code for-each}.
+	 * @return the iterator of the collection
 	 */
 	public Iterator<Object> iterator() {
 		var iterator = this.content.iterator();
@@ -104,7 +115,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	
 	
 	/**
-	 * Verifica se a coleção não possui elementos.
+	 * Tells whether the collection has no items.
+	 * @return {@code true} when the collection is empty
 	 */
 	public boolean isEmpty() {
 		boolean contentEmpty = this.content.isEmpty();
@@ -112,30 +124,33 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 	
 	/**
-	 * Retorna o tamanho da coleção encapsulado em {@code CcpNumberDecorator} para facilitar comparações.
+	 * Returns the size of the collection as a {@code CcpNumberDecorator}, to ease comparisons.
+	 * @return the size
 	 */
 	public CcpNumberDecorator size() {
 		int contentSize = this.content.size();
-		String valorMais2 = "" + contentSize;
-		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(valorMais2);
+		String contentSizeAsText = "" + contentSize;
+		CcpNumberDecorator ccpNumberDecorator = new CcpNumberDecorator(contentSizeAsText);
 		return ccpNumberDecorator;
 	}
 	
 	/**
-	 * Retorna {@code true} se todos os itens são únicos (sem duplicatas), comparando os tamanhos com e sem {@code HashSet}.
+	 * Tells whether every item is unique (by {@code equals}/{@code hashCode}).
+	 * @return {@code true} when there are no duplicates
 	 */
 	public boolean hasNonDuplicatedItems() {
 		HashSet<Object> hashSet = new HashSet<Object>(this.content);
 		int s1 = this.content.size();
 		int s2 = hashSet.size();
-		boolean s1Igual = s1 == s2;
-		return s1Igual;
+		boolean sameInstance = s1 == s2;
+		return sameInstance;
 	}
 	
 	/**
-	 * Retorna os itens presentes nesta coleção que NÃO estão em {@code listToCompare} (diferença).
-	 * @param listToCompare a coleção de comparação
-	 * @return lista com os itens exclusivos desta coleção
+	 * Returns the items of this collection that are NOT in {@code listToCompare} (difference), keeping their order.
+	 * @param <T> type of the items
+	 * @param listToCompare the collection to compare with
+	 * @return the items exclusive to this collection
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getExclusiveList(Collection<T> listToCompare){
@@ -149,9 +164,10 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Retorna os itens presentes em ambas as coleções (interseção).
-	 * @param listToCompare a coleção de comparação
-	 * @return lista com os itens presentes em ambas as coleções
+	 * Returns the items of this collection that are also in {@code listToCompare} (intersection), keeping their order.
+	 * @param <T> type of the items
+	 * @param listToCompare the collection to compare with
+	 * @return the items present in both collections
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getIntersectList(Collection<T> listToCompare){
@@ -165,25 +181,30 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 	
 	/**
-	 * Retorna {@code true} se a interseção com {@code listToCompare} não for vazia.
-	 * @param listToCompare a coleção de comparação
+	 * Tells whether both collections have at least one item in common.
+	 * @param <T> type of the items
+	 * @param listToCompare the collection to compare with
+	 * @return {@code true} when the intersection is not empty
 	 */
 	public <T> boolean hasIntersect(Collection<T> listToCompare) {
 		List<T> intersectList = this.getIntersectList(listToCompare);
 		boolean intersectListEmpty = intersectList.isEmpty();
-		boolean valorIgual = false == intersectListEmpty;
-		return valorIgual;
+		boolean hasIntersection = false == intersectListEmpty;
+		return hasIntersection;
 	}
 	
 	/**
-	 * Retorna uma sub-coleção delimitada pelos índices {@code start} e {@code end}, ajustando {@code end} caso ultrapasse o tamanho real.
-	 * @param start índice inicial (inclusivo)
-	 * @param end índice final (exclusivo)
+	 * Returns a copy of the items between {@code start} (inclusive) and {@code end} (exclusive); an {@code end} beyond the
+	 * size is reduced to the size.
+	 * @param start start index (inclusive)
+	 * @param end end index (exclusive)
+	 * @return the slice
+	 * @throws IndexOutOfBoundsException when {@code start} is negative or greater than the adjusted {@code end}
 	 */
 	public CcpCollectionDecorator getSubCollection(int start, int end) {
 		int contentSize2 = this.content.size();
-		boolean endMaior = end > contentSize2;
-		if(endMaior) {
+		boolean endBeyondSize = end > contentSize2;
+		if(endBeyondSize) {
 			end = this.content.size();
 		}
 		
@@ -194,7 +215,8 @@ public class CcpCollectionDecorator implements Iterable<Object>, CcpDecorator<Co
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; devolve a coleção interna.
+	 * Returns the wrapped collection.
+	 * @return the collection
 	 */
 	public Collection<Object> getContent() {
 		return this.content;

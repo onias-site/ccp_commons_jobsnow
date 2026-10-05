@@ -55,12 +55,20 @@ public class CcpEntityFactory {
 		return entityName;
 	};
 
+	/** The fields of the entity. */
 	public final CcpEntityField[] entityFields;
+	/** The configurator class. */
 	public final Class<?> configurationClass;
+	/** The main entity, fully decorated. */
 	public final CcpEntity entityInstance;
+	/** Whether the configurator class has {@code @CcpEntityTwin}. */
 	public final boolean hasTwinEntity;
 
 	
+	/**
+	 * Builds the main entity of the configurator class and reads its fields.
+	 * @param configurationClass the configurator class
+	 */
 	public CcpEntityFactory(Class<?> configurationClass) {
 		this.hasTwinEntity = configurationClass.isAnnotationPresent(CcpEntityTwin.class);
 		this.entityInstance = getMainEntity(configurationClass);
@@ -68,6 +76,11 @@ public class CcpEntityFactory {
 		this.configurationClass = configurationClass;
 	}
 	
+	/**
+	 * Builds the main entity, named by {@link #mainEntityNameProducer}.
+	 * @param configurationClass the configurator class
+	 * @return the decorated main entity
+	 */
 	private static CcpEntity getMainEntity(Class<?> configurationClass) {
 		CcpEntity entity = getEntity(configurationClass, mainEntityNameProducer);
 		return entity;
@@ -131,6 +144,11 @@ public class CcpEntityFactory {
 		return result;
 	}
 	
+	/**
+	 * Instantiates, through reflection, the decorators listed in {@code @CcpEntityCustomDecorators}.
+	 * @param configurationClass the configurator class
+	 * @return the custom decorators, or an empty list when the annotation is absent
+	 */
 	private static List<CcpEntityDecoratorType> getCustomDecorators(Class<?> configurationClass) {
 		
 		boolean annotationPresent = configurationClass.isAnnotationPresent(CcpEntityCustomDecorators.class);
@@ -155,9 +173,14 @@ public class CcpEntityFactory {
 	}
 
 	/**
-	 * Extracts the entity fields from the inner class {@code Fields} declared in
-	 * {@code configurationClass}, building an array of {@code CcpEntityField} with the metadata
-	 * of each field (name, primary key, updatable, transformer).
+	 * Reads the fields of the entity. The configurator class must declare a nested enum {@code Fields} implementing
+	 * {@code CcpJsonFieldName}, but the fields themselves are the static {@code CcpJsonFieldName} fields of the class named
+	 * by {@code @CcpEntityFieldsValidator} (which is therefore mandatory): each one becomes a {@code CcpEntityField}
+	 * whose primary key flag comes from {@code @CcpEntityFieldPrimaryKey}, whose updatable flag is the absence of
+	 * {@code @CcpEntityFieldNotUpdatable} and whose transformer comes from {@code getEntityFieldTransformer}.
+	 * @param configurationClass the configurator class
+	 * @return the fields of the entity
+	 * @throws CcpErrorEntityConfigurationFieldsIsMissing when the {@code Fields} enum is not declared
 	 */
 	public static CcpEntityField[] getFields(Class<?> configurationClass) {
 		
@@ -242,6 +265,17 @@ public class CcpEntityFactory {
 		return true;
 	}
 
+	/**
+	 * Chooses the transformer of a field: none without {@code @CcpEntityFieldsTransformer}; the class of
+	 * {@code @CcpEntityFieldTransformer} on the field when present; otherwise the
+	 * {@code CcpJsonTransformersDefaultEntityField} of the same name in the class of {@code @CcpEntityFieldsTransformer}
+	 * (none when there is no such constant).
+	 * @param name the field name
+	 * @param field the field declaration
+	 * @param configurationClass the configurator class
+	 * @return the transformer
+	 * @throws CcpEntityFieldCanNotBePrimaryKey when a primary key field uses a default transformer that cannot be primary key
+	 */
 	private static CcpBusiness getEntityFieldTransformer(String name, Field field, Class<?> configurationClass){
 		boolean hasFieldsTransformer = configurationClass.isAnnotationPresent(CcpEntityFieldsTransformer.class);
 	
@@ -289,15 +323,25 @@ public class CcpEntityFactory {
 		 throw cannotBePrimaryKeyError;
 	}
 
+	/** Raised when a primary key field uses a default transformer that changes the value in a way that cannot be part of an id. */
 	@SuppressWarnings("serial")
 	public static class CcpEntityFieldCanNotBePrimaryKey extends RuntimeException {
+		/**
+		 * Builds the error naming the transformer.
+		 * @param defaultEntityField the transformer
+		 */
 		private CcpEntityFieldCanNotBePrimaryKey(CcpJsonTransformersDefaultEntityField defaultEntityField) {
 			super("The field '" + defaultEntityField.name() + "' can not be a primary key");
 		}
 	}
 
+	/** Raised when a configurator class does not declare the nested {@code Fields} enum. */
 	@SuppressWarnings("serial")
 	public static class CcpErrorEntityConfigurationFieldsIsMissing extends RuntimeException {
+		/**
+		 * Builds the error naming the configurator class.
+		 * @param configurationClass the configurator class
+		 */
 		private CcpErrorEntityConfigurationFieldsIsMissing(Class<?> configurationClass) {
 			super("The class '" + configurationClass.getName() + "' must declare a public static enum called 'Fields' implementing '" + CcpJsonFieldName.class.getSimpleName() + "'");
 		}

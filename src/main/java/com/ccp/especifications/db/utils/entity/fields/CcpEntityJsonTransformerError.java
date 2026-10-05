@@ -1,14 +1,16 @@
 package com.ccp.especifications.db.utils.entity.fields;
 
 /**
- * Exceção lançada por um transformador de campo de entidade quando a transformação não pode ser
- * aplicada ao valor presente no JSON. Capturada silenciosamente por
- * {@code DecoratorFieldsTransformerEntity} para ignorar campos não transformáveis.
+ * Raised by an entity field transformer when the transformation cannot be applied to the value in the JSON.
+ * {@code DecoratorFieldsTransformerEntity} catches it silently and keeps the value untransformed.
  */
 @SuppressWarnings("serial")
 public class CcpEntityJsonTransformerError extends RuntimeException{
 
-	/** Armazena a mensagem descritiva do erro de transformação. */
+	/**
+	 * Builds the error with its message.
+	 * @param message the description of the failure
+	 */
 	public CcpEntityJsonTransformerError(String message) {
 		super(message);
 	}

@@ -13,5 +13,11 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 public interface CcpUnionAllExecutor {
 
+	/**
+	 * Searches, in a single call, the records of every entity whose id can be computed from each of the JSONs.
+	 * @param values the search parameters
+	 * @param entities the entities searched
+	 * @return the condensed result
+	 */
 	CcpSelectUnionAll unionAll(Collection<CcpJsonRepresentation> values, CcpEntity... entities);
 }

@@ -3,47 +3,59 @@ package com.ccp.process;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonFieldName;
 
-/**
- * Conjunto padrão de status de processo HTTP-like usados em todo o sistema jobsnow.
- * Implementa {@code CcpProcessStatus} e fornece os códigos mais comuns:
- * {@code OK(200)}, {@code CREATED(201)}, {@code UPDATED(204)}, {@code REDIRECT(301)},
- * {@code INACTIVE_RECORD(302)}, {@code BAD_REQUEST(400)}, {@code UNHAUTHORIZED(401)},
- * {@code NOT_FOUND(404)}, {@code CONFLICT(409)}, {@code UNPROCESSABLE_ENTITY(422)}.
- */
+/** Default HTTP-like process statuses used throughout jobsnow. */
 public enum CcpProcessStatusDefault implements CcpProcessStatus{
 
+	/** The record exists but is inactive (302). */
 	INACTIVE_RECORD(302),
+	/** The caller is not authorized (401). */
 	UNHAUTHORIZED(401),
+	/** The request is malformed (400). */
 	BAD_REQUEST(400),
+	/** The record was not found (404). */
 	NOT_FOUND(404),
+	/** The record already exists or the state conflicts with the request (409). */
 	CONFLICT(409),
+	/** The caller must be redirected (301). */
 	REDIRECT(301),
+	/** Success (200). */
 	OK(200),
+	/** A record was created (201). */
 	CREATED(201),
+	/** A record was updated (204). */
 	UPDATED(204),
+	/** The request is well formed but violates a business rule (422). */
 	UNPROCESSABLE_ENTITY(422)
 	;
 
-	/** Retorna o código HTTP associado ao status. */
+	/**
+	 * Returns the HTTP code associated with the status.
+	 * @return the HTTP code
+	 */
 	public int asNumber() {
 		return this.status;
 	}
 	
 	
 	
+	/**
+	 * Associates the constant with its HTTP code.
+	 * @param status the HTTP code
+	 */
 	private CcpProcessStatusDefault(int status) {
 		this.status = status;
 	}
 
 
 	/**
-	 * Retorna um {@code CcpJsonFieldName} cujo valor é o código numérico como string (ex.: {@code "200"}),
-	 * permitindo uso como chave de campo JSON.
+	 * Returns a {@code CcpJsonFieldName} whose value is the numeric code as text (e.g. {@code "200"}), so the code can be used as a JSON key.
+	 * @return the field name built from the code
 	 */
 	public CcpJsonFieldName asJsonFieldName() {
 		CcpJsonFieldName ccpJsonFieldName = new CcpFieldName(this.status);
 		return ccpJsonFieldName; 
 	}
 	
+	/** The HTTP code of the status. */
 	public final int status;
 }

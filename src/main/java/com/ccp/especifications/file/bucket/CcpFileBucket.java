@@ -1,44 +1,41 @@
 package com.ccp.especifications.file.bucket;
 
-/**
- * Contrato para operações de armazenamento de arquivos em bucket (GCP Storage):
- * recuperar, salvar e excluir arquivos ou pastas por tenant e nome.
- */
+/** Contract for file storage in buckets (GCP Storage): read, save and delete files or folders by tenant and name. */
 public interface CcpFileBucket {
 
 	/**
-	 * Recupera o conteúdo de um arquivo no bucket.
-	 * @param tenant identificador do tenant
-	 * @param bucketName nome do bucket
-	 * @param fileName nome do arquivo
-	 * @return conteúdo do arquivo como String
+	 * Reads the content of a file of the bucket.
+	 * @param tenant tenant identifier
+	 * @param bucketName bucket name
+	 * @param fileName file name
+	 * @return the file content as text
 	 */
 	String get(String tenant, String bucketName, String fileName);
 
 	/**
-	 * Remove um arquivo específico do bucket.
-	 * @param tenant identificador do tenant
-	 * @param bucketName nome do bucket
-	 * @param fileName nome do arquivo
-	 * @return resultado da operação
+	 * Deletes one file of the bucket.
+	 * @param tenant tenant identifier
+	 * @param bucketName bucket name
+	 * @param fileName file name
+	 * @return the result of the operation
 	 */
 	String delete(String tenant, String bucketName, String fileName);
 
 	/**
-	 * Remove uma pasta inteira do bucket.
-	 * @param tenant identificador do tenant
-	 * @param bucketName nome do bucket/pasta
-	 * @return resultado da operação
+	 * Deletes a whole folder of the bucket.
+	 * @param tenant tenant identifier
+	 * @param bucketName bucket/folder name
+	 * @return the result of the operation
 	 */
 	String delete(String tenant, String bucketName);
 
 	/**
-	 * Salva um arquivo no bucket.
-	 * @param tenant identificador do tenant
-	 * @param bucketName nome do bucket
-	 * @param fileName nome do arquivo
-	 * @param fileContent conteúdo do arquivo
-	 * @return resultado da operação
+	 * Saves a file in the bucket.
+	 * @param tenant tenant identifier
+	 * @param bucketName bucket name
+	 * @param fileName file name
+	 * @param fileContent file content
+	 * @return the result of the operation
 	 */
 	String save(String tenant, String bucketName, String fileName, String fileContent);
 

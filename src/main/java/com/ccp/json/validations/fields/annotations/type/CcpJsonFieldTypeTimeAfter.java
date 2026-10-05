@@ -9,17 +9,27 @@ import java.lang.annotation.Target;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityExpurgableOptions;
 
 /**
- * Valida que um timestamp é posterior ao momento atual dentro de um intervalo configurável.
+ * Declares a future timestamp (milliseconds) and bounds how far ahead of the current time it may be, in the granularity
+ * of {@code intervalType}.
  */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonFieldTypeTimeAfter {
-	/** Valor exato de intervalo após o momento atual. */
+	/**
+	 * Exact distance after the current time.
+	 * @return the exact distance ({@code Integer.MAX_VALUE} means no constraint)
+	 */
 	int exactValue() default Integer.MAX_VALUE;
 	/** Tipo de intervalo temporal (dias, horas, etc.). */
 	CcpEntityExpurgableOptions intervalType();
-	/** Valor mínimo de intervalo após o momento atual. */
+	/**
+	 * Minimum distance after the current time.
+	 * @return the minimum distance ({@code Integer.MIN_VALUE} means no constraint)
+	 */
 	int minValue() default Integer.MIN_VALUE;
-	/** Valor máximo de intervalo após o momento atual. */
+	/**
+	 * Maximum distance after the current time.
+	 * @return the maximum distance ({@code Integer.MAX_VALUE} means no constraint)
+	 */
 	int maxValue() default Integer.MAX_VALUE;
 }

@@ -6,15 +6,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Permite indicar uma implementação customizada de {@code CcpJsonFieldType} para validar o campo.
- */
+/** Points to a custom {@code CcpJsonFieldType} implementation to validate the field. */
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface CcpJsonFieldTypeCustom {
 	/**
-	 * Classe customizada que implementa {@code CcpJsonFieldType}.
-	 * @return classe do validador customizado
+	 * The custom class implementing {@code CcpJsonFieldType}.
+	 * @return the custom validator class
 	 */
 	Class<?> value();
 }

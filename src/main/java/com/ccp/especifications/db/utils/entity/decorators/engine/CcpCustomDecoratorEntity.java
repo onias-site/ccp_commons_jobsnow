@@ -4,6 +4,10 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityC
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorators;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 
+/**
+ * Base of the decorators declared by the business modules through {@code @CcpEntityCustomDecorators}: the priority
+ * comes from the annotation and two instances are equal when they have the same class.
+ */
 public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType{
 
 	/**
@@ -54,14 +58,24 @@ public abstract class CcpCustomDecoratorEntity implements CcpEntityDecoratorType
 		return sameDecorator;
 	}
 
+	/**
+	 * Consistent with {@link #equals(Object)}: the hash code of the class.
+	 * @return the hash code
+	 */
 	public final int hashCode() {
 		Class<?> thisDecorator = this.getClass();
 		int hashCode = thisDecorator.hashCode();
 		return hashCode;
 	}
 
+	/** Raised when a custom decorator asks for its priority in a configurator class that does not declare it. */
 	@SuppressWarnings("serial")
 	public static class CcpEntityCustomDecoratorIsNotDeclared extends RuntimeException {
+		/**
+		 * Builds the error naming the configurator class and the decorator.
+		 * @param configurationClass the configurator class
+		 * @param thisDecorator the decorator class
+		 */
 		private CcpEntityCustomDecoratorIsNotDeclared(Class<?> configurationClass, Class<?> thisDecorator) {
 			super("The class '" + configurationClass.getName() + "' does not declare the decorator '" + thisDecorator.getName() + "' in the annotation '" + CcpEntityCustomDecorators.class.getSimpleName() + "'");
 		}

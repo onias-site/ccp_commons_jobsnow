@@ -1,23 +1,26 @@
 package com.ccp.decorators;
 
 /**
- * Classe base da hierarquia de reflexão do framework. Encapsula o objeto {@code Class<?>} alvo e implementa
- * {@code CcpDecorator<Class<?>>}. As subclasses ({@code CcpReflectionNewInstanceDecorator} e
- * {@code CcpReflectionStaticContextDecorator}) especializam se a chamada é por instância ou por contexto estático.
+ * Base class of the framework's reflection hierarchy. It wraps the target {@code Class<?>}; the subclasses
+ * ({@code CcpReflectionNewInstanceDecorator} and {@code CcpReflectionStaticContextDecorator}) specialize it for
+ * instance or static-context use.
  */
 public abstract class CcpReflectionOptionsDecorator implements CcpDecorator<Class<?>> {
 
+	/** The wrapped class. */
 	public final Class<?> content;
 
 	/**
-	 * Encapsula a classe.
+	 * Wraps the class.
+	 * @param clazz the class to wrap
 	 */
 	protected CcpReflectionOptionsDecorator(Class<?> clazz) {
 		this.content = clazz;
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna a classe encapsulada.
+	 * Returns the wrapped class.
+	 * @return the wrapped class
 	 */
 	public Class<?> getContent() {
 		return this.content;

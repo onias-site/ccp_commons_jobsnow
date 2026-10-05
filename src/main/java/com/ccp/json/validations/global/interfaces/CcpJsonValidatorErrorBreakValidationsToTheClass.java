@@ -3,15 +3,19 @@ package com.ccp.json.validations.global.interfaces;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Exceção de controle de fluxo que interrompe as validações de nível de classe quando um validador
- * crítico encontra um erro. Carrega o JSON de erros acumulado até o momento da interrupção.
+ * Flow-control exception that stops the global validations when a critical validator fails; carries the errors
+ * accumulated so far.
  */
 @SuppressWarnings("serial")
 public class CcpJsonValidatorErrorBreakValidationsToTheClass extends RuntimeException {
 
+	/** The errors accumulated until the interruption. */
 	public final CcpJsonRepresentation errors;
 
-	/** Armazena o JSON de erros acumulado no momento da interrupção. */
+	/**
+	 * Keeps the accumulated errors.
+	 * @param errors the errors accumulated so far
+	 */
 	CcpJsonValidatorErrorBreakValidationsToTheClass(CcpJsonRepresentation errors) {
 		this.errors = errors;
 	}

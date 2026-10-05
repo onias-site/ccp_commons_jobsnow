@@ -16,6 +16,7 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 public class CcpBulkHandlerCreate implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
+	/** The entity where the records are created. */
 	private final CcpEntity mainEntity;
 
 	/**

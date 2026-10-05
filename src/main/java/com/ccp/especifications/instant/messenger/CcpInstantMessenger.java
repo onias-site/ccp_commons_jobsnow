@@ -3,32 +3,30 @@ package com.ccp.especifications.instant.messenger;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpJsonFieldName;
 
-/**
- * Contrato para envio de mensagens via bot (Telegram). Suporta envio de texto e envio de arquivos.
- */
+/** Contract for sending messages through a bot (Telegram): text messages and files. */
 public interface CcpInstantMessenger {
 
 	/**
-	 * Envia mensagem de texto para um chat.
-	 * @param botType identificador do tipo do bot
-	 * @param botToken token de autenticação do bot
-	 * @param chatId identificador do chat destinatário
-	 * @param replyTo identificador da mensagem a responder (pode ser null)
-	 * @param message texto da mensagem
-	 * @return JSON com o resultado do envio
+	 * Sends a text message to a chat.
+	 * @param botType identifier of the bot type
+	 * @param botToken authentication token of the bot
+	 * @param chatId identifier of the target chat
+	 * @param replyTo identifier of the message being answered
+	 * @param message the text of the message
+	 * @return JSON with the result of the sending
 	 */
 	CcpJsonRepresentation sendTextMessage(CcpJsonFieldName botType, String botToken, Long chatId, Long replyTo, String message);
 
 	/**
-	 * Envia arquivo binário com legenda para um chat.
-	 * @param botType identificador do tipo do bot
-	 * @param botToken token de autenticação do bot
-	 * @param chatId identificador do chat destinatário
-	 * @param replyTo identificador da mensagem a responder (pode ser null)
-	 * @param fileName nome do arquivo
-	 * @param caption legenda do arquivo
-	 * @param fileContent conteúdo binário do arquivo
-	 * @return JSON com o resultado do envio
+	 * Sends a binary file with a caption to a chat.
+	 * @param botType identifier of the bot type
+	 * @param botToken authentication token of the bot
+	 * @param chatId identifier of the target chat
+	 * @param replyTo identifier of the message being answered
+	 * @param fileName file name
+	 * @param caption file caption
+	 * @param fileContent binary content of the file
+	 * @return JSON with the result of the sending
 	 */
 	CcpJsonRepresentation sendFile(CcpJsonFieldName botType, String botToken, Long chatId, Long replyTo, String fileName, String caption, Byte[] fileContent);
 

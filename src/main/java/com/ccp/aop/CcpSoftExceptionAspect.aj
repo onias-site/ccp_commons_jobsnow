@@ -1,17 +1,15 @@
 package com.ccp.aop;
 
 /**
- * Converte todas as checked exceptions (filhas de java.lang.Exception, exceto
- * RuntimeException) em SoftException (unchecked) em tempo de compilação.
- *
- * Efeito: os projetos dependentes compilados com ajc não precisam mais declarar
- * "throws" nem envolver chamadas em try/catch para checked exceptions nos
- * pacotes cobertos pelo pointcut abaixo.
- *
- * IMPORTANTE: este aspecto só elimina erros de compilação quando o projeto
- * dependente compila via ajc (aspectj-maven-plugin) com este jar no aspectpath.
- * Com LTW (agente JVM) ele converte as exceções em runtime, mas o javac ainda
- * exige os "throws" no código-fonte.
+ * Turns every checked exception (subclasses of {@code java.lang.Exception}, except {@code RuntimeException}) into an
+ * unchecked {@code SoftException} at compile time.
+ * <p>
+ * Effect: projects compiled with ajc do not need to declare {@code throws} nor wrap calls in try/catch for checked
+ * exceptions in the packages covered by the pointcut below.
+ * <p>
+ * IMPORTANT: this aspect only removes compile errors when the dependent project compiles through ajc
+ * (aspectj-maven-plugin) with this jar in the aspectpath. With LTW (JVM agent) it converts the exceptions at runtime,
+ * but javac still requires the {@code throws} clauses in the source code.
  */
 public aspect CcpSoftExceptionAspect {
 

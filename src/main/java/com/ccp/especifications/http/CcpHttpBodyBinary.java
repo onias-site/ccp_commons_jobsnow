@@ -1,22 +1,23 @@
 package com.ccp.especifications.http;
 
-/**
- * Representa uma parte binária de uma requisição HTTP multipart
- * (tipo de conteúdo, nome do campo, nome do arquivo e bytes).
- */
+/** A binary part of a multipart HTTP request: content type, form field name, file name and bytes. */
 public class CcpHttpBodyBinary {
 
+	/** The content type of the part. */
 	public final CcpHttpContentType contentType;
+	/** The file name. */
 	public final String fileName;
+	/** The content of the file. */
 	public final Byte[] bytes;
+	/** The form field name. */
 	public final String name;
 
 	/**
-	 * Inicializa os atributos da parte binária.
-	 * @param contentType tipo de conteúdo do arquivo
-	 * @param name nome do campo no formulário multipart
-	 * @param fileName nome do arquivo
-	 * @param bytes conteúdo binário do arquivo
+	 * Builds the binary part.
+	 * @param contentType the content type of the file
+	 * @param name the form field name
+	 * @param fileName the file name
+	 * @param bytes the content of the file
 	 */
 	public CcpHttpBodyBinary(CcpHttpContentType contentType, String name, String fileName, Byte[] bytes) {
 		
@@ -27,8 +28,8 @@ public class CcpHttpBodyBinary {
 	}
 	
 	/**
-	 * Converte {@code Byte[]} (wrapper) para {@code byte[]} primitivo.
-	 * @return array de bytes primitivos
+	 * Unboxes the content of the file.
+	 * @return the primitive bytes
 	 */
 	public byte[] getBytes() {
 		

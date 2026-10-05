@@ -1,18 +1,24 @@
 package com.ccp.decorators;
 
 /**
- * Especialização de {@code CcpReflectionOptionsDecorator} para chamadas de métodos estáticos via reflexão.
- * Recebe um {@code CcpReflectionConstructorDecorator} e resolve a classe, sem criar instância.
+ * Specialization of {@code CcpReflectionOptionsDecorator} for static-context reflection: it resolves the class
+ * without creating an instance.
  */
 public class CcpReflectionStaticContextDecorator extends CcpReflectionOptionsDecorator {
 
 	/**
-	 * Resolve a classe pelo nome usando {@code constructor.forName()}.
+	 * Resolves the class by name through {@code constructor.forName()}.
+	 * @param constructor the decorator holding the class name
 	 */
 	protected CcpReflectionStaticContextDecorator(CcpReflectionConstructorDecorator constructor) {
 		super(forName(constructor));
 	}
 
+	/**
+	 * Resolves the class named by the constructor decorator.
+	 * @param constructor the decorator holding the class name
+	 * @return the loaded class
+	 */
 	private static Class<?> forName(CcpReflectionConstructorDecorator constructor) {
 		var forName = constructor.forName();
 		return forName;

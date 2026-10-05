@@ -26,6 +26,7 @@ import java.util.stream.Stream;
  * search, Base64 encode/decode and resolution of templates with variables.
  */
 public class CcpTextDecorator implements CcpDecorator<String> {
+	/** The wrapped text. */
 	public final String content;
 
 	/**
@@ -55,7 +56,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Removes accents and diacritics, preserving {@code #} and basic alphanumeric characters.
+	 * Removes accents and diacritics and then every character that is not a word character ({@code [a-zA-Z0-9_]}),
+	 * whitespace, {@code .}, {@code ,}, {@code +}, {@code -} or {@code #}. Note that characters such as {@code @},
+	 * {@code /} and {@code :} are removed as well.
+	 * @return the text without accents and special characters
 	 */
 	public CcpTextDecorator stripAccents() {
 
@@ -70,7 +74,14 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Extracts all substrings delimited by {@code beginDelimiter} and {@code endDelimiter}.
+	 * Extracts, from left to right, the substrings that start at {@code beginDelimiter} and end at the next
+	 * {@code endDelimiter} (both included).
+	 * <p>
+	 * The end delimiter is searched from the start of the remaining text, not after the begin delimiter, and its absence is
+	 * not detected (see the findings of the coverage campaign).
+	 * @param beginDelimiter text that opens a piece
+	 * @param endDelimiter text that closes a piece
+	 * @return the pieces found, delimiters included
 	 */
 	public List<String> getPieces(String beginDelimiter, String endDelimiter) {
 		int beginIndex = 0;
@@ -149,7 +160,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Generates a random token of size {@code charactersSize} by picking characters from the current content (useful as a token alphabet).
+	 * Generates a random token of {@code charactersSize} characters picked, with repetition, from the current content,
+	 * which works as the alphabet. Uses {@code java.util.Random}, which is not cryptographically secure.
+	 * @param charactersSize the size of the token
+	 * @return the token
 	 */
 	public CcpTextDecorator generateToken(long charactersSize) {
 
@@ -435,6 +449,10 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		return containsAll;
 	}
 
+	/**
+	 * Splits the text by single spaces.
+	 * @return the words
+	 */
 	private List<String> split(){
 		String[] split = this.content.split(" ");
 		List<String> asList = Arrays.asList(split);

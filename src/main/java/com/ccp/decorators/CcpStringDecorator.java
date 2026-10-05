@@ -14,6 +14,7 @@ import com.ccp.especifications.json.CcpJsonHandler;
  */
 public class CcpStringDecorator implements CcpDecorator<String> {
 
+	/** The wrapped text. */
 	public final String content;
 
 	/**
@@ -32,14 +33,16 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Reads all the bytes of the {@code InputStream} and converts them into a string.
+	 * Reads every byte of the stream and decodes them with the platform default charset.
+	 * @param inputStream the stream to read
 	 */
 	public CcpStringDecorator(InputStream inputStream) {
 		this(readAllBytes(inputStream));
 	}
 
 	/**
-	 * Converts the primitive byte array into a string.
+	 * Decodes the bytes with the platform default charset.
+	 * @param content the bytes of the text
 	 */
 	public CcpStringDecorator(byte[] content) {
 		this(new String(content));
@@ -52,6 +55,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		this(readAllBytes(content));
 	}
 
+	/**
+	 * Reads every byte of the stream.
+	 * @param inputStream the stream to read
+	 * @return the bytes read
+	 */
 	private static byte[] readAllBytes(InputStream inputStream){
 		byte[] bytes = inputStream.readAllBytes();
 		return bytes;
@@ -194,6 +202,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Checks whether the string can be converted to {@code long}.
 	 */
 	@SuppressWarnings("unused")
+	/**
+	 * Tells whether the text is an integer number: either parseable as {@code long}, or a decimal ending with {@code ".0"}
+	 * (as {@code "3.0"}, the way a whole number comes back from a JSON parser).
+	 * @return {@code true} when the text represents an integer
+	 */
 	public boolean isLongNumber() {
 		boolean valid = this.isValid(x -> {
 			boolean endsWithDecimalZero = x.endsWith(".0");
@@ -229,10 +242,16 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		return valid;
 	}
 
+	/** Internal signal used by {@link #isBoolean()} for a text that is neither {@code true} nor {@code false}. */
 	@SuppressWarnings("serial")
 	private static class CcpErrorStringIsNotBoolean extends RuntimeException {
 	}
 
+	/**
+	 * Runs the check over the text and tells whether it finished without throwing.
+	 * @param consumer the check, which throws when the text is not valid
+	 * @return {@code true} when the check did not throw
+	 */
 	private boolean isValid(Consumer<String>  consumer) {
 		try {
 			consumer.accept(this.content);;
@@ -250,7 +269,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Returns the byte array of the string (wrapper type {@code Byte[]}).
+	 * Returns the bytes of the text in the platform default charset, as wrapper {@code Byte[]}.
+	 * @return the bytes of the text
 	 */
 	public Byte[] getBytes() {
 		byte[] bytes = this.content.getBytes();
@@ -264,6 +284,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 		return result;
 	}
 
+	/**
+	 * Unboxes a wrapper byte array.
+	 * @param bytes the wrapper bytes
+	 * @return the primitive bytes
+	 */
 	private static byte[] readAllBytes(Byte[] bytes) {
 		byte[] result = new byte[bytes.length];
 		int k = 0;

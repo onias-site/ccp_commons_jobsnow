@@ -18,13 +18,15 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
  */
 public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandleWithSearchResultsInTheEntity<List<CcpBulkItem>>{
 
+	/** The source entity of the transfer. */
 	private final CcpEntity entity;
+	/** Decides what to do with the delete item of a record that was not found in the source entity. */
 	private final Function<CcpBulkItem, List<CcpBulkItem>> handlerWhenNotFound;
 
 	/**
 	 * Initializes with the source entity of the transfer.
-	 *
-	 * @param entity source entity from which the record will be transferred
+	 * @param entity source entity from which the record is transferred
+	 * @param handlerWhenNotFound function applied to the delete item of a record that was not found
 	 */
 	public CcpEntityBulkHandlerTransferRecordToTwinEntity(CcpEntity entity, Function<CcpBulkItem, List<CcpBulkItem>> handlerWhenNotFound) {
 		this.handlerWhenNotFound = handlerWhenNotFound;
@@ -51,6 +53,11 @@ public class CcpEntityBulkHandlerTransferRecordToTwinEntity implements CcpHandle
 		return transferItems;
 	}
 
+	/**
+	 * Delegates the missing record to {@code handlerWhenNotFound}, through {@link CcpBulkHandlerDelete}.
+	 * @param json search parameters
+	 * @return the items produced by {@code handlerWhenNotFound}
+	 */
 	public List<CcpBulkItem> whenRecordWasNotFoundInTheEntitySearch(CcpJsonRepresentation json) {
 		CcpEntity entityToSearch = this.getEntityToSearch();
 		CcpBulkHandlerDelete handler = new CcpBulkHandlerDelete(entityToSearch, this.handlerWhenNotFound);

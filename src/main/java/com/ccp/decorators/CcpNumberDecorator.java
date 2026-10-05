@@ -3,74 +3,90 @@ package com.ccp.decorators;
 import java.util.Collection;
 
 /**
- * Decorator sobre um valor numérico ({@code double}) que oferece operações de comparação semântica.
- * Recebe o número como string e converte para {@code double}, facilitando validações de faixa de valores.
+ * Decorator over a numeric value ({@code double}) offering comparisons. It receives the number as text and converts
+ * it to {@code double}, which eases range validations.
  */
 public class CcpNumberDecorator implements CcpDecorator<Double> {
+	/** The wrapped number. */
 	public final double content;
 
 	/**
-	 * Converte a string para {@code double}.
+	 * Parses the text as {@code double}.
+	 * @param content the number as text
+	 * @throws NumberFormatException when the text is not a number
 	 */
 	public CcpNumberDecorator(String content) {
 		this.content = Double.valueOf(content);
 	}
 
 	/**
-	 * Retorna o número como string.
+	 * Returns the number as text, in {@code double} format (e.g. {@code "3.0"}).
+	 * @return the number as text
 	 */
 	public String toString() {
-		String valorMais = "" + this.content;
-		return valorMais;
+		String contentAsText = "" + this.content;
+		return contentAsText;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor for estritamente maior que {@code x}.
+	 * Tells whether the number is strictly greater than {@code x}.
+	 * @param x the value to compare with
+	 * @return {@code true} when the number is greater than {@code x}
 	 */
 	public boolean greaterThan(Double x) {
-		boolean contentMaior = this.content > x;
-		return contentMaior ;
+		boolean greaterThan = this.content > x;
+		return greaterThan ;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor for maior ou igual a {@code x}.
+	 * Tells whether the number is greater than or equal to {@code x}.
+	 * @param x the value to compare with
+	 * @return {@code true} when the number is greater than or equal to {@code x}
 	 */
 	public boolean equalsOrGreaterThan(Double x) {
-		boolean contentMaiorOuIgual = this.content >= x;
-		return contentMaiorOuIgual ;
+		boolean greaterThanOrEqual = this.content >= x;
+		return greaterThanOrEqual ;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor for estritamente menor que {@code x}.
+	 * Tells whether the number is strictly less than {@code x}.
+	 * @param x the value to compare with
+	 * @return {@code true} when the number is less than {@code x}
 	 */
 	public boolean lessThan(Double x) {
-		boolean contentMenor = this.content < x;
-		return contentMenor ;
+		boolean lessThan = this.content < x;
+		return lessThan ;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor for menor ou igual a {@code x}.
+	 * Tells whether the number is less than or equal to {@code x}.
+	 * @param x the value to compare with
+	 * @return {@code true} when the number is less than or equal to {@code x}
 	 */
 	public boolean equalsOrLessThan(Double x) {
-		boolean contentMenorOuIgual = this.content <= x;
-		return contentMenorOuIgual ;
+		boolean lessThanOrEqual = this.content <= x;
+		return lessThanOrEqual ;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor for exatamente igual a {@code x}.
+	 * Tells whether the number is numerically equal to {@code x}.
+	 * @param x the value to compare with
+	 * @return {@code true} when both values are equal
 	 */
 	public boolean equalsTo(Double x) {
-		boolean contentIgual = this.content == x;
-		return contentIgual ;
+		boolean equal = this.content == x;
+		return equal ;
 	}
 
 	/**
-	 * Retorna {@code true} se o valor estiver em um conjunto fixo de valores permitidos (varargs).
+	 * Tells whether the number equals one of the allowed values.
+	 * @param restrictedValues the allowed values
+	 * @return {@code true} when the number is one of them
 	 */
 	public boolean belongsToRestrictedValues(Double...restrictedValues) {
 		for (double restricted : restrictedValues) {
-			boolean restrictedIgual = restricted == this.content;
-			if(restrictedIgual) {
+			boolean isRestrictedValue = restricted == this.content;
+			if(isRestrictedValue) {
 				return true;
 			}
 		}
@@ -78,7 +94,9 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	}
 
 	/**
-	 * Retorna {@code true} se o valor estiver em um conjunto fixo de valores permitidos (coleção).
+	 * Tells whether the number equals one of the allowed values.
+	 * @param restrictedValues the allowed values
+	 * @return {@code true} when the number is one of them
 	 */
 	public boolean belongsToRestrictedValues(Collection<Double> restrictedValues) {
 		int size = restrictedValues.size();
@@ -89,7 +107,8 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o valor como {@code Double}.
+	 * Returns the wrapped number.
+	 * @return the number
 	 */
 	public Double getContent() {
 		return this.content;

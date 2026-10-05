@@ -1,59 +1,49 @@
 package com.ccp.aop;
 
 /**
- * Garante que toda classe dos projetos dependentes tenha {@code toString()} implementado.
- *
- * O aspecto marca as classes alvo com a interface {@code CcpToString} e introduz nela,
- * por ITD (inter-type declaration), uma implementação de {@code toString()} que devolve o
- * JSON representando o objeto. Quando a classe não tem nenhum atributo de instância, o
- * retorno é o nome da classe em vez do JSON.
- *
- * Por que ITD e não advice: o ITD é aplicado pelo AspectJ <b>somente</b> às classes que
- * ainda não possuem {@code toString()} (declarado nelas ou herdado de uma superclasse).
- * Nenhuma implementação existente é sobrescrita — o próprio compilador faz essa verificação,
- * que é exatamente o "verificar se a classe já tem toString" pedido. Além disso, por ser um
- * método real na classe, o toString gerado também vale para concatenação de strings
- * ({@code "" + obj}) e para chamadas vindas de bibliotecas de terceiros (log, depurador),
- * o que um {@code around} sobre {@code call(.. toString())} não alcançaria.
- *
- * Sobre as exclusões: quando um tipo marcado já herda {@code toString()} de uma classe que
- * <b>não</b> está sendo tecida (um tipo binário, como os do JDK), o AspectJ não consegue
- * simplesmente ignorar o ITD e acusa erro de compilação
- * ("inter-type declaration conflicts with existing member"). Por isso as três famílias
- * abaixo precisam ficar fora do {@code declare parents}:
- *
+ * Ensures that every class of the dependent projects has a {@code toString()} implementation.
+ * <p>
+ * The aspect marks the target classes with the {@code CcpToString} interface and introduces into it, by ITD
+ * (inter-type declaration), a {@code toString()} implementation that returns the JSON representing the object. When
+ * the class has no instance attribute, the result is the class name instead of the JSON.
+ * <p>
+ * Why ITD and not an advice: AspectJ applies the ITD <b>only</b> to classes that do not have a {@code toString()} yet
+ * (declared in them or inherited from a superclass). No existing implementation is overwritten; the compiler itself
+ * performs that check. Besides, being a real method of the class, the generated toString also works for string
+ * concatenation ({@code "" + obj}) and for calls coming from third-party libraries (logging, debugger), which an
+ * {@code around} advice over {@code call(.. toString())} would not reach.
+ * <p>
+ * About the exclusions: when a marked type already inherits {@code toString()} from a class that is <b>not</b> being
+ * woven (a binary type, such as the JDK ones), AspectJ cannot simply ignore the ITD and reports a compile error
+ * ("inter-type declaration conflicts with existing member"). That is why the three families below must stay out of
+ * the {@code declare parents}:
  * <ul>
- *   <li>{@code com.ccp.aop..*} — a própria infraestrutura do aspecto, como nos demais
- *       aspectos deste pacote.</li>
- *   <li>{@code java.lang.Enum+} e {@code java.lang.Throwable+} — enums e exceções já herdam
- *       {@code toString()} do JDK. Enums devolvem o nome da constante e exceções devolvem
- *       tipo e mensagem, que é o que se espera delas.</li>
- *   <li>{@code hasmethod(*.new(..))} — restringe a marcação a <b>classes</b>, exigindo que o
- *       tipo tenha construtor. Interfaces não têm, e ficam de fora. Isso não é um detalhe:
- *       marcar uma interface propaga a marcação para <i>tudo</i> que a implementa, inclusive
- *       enums, que voltariam a conflitar com {@code Enum.toString()} mesmo estando excluídos
- *       aqui. E a propagação é transitiva — bastaria marcar {@code CcpService} para atingir
- *       {@code JnService} e todos os enums de serviço. Excluir interface por interface seria
- *       interminável; exigir construtor resolve a família inteira de uma vez.</li>
+ * <li>{@code com.ccp.aop..*}: the aspect infrastructure itself, as in the other aspects of this package.</li>
+ * <li>{@code java.lang.Enum+} and {@code java.lang.Throwable+}: enums and exceptions already inherit
+ * {@code toString()} from the JDK. Enums return the constant name and exceptions return type and message, which
+ * is what is expected from them.</li>
+ * <li>{@code hasmethod(*.new(..))}: restricts the marking to <b>classes</b> by requiring the type to have a
+ * constructor. Interfaces have none, so they are left out. This is not a detail: marking an interface
+ * propagates the marking to <i>everything</i> that implements it, enums included, which would conflict with
+ * {@code Enum.toString()} again despite being excluded here. And the propagation is transitive: marking
+ * {@code CcpService} alone would reach {@code JnService} and every service enum. Excluding interface by
+ * interface would be endless; requiring a constructor solves the whole family at once.</li>
  * </ul>
- *
- * {@code hasmethod} é uma extensão experimental do AspectJ e exige o parâmetro
- * {@code XhasMember} no aspectj-maven-plugin — já configurado no pom de todos os módulos.
- * Sem ele a compilação falha com mensagem explícita ("the type pattern hasmethod(..) can only
- * be used when the -XhasMember option is set"), então remover o parâmetro não passa
- * despercebido.
- *
- * Por ser experimental, tem duas limitações que já custaram tempo: duas cláusulas
- * {@code has*} no mesmo type pattern fazem o padrão casar <b>zero</b> tipos, em silêncio (e o
- * mesmo vale ao encadear em dois {@code declare parents}), por isso aqui só há uma; e a
- * sintaxe de construtor é {@code hasmethod(*.new(..))} — escrita como {@code hasmethod(new(..))}
- * ela compila normalmente e não casa nada. Como esses dois casos falham calados, ao mexer
- * neste pointcut confira a marcação contando {@code @CcpGeneratedToString} nos .class, e não
- * apenas se o build passou.
- *
- * Uma classe destes pacotes que estenda um tipo de terceiros com {@code toString()} próprio
- * (como {@code java.util.Date}) também conflita, e precisa ser excluída pela superclasse,
- * no mesmo formato de {@code java.lang.Throwable+}.
+ * {@code hasmethod} is an experimental AspectJ extension and requires the {@code XhasMember} parameter in the
+ * aspectj-maven-plugin, already configured in the pom of every module. Without it the compilation fails with an
+ * explicit message ("the type pattern hasmethod(..) can only be used when the -XhasMember option is set"), so removing
+ * the parameter does not go unnoticed.
+ * <p>
+ * Being experimental, it has two limitations that have already cost time: two {@code has*} clauses in the same type
+ * pattern make the pattern match <b>zero</b> types, silently (the same happens when chaining two
+ * {@code declare parents}), so there is only one here; and the constructor syntax is {@code hasmethod(*.new(..))}:
+ * written as {@code hasmethod(new(..))} it compiles normally and matches nothing. Since both cases fail silently,
+ * when changing this pointcut check the marking by counting {@code @CcpGeneratedToString} in the .class files, not just
+ * by whether the build passed.
+ * <p>
+ * A class of these packages that extends a third-party type with its own {@code toString()} (such as
+ * {@code java.util.Date}) also conflicts, and must be excluded by its superclass, in the same format as
+ * {@code java.lang.Throwable+}.
  */
 public aspect CcpToStringAspect {
 
@@ -66,6 +56,10 @@ public aspect CcpToStringAspect {
 			&& !java.lang.Throwable+
 		) implements CcpToString;
 
+	/**
+	 * Generated {@code toString()}: the JSON of the object's instance attributes, or the class name when there are none.
+	 * @return the textual representation built by {@link CcpToStringBuilder#build(Object)}
+	 */
 	@CcpGeneratedToString
 	public String CcpToString.toString() {
 		return CcpToStringBuilder.build(this);

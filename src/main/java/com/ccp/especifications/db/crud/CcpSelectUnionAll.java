@@ -27,12 +27,24 @@ import java.util.stream.Stream;
  */
 public class CcpSelectUnionAll {
 
+	/** Fields added to each record of the condensed map. */
 	enum JsonFieldNames implements CcpJsonFieldName {
+		/** The primary key values that located the record. */
 		explainedSearch
 	}
 
+	/** The records found, as {@code { entityName: { id: record + explainedSearch } }}. */
 	public final CcpJsonRepresentation condensed;
 
+	/**
+	 * Condenses the raw results of a union-all search. For every entity and search parameter with a complete primary key,
+	 * the id is computed (after the field transformers of the entity) and the primary key values are kept as the
+	 * {@code explainedSearch} of the record with that id. Each result is then stored under its entity name and id,
+	 * without the entity and id fields of the database.
+	 * @param searchParameters the search parameters
+	 * @param results the raw records returned by the database, each one carrying its entity name and id
+	 * @param entities the entities searched
+	 */
 	public CcpSelectUnionAll(CcpJsonRepresentation[] searchParameters, List<CcpJsonRepresentation> results, CcpEntity... entities) {
 
 		CcpJsonRepresentation explainedSearch = CcpOtherConstants.EMPTY_JSON;
@@ -78,6 +90,12 @@ public class CcpSelectUnionAll {
 		this.condensed = condensed;
 	}
 
+	/**
+	 * Tells whether the search found the record.
+	 * @param entityName the entity name
+	 * @param id the record id
+	 * @return {@code true} when the record was found
+	 */
 	public boolean isPresent(String entityName, String id) {
 		CcpJsonRepresentation entityRow = this.getEntityRow(entityName, id);
 		boolean idNotFound = entityRow.isEmpty();
@@ -87,6 +105,15 @@ public class CcpSelectUnionAll {
 		return true;
 	}
 
+	/**
+	 * Hands the search result of one parameter to the handler: {@code whenRecordWasNotFoundInTheEntitySearch} with the
+	 * parameter after the field transformers of the entity, or {@code whenRecordWasFoundInTheEntitySearch} with that
+	 * parameter merged over the record found (the parameter wins) and the record found.
+	 * @param <T> the type of the result of the handler
+	 * @param searchParameter the search parameter
+	 * @param handler the handler of the entity
+	 * @return the result of the handler
+	 */
 	public <T> T handleRecordInUnionAll(CcpJsonRepresentation searchParameter, CcpHandleWithSearchResultsInTheEntity<T> handler) {
 		CcpEntity entity = handler.getEntityToSearch();
 		boolean presentInThisUnionAll = entity.isPresentInThisUnionAll(this, searchParameter);
@@ -103,6 +130,12 @@ public class CcpSelectUnionAll {
 		return foundResult;
 	}
 
+	/**
+	 * Returns the record found, without {@code explainedSearch}.
+	 * @param index the entity name
+	 * @param id the record id
+	 * @return the record, or an empty JSON when it was not found
+	 */
 	public CcpJsonRepresentation getEntityRow(String index, String id) {
 		CcpFieldName indexKey = new CcpFieldName(index);
 		boolean containsIndex = this.condensed.containsAllFields(indexKey);
@@ -124,11 +157,20 @@ public class CcpSelectUnionAll {
 		return withoutExplainedSearch;
 	}
 
+	/**
+	 * Returns the condensed map as text.
+	 * @return the condensed map
+	 */
 	public String toString() {
 		String condensedAsString = this.condensed.toString();
 		return condensedAsString;
 	}
 
+	/**
+	 * Returns every record found for the entity, without {@code explainedSearch} and with its id in the database id field.
+	 * @param entity the entity
+	 * @return the records, or an empty list when none was found
+	 */
 	public List<CcpJsonRepresentation> getEntityRows(CcpEntity entity) {
 		boolean containsEntity = this.condensed.containsAllFields(entity);
 		boolean indexNotFound = false == containsEntity;

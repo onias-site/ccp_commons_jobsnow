@@ -8,23 +8,24 @@ import com.ccp.json.defaultvalues.engine.CcpJsonFieldDefaultValuesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
- * Contrato central de toda lógica de negócio do sistema. Estende {@code Function<CcpJsonRepresentation, CcpJsonRepresentation>},
- * garantindo que toda operação de negócio receba e devolva o mapa JSON que flui pelo sistema.
- * Adiciona suporte a validação de entrada e controle de execução assíncrona.
+ * Central contract of every business rule of the system. It extends
+ * {@code Function<CcpJsonRepresentation, CcpJsonRepresentation>}, so every business operation receives and returns
+ * the JSON map that flows through the system, and adds input validation, default values and asynchronous execution
+ * control.
  */
 public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepresentation>, CcpJsonFieldName{
 
 	/**
-	 * Indica se esta operação pode ser salva como tarefa assíncrona.
-	 * O padrão retorna {@code true}; implementações específicas podem sobrescrever para desabilitar.
+	 * Tells whether this operation may be persisted as an asynchronous task.
+	 * @return {@code true} by default; implementations override it to forbid asynchronous execution
 	 */
 	default boolean canBeSavedAsAsyncTask() {
 		return true;
 	}
 	
 	/**
-	 * Retorna a classe usada para buscar as regras de validação do JSON de entrada.
-	 * Por padrão retorna a própria classe da implementação, permitindo que as anotações de validação sejam encontradas por reflexão.
+	 * Returns the class whose annotations describe the validation rules and default values of the input JSON.
+	 * @return the implementation class itself by default, so annotations placed on it are found by reflection
 	 */
 	default Class<?> getJsonValidationClass(){
 		Class<? extends CcpBusiness> class1 = this.getClass();
@@ -32,11 +33,13 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 	}
 	
 	/**
-	 * Ponto de entrada seguro para execução do negócio: primeiro valida o JSON de entrada usando
-	 * {@code CcpJsonValidatorEngine}, depois chama {@code apply(json)}.
-	 * Use este método ao invés de chamar {@code apply} diretamente quando a validação for necessária.
-	 * @param json o JSON de entrada a ser validado e processado
-	 * @return o JSON resultante da execução
+	 * Safe entry point of the business rule: validates the input JSON with {@code CcpJsonValidatorEngine}
+	 * (raising the validation error when a rule is broken), fills the absent fields that declare a default value with
+	 * {@code CcpJsonFieldDefaultValuesEngine} and only then calls {@link #apply(Object) apply}.
+	 * <p>
+	 * Prefer this method over calling {@code apply} directly whenever the input comes from outside.
+	 * @param json the input JSON
+	 * @return the JSON produced by {@code apply}
 	 */
 	default CcpJsonRepresentation execute(CcpJsonRepresentation json) {
 		var clazz = this.getClass();
@@ -49,6 +52,10 @@ public interface CcpBusiness extends Function<CcpJsonRepresentation, CcpJsonRepr
 		CcpJsonRepresentation apply = this.apply(jsonWithDefaultValues);
 		return apply;
 	}  
+	/**
+	 * Returns the identifier of this business rule, used in logs, validation messages and asynchronous tasks.
+	 * @return the fully qualified name of the implementation class
+	 */
 	default String name() {
 		var clazz2 = this.getClass();
 		var clazz2Name = clazz2.getName();

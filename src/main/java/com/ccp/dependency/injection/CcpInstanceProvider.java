@@ -1,12 +1,14 @@
 package com.ccp.dependency.injection;
 
 /**
- * Contrato para fábricas de dependência usadas pelo {@code CcpDependencyInjection}. Cada implementação
- * sabe como construir e entregar a instância concreta de uma determinada interface {@code T}.
+ * Contract of the dependency factories used by {@code CcpDependencyInjection}. Each implementation knows how to build
+ * and deliver the concrete instance of a given interface {@code T}.
+ * @param <T> type delivered by the provider
  */
 public interface CcpInstanceProvider<T> { 
 	/**
-	 * Constrói e retorna a instância concreta do tipo {@code T}.
+	 * Builds and returns the concrete instance of {@code T}.
+	 * @return the instance
 	 */
 	T getInstance();
 }

@@ -33,13 +33,25 @@ import java.util.stream.Stream;
  */
 public final class CcpEntityMetaData { 
 
+	/** Names of the fields that are neither primary key nor annotated with {@code @CcpEntityFieldNotUpdatable}. */
 	public final List<String> onlyUpdatableFields;
+	/** The configurator class that carries the annotations of the entity. */
 	public final Class<?>  configurationClass; 
+	/** Names of the fields annotated with {@code @CcpEntityFieldPrimaryKey}. */
 	public final List<String> primaryKeyNames;
+	/** Every field of the entity. */
 	public final CcpEntityField[] allFields;
+	/** The decorated entity this metadata belongs to; {@code null} until {@code associateEntity} runs. */
 	public final CcpEntity entity;
+	/** The entity (index) name. */
 	public final String entityName;
 	
+	/**
+	 * Reads the fields of the configurator class (see {@code CcpEntityFactory.getFields}) and derives the primary key and
+	 * the updatable fields; the entity is still unknown.
+	 * @param configurationClass the configurator class
+	 * @param entityNameProducer derives the entity name from the configurator class
+	 */
 	CcpEntityMetaData(Class<?> configurationClass, Function<Class<?>, String> entityNameProducer){
 		
 		this.configurationClass = configurationClass;
@@ -67,6 +79,15 @@ public final class CcpEntityMetaData {
 		this.entity = null;
 	}
 
+	/**
+	 * Builds a metadata with every value given, used to bind the metadata to its entity.
+	 * @param configurationClass the configurator class
+	 * @param primaryKeyNames the primary key field names
+	 * @param onlyUpdatableFields the updatable field names
+	 * @param allFields every field
+	 * @param entityName the entity name
+	 * @param entity the entity
+	 */
 	CcpEntityMetaData(Class<?> configurationClass, List<String> primaryKeyNames, List<String> onlyUpdatableFields, CcpEntityField[] allFields,	String entityName, CcpEntity entity) {
 		this.onlyUpdatableFields = onlyUpdatableFields;
 		this.configurationClass = configurationClass;
@@ -76,6 +97,11 @@ public final class CcpEntityMetaData {
 		this.entity = entity;
 	}
 
+	/**
+	 * Tells whether this metadata describes the twin side of a twin pair (its name is the {@code twinEntityName} of
+	 * {@code @CcpEntityTwin}).
+	 * @return {@code true} for the twin entity
+	 */
 	boolean isTwinEntity() {
 		
 		CcpEntityTwin annotation = this.configurationClass.getAnnotation(CcpEntityTwin.class);
@@ -91,6 +117,11 @@ public final class CcpEntityMetaData {
 	}
 	
 	
+	/**
+	 * Returns a copy of this metadata bound to its entity: the twin entity built by {@code CcpEntityFactory} for the twin
+	 * side, or the static {@code ENTITY} field of the configurator class for the main side.
+	 * @return the metadata bound to the entity
+	 */
 	CcpEntityMetaData associateEntity() {
 		boolean isTwin = this.isTwinEntity();
 		if(isTwin) {
@@ -113,6 +144,12 @@ public final class CcpEntityMetaData {
 		return jsonPiece;
 	}
 
+	/**
+	 * Returns the primary key fields of the JSON.
+	 * @param json the record
+	 * @return the primary key values
+	 * @throws CcpErrorEntityPrimaryKeyIsMissing when a primary key field is absent
+	 */
 	private CcpJsonRepresentation getPrimaryKeyValues(CcpJsonRepresentation json) {
 		boolean containsPrimaryKey = json.containsAllFields(this.primaryKeyNames);
 	
@@ -195,6 +232,12 @@ public final class CcpEntityMetaData {
 		return entityRowsGroupedById;
 	}
 	
+	/**
+	 * Returns the primary key fields of the supplied JSON.
+	 * @param jsonSupplier supplies the record
+	 * @return the primary key values
+	 * @throws CcpErrorEntityPrimaryKeyIsMissing when a primary key field is absent
+	 */
 	public CcpJsonRepresentation getPrimaryKeyValues(Supplier<CcpJsonRepresentation> jsonSupplier) {
 		
 		CcpJsonRepresentation json = jsonSupplier.get();
@@ -204,20 +247,38 @@ public final class CcpEntityMetaData {
 		return primaryKeyValues;
 	}
 
+	/**
+	 * Returns the entity name.
+	 * @return the entity name
+	 */
 	public String name() {
 		return this.entityName;
 	}
 	
+	/**
+	 * Returns the entity name.
+	 * @return the entity name
+	 */
 	public String toString() {
 		return this.entityName;
 	}
 
 
+	/**
+	 * Builds a {@code create} bulk item of the record in this entity.
+	 * @param json the record
+	 * @return the bulk item
+	 */
 	public CcpBulkItem toCreateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
 		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.create, this.entity, id);
 		return bulkItem;
 	}
+	/**
+	 * Builds an {@code update} bulk item of the record in this entity.
+	 * @param json the record
+	 * @return the bulk item
+	 */
 	public CcpBulkItem toUpdateBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
 		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.update, this.entity, id);
@@ -225,6 +286,11 @@ public final class CcpEntityMetaData {
 	}
 	
 	
+	/**
+	 * Builds a {@code delete} bulk item of the record in this entity.
+	 * @param json the record
+	 * @return the bulk item
+	 */
 	public CcpBulkItem toDeleteBulkItem(CcpJsonRepresentation json) {
 		String id = this.entity.calculateId(json);
 		CcpBulkItem bulkItem = new CcpBulkItem(json, CcpBulkEntityOperationType.delete, this.entity, id);

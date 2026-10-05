@@ -7,15 +7,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Indica que as validações de um campo devem ser copiadas de um campo homônimo em outra classe,
- * evitando duplicação de regras de validação.
+ * Tells that the validations of the field are copied from the field of the same name in another class, avoiding
+ * duplicated validation rules.
  */
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface CcpJsonCopyFieldValidationsFrom {
 	/**
-	 * Classe de origem das validações a copiar.
-	 * @return classe de origem
+	 * The class whose field of the same name holds the validations.
+	 * @return the source class
 	 */
 	Class<?> value();
 }

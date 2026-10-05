@@ -9,68 +9,119 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfte
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 
 /**
- * Sentido da comparação temporal de um campo: {@code _before} mede quanto tempo se passou desde o
- * timestamp informado e {@code _after} mede quanto falta até ele. Cada constante sabe ler a sua
- * própria anotação ({@code @CcpJsonFieldTypeTimeBefore} ou {@code @CcpJsonFieldTypeTimeAfter}), de
- * modo que o resto do mecanismo de validação não precisa saber qual das duas está em uso.
+ * Direction of the time comparison of a field: {@code _before} measures how long ago the timestamp is and {@code _after}
+ * how far ahead it is. Each constant reads its own annotation ({@code @CcpJsonFieldTypeTimeBefore} or
+ * {@code @CcpJsonFieldTypeTimeAfter}), so the rest of the validation does not need to know which one is in use.
  */
 enum TimeOptions{
+	/** Past timestamps ({@code @CcpJsonFieldTypeTimeBefore}). */
 	_before {
+		/**
+		 * Returns how long ago the timestamp is: now minus the timestamp.
+		 * @param time the timestamp
+		 * @return the elapsed milliseconds
+		 */
 		long subtractNumber(long time) {
 			long currentTimeMillis = System.currentTimeMillis();
 			long enlapsedTime = currentTimeMillis - time;
 			return enlapsedTime;
 		}
 
+		/**
+		 * Reads the granularity of {@code @CcpJsonFieldTypeTimeBefore}.
+		 * @param field the field
+		 * @return the granularity
+		 */
 		public CcpEntityExpurgableOptions getIntervalType(Field field) {
 			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
 			CcpEntityExpurgableOptions intervalType = annotation.intervalType();
 			return intervalType;
 		}
 
+		/**
+		 * Reads {@code maxValue} of {@code @CcpJsonFieldTypeTimeBefore}.
+		 * @param field the field
+		 * @return the maximum
+		 */
 		public int getMaxValue(Field field) {
 			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
 			int maxValue = annotation.maxValue();
 			return maxValue;
 		}
 
+		/**
+		 * Reads {@code minValue} of {@code @CcpJsonFieldTypeTimeBefore}.
+		 * @param field the field
+		 * @return the minimum
+		 */
 		public int getMinValue(Field field) {
 			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
 			int minValue = annotation.minValue();
 			return minValue;
 		}
 
+		/**
+		 * Reads {@code exactValue} of {@code @CcpJsonFieldTypeTimeBefore}.
+		 * @param field the field
+		 * @return the exact value
+		 */
 		public int getExactValue(Field field) {
 			CcpJsonFieldTypeTimeBefore annotation = field.getAnnotation(CcpJsonFieldTypeTimeBefore.class);
 			int exactValue = annotation.exactValue();
 			return exactValue;
 		}
 	},
+	/** Future timestamps ({@code @CcpJsonFieldTypeTimeAfter}). */
 	_after {
+		/**
+		 * Returns how far ahead the timestamp is: the timestamp minus now.
+		 * @param time the timestamp
+		 * @return the remaining milliseconds
+		 */
 		long subtractNumber(long time) {
 			long currentTimeMillis = System.currentTimeMillis();
 			long enlapsedTime = time - currentTimeMillis;
 			return enlapsedTime;
 		}
 
+		/**
+		 * Reads the granularity of {@code @CcpJsonFieldTypeTimeAfter}.
+		 * @param field the field
+		 * @return the granularity
+		 */
 		public CcpEntityExpurgableOptions getIntervalType(Field field) {
 			CcpJsonFieldTypeTimeAfter annotation = field.getAnnotation(CcpJsonFieldTypeTimeAfter.class);
 			CcpEntityExpurgableOptions intervalType = annotation.intervalType();
 			return intervalType;
 		}
 
+		/**
+		 * Reads {@code maxValue} of {@code @CcpJsonFieldTypeTimeAfter}.
+		 * @param field the field
+		 * @return the maximum
+		 */
 		public int getMaxValue(Field field) {
 			CcpJsonFieldTypeTimeAfter annotation = field.getAnnotation(CcpJsonFieldTypeTimeAfter.class);
 			int maxValue = annotation.maxValue();
 			return maxValue;
 		}
 
+		/**
+		 * Reads {@code minValue} of {@code @CcpJsonFieldTypeTimeAfter}.
+		 * @param field the field
+		 * @return the minimum
+		 */
 		public int getMinValue(Field field) {
 			CcpJsonFieldTypeTimeAfter annotation = field.getAnnotation(CcpJsonFieldTypeTimeAfter.class);
 			int minValue = annotation.minValue();
 			return minValue;
 		}
 
+		/**
+		 * Reads {@code exactValue} of {@code @CcpJsonFieldTypeTimeAfter}.
+		 * @param field the field
+		 * @return the exact value
+		 */
 		public int getExactValue(Field field) {
 			CcpJsonFieldTypeTimeAfter annotation = field.getAnnotation(CcpJsonFieldTypeTimeAfter.class);
 			int exactValue = annotation.exactValue();
@@ -78,23 +129,45 @@ enum TimeOptions{
 		}
 	}
 	;
+	/**
+	 * Returns the distance between now and the timestamp, in the direction of this constant.
+	 * @param time the timestamp
+	 * @return the distance in milliseconds
+	 */
 	abstract long subtractNumber(long time);
 
-	/** Granularidade declarada na anotação deste campo (dias, horas, etc). */
+	/**
+	 * Granularity declared in the annotation of the field (days, hours, etc).
+	 * @param field the field
+	 * @return the granularity
+	 */
 	public abstract CcpEntityExpurgableOptions getIntervalType(Field field);
 
-	/** Limite superior declarado na anotação deste campo, na granularidade dela. */
+	/**
+	 * Upper bound declared in the annotation of the field, in its granularity.
+	 * @param field the field
+	 * @return the upper bound
+	 */
 	public abstract int getMaxValue(Field field);
 
-	/** Limite inferior declarado na anotação deste campo, na granularidade dela. */
+	/**
+	 * Lower bound declared in the annotation of the field, in its granularity.
+	 * @param field the field
+	 * @return the lower bound
+	 */
 	public abstract int getMinValue(Field field);
 
-	/** Valor exato declarado na anotação deste campo, na granularidade dela. */
+	/**
+	 * Exact value declared in the annotation of the field, in its granularity.
+	 * @param field the field
+	 * @return the exact value
+	 */
 	public abstract int getExactValue(Field field);
 
 	/**
-	 * Descobre o sentido da comparação pela anotação presente no campo. Usado onde só o campo está
-	 * disponível.
+	 * Finds the direction of the comparison from the annotation of the field; used where only the field is available.
+	 * @param field the field
+	 * @return {@code _before} for {@code @CcpJsonFieldTypeTimeBefore}, {@code _after} otherwise
 	 */
 	public static TimeOptions getTimeOptions(Field field) {
 		boolean annotationPresent = field.isAnnotationPresent(CcpJsonFieldTypeTimeBefore.class);
@@ -105,7 +178,12 @@ enum TimeOptions{
 		return _after;
 	}
 
-	/** Tempo decorrido, em milissegundos, entre o timestamp do campo e o momento atual. */
+	/**
+	 * Distance, in milliseconds, between the timestamp of the field and now, in the direction of this constant.
+	 * @param json the JSON being validated
+	 * @param field the field
+	 * @return the distance in milliseconds
+	 */
 	public Long getEnlapsedTime(CcpJsonRepresentation json, Field field) {
 		String fieldName = field.getName();
 		CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
@@ -118,9 +196,11 @@ enum TimeOptions{
 	}
 
 	/**
-	 * O mesmo tempo decorrido, convertido para a granularidade declarada na anotação. É nesta
-	 * unidade que os limites da anotação são expressos: {@code maxValue = 7} com
-	 * {@code intervalType = daily} quer dizer sete dias.
+	 * The same distance converted to the granularity of the annotation (truncated). The bounds of the annotation are
+	 * written in this unit: {@code maxValue = 7} with {@code intervalType = daily} means seven days.
+	 * @param json the JSON being validated
+	 * @param field the field
+	 * @return the distance in the granularity of the annotation
 	 */
 	public Long getEnlapsedInterval(CcpJsonRepresentation json, Field field) {
 		Long enlapsedTime = this.getEnlapsedTime(json, field);

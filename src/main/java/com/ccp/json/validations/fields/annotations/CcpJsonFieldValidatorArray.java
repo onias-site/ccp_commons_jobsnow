@@ -6,34 +6,32 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Marca o campo como array e define restrições de tamanho e unicidade dos itens.
- */
+/** Marks the field as a collection and sets the constraints on its size and on repeated items. */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface CcpJsonFieldValidatorArray {
 
 	/**
-	 * Tamanho exato obrigatório do array.
-	 * @return tamanho exato (padrão: sem restrição)
+	 * Mandatory exact size of the collection.
+	 * @return the exact size ({@code Integer.MIN_VALUE}, the default, means no constraint)
 	 */
 	int exactSize() default Integer.MIN_VALUE;
 
 	/**
-	 * Exige itens únicos no array.
-	 * @return true se itens repetidos são proibidos (padrão: true)
+	 * Forbids repeated items.
+	 * @return {@code true} (the default) when repeated items are forbidden
 	 */
 	boolean nonRepeatedItems() default true;
 
 	/**
-	 * Tamanho mínimo do array.
-	 * @return tamanho mínimo (padrão: sem restrição)
+	 * Minimum size of the collection.
+	 * @return the minimum size ({@code Integer.MIN_VALUE}, the default, means no constraint)
 	 */
 	int minSize() default Integer.MIN_VALUE;
 
 	/**
-	 * Tamanho máximo do array.
-	 * @return tamanho máximo (padrão: sem restrição)
+	 * Maximum size of the collection.
+	 * @return the maximum size ({@code Integer.MAX_VALUE}, the default, means no constraint)
 	 */
 	int maxSize() default Integer.MAX_VALUE;
 }

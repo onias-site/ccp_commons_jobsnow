@@ -4,27 +4,50 @@ import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Contrato para validadores de nível de classe (globais). O método default {@code getErrors}
- * orquestra a coleta de erros e, se a validação for crítica, lança
- * {@code CcpJsonValidatorErrorBreakValidationsToTheClass} para interromper as demais validações.
+ * Contract of the class-level (global) validators. The default {@code getErrors} collects the error and, when the
+ * validation is critical, throws {@code CcpJsonValidatorErrorBreakValidationsToTheClass} to stop the other global
+ * validations.
  */
 public interface CcpJsonValidator {
 
-	/** Retorna {@code true} se a validação global falha para o JSON e a classe informados. */
+	/**
+	 * Tells whether the global validation fails for the JSON.
+	 * @param json the JSON
+	 * @param clazz the validation class
+	 * @return {@code true} when it fails
+	 */
 	boolean hasError(CcpJsonRepresentation json, Class<?> clazz);
 
-	/** Gera a mensagem de erro para a validação que falhou. */
+	/**
+	 * Describes the failure.
+	 * @param json the JSON
+	 * @param clazz the validation class
+	 * @return the error
+	 */
 	Object getErrorMessage(CcpJsonRepresentation json, Class<?> clazz);
 
-	/** Indica se este validador deve interromper as demais validações ao encontrar erro. */
+	/**
+	 * Tells whether a failure must stop the other global validations.
+	 * @param json the JSON
+	 * @param clazz the validation class
+	 * @return {@code true} when critical
+	 */
 	boolean isCriticalValidation(CcpJsonRepresentation json, Class<?> clazz);
 
-	/** Retorna a explicação da regra de validação em linguagem natural. */
+	/**
+	 * Explains the validation in natural language.
+	 * @param clazz the validation class
+	 * @return the explanation
+	 */
 	Object getRuleExplanation(Class<?> clazz);
 
 	/**
-	 * Acumula o erro no JSON de erros; lança {@code CcpJsonValidatorErrorBreakValidationsToTheClass}
-	 * se a validação for crítica.
+	 * Appends the error, under the class name, to the accumulated errors when the validation fails.
+	 * @param errors the accumulated errors
+	 * @param json the JSON
+	 * @param clazz the validation class
+	 * @return the updated errors
+	 * @throws CcpJsonValidatorErrorBreakValidationsToTheClass when a critical validation fails
 	 */
 	default CcpJsonRepresentation getErrors(CcpJsonRepresentation errors, CcpJsonRepresentation json, Class<?> clazz) {
 		boolean error2 = this.hasError(json, clazz);

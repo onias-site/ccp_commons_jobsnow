@@ -11,34 +11,41 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.json.CcpJsonHandler;
 /**
- * Objeto imutável que encapsula a resposta HTTP, oferecendo métodos para interpretar o corpo
- * em diferentes formatos e verificar a faixa do status.
+ * Immutable HTTP response: body, status and the equivalent curl command, with readers of the body in several formats
+ * and checks of the status range.
  */
 public class CcpHttpResponse {
+	/** Fields of the textual form of the response. */
 	enum JsonFieldNames implements CcpJsonFieldName{
-		httpResponse, httpStatus
+		/** The body. */
+		httpResponse,
+		/** The status. */
+		httpStatus
 	}
 
+	/** The response body. */
 	public final String httpResponse;
+	/** The HTTP status. */
 	public final int httpStatus;
+	/** The equivalent curl command, for debugging. */
 	public final String curl;
 	
 	
 	/**
-	 * Lê o InputStream e converte para String, inicializando a resposta.
-	 * @param httpResponse corpo da resposta como InputStream
-	 * @param httpStatus código de status HTTP
-	 * @param curl comando curl equivalente para debug
+	 * Reads the body from the stream (platform default charset).
+	 * @param httpResponse the body stream
+	 * @param httpStatus the HTTP status
+	 * @param curl the equivalent curl command
 	 */
 	public CcpHttpResponse(InputStream httpResponse, int httpStatus, String curl) {
 		this(new CcpStringDecorator(httpResponse).content, httpStatus, curl);
 	}
 
 	/**
-	 * Inicializa com corpo, status e curl.
-	 * @param httpResponse corpo da resposta como String
-	 * @param httpStatus código de status HTTP
-	 * @param curl comando curl equivalente para debug
+	 * Builds the response.
+	 * @param httpResponse the body
+	 * @param httpStatus the HTTP status
+	 * @param curl the equivalent curl command
 	 */
 	public CcpHttpResponse(String httpResponse, int httpStatus, String curl) {
 		this.httpResponse = httpResponse;
@@ -47,8 +54,8 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Verifica se o corpo é um JSON de objeto único válido.
-	 * @return true se o corpo for um JSON de objeto único válido
+	 * Tells whether the body is a valid JSON object; an empty body counts as valid.
+	 * @return {@code true} for a JSON object or an empty body
 	 */
 	public boolean isValidSingleJson() {
 		String httpResponseTrim = this.httpResponse.trim();
@@ -63,8 +70,8 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Converte o corpo para JSON; retorna JSON vazio em falha.
-	 * @return representação JSON do corpo da resposta
+	 * Parses the body as a JSON object.
+	 * @return the JSON, or an empty JSON when the body is not a JSON object
 	 */
 	public CcpJsonRepresentation asSingleJson() {
 		try {
@@ -77,28 +84,29 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Converte o corpo como lista de JSONs.
-	 * @return lista de representações JSON
+	 * Parses the body as a JSON list. Note that the items are the maps produced by the JSON handler, not
+	 * {@code CcpJsonRepresentation} instances, despite the declared type.
+	 * @return the items of the list
 	 */
 	public List<CcpJsonRepresentation> asListRecord(){
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		List<CcpJsonRepresentation> fromJson = json.fromJson(this.httpResponse);
-		return fromJson; 
+		return fromJson; 
 	}
 
 	/**
-	 * Converte o corpo como lista de objetos genéricos.
-	 * @return lista de objetos
+	 * Parses the body as a JSON list.
+	 * @return the items of the list
 	 */
 	public List<Object> asListObject(){
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 		List<Object> fromJson = json.fromJson(this.httpResponse);
-		return fromJson; 
+		return fromJson; 
 	}
 
 	/**
-	 * Codifica o corpo em Base64.
-	 * @return corpo da resposta codificado em Base64
+	 * Encodes the body in Base64.
+	 * @return the Base64 text
 	 */
 	public String asBase64() {
 		byte[] bytes = this.httpResponse.getBytes();
@@ -111,8 +119,8 @@ public class CcpHttpResponse {
 	
 	
 	/**
-	 * Serializa status e corpo em JSON.
-	 * @return representação JSON com httpStatus e httpResponse
+	 * Returns the status and the body as JSON.
+	 * @return the JSON text
 	 */
 	public String toString() {
 		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
@@ -125,14 +133,19 @@ public class CcpHttpResponse {
 	}
 	
 
+	/**
+	 * Tells whether the status is between {@code range} and {@code range + 99}.
+	 * @param range the start of the range
+	 * @return {@code true} when the status is in the range
+	 */
 	private boolean isInRange(int range) {
-		boolean httpStatusMenor = this.httpStatus < range;
-		if(httpStatusMenor) {
+		boolean statusBelowRange = this.httpStatus < range;
+		if(statusBelowRange) {
 			return false;
 		}
-		int rangeMais = range + 99;
-		boolean httpStatusMaior = this.httpStatus > (rangeMais);
-		if(httpStatusMaior) {
+		int rangeEnd = range + 99;
+		boolean statusAboveRange = this.httpStatus > (rangeEnd);
+		if(statusAboveRange) {
 			return false;
 		}
 		return true;
@@ -140,8 +153,8 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Verifica se o status está na faixa 400–499.
-	 * @return true se for erro de cliente
+	 * Tells whether the status is in the 400-499 range.
+	 * @return {@code true} for a client error
 	 */
 	public boolean isClientError() {
 		boolean inRange = this.isInRange(400);
@@ -149,8 +162,8 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Verifica se o status está na faixa 500–599.
-	 * @return true se for erro de servidor
+	 * Tells whether the status is in the 500-599 range.
+	 * @return {@code true} for a server error
 	 */
 	public boolean isServerError() {
 		boolean inRange2 = this.isInRange(500);
@@ -158,8 +171,8 @@ public class CcpHttpResponse {
 	}
 
 	/**
-	 * Verifica se o status está na faixa 200–299.
-	 * @return true se for resposta de sucesso
+	 * Tells whether the status is in the 200-299 range.
+	 * @return {@code true} for a success
 	 */
 	public boolean isSuccess() {
 		boolean inRange3 = this.isInRange(200);

@@ -30,8 +30,11 @@ import com.ccp.process.CcpProcessStatusDefault;
  * and validation. Every entity enum of the system implements this interface.
  */
 public interface CcpEntity  extends CcpJsonFieldName{
+	/** Fields added to JSONs by the entity operations. */
 	public static enum JsonFieldNames implements CcpJsonFieldName{
+		/** The entity involved (e.g. in the context of a not-found error). */
 		entity,
+		/** Records loaded by a search, grouped by entity name. */
 		_entities,
  
 	}
@@ -45,8 +48,11 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
-	 * Computes the SHA-1 ID of the document from the primary key fields defined in the metadata.
-	 * If there is no primary key, generates a random UUID.
+	 * Computes the id of the record: the SHA-1 (see {@code CcpHashDecorator.asString}) of the primary key values, sorted
+	 * by field name and joined as {@code "v1, v2"}.
+	 * @param json the record, holding the primary key values
+	 * @return the record id
+	 * @throws CcpEntityNoDefinedPrimaryKey when the entity declares no primary key
 	 */
 	default String calculateId(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
@@ -292,9 +298,15 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		return idToSearch;
 	}
 
+	/** Raised when the id of a record is computed for an entity that declares no primary key. */
 	@SuppressWarnings("serial")
 	public static class CcpEntityNoDefinedPrimaryKey extends RuntimeException {
+		/** The entity without primary key. */
 		public final CcpEntity entity;
+		/**
+		 * Builds the error naming the entity.
+		 * @param entity the entity without primary key
+		 */
 		private CcpEntityNoDefinedPrimaryKey(CcpEntity entity) {
 			super("The entity '" + entity.getEntityMetaData().entityName + "' has no defined primary key in his mapping");
 			this.entity = entity;

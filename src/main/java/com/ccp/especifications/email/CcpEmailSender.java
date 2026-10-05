@@ -3,23 +3,20 @@ package com.ccp.especifications.email;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.http.CcpHttpContentType;
 
-/**
- * Define o contrato para envio de e-mails via provedor externo (implementado com SendGrid).
- * Abstrai os detalhes do provedor, permitindo envio de e-mails de texto simples ou HTML.
- */
+/** Contract for sending e-mails through an external provider (implemented with SendGrid), hiding the provider details. */
 public interface CcpEmailSender {
 
 	/**
-	 * Envia um e-mail para um ou mais destinatários usando o provedor configurado.
-	 * @param providerToken token de autenticação do provedor
-	 * @param providerUrl URL base do provedor
-	 * @param templateId identificador do template de e-mail
-	 * @param sender endereço do remetente
-	 * @param subject assunto do e-mail
-	 * @param message corpo da mensagem
-	 * @param contentType tipo de conteúdo (texto simples ou HTML)
-	 * @param recipients destinatários do e-mail
-	 * @return JSON com o resultado do envio
+	 * Sends an e-mail to one or more recipients through the configured provider.
+	 * @param providerToken authentication token of the provider
+	 * @param providerUrl base URL of the provider
+	 * @param templateId identifier of the e-mail template
+	 * @param sender sender address
+	 * @param subject e-mail subject
+	 * @param message message body
+	 * @param contentType content type (plain text or HTML)
+	 * @param recipients recipients of the e-mail
+	 * @return JSON with the result of the sending
 	 */
 	CcpJsonRepresentation sendSimpleTextEmailMessage(String providerToken, String providerUrl, String templateId, String sender, String subject, String message, CcpHttpContentType contentType, String... recipients);
 		

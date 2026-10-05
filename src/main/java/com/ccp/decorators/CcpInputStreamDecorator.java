@@ -7,36 +7,42 @@ import java.net.URL;
 
 
 /**
- * Decorator sobre um identificador de recurso (nome de variável de ambiente, caminho de arquivo ou recurso no classpath)
- * que resolve e abre um {@code InputStream} de diferentes fontes. Suporta fallback automático entre as fontes.
+ * Decorator over a resource identifier (environment variable name, file path or classpath resource) that opens an
+ * {@code InputStream} from different sources, with automatic fallback between them.
  */
 public class CcpInputStreamDecorator implements CcpDecorator<String> {
 
+	/** The resource identifier. */
 	private final String content;
 
 	/**
-	 * Encapsula o identificador do recurso.
-	 * @param content o nome ou caminho do recurso
+	 * Wraps the resource identifier.
+	 * @param content the name or path of the resource
 	 */
 	protected CcpInputStreamDecorator(String content) {
 		this.content = content;
 	}
 	
+	/**
+	 * Returns the resource identifier.
+	 * @return the resource identifier
+	 */
 	public String toString() {
 		return this.content;
 	}
 
 	/**
-	 * Lê a variável de ambiente cujo nome é o conteúdo encapsulado. Se o valor for um caminho de arquivo existente,
-	 * abre o arquivo; caso contrário, converte o valor em {@code ByteArrayInputStream}.
-	 * Lança {@code CcpErrorInputStreamMissing} se a variável não existir ou estiver vazia.
+	 * Reads the environment variable named by the identifier. If its value is the path of an existing file, the file is
+	 * opened; otherwise the value itself becomes the stream content (platform default charset).
+	 * @return the stream of the file or of the variable value
+	 * @throws CcpErrorInputStreamMissing when the variable does not exist or is blank
 	 */
 	public InputStream environmentVariables() {
 		
 		String getenv = System.getenv(this.content);
-		boolean getenvIgual = getenv == null;
+		boolean environmentVariableIsMissing = getenv == null;
 
-		if(getenvIgual) {
+		if(environmentVariableIsMissing) {
 			CcpErrorInputStreamMissing ccpErrorInputStreamMissing = new CcpErrorInputStreamMissing(this.content);
 			throw ccpErrorInputStreamMissing;
 		}
@@ -64,25 +70,27 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Abre o recurso como arquivo do classpath (via {@code ClassLoader.getResource}).
-	 * Lança {@code CcpErrorInputStreamMissing} se o recurso não for encontrado.
+	 * Opens the resource from the classpath (through {@code ClassLoader.getResource}).
+	 * @return the stream of the resource
+	 * @throws CcpErrorInputStreamMissing when the resource is not found
 	 */
 	public InputStream classLoader() {
 		Class<? extends CcpInputStreamDecorator> class1 = this.getClass();
 		ClassLoader classLoader = class1.getClassLoader();
 		URL resource = classLoader.getResource(this.content);
-		boolean resourceIgual = resource == null;
-		if(resourceIgual) {
+		boolean resourceIsMissing = resource == null;
+		if(resourceIsMissing) {
 			CcpErrorInputStreamMissing ccpErrorInputStreamMissing3 = new CcpErrorInputStreamMissing(this.content);
 			throw ccpErrorInputStreamMissing3;
 		}
 		InputStream stream = resource.openStream(); 
-		return stream;
+		return stream;
 	} 
 	
 	/**
-	 * Abre o arquivo do sistema de arquivos pelo caminho encapsulado.
-	 * Lança {@code CcpErrorInputStreamMissing} se o arquivo não existir.
+	 * Opens the file system file whose path is the identifier.
+	 * @return the stream of the file
+	 * @throws CcpErrorInputStreamMissing when the file does not exist
 	 */
 	public InputStream file() {
 		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(this.content);
@@ -94,11 +102,12 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 			throw ccpErrorInputStreamMissing4;
 		}
 		FileInputStream fileInputStream = new FileInputStream(this.content);
-		return fileInputStream;
+		return fileInputStream;
 	}
 	
 	/**
-	 * Converte o conteúdo textual diretamente em {@code ByteArrayInputStream}.
+	 * Turns the identifier text itself into a stream (platform default charset).
+	 * @return a stream over the identifier text
 	 */
 	public InputStream byteArray() {
 		byte[] bytes = this.content.getBytes();
@@ -107,7 +116,9 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Tenta as três fontes em sequência (variável de ambiente → classpath → arquivo) e retorna o primeiro {@code InputStream} encontrado com sucesso.
+	 * Tries the three sources in order (environment variable, classpath, file) and returns the first stream that opens.
+	 * @return the stream of the first available source
+	 * @throws CcpErrorInputStreamMissing when none of the sources has the resource
 	 */
 	public InputStream fromEnvironmentVariablesOrClassLoaderOrFile() {
 
@@ -129,7 +140,8 @@ public class CcpInputStreamDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Implementação de {@code CcpDecorator}; retorna o identificador do recurso.
+	 * Returns the resource identifier.
+	 * @return the resource identifier
 	 */
 	public String getContent() {
 		return this.content;

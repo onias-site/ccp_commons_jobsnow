@@ -10,41 +10,80 @@ import java.util.stream.Collectors;
 import com.ccp.decorators.CcpTimeDecorator;
 
 /**
- * Granularidades de expiração para entidades descartáveis ({@code @CcpEntityDisposable}). Cada
- * constante encapsula o campo de calendário correspondente, o formato de data, o tempo de expiração
- * de cache em segundos e o equivalente em milissegundos.
+ * Expiration granularities of the disposable entities. Each constant holds its calendar field, its date format (which
+ * becomes part of the id of the disposable record), its cache expiration in seconds and its length in milliseconds.
  */
 public enum CcpEntityExpurgableOptions{
+	/** One year; its length is the number of days of the year of the given timestamp. */
 	yearly(Calendar.YEAR, "yyyy", 86400, 31_536_000_000L, "years"){
+		/**
+		 * Returns the length of the year of the timestamp (365 or 366 days).
+		 * @param milliSeconds the reference timestamp
+		 * @return the length in milliseconds
+		 */
 		public long getMilliseconds(Long milliSeconds) {
 			long total = getMilliseconds(milliSeconds, Calendar.DAY_OF_YEAR);
 			return total;
 		}
 
 	}
-	,minute(Calendar.MINUTE, "ddMMyyyy HH:mm", 60, 60_000, "minutes")
-	,second(Calendar.SECOND, "ddMMyyyy HH:mm:ss", 1, 1_000, "seconds")
+	,
+	/** One minute. */
+	minute(Calendar.MINUTE, "ddMMyyyy HH:mm", 60, 60_000, "minutes")
+	,
+	/** One second. */
+	second(Calendar.SECOND, "ddMMyyyy HH:mm:ss", 1, 1_000, "seconds")
+	/** One month; its length is the number of days of the month of the given timestamp. */
 	,monthly(Calendar.MONTH, "yyyyMM", 86400, 2_592_000_000L, "months"){
+		/**
+		 * Returns the length of the month of the timestamp (28 to 31 days).
+		 * @param milliSeconds the reference timestamp
+		 * @return the length in milliseconds
+		 */
 		public long getMilliseconds(Long milliSeconds) {
 			long total = getMilliseconds(milliSeconds, Calendar.DAY_OF_MONTH);
 			return total;
 		}
 	}
-	,daily(Calendar.DAY_OF_MONTH, "ddMMyyyy", 86400, 86_400_000, "days")
-	,hourly(Calendar.HOUR_OF_DAY, "ddMMyyyy HH", 3600, 3_600_000, "hours")
-	,millisecond(Calendar.MILLISECOND, "dd/MM/yyyy HH:mm:ss.SSS", 1, 1, "milliseconds")
+	,
+	/** One day. */
+	daily(Calendar.DAY_OF_MONTH, "ddMMyyyy", 86400, 86_400_000, "days")
+	,
+	/** One hour. */
+	hourly(Calendar.HOUR_OF_DAY, "ddMMyyyy HH", 3600, 3_600_000, "hours")
+	,
+	/** One millisecond. */
+	millisecond(Calendar.MILLISECOND, "dd/MM/yyyy HH:mm:ss.SSS", 1, 1, "milliseconds")
 	;
+	/** The {@code Calendar} field advanced by one period. */
 	private final int calendarField;
+	/** The fixed length of one period in milliseconds. */
 	private final long milliseconds;
+	/** How long, in seconds, a disposable record of this granularity stays cached. */
 	public final int cacheExpires;
+	/** The {@code SimpleDateFormat} pattern of one period. */
 	public final String format;
+	/** The plural English name of the period (e.g. "minutes"), used in messages. */
 	public final String word;
 	
 	
+	/**
+	 * Returns the length of one period in milliseconds.
+	 * @param milliSeconds the reference timestamp (used only by the yearly and monthly granularities)
+	 * @return the length in milliseconds
+	 */
 	public long getMilliseconds(Long milliSeconds) {
 		return this.milliseconds;
 	}
 
+	/**
+	 * Associates the granularity with its settings.
+	 * @param calendarField the calendar field advanced by one period
+	 * @param format the date pattern of one period
+	 * @param cacheExpires the cache expiration in seconds
+	 * @param milliseconds the fixed length of one period
+	 * @param word the plural name of the period
+	 */
 	private CcpEntityExpurgableOptions(int calendarField, String format, int cacheExpires, long milliseconds, String word) {
 		this.calendarField = calendarField;
 		this.cacheExpires = cacheExpires;
@@ -54,8 +93,9 @@ public enum CcpEntityExpurgableOptions{
 	}
 
 	/**
-	 * Formata o timestamp {@code date} (em milissegundos) usando o padrão desta granularidade.
-	 * @param date timestamp em milissegundos
+	 * Formats the timestamp with the pattern of this granularity (JVM default time zone).
+	 * @param date the timestamp in milliseconds
+	 * @return the formatted date
 	 */
 	public String getFormattedDate(Long date) {
 		Date d = new Date();
@@ -65,14 +105,20 @@ public enum CcpEntityExpurgableOptions{
 		return format;
 	}
 	
-	/** Formata o instante atual usando o padrão desta granularidade. */
+	/**
+	 * Formats the current instant with the pattern of this granularity.
+	 * @return the formatted date
+	 */
 	public String getFormattedDate() {
 		long currentTimeMillis = System.currentTimeMillis();
 		String formattedDate = getFormattedDate(currentTimeMillis);
 		return formattedDate;
 	}
 
-	/** Retorna o timestamp do próximo período nesta granularidade a partir do instante atual. */
+	/**
+	 * Returns the current instant plus one period, in the America/Sao_Paulo calendar.
+	 * @return the timestamp of the next period
+	 */
 	public Long getNextTimeStamp() {
 		CcpTimeDecorator ccpTimeDecorator = new CcpTimeDecorator();
 		Calendar cal = ccpTimeDecorator.getBrazilianCalendar();
@@ -82,8 +128,10 @@ public enum CcpEntityExpurgableOptions{
 	}
 
 	/**
-	 * Retorna o timestamp do próximo período nesta granularidade a partir de {@code timestamp}.
-	 * @param timestamp timestamp de referência em milissegundos
+	 * Meant to return the given timestamp plus one period, but {@code CcpTimeDecorator.getBrazilianCalendar()} ignores the
+	 * timestamp, so the result is the current instant plus one period, like {@link #getNextTimeStamp()}.
+	 * @param timestamp the reference timestamp (ignored)
+	 * @return the current instant plus one period
 	 */
 	public Long getNextTimeStamp(Long timestamp) {
 		CcpTimeDecorator ccpTimeDecorator2 = new CcpTimeDecorator(timestamp);
@@ -93,7 +141,10 @@ public enum CcpEntityExpurgableOptions{
 		return timeInMillis;
 	}
 	
-	/** Retorna o próximo período (a partir do instante atual) formatado como data completa. */
+	/**
+	 * Returns the current instant plus one period, formatted as {@code dd/MM/yyyy HH:mm:ss.SSS}.
+	 * @return the formatted date
+	 */
 	public String getNextDate() {
 		Long nextTimeStamp = this.getNextTimeStamp();
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
@@ -102,8 +153,10 @@ public enum CcpEntityExpurgableOptions{
 	}
 	
 	/**
-	 * Retorna o próximo período a partir de {@code timestamp} formatado como data completa.
-	 * @param timestamp timestamp de referência em milissegundos
+	 * Returns {@link #getNextTimeStamp(Long)} formatted as {@code dd/MM/yyyy HH:mm:ss.SSS} (so, based on the current
+	 * instant).
+	 * @param timestamp the reference timestamp (ignored)
+	 * @return the formatted date
 	 */
 	public String getNextDate(Long timestamp) {
 		Long nextTimeStamp = this.getNextTimeStamp(timestamp);
@@ -112,6 +165,12 @@ public enum CcpEntityExpurgableOptions{
 		return formattedDateTime;
 	}
 
+	/**
+	 * Returns as many days as the maximum value of the calendar field in the timestamp's period (e.g. the days of its month).
+	 * @param milliSeconds the reference timestamp
+	 * @param field {@code DAY_OF_MONTH} or {@code DAY_OF_YEAR}
+	 * @return the length in milliseconds
+	 */
 	public final long getMilliseconds(Long milliSeconds, int field) {
 		Calendar instance = new GregorianCalendar();
 		instance.setTimeInMillis(milliSeconds);
@@ -120,9 +179,15 @@ public enum CcpEntityExpurgableOptions{
 		return total;
 	}
 
+	/** Raised when a date format matches no granularity. Not thrown anywhere today. */
 	@SuppressWarnings("serial")
 	public static class CcpExpurgableOptionNotFound extends RuntimeException {
+		/** The format that matched no granularity. */
 		public final String format;
+		/**
+		 * Builds the error listing the known formats.
+		 * @param format the format that matched no granularity
+		 */
 		private CcpExpurgableOptionNotFound(String format) {
 			super("The format '" + format + "' whas not found in the following list: " + Arrays.asList(CcpEntityExpurgableOptions.values())
 			.stream().map(x -> x.format).collect(Collectors.toList())

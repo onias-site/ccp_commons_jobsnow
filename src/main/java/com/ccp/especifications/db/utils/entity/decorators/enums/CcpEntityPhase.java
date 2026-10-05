@@ -7,13 +7,17 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityT
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * Identifica a origem de uma entidade em configurações de anotação: {@code mainEntity} (a entidade
- * principal declarada no campo {@code ENTITY} da classe configuradora) ou {@code twinEntity}
- * (a entidade twin definida em {@code @CcpEntityTwin}). Usada como atributo em
- * {@code @CcpEntityOperation} e {@code @CcpEntityDataTransfer}.
+ * Which side of an entity an annotation item refers to: {@code mainEntity} (the entity in the static {@code ENTITY}
+ * field of the configurator class) or {@code twinEntity} (the twin named by {@code @CcpEntityTwin}).
  */
 public enum CcpEntityPhase {
+	/** The main entity of the configurator class. */
 	mainEntity {
+		/**
+		 * Returns the name of the {@code ENTITY} of the configurator class.
+		 * @param clazz the configurator class
+		 * @return the main entity name
+		 */
 		public String extractEntityName(Class<?> clazz) {
 			Field declaredField = clazz.getDeclaredField("ENTITY");
 			var get = declaredField.get(null);
@@ -23,7 +27,13 @@ public enum CcpEntityPhase {
 			
 		}
 	},	
+	/** The twin entity named by {@code @CcpEntityTwin}. */
 	twinEntity {
+		/**
+		 * Returns the {@code twinEntityName} of {@code @CcpEntityTwin}.
+		 * @param clazz the configurator class
+		 * @return the twin entity name, or {@code ""} when the class has no twin
+		 */
 		public String extractEntityName(Class<?> clazz) {
 			CcpEntityTwin annotation = clazz.getAnnotation(CcpEntityTwin.class);
 			boolean isNotTwinEntity = annotation == null;
@@ -38,8 +48,9 @@ public enum CcpEntityPhase {
 	}
 	;
 	/**
-	 * Extrai o nome da entidade (nome do índice) a partir da classe configuradora fornecida.
-	 * @param clazz a classe configuradora da entidade
+	 * Returns the entity name of this side for the configurator class.
+	 * @param clazz the configurator class
+	 * @return the entity name
 	 */
 	public abstract String extractEntityName(Class<?> clazz);
 

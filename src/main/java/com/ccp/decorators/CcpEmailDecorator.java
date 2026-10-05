@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  * to the jobsnow domain), accent normalization, extraction of e-mails from free text and hash calculation of the address.
  */
 public class CcpEmailDecorator implements  CcpDecorator<String>{
+	/** Basic syntax of an e-mail address: local part, {@code @}, domain and a top-level domain of at least two letters. */
 	public static final String	EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
 //	private static Set<String> nonProfessionalDomains = new HashSet<>();
@@ -36,6 +37,7 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 //	}
 
 	
+	/** The e-mail address. */
 	public final String content;
 
 	/**
@@ -46,6 +48,10 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		this.content = content;
 	}
 
+	/**
+	 * Returns the address.
+	 * @return the address
+	 */
 	public String toString() {
 		return this.content;
 	}
@@ -79,7 +85,16 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 	
 	/**
-	 * Checks whether the string is a valid e-mail address according to the default regex and the domain business rules.
+	 * Tells whether the text is a valid e-mail address, applying, in this order:
+	 * <ol>
+	 * <li>exactly one {@code @} and a non-blank local part, otherwise invalid;</li>
+	 * <li>addresses ending with {@code .digital}, {@code @wayon.global} or {@code @corp.inovation.com.br} (case
+	 * insensitive) are always valid;</li>
+	 * <li>addresses ending with {@code .docx}, {@code .digi}, {@code .onli}, {@code .glob}, {@code .soci}, {@code .bren} or
+	 * containing {@code .coom} are invalid (truncated or misspelled domains found in imported data);</li>
+	 * <li>the address must match {@link #EMAIL_REGEX};</li>
+	 * <li>a top-level domain starting with {@code com} or {@code br} must be exactly {@code com} or {@code br}.</li>
+	 * </ol>
 	 * @return {@code true} if the address is valid
 	 */
 	public boolean isValid() {
@@ -176,13 +191,17 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		
 		return true;
 	}
+	/** {@link #EMAIL_REGEX} compiled case insensitive. */
 	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
 		    Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
 	/**
-	 * Walks through the "words" obtained by splitting the content by the given delimiters and returns
-	 * the first piece recognized as a valid e-mail. Returns {@code CcpEmailDecorator("")} if none is found.
-	 * @param delimiters expression of the delimiters used to split the text
+	 * Looks for the first valid e-mail address in a free text. The lowercase text is split by the delimiters and, for
+	 * each word: if it contains {@code +}, the piece after the last {@code +} is tried; then a trailing dot is removed,
+	 * the accents of each part are stripped and the result is tried. The first valid candidate is returned lowercase,
+	 * trimmed and without accents.
+	 * @param delimiters regular expression of the delimiters used to split the text
+	 * @return the first address found, or a decorator over {@code ""} when there is none
 	 */
 	public CcpEmailDecorator findFirst(String delimiters) {
 		String lowerContent = this.content.toLowerCase();
@@ -237,9 +256,9 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	/**
-	 * Splits the text by the delimiter and collects in a {@code TreeSet} every piece that is a valid e-mail (in lower case).
-	 * @param delimiter the delimiter used to split the text
-	 * @return set of valid e-mails found in the text
+	 * Splits the text by the delimiter and collects, sorted and lowercase, every trimmed piece that is a valid e-mail.
+	 * @param delimiter regular expression of the delimiter used to split the text
+	 * @return the sorted set of valid e-mails found in the text
 	 */
 	public Set<String> extractFromText(String delimiter) {
 		String[] split = this.content.split(delimiter);
@@ -262,7 +281,8 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 
 	
 	/**
-	 * Returns the domain part (after {@code @}). Returns an empty string if the address does not have exactly one {@code @}.
+	 * Returns the domain part (after {@code @}).
+	 * @return the domain, or an empty text when the address does not have exactly one {@code @}
 	 */
 	public String getDomain() {
 		String[] split = this.content.split("@");
@@ -277,13 +297,15 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	}
 
 	/**
-	 * Implementation of {@code CcpDecorator}; returns the address.
+	 * Returns the address.
+	 * @return the address
 	 */
 	public String getContent() {
 		return this.content;
 	}
 	/**
-	 * Creates a {@code CcpHashDecorator} over the address for hash calculation.
+	 * Creates a {@code CcpHashDecorator} over the address, to compute its hash.
+	 * @return the hash decorator
 	 */
 	public CcpHashDecorator hash() {
 		CcpHashDecorator ccpHashDecorator = new CcpHashDecorator(this.content);

@@ -14,22 +14,25 @@ import com.ccp.json.defaultvalues.annotations.CcpJsonFieldDefaultValue;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
- * Engine singleton que preenche, no JSON em tratamento, os campos anotados com
- * {@code CcpJsonFieldDefaultValue} que não foram informados. Espelha a mecânica da engine de
- * validação, inclusive o respeito a {@code CcpJsonCopyFieldValidationsFrom}, mas ao invés de
- * acusar erro, grava valor.
+ * Singleton that fills, in the JSON being handled, the absent fields annotated with {@code CcpJsonFieldDefaultValue}. It
+ * mirrors the mechanics of the validation engine, including {@code CcpJsonCopyFieldValidationsFrom}, but instead of
+ * reporting an error it writes a value.
  */
 public class CcpJsonFieldDefaultValuesEngine {
 
+	/** Singleton; use {@link #INSTANCE}. */
 	private CcpJsonFieldDefaultValuesEngine() {}
 
+	/** The single instance. */
 	public static final CcpJsonFieldDefaultValuesEngine INSTANCE = new CcpJsonFieldDefaultValuesEngine();
 
 	/**
-	 * Devolve o JSON acrescido dos valores padrão declarados nos campos da classe portadora das regras.
-	 * Campos já presentes no JSON são preservados como estão.
-	 * @param clazz a classe portadora das regras (a mesma usada na validação)
-	 * @param json o JSON em tratamento
+	 * Returns the JSON plus the default values declared in the fields of the class holding the rules, field by field in
+	 * declaration order (a later default may use an earlier one in its template). Fields already present are kept as they
+	 * are.
+	 * @param clazz the class holding the rules (the same used in the validation)
+	 * @param json the JSON being handled
+	 * @return the JSON with the default values
 	 */
 	public CcpJsonRepresentation putDefaultValues(Class<?> clazz, CcpJsonRepresentation json) {
 
@@ -44,6 +47,13 @@ public class CcpJsonFieldDefaultValuesEngine {
 		return jsonWithDefaultValues;
 	}
 
+	/**
+	 * Fills one field when it is absent and declares a default value (in itself or in the field it copies the validations
+	 * from).
+	 * @param field the field
+	 * @param json the JSON being handled
+	 * @return the JSON, possibly with the field filled
+	 */
 	private CcpJsonRepresentation putDefaultValue(Field field, CcpJsonRepresentation json) {
 
 		String fieldName = field.getName();
@@ -78,6 +88,13 @@ public class CcpJsonFieldDefaultValuesEngine {
 		return jsonWithDefaultStrings;
 	}
 
+	/**
+	 * Resolves each default text as a template over the JSON and stores the result in the field.
+	 * @param defaultStrings the default texts
+	 * @param ccpFieldName the field
+	 * @param json the JSON being handled
+	 * @return the JSON with the field filled
+	 */
 	private CcpJsonRepresentation putDefaultStrings(String[] defaultStrings, CcpFieldName ccpFieldName, CcpJsonRepresentation json) {
 
 		List<String> resolvedTemplates = new ArrayList<>();
@@ -97,7 +114,9 @@ public class CcpJsonFieldDefaultValuesEngine {
 	}
 
 	/**
-	 * Um único valor vira String; dois ou mais viram lista de Strings.
+	 * A single value becomes a String; two or more become a list of Strings.
+	 * @param resolvedTemplates the resolved texts
+	 * @return the value to store
 	 */
 	private Object getDefaultValue(List<String> resolvedTemplates) {
 
@@ -112,6 +131,12 @@ public class CcpJsonFieldDefaultValuesEngine {
 		return resolvedTemplates;
 	}
 
+	/**
+	 * Runs the producer of the annotation over the JSON.
+	 * @param annotation the default value annotation
+	 * @param json the JSON being handled
+	 * @return the JSON returned by the producer
+	 */
 	private CcpJsonRepresentation getJsonFromProducer(CcpJsonFieldDefaultValue annotation, CcpJsonRepresentation json) {
 
 		Class<? extends CcpBusiness> jsonProducer = annotation.jsonProducer();

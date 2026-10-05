@@ -40,26 +40,44 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDe
  * sort is stable. Do not use ties to express order — give distinct priorities.
  */
 public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
+	/** Transforms the fields before every operation ({@code @CcpEntityFieldsTransformer}); priority 6. */
 	FieldsTransformer(CcpEntityFieldsTransformer.class, x -> DecoratorFieldsTransformerEntity.class, 6),
+	/** Validates the input of the writes ({@code @CcpEntityFieldsValidator}); priority 10, the outermost. */
 	FieldsValidator(CcpEntityFieldsValidator.class, x -> DecoratorFieldsValidatorEntity.class, 10),
+	/** Runs the {@code before} side effects of the writes ({@code @CcpEntityOperations}); priority 7. */
 	BeforeWriteOperations(CcpEntityOperations.class, x -> DecoratorBeforeOperationsWriterEntity.class, 7),
+	/** Runs the {@code after} side effects of the writes ({@code @CcpEntityOperations}); priority 5. */
 	AfterWriteOperations(CcpEntityOperations.class, x -> DecoratorAfterOperationsWriterEntity.class, 5),
+	/** Runs the {@code before} side effects of the transfers ({@code @CcpEntityDataTransfers}); priority 7. */
 	BeforeDataTransfer(CcpEntityDataTransfers.class, x -> DecoratorBeforeTransferDataEntity.class, 7),
+	/** Runs the {@code after} side effects of the transfers ({@code @CcpEntityDataTransfers}); priority 5. */
 	AfterDataTransfer(CcpEntityDataTransfers.class, x -> DecoratorAfterTransferDataEntity.class, 5),
+	/** Blocks the writes ({@code @CcpEntityOlyReadable}); priority 9. */
 	DataReadOnly(CcpEntityOlyReadable.class, x -> DecoratorReadOnlyEntity.class, 9),
+	/** Caches the records ({@code @CcpEntityCache}); priority 3. */
 	Cacheable(CcpEntityCache.class, x -> DecoratorCacheEntity.class, 3),
+	/** Twin entity pattern ({@code @CcpEntityTwin}); priority 4. */
 	Twin(CcpEntityTwin.class, x -> DecoratorTwinEntity.class, 4),
 	;
 
 	
 
+	/**
+	 * Associates the decorator type with its annotation, its decorator class and its priority.
+	 * @param annotation the annotation that activates the decorator
+	 * @param clazzProducer produces the decorator class from the configurator class
+	 * @param priority the position in the chain (higher is more outer)
+	 */
 	private CcpEntityDecoratorTypes(Class<? extends Annotation> annotation, Function<Class<?>, Class<?>> clazzProducer, int priority) {
 		this.clazzProducer = clazzProducer;
 		this.annotation = annotation;
 		this.priority = priority;
 	}
+	/** Produces the decorator class from the configurator class. */
 	public final Function<Class<?>, Class<?>> clazzProducer;
+	/** The annotation that activates the decorator. */
 	private final Class<? extends Annotation> annotation;
+	/** The position in the chain: higher priorities wrap the lower ones. */
 	private final int priority;
 	
 	/** Returns {@code true} if the annotation of this decorator type is present on {@code clazz}. */
@@ -88,6 +106,11 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 		}
 	}
 
+	/**
+	 * Returns the fixed priority of the decorator type.
+	 * @param configurationClass the configurator class (unused)
+	 * @return the priority
+	 */
 	public int getPriority(Class<?> configurationClass) {
 		return this.priority;
 	}

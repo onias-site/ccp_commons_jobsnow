@@ -1,15 +1,15 @@
 package com.ccp.especifications.http;
 
 /**
- * Interface funcional para transformar um {@link CcpHttpResponse} no tipo de retorno desejado.
- * @param <V> tipo do resultado da transformação
+ * Turns a {@link CcpHttpResponse} into the desired result type.
+ * @param <V> the type of the result
  */
 public interface CcpHttpResponseTransform<V> {
 
 	/**
-	 * Transforma a resposta HTTP no tipo parametrizado.
-	 * @param response resposta HTTP a transformar
-	 * @return resultado transformado
+	 * Turns the response into the result type.
+	 * @param response the HTTP response
+	 * @return the result
 	 */
 	V transform(CcpHttpResponse response);
 }

@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marca um campo de entidade como parte da chave primária. O ID do documento no Elasticsearch é
- * calculado a partir dos valores SHA-1 dos campos com esta anotação, em ordem alfabética.
+ * Marks an entity field as part of the primary key: the id of the document is the SHA-1 of the values of these fields,
+ * sorted by field name.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })

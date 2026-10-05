@@ -8,17 +8,25 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 
 /**
- * Registro central de injeção de dependência do framework. Mantém um mapa estático de interface → implementação
- * e fornece métodos para registrar, recuperar, remover e substituir temporariamente implementações. É o mecanismo
- * que permite trocar comportamentos (real vs. mock) em testes ou em diferentes ambientes.
+ * Central dependency injection registry of the framework. Keeps a static map from interface to implementation and
+ * offers methods to register, retrieve, remove and temporarily replace implementations. It is the mechanism that
+ * allows swapping behaviors (real vs. mock) in tests or in different environments.
  */
 public class CcpDependencyInjection {
 
+	/** Registered implementations, keyed by the interface they implement. Not synchronized: dependencies are expected to be loaded at startup. */
 	static Map<Class<?>, Object> instances = new HashMap<>();
 
 	/**
-	 * Substitui temporariamente as dependências, executa o {@code business} com o {@code json} fornecido
-	 * e, ao final, restaura as dependências originais. Retorna o resultado da execução do business.
+	 * Temporarily replaces the dependencies, runs {@code business.execute(json)} and then restores the implementations
+	 * that were registered before.
+	 * <p>
+	 * The restoration only happens when the business finishes normally: if it throws, the replacement stays registered.
+	 * Each provider must have the target interface as the first interface of its own class.
+	 * @param json input of the business
+	 * @param business the business to run while the replacements are active
+	 * @param providers providers of the replacement implementations
+	 * @return the result of the business
 	 */
 	@SuppressWarnings("rawtypes")
 	public static CcpJsonRepresentation replaceDependenciesTemporally(CcpJsonRepresentation json, CcpBusiness business, CcpInstanceProvider<?>... providers) {
@@ -39,8 +47,9 @@ public class CcpDependencyInjection {
  
 
 	/**
-	 * Registra cada provider no mapa de dependências, associando a interface (primeiro {@code getInterfaces()[0]})
-	 * à instância retornada por {@code getInstance()}.
+	 * Registers every provider, mapping the first interface implemented by the instance returned by
+	 * {@code getInstance()} to that instance. A later registration for the same interface replaces the earlier one.
+	 * @param providers providers whose instances must be registered
 	 */
 	public static void loadAllDependencies(CcpInstanceProvider<?>... providers) {
 
@@ -54,23 +63,27 @@ public class CcpDependencyInjection {
 	}
 
 	/**
-	 * Retorna {@code true} se já existe uma implementação registrada para a interface {@code interfaceClass}.
+	 * Tells whether there is an implementation registered for the interface.
+	 * @param interfaceClass the interface
+	 * @return {@code true} when an implementation is registered
 	 */
 	public static <T> boolean hasDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
-		boolean implementationDiferente = implementation != null;
-		return implementationDiferente;
+		boolean implementationFound = implementation != null;
+		return implementationFound;
 	}
 
 	/**
-	 * Recupera a implementação registrada para a interface {@code interfaceClass}.
-	 * Lança {@code CcpErrorDependencyInjectionMissing} se nenhuma implementação foi registrada.
+	 * Retrieves the implementation registered for the interface.
+	 * @param interfaceClass the interface
+	 * @return the registered implementation
+	 * @throws CcpErrorDependencyInjectionMissing when no implementation was registered
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getDependency(Class<T> interfaceClass) {
 		Object implementation = instances.get(interfaceClass);
-		boolean implementationIgual = implementation == null;
-		if(implementationIgual) {
+		boolean implementationMissing = implementation == null;
+		if(implementationMissing) {
 			CcpErrorDependencyInjectionMissing ccpErrorDependencyInjectionMissing = new CcpErrorDependencyInjectionMissing(interfaceClass);
 			throw ccpErrorDependencyInjectionMissing;
 		}
@@ -78,20 +91,24 @@ public class CcpDependencyInjection {
 		return t;
 	}
 	
+	/** Removes every registered implementation. */
 	public static void removeAllDependencies() {
 		instances.clear();
 	}
 
 	/**
-	 * Remove do registro a implementação associada a {@code interfaceClass}.
+	 * Removes the implementation registered for the interface, if any.
+	 * @param interfaceClass the interface
 	 */
 	public static void removeDependecy(Class<?> interfaceClass) {
 		instances.remove(interfaceClass);
 	}
 
 	/**
-	 * Instancia via reflexão a classe {@code interfaceClass} (que deve implementar {@code CcpInstanceProvider}),
-	 * chama {@code getInstance()} e retorna o objeto resultante.
+	 * Instantiates the provider class by reflection (no-arg constructor), calls {@code getInstance()} and returns the
+	 * resulting object, without registering it.
+	 * @param interfaceClass the provider class
+	 * @return the instance built by the provider
 	 */
 	public static <T> T getInstance(Class<CcpInstanceProvider<T>> interfaceClass) {
 
@@ -101,8 +118,13 @@ public class CcpDependencyInjection {
 		return instance;
 	}
 
+	/** Raised when an implementation is requested for an interface that has none registered. */
 	@SuppressWarnings("serial")
 	public static class CcpErrorDependencyInjectionMissing extends RuntimeException {
+		/**
+		 * Builds the error naming the interface that has no implementation.
+		 * @param interfaceClass the interface without implementation
+		 */
 		private CcpErrorDependencyInjectionMissing(Class<?> interfaceClass) {
 			super("It is missing an implementation of the interface " + interfaceClass.getName());
 		}

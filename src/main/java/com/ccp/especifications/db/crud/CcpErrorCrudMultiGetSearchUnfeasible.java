@@ -14,10 +14,21 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 @SuppressWarnings("serial")
 public class CcpErrorCrudMultiGetSearchUnfeasible extends RuntimeException {
 
+	/**
+	 * Builds the message listing the entities and the JSONs that could not produce an id.
+	 * @param jsons the search parameters
+	 * @param entities the entities searched
+	 */
 	public CcpErrorCrudMultiGetSearchUnfeasible(Collection<CcpJsonRepresentation> jsons, CcpEntity... entities) {
 		super(getMessage(jsons, entities));
 	}
 
+	/**
+	 * Builds the message listing the entities and the JSONs that could not produce an id.
+	 * @param jsons the search parameters
+	 * @param entities the entities searched
+	 * @return the message
+	 */
 	private static String getMessage(Collection<CcpJsonRepresentation> jsons, CcpEntity... entities) {
 		Stream<CcpEntity> entitiesStream = Arrays.asList(entities).stream();
 		var entitiesMetaDataStream = entitiesStream.map(entity -> entity.getEntityMetaData());

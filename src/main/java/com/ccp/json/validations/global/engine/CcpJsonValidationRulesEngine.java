@@ -17,20 +17,21 @@ import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
 
 /**
- * Engine singleton de geração de explicações de regras de validação. Percorre as anotações globais
- * ({@code @CcpJsonGlobalValidations}) e os campos de uma classe de validação, produzindo um JSON
- * descrevendo todas as regras ativas.
+ * Singleton that explains the validation rules of a class: walks the global annotation
+ * ({@code @CcpJsonGlobalValidations}) and the fields, producing a JSON describing every configured rule.
  */
 public class CcpJsonValidationRulesEngine {
 
+	/** Singleton; use {@link #INSTANCE}. */
 	private CcpJsonValidationRulesEngine() {}
 
+	/** The single instance. */
 	public static final CcpJsonValidationRulesEngine INSTANCE = new CcpJsonValidationRulesEngine();
 
 	/**
-	 * Combina as explicações de regras globais e de campo da classe informada e retorna o JSON
-	 * completo de regras.
-	 * @param clazz a classe de validação a ser inspecionada
+	 * Combines the explanations of the global and of the field rules of the class.
+	 * @param clazz the validation class
+	 * @return the rules, by class name (global) and by field name
 	 */
 	public CcpJsonRepresentation getRulesExplanation(Class<?> clazz) {
 		
@@ -41,6 +42,12 @@ public class CcpJsonValidationRulesEngine {
 		return rulesExplanations;
 	}
 
+	/**
+	 * Adds, for each field with a recognized type, the explanations of its array, required and type rules.
+	 * @param ruleExplanation the accumulated explanations
+	 * @param clazz the validation class
+	 * @return the updated explanations
+	 */
 	private CcpJsonRepresentation addRulesExplanationsFromFields(CcpJsonRepresentation ruleExplanation, Class<?> clazz) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		
@@ -58,6 +65,12 @@ public class CcpJsonValidationRulesEngine {
 		return ruleExplanation;
 	}
 
+	/**
+	 * Lists, under the class name, the explanation of every default and custom global validator; empty when the class has
+	 * no {@code @CcpJsonGlobalValidations} (a {@code @CcpJsonCopyGlobalValidationsFrom} is not followed here).
+	 * @param clazz the validation class
+	 * @return the global explanations
+	 */
 	private CcpJsonRepresentation getRulesExplanationsFromClass(Class<?> clazz) {
 		
 		CcpJsonRepresentation rulesExplanation =  CcpOtherConstants.EMPTY_JSON;

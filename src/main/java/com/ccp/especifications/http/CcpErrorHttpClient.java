@@ -2,15 +2,13 @@ package com.ccp.especifications.http;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
-/**
- * Especialização de {@link CcpErrorHttp} para erros de cliente HTTP (status 4xx).
- */
+/** {@link CcpErrorHttp} of the client errors (status 4xx). */
 @SuppressWarnings("serial")
 public class CcpErrorHttpClient extends CcpErrorHttp{
 
 	/**
-	 * Delega ao construtor pai com os detalhes da requisição.
-	 * @param entity JSON com os detalhes da requisição que falhou
+	 * Builds the error from the details of the call.
+	 * @param entity the details of the failed call
 	 */
 	public CcpErrorHttpClient(CcpJsonRepresentation entity) {
 		super(entity);

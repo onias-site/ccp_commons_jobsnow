@@ -1,8 +1,9 @@
 package com.ccp.especifications.http;
 
-/**
- * Enum dos tipos de conteúdo HTTP suportados: {@code TEXT_PLAIN} e {@code TEXT_HTML}.
- */
+/** The supported content types of e-mails and multipart parts. */
 public enum CcpHttpContentType {
-	TEXT_PLAIN, TEXT_HTML
+	/** Plain text. */
+	TEXT_PLAIN,
+	/** HTML. */
+	TEXT_HTML
 }
