@@ -12,19 +12,21 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 
 /**
- * Abstract base of the clauses of an Elasticsearch boolean query (must, should, filter, must_not, should_not): keeps
+ * Abstract base of the clauses of an Elasticsearch boolean query (must, should, filter, must_not): keeps
  * the list of conditions, in insertion order and without repetition, and offers the methods that add each kind of
  * condition. Every method returns a copy; a {@code null} value adds no condition.
  */
 public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
-	/** Fields of a full-text condition. */
+	/** Fields inside the conditions. */
 	enum JsonFieldNames implements CcpJsonFieldName {
 		/** The boolean operator between the terms of a match ({@code and}/{@code or}). */
 		operator,
 		/** The weight of the condition in the score. */
 		boost,
 		/** The text searched. */
-		query
+		query,
+		/** The field that must exist, in an {@code exists} condition. */
+		field
 	}
 
 	/** The conditions of the clause. */
@@ -48,7 +50,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T term(CcpJsonFieldName field, Object value) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "term");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.term);
 		return operatorWithCondition;
 	}
 
@@ -61,7 +63,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T terms(CcpJsonFieldName field, Object value) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "terms");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.terms);
 		return operatorWithCondition;
 	}
 
@@ -74,7 +76,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T prefix(CcpEntityField field, Object value) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "prefix");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.prefix);
 		return operatorWithCondition;
 	}
 
@@ -87,7 +89,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T match(CcpJsonFieldName field, Object value) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "match");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.match);
 		return operatorWithCondition;
 	}
 
@@ -100,7 +102,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T matchPhrase(CcpEntityField field, Object value) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "match_phrase");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.match_phrase);
 		return operatorWithCondition;
 	}
 
@@ -115,7 +117,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T match(CcpEntityField field, Object value, double boost, String operator) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "match", boost, operator);
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.match, boost, operator);
 		return operatorWithCondition;
 	}
 
@@ -129,7 +131,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	public <T extends CcpQueryBooleanOperator> T matchPhrase(CcpEntityField field, Object value, double boost) {
 		String fieldName = field.name();
-		T operatorWithCondition = this.addCondition(fieldName, value, "match_phrase", boost, "");
+		T operatorWithCondition = this.addCondition(fieldName, value, CcpQueryConditionType.match_phrase, boost, "");
 		return operatorWithCondition;
 	}
 
@@ -140,20 +142,20 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T exists(String field) {
-		T operatorWithCondition = this.addCondition("field", field, "exists");
+		T operatorWithCondition = this.addCondition(JsonFieldNames.field.name(), field, CcpQueryConditionType.exists);
 		return operatorWithCondition;
 	}
 
 	/**
-	 * Adds {@code {key: {field: value}}} to a copy of the clause.
+	 * Adds {@code {conditionType: {field: value}}} to a copy of the clause.
 	 * @param <T> the concrete clause type
 	 * @param field the field
 	 * @param value the value; {@code null} returns an unchanged copy
-	 * @param key the condition type
+	 * @param conditionType the condition type
 	 * @return a copy of the clause with the condition
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, String key) {
+	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, CcpQueryConditionType conditionType) {
 		CcpQueryBooleanOperator clone = this.copy();
 		boolean valueIsNull = value == null;
 		if (valueIsNull) {
@@ -163,8 +165,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 		CcpFieldName fieldKey = new CcpFieldName(field);
 		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, value);
 		Map<String, Object> map = conditionJson.getContent();
-		CcpFieldName conditionTypeKey = new CcpFieldName(key);
-		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionTypeKey, map);
+		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionType, map);
 		Map<String, Object> outerMap = outerJson.getContent();
 		clone.items.addAll(this.items);
 		clone.items.add(outerMap);
@@ -173,18 +174,18 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adds {@code {key: {field: {"query": value, "boost": boost, "operator": operator}}}} to a copy of the clause; a blank
+	 * Adds {@code {conditionType: {field: {"query": value, "boost": boost, "operator": operator}}}} to a copy of the clause; a blank
 	 * operator is omitted.
 	 * @param <T> the concrete clause type
 	 * @param field the field
 	 * @param value the text; {@code null} returns an unchanged copy
-	 * @param key the condition type
+	 * @param conditionType the condition type
 	 * @param boost the weight of the condition
 	 * @param operator the boolean operator, or blank
 	 * @return a copy of the clause with the condition
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, String key, double boost, String operator) {
+	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, CcpQueryConditionType conditionType, double boost, String operator) {
 		CcpQueryBooleanOperator clone = this.copy();
 		boolean valueIsNull = value == null;
 		if (valueIsNull) {
@@ -202,11 +203,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 		CcpFieldName fieldKey = new CcpFieldName(field);
 		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, map);
 		Map<String, Object> mapField = fieldJson.getContent();
-		CcpFieldName conditionTypeKey = new CcpFieldName(key);
-		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(conditionTypeKey, mapField);
-		conditionJson.getContent();
-		CcpFieldName outerConditionTypeKey = new CcpFieldName(key);
-		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(outerConditionTypeKey, mapField);
+		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionType, mapField);
 		Map<String, Object> outerMap = outerJson.getContent();
 		clone.items.addAll(this.items);
 		clone.items.add(outerMap);

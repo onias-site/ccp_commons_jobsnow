@@ -2,6 +2,7 @@ package com.ccp.json.validations.fields.enums;
 
 import java.lang.reflect.Field;
 
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpTimeDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityExpurgableOptions;
@@ -222,8 +223,8 @@ enum TimeValueExtractorFromAnnotation{
 	}
 
 	/**
-	 * Describes the provided date, the bound and the actual distance. The provided date is rebuilt as "now minus the
-	 * distance", which is right for {@code _before} but mirrors the date for {@code _after}.
+	 * Describes the provided date, the bound and the actual distance. The provided date is the timestamp of the field
+	 * itself; until 2026-10-06 it was rebuilt as "now minus the distance", which mirrored the date for {@code _after}.
 	 * @param json the JSON being validated
 	 * @param field the field
 	 * @param timeOptions the direction of the comparison
@@ -234,16 +235,15 @@ enum TimeValueExtractorFromAnnotation{
 		String fieldName = field.getName();
 		CcpEntityExpurgableOptions intervalType = timeOptions.getIntervalType(field);
 
-		Long providedValue = timeOptions.getEnlapsedTime(json, field);
-		long currentTimeMillis = System.currentTimeMillis();
-		long providedTimestamp = currentTimeMillis - providedValue;
+		CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
+		Long providedTimestamp = json.getAsLongNumber(ccpFieldName);
 		CcpTimeDecorator ctd = new CcpTimeDecorator(providedTimestamp);
 		String formattedDateTime = ctd.getFormattedDateTime(intervalType.format);
 
 		int valueFromAnnotation = this.getValueFromAnnotation(field, timeOptions);
 		Long enlapsedInterval = timeOptions.getEnlapsedInterval(json, field);
 		String intervalTypeWord = intervalType.word.toLowerCase();
-		String timeOptionsName = timeOptions.name();
+		String timeOptionsName = getDirectionWord(timeOptions);
 
 		String withField = "The field " + fieldName;
 		String withValue = withField + " has a value " + formattedDateTime;
@@ -268,7 +268,7 @@ enum TimeValueExtractorFromAnnotation{
 
 		int valueFromAnnotation = this.getValueFromAnnotation(field, timeOptions);
 		String intervalTypeWord = intervalType.word.toLowerCase();
-		String timeOptionsName = timeOptions.name();
+		String timeOptionsName = getDirectionWord(timeOptions);
 
 		String withField = "The field " + fieldName;
 		String withBound = withField + " accepts timestamp values that are at " + this.word;
@@ -276,5 +276,17 @@ enum TimeValueExtractorFromAnnotation{
 		String ruleExplanation = withAmount + " " + timeOptionsName + " the current time. ";
 
 		return ruleExplanation;
+	}
+
+	/**
+	 * The direction as a word of the message ({@code before} or {@code after}); until 2026-10-06 the messages showed the
+	 * constant name, with its underscore.
+	 * @param timeOptions the direction of the comparison
+	 * @return the word
+	 */
+	private static String getDirectionWord(TimeOptions timeOptions) {
+		String name = timeOptions.name();
+		String word = name.replace("_", "");
+		return word;
 	}
 }

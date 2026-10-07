@@ -199,14 +199,11 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Checks whether the string can be converted to {@code long}.
-	 */
-	@SuppressWarnings("unused")
-	/**
 	 * Tells whether the text is an integer number: either parseable as {@code long}, or a decimal ending with {@code ".0"}
 	 * (as {@code "3.0"}, the way a whole number comes back from a JSON parser).
 	 * @return {@code true} when the text represents an integer
 	 */
+	@SuppressWarnings("unused")
 	public boolean isLongNumber() {
 		boolean valid = this.isValid(x -> {
 			boolean endsWithDecimalZero = x.endsWith(".0");

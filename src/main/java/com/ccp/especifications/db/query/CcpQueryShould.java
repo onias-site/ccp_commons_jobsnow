@@ -86,7 +86,7 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	 * @return a copy of the clause with the condition
 	 */
 	public CcpQueryShould matchPhrase(String field, Object value, double boost) {
-		CcpQueryShould shouldWithCondition = this.addCondition(field, value, "match_phrase", boost, "");
+		CcpQueryShould shouldWithCondition = this.addCondition(field, value, CcpQueryConditionType.match_phrase, boost, "");
 		return shouldWithCondition;
 	}
 
@@ -99,7 +99,7 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	 * @return a copy of the clause with the condition
 	 */
 	public CcpQueryShould match(String field, Object value, double boost, String operator) {
-		CcpQueryShould shouldWithCondition = this.addCondition(field, value, "match", boost, operator);
+		CcpQueryShould shouldWithCondition = this.addCondition(field, value, CcpQueryConditionType.match, boost, operator);
 		return shouldWithCondition;
 	}
 

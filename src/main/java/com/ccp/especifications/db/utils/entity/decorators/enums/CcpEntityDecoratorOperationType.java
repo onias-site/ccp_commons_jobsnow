@@ -216,10 +216,10 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	}
 
 	/**
-	 * Runs the businesses of the first {@code @CcpEntityOperation} whose operation covers this one, whose entity phase
-	 * names the entity and whose phase is {@code when}, chaining their outputs. Only the first matching item runs: other
-	 * items with the same operation, entity and phase are ignored. Local exception handlers take precedence over the
-	 * global ones; in the {@code before} phase a handled exception cancels the operation.
+	 * Runs the businesses of every {@code @CcpEntityOperation} whose operation covers this one, whose entity phase names
+	 * the entity and whose phase is {@code when}, in the order they are declared, chaining their outputs. Until 2026-10-06
+	 * only the first matching item ran and the others were ignored in silence. Local exception handlers take precedence
+	 * over the global ones; in the {@code before} phase a handled exception cancels the operation.
 	 * @param json the input JSON
 	 * @param when the phase to run
 	 * @param clazz the class with the {@code @CcpEntityOperations} annotation
@@ -278,9 +278,8 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 						? this.executeBusinessCancelingTheOperationWhenHandled(json, business, globalExceptionHandlers)
 						: this.executeBusiness(json, business, globalExceptionHandlers);
 			}
-			return json;
-		} 
-		
+		}
+
 		return json;
 	}
 	

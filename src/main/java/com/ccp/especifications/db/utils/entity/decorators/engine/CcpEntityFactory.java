@@ -191,8 +191,12 @@ public class CcpEntityFactory {
 			throw fieldsEnumMissingError;
 		}
 		
-		CcpEntityFieldsValidator annotation = configurationClass.getAnnotation(CcpEntityFieldsValidator.class);
-		Class<?> entitySchemeValidation = annotation.classReferenceWithTheFields();
+		// the fields come from the class of @CcpEntityFieldsValidator, or, without it, from the Fields enum itself (until
+		// 2026-10-06 an entity without the annotation broke here with NullPointerException)
+		boolean hasFieldsValidator = configurationClass.isAnnotationPresent(CcpEntityFieldsValidator.class);
+		Class<?> entitySchemeValidation = hasFieldsValidator
+				? configurationClass.getAnnotation(CcpEntityFieldsValidator.class).classReferenceWithTheFields()
+				: getFieldsEnum(configurationClass);
 		Field[] declaredFields = entitySchemeValidation.getDeclaredFields();
 		List<CcpEntityField> entityFieldsList = new ArrayList<>();
 		for (Field field : declaredFields) {
@@ -235,34 +239,46 @@ public class CcpEntityFactory {
 	 * type before {@code Fields}.
 	 */
 	private static  boolean didNotDeclareFieldsEnum(Class<?> configurationClass) {
-
 		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
-
 		for (Class<?> declaredClass : declaredClasses) {
-
-			boolean isNotAnEnum = false == declaredClass.isEnum();
-
-			if(isNotAnEnum) {
-				continue;
+			boolean isTheFieldsEnum = isTheFieldsEnum(declaredClass);
+			if(isTheFieldsEnum) {
+				return false;
 			}
-
-			String simpleName = declaredClass.getSimpleName();
-			boolean incorrectName = false == "Fields".equals(simpleName);
-
-			if(incorrectName) {
-				continue;
-			}
-
-			boolean incorrectType = false == CcpJsonFieldName.class.isAssignableFrom(declaredClass);
-
-			if(incorrectType) {
-				continue;
-			}
-
-			return false;
 		}
-
 		return true;
+	}
+
+	/**
+	 * Returns the {@code Fields} enum of the configurator class.
+	 * @param configurationClass the configurator class
+	 * @return the {@code Fields} enum
+	 * @throws CcpErrorEntityConfigurationFieldsIsMissing when the class does not declare it
+	 */
+	private static Class<?> getFieldsEnum(Class<?> configurationClass) {
+		Class<?>[] declaredClasses = configurationClass.getDeclaredClasses();
+		for (Class<?> declaredClass : declaredClasses) {
+			boolean isTheFieldsEnum = isTheFieldsEnum(declaredClass);
+			if(isTheFieldsEnum) {
+				return declaredClass;
+			}
+		}
+		CcpErrorEntityConfigurationFieldsIsMissing fieldsEnumMissingError = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
+		throw fieldsEnumMissingError;
+	}
+
+	/**
+	 * Tells whether the nested type is the {@code Fields} enum: an enum named {@code Fields} that implements
+	 * {@code CcpJsonFieldName}.
+	 * @param declaredClass the nested type
+	 * @return {@code true} for the {@code Fields} enum
+	 */
+	private static boolean isTheFieldsEnum(Class<?> declaredClass) {
+		boolean isAnEnum = declaredClass.isEnum();
+		boolean hasTheName = "Fields".equals(declaredClass.getSimpleName());
+		boolean hasTheType = CcpJsonFieldName.class.isAssignableFrom(declaredClass);
+		boolean isTheFieldsEnum = isAnEnum && hasTheName && hasTheType;
+		return isTheFieldsEnum;
 	}
 
 	/**

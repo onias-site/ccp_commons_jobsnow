@@ -36,8 +36,7 @@ import com.ccp.hash.CcpHashAlgorithm;
  * deep navigation and conditional execution.
  * <p>
  * Instances are immutable: every "write" method returns a new instance and the map given to the constructor is copied
- * into an unmodifiable, insertion-ordered map. The only exception is the empty JSON built by
- * {@link #getEmptyJson()}, whose internal map is a mutable {@code HashMap}.
+ * into an unmodifiable, insertion-ordered map, with no exception (the empty JSON included).
  * <p>
  * A field counts as present only when its value is not {@code null}.
  */
@@ -68,12 +67,16 @@ public class CcpJsonRepresentation  {
 		return redo;
 	}
 	
-	/** The fields and values of the JSON. Unmodifiable, except for the empty JSON of {@link #getEmptyJson()}. */
+	/**
+	 * The fields and values of the JSON, always unmodifiable: every change makes a new JSON. Until 2026-10-06 the empty
+	 * JSON and the one read from a stream had a mutable map, so a {@code content.put} on {@code EMPTY_JSON} would put the
+	 * field in every "empty" JSON of the process.
+	 */
 	public final Map<String, Object> content;
-	
-	/** Creates an empty JSON backed by a mutable {@code HashMap}. */
+
+	/** Creates an empty JSON. */
 	protected CcpJsonRepresentation() {
-		this.content = new HashMap<>();
+		this.content = Collections.unmodifiableMap(new LinkedHashMap<>());
 	}
 
 	/**
@@ -88,22 +91,27 @@ public class CcpJsonRepresentation  {
 	 * @param inputStream the input stream
 	 */
 	public CcpJsonRepresentation(InputStream inputStream) {
+		this(getMap(inputStream));
+	}
 
-		this.content = new HashMap<>();
-		String result = this.extractJson(inputStream);
+	/**
+	 * Reads the stream as a JSON object, or as {@code Properties} when it is not JSON.
+	 * @param inputStream the input stream
+	 * @return the fields read
+	 */
+	private static Map<String, Object> getMap(InputStream inputStream) {
+		String result = extractJson(inputStream);
 		CcpJsonHandler handler = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
 
 		boolean validJson = handler.isValidJson(result);
-		
+
 		if(validJson) {
-			CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-			Map<String, Object> map = json.fromJson(result);
-			this.content.putAll(map);
-			return;
+			Map<String, Object> map = handler.fromJson(result);
+			return map;
 		}
 
 		Properties props = new Properties();
-		
+
 		byte[] bytes = result.getBytes();
 		ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
 		try {
@@ -111,12 +119,14 @@ public class CcpJsonRepresentation  {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		
+
+		Map<String, Object> map = new LinkedHashMap<>();
 		Set<Object> keySet = props.keySet();
 		for (Object key : keySet) {
 			Object value = props.get(key);
-			this.content.put("" + key, value);
+			map.put("" + key, value);
 		}
+		return map;
 	}
 
 	/**
@@ -124,7 +134,7 @@ public class CcpJsonRepresentation  {
 	 * @param inputStream the stream to read
 	 * @return the text read
 	 */
-	private String extractJson(InputStream inputStream) {
+	private static String extractJson(InputStream inputStream) {
 		InputStreamReader reader = new InputStreamReader(inputStream);
 		String result = new BufferedReader(reader).lines().collect(Collectors.joining("\n"));
 		return result;
@@ -210,7 +220,7 @@ public class CcpJsonRepresentation  {
 			String stackTraceLine = getStackTraceLine(stackTraceElement);
 			stackTrace.add(stackTraceLine); 
 		}
-		Object causeDetails = getCauseDetails(cause, stackTraceElements);
+		Object causeDetails = getCauseDetails(cause);
 		var completeStackTrace = getCompleteStackTrace(e).stream().map(x -> x.toString()).collect(Collectors.toList());
 		errorDetails = errorDetails.put(CcpStackTraceFields.completeStackTrace, completeStackTrace).put(CcpStackTraceFields.type, e.getClass().getName()).put(CcpStackTraceFields.stackTrace, stackTrace).put(CcpStackTraceFields.message, message).put(CcpStackTraceFields.cause, causeDetails);
 		return errorDetails;
@@ -239,11 +249,10 @@ public class CcpJsonRepresentation  {
 	/**
 	 * Returns the error details of the cause, or {@code ""} when there is no cause.
 	 * @param cause the cause, possibly {@code null}
-	 * @param stackTraceElements frames of the exception (unused)
 	 * @return the details of the cause or an empty text
 	 */
 	@CcpAllowNullParameter
-	private static Object getCauseDetails(Throwable cause, StackTraceElement[] stackTraceElements) {
+	private static Object getCauseDetails(Throwable cause) {
 		
 		boolean hasCause = cause != null;
 		
@@ -590,29 +599,21 @@ public class CcpJsonRepresentation  {
 	 * @return the value or the default
 	 */
 	public <T> T getOrDefault(CcpJsonFieldName field, Supplier<T> supplier) {
+		// the supplier runs only when the field is missing: until 2026-10-06 it ran always, wasting the work (and the
+		// side effects, such as a token generated for nothing) of a default that was not used
+		Object value = this.content.get(field.getValue());
+		boolean hasTheField = null != value;
+
+		if(hasTheField) {
+			@SuppressWarnings("unchecked")
+			T fieldValue = (T) value;
+			return fieldValue;
+		}
+
 		T defaultValue = supplier.get();
-		T orDefault = this.getOrDefault(field.getValue(), defaultValue);
-		return orDefault;
+		return defaultValue;
 	}
 
-	
-	/**
-	 * String-keyed variant of {@link #getOrDefault(CcpJsonFieldName, Supplier)}.
-	 * @param <T> the expected type
-	 * @param field the field name
-	 * @param defaultValue the default value
-	 * @return the value or the default
-	 */
-	@SuppressWarnings("unchecked")
-	private <T> T getOrDefault(String field, T defaultValue) {
-		Object object = this.content.get(field);
-		
-		if(null == object) {
-			return defaultValue;
-		}
-		
-		return (T)object;
-	}
 	
 	/**
 	 * Returns a new JSON with only the given fields that are present, in the given order.
@@ -940,34 +941,44 @@ public class CcpJsonRepresentation  {
 	 * @return the new JSON
 	 */
 	private CcpJsonRepresentation renameField(String oldField, String newField) {
-		Map<String, Object> content = new HashMap<>();
-		content.putAll(this.content);
-		Object value = content.remove(oldField);
-		if(value == null) {
-			CcpJsonRepresentation json = new CcpJsonRepresentation(content);
+		boolean hasNoOldField = null == this.content.get(oldField);
+
+		if(hasNoOldField) {
+			CcpJsonRepresentation json = new CcpJsonRepresentation(this.content);
 			return json;
 		}
-		
-		content.put(newField, value);
+		// the renamed field keeps the place of the old one (until 2026-10-06 the copy was a HashMap and the order was lost)
+		Map<String, Object> content = new LinkedHashMap<>();
+		Set<String> fieldNames = this.content.keySet();
+		for (String fieldName : fieldNames) {
+			boolean replacedByTheRenamedField = fieldName.equals(newField);
+			if(replacedByTheRenamedField) {
+				continue;
+			}
+			Object value = this.content.get(fieldName);
+			boolean isTheOldField = fieldName.equals(oldField);
+			String name = isTheOldField ? newField : fieldName;
+			content.put(name, value);
+		}
 		CcpJsonRepresentation json = new CcpJsonRepresentation(content);
 		return json;
 	}
-	
+
 	/**
-	 * Returns a new JSON without the field; the field order is not preserved.
+	 * Returns a new JSON without the field, keeping the order of the others.
 	 * @param field the name of the field to remove
 	 * @return the new JSON
 	 */
 	private CcpJsonRepresentation removeField(String field) {
 		Map<String, Object> content = this.getContent();
-		Map<String, Object> copy = new HashMap<>(content);
+		Map<String, Object> copy = new LinkedHashMap<>(content);
 		copy.remove(field);
 		CcpJsonRepresentation json = new CcpJsonRepresentation(copy);
 		return json;
 	}
-	
+
 	/**
-	 * Returns a new JSON without the given fields; the field order is not preserved.
+	 * Returns a new JSON without the given fields, keeping the order of the others.
 	 * @param fields the fields to remove
 	 * @return the new JSON
 	 */
@@ -991,7 +1002,7 @@ public class CcpJsonRepresentation  {
 	}
 
 	/**
-	 * Returns the internal map (unmodifiable, except for the empty JSON).
+	 * Returns the internal map (unmodifiable).
 	 * @return the internal map
 	 */
 	public Map<String, Object> getContent() {

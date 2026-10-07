@@ -139,20 +139,19 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	}
 
 	/**
-	 * Replaces the whole content of a copy with {@code {key: {field: value}}}; unlike the other clauses, a {@code null}
+	 * Replaces the whole content of a copy with {@code {conditionType: {field: value}}}; unlike the other clauses, a {@code null}
 	 * value is stored as is.
 	 * @param field the field
 	 * @param value the value
-	 * @param key the condition type
+	 * @param conditionType the condition type
 	 * @return the copy
 	 */
 	@SuppressWarnings("unchecked")
-	protected CcpQuerySimplifiedQuery addCondition(String field, Object value, String key) {
+	protected CcpQuerySimplifiedQuery addCondition(String field, Object value, CcpQueryConditionType conditionType) {
 		CcpFieldName fieldKey = new CcpFieldName(field);
 		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, value);
 		Map<String, Object> map = conditionJson.getContent();
-		CcpFieldName conditionTypeKey = new CcpFieldName(key);
-		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionTypeKey, map);
+		CcpJsonRepresentation outerJson = CcpOtherConstants.EMPTY_JSON.put(conditionType, map);
 		Map<String, Object> outerMap = outerJson.getContent();
 		CcpQuerySimplifiedQuery clone = this.copy();
 		clone.json = new CcpJsonRepresentation(outerMap);

@@ -1,8 +1,8 @@
 package com.ccp.especifications.db.query;
 
 /**
- * The {@code bool} node of an Elasticsearch boolean query: composes the {@code filter}, {@code must}, {@code should},
- * {@code must_not} and {@code should_not} clauses.
+ * The {@code bool} node of an Elasticsearch boolean query: composes the {@code filter}, {@code must}, {@code should}
+ * and {@code must_not} clauses.
  */
 public final class CcpQueryBool extends CcpQueryComponent {
 	/**
@@ -52,15 +52,6 @@ public final class CcpQueryBool extends CcpQueryComponent {
 	}
 
 	/**
-	 * Starts a {@code should_not} clause. Elasticsearch has no such clause, so a request using it is rejected.
-	 * @return the should_not node
-	 */
-	public CcpQueryShouldNot startShouldNot() {
-		CcpQueryShouldNot shouldNot = new CcpQueryShouldNot(this);
-		return shouldNot;
-	}
-
-	/**
 	 * Ends this bool node and adds it to the parent should clause.
 	 * @return a copy of the parent with this node
 	 */
@@ -73,14 +64,6 @@ public final class CcpQueryBool extends CcpQueryComponent {
 	 * @return a copy of the parent with this node
 	 */
 	public CcpQueryMust endBoolAndBackToMust() {
-		return this.parent.addChild(this);
-	}
-
-	/**
-	 * Ends this bool node and adds it to the parent should_not clause.
-	 * @return a copy of the parent with this node
-	 */
-	public CcpQueryShouldNot endBoolAndBackToShouldNot() {
 		return this.parent.addChild(this);
 	}
 

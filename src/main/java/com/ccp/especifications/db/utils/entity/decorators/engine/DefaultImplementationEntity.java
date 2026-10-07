@@ -52,12 +52,31 @@ class DefaultImplementationEntity implements CcpEntity{
 	}
 
 	/**
-	 * Returns the metadata bound to its decorated entity; a new binding is built on every call (for the twin side this
-	 * builds the twin entity through {@code CcpEntityFactory} each time).
+	 * The metadata bound to its entity, kept after the first binding that found the entity. Transient: it is a cache, not
+	 * state, and serializing it (Gson, when an entity goes inside a JSON) would walk into the twin entity and its
+	 * annotation proxies, which Java 17 does not let it read.
+	 */
+	private transient volatile CcpEntityMetaData associatedMetaData;
+
+	/**
+	 * Returns the metadata bound to its decorated entity. The binding is kept once it finds the entity: until 2026-10-06 it
+	 * was rebuilt on every call, and for the twin side that meant building the whole twin entity through
+	 * {@code CcpEntityFactory} on each {@code equals}, {@code hashCode} or metadata read. A binding without the entity is
+	 * not kept: the main side reads the static {@code ENTITY} of the configurator, still {@code null} while that class is
+	 * being initialized.
 	 * @return the bound metadata
 	 */
 	public CcpEntityMetaData getEntityMetaData() {
+		CcpEntityMetaData cached = this.associatedMetaData;
+		boolean alreadyBound = cached != null;
+		if(alreadyBound) {
+			return cached;
+		}
 		CcpEntityMetaData associatedMetaData = this.entityDetails.associateEntity();
+		boolean foundTheEntity = associatedMetaData.entity != null;
+		if(foundTheEntity) {
+			this.associatedMetaData = associatedMetaData;
+		}
 		return associatedMetaData;
 	}
 

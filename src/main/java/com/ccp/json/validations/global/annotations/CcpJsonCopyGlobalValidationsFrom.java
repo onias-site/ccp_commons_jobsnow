@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * Tells that the global validations of this class are the ones of another class, avoiding repeated
- * {@code @CcpJsonGlobalValidations}. Followed by the validation, but not by the rules explanation.
+ * {@code @CcpJsonGlobalValidations}. Followed by the validation and by the rules explanation.
  */
 @Target(TYPE)
 @Retention(RUNTIME)

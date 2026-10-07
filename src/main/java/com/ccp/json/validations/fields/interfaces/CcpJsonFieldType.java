@@ -69,9 +69,11 @@ public interface CcpJsonFieldType {
 	}
 	
 	/**
-	 * Adds to the errors every rule of the type that the field breaks. An absent field has no errors. Unlike
-	 * {@link #hasErrors}, a validation is skipped only when the field does not declare the type, not when the validation
-	 * itself is not configured.
+	 * Adds to the errors every rule of the type that the field breaks. An absent field has no errors; validations outside
+	 * the context, of a type the field does not declare, or not configured for the field are skipped, as in
+	 * {@link #hasErrors}. Until 2026-10-06 the not configured ones ran here (only the declared type was checked), so the
+	 * two paths disagreed: an unconfigured minimum of {@code @CcpJsonFieldTypeNumber}, for instance, refused zero and
+	 * negatives here and not in {@code hasErrors}.
 	 * @param errors the accumulated errors
 	 * @param json the JSON being validated
 	 * @param field the field
@@ -102,6 +104,10 @@ public interface CcpJsonFieldType {
 
 			boolean hasNoRules = false == ruleExplanation3;
 			if(hasNoRules) {
+				continue;
+			}
+			boolean validationNotConfigured = false == errorType.hasRuleExplanation(field, this);
+			if(validationNotConfigured) {
 				continue;
 			}
 			boolean error = errorType.hasError(json, field, this);

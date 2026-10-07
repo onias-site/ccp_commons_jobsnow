@@ -128,10 +128,9 @@ public enum CcpEntityExpurgableOptions{
 	}
 
 	/**
-	 * Meant to return the given timestamp plus one period, but {@code CcpTimeDecorator.getBrazilianCalendar()} ignores the
-	 * timestamp, so the result is the current instant plus one period, like {@link #getNextTimeStamp()}.
-	 * @param timestamp the reference timestamp (ignored)
-	 * @return the current instant plus one period
+	 * Returns the given timestamp plus one period, in the America/Sao_Paulo calendar.
+	 * @param timestamp the reference timestamp
+	 * @return the timestamp of the period after the reference
 	 */
 	public Long getNextTimeStamp(Long timestamp) {
 		CcpTimeDecorator ccpTimeDecorator2 = new CcpTimeDecorator(timestamp);
@@ -148,20 +147,19 @@ public enum CcpEntityExpurgableOptions{
 	public String getNextDate() {
 		Long nextTimeStamp = this.getNextTimeStamp();
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
-		String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
+		String formattedDateTime = ctd.getFormattedDateTime(millisecond.format);
 		return formattedDateTime;
 	}
 	
 	/**
-	 * Returns {@link #getNextTimeStamp(Long)} formatted as {@code dd/MM/yyyy HH:mm:ss.SSS} (so, based on the current
-	 * instant).
-	 * @param timestamp the reference timestamp (ignored)
+	 * Returns {@link #getNextTimeStamp(Long)} formatted as {@code dd/MM/yyyy HH:mm:ss.SSS}.
+	 * @param timestamp the reference timestamp
 	 * @return the formatted date
 	 */
 	public String getNextDate(Long timestamp) {
 		Long nextTimeStamp = this.getNextTimeStamp(timestamp);
 		CcpTimeDecorator ctd = new CcpTimeDecorator(nextTimeStamp);
-		String formattedDateTime = ctd.getFormattedDateTime("dd/MM/yyyy HH:mm:ss.SSS");
+		String formattedDateTime = ctd.getFormattedDateTime(millisecond.format);
 		return formattedDateTime;
 	}
 

@@ -29,9 +29,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Computes how many whole seconds separate the wrapped timestamp from the midnight of the <b>current</b> day in
-	 * the America/Sao_Paulo time zone (see {@link #getMidnight()}); meaningful only for timestamps of the current day.
-	 * @return the elapsed seconds (negative for timestamps before today)
+	 * Computes how many whole seconds separate the wrapped timestamp from the midnight of its own day in the
+	 * America/Sao_Paulo time zone (see {@link #getMidnight()}).
+	 * @return the elapsed seconds
 	 */
 	public long getSecondsEnlapsedSinceMidnight() {
 		Long midnight = this.getMidnight();
@@ -52,7 +52,7 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Returns the timestamp of the midnight of the <b>current</b> day in the America/Sao_Paulo time zone. The wrapped timestamp is not used.
+	 * Returns the timestamp of the midnight of the day of the wrapped timestamp in the America/Sao_Paulo time zone.
 	 * @return the midnight timestamp in milliseconds
 	 */
 	public Long getMidnight() {
@@ -80,15 +80,13 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Returns a new {@code Calendar} set to the current time in the {@code America/Sao_Paulo} time zone. The wrapped
-	 * timestamp is not used.
+	 * Returns a new {@code Calendar} set to the wrapped timestamp in the {@code America/Sao_Paulo} time zone.
 	 * @return the calendar
 	 */
 	public Calendar getBrazilianCalendar() {
 		TimeZone timeZone = TimeZone.getTimeZone("America/Sao_Paulo");
-		Calendar cal = Calendar.getInstance(timeZone);
-		var calClone = cal.clone();
-		Calendar calendar = (Calendar)calClone;
+		Calendar calendar = Calendar.getInstance(timeZone);
+		calendar.setTimeInMillis(this.content);
 		return calendar;
 	}
 

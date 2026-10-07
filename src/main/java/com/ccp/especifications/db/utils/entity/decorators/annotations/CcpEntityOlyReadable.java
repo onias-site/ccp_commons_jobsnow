@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Marks an entity as read-only. When present, the {@code DecoratorReadOnlyEntity} decorator is applied: {@code save},
  * {@code delete}, {@code deleteAnyWhere} and {@code transferDataTo} do nothing and return {@code false}, without
- * throwing.
+ * throwing, and a write asked through {@code toBulkItems} throws {@code CcpErrorEntityReadOnly}. The entity is written
+ * only by the decorators that own it, which build their bulk items by hand.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

@@ -12,6 +12,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.json.validations.fields.enums.CcpJsonFieldDefaultTypes;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
+import com.ccp.json.validations.global.annotations.CcpJsonCopyGlobalValidationsFrom;
 import com.ccp.json.validations.global.annotations.CcpJsonGlobalValidations;
 import com.ccp.json.validations.global.enums.CcpJsonValidatorDefaults;
 import com.ccp.json.validations.global.interfaces.CcpJsonValidator;
@@ -67,22 +68,32 @@ public class CcpJsonValidationRulesEngine {
 
 	/**
 	 * Lists, under the class name, the explanation of every default and custom global validator; empty when the class has
-	 * no {@code @CcpJsonGlobalValidations} (a {@code @CcpJsonCopyGlobalValidationsFrom} is not followed here).
+	 * no {@code @CcpJsonGlobalValidations}. A {@code @CcpJsonCopyGlobalValidationsFrom} is followed, as the validation
+	 * engine does: until 2026-10-06 it was not, so the explanation that goes with a validation error left out the global
+	 * rules that had just been applied.
 	 * @param clazz the validation class
 	 * @return the global explanations
 	 */
 	private CcpJsonRepresentation getRulesExplanationsFromClass(Class<?> clazz) {
-		
+
+		// the rules are read from the class the global validations are copied from, but listed under the name of the
+		// validated class, where the caller looks for them
+		Class<?> rulesClass = clazz;
+		while(rulesClass.isAnnotationPresent(CcpJsonCopyGlobalValidationsFrom.class)) {
+			CcpJsonCopyGlobalValidationsFrom copyAnnotation = rulesClass.getAnnotation(CcpJsonCopyGlobalValidationsFrom.class);
+			rulesClass = copyAnnotation.value();
+		}
+
 		CcpJsonRepresentation rulesExplanation =  CcpOtherConstants.EMPTY_JSON;
 		CcpJsonValidatorDefaults[] ccpJsonValidatorDefaultsValues = CcpJsonValidatorDefaults.values();
 
 		List<CcpJsonValidator> defaultGlobalValidations = Arrays.asList(ccpJsonValidatorDefaultsValues);
-		boolean annotationPresent = clazz.isAnnotationPresent(CcpJsonGlobalValidations.class);
+		boolean annotationPresent = rulesClass.isAnnotationPresent(CcpJsonGlobalValidations.class);
 		boolean skipThisClass = false == annotationPresent;
 		if(skipThisClass) {
 			return CcpOtherConstants.EMPTY_JSON;
 		}
-		CcpJsonGlobalValidations annotation = clazz.getAnnotation(CcpJsonGlobalValidations.class);
+		CcpJsonGlobalValidations annotation = rulesClass.getAnnotation(CcpJsonGlobalValidations.class);
 		var customJsonValidators = annotation.customJsonValidators();
 		var asList = Arrays.asList(customJsonValidators);
 		var stream = asList
@@ -96,7 +107,7 @@ public class CcpJsonValidationRulesEngine {
 		allGlobalValidations.addAll(customGlobalValidations);
 		
 		for (CcpJsonValidator globalValidation : allGlobalValidations) {
-			Object ruleExplanation = globalValidation.getRuleExplanation(clazz);
+			Object ruleExplanation = globalValidation.getRuleExplanation(rulesClass);
 			String clazzName = clazz.getName();
 			CcpFieldName ccpFieldName = new CcpFieldName(clazzName);
 			rulesExplanation = rulesExplanation.addToList(ccpFieldName, ruleExplanation);

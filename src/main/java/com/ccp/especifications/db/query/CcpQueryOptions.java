@@ -215,7 +215,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	}
 
 	/*
-	 * Abstract base of every Elasticsearch boolean query operator (must, should, filter, must_not, should_not).
+	 * Abstract base of every Elasticsearch boolean query operator (must, should, filter, must_not).
 	 * Manages the collection of conditions and provides generic methods to add different kinds of filter.
 	 */
 
@@ -228,7 +228,7 @@ public class CcpQueryOptions extends CcpQueryComponent {
 
 	/*
 	 * Represents the bool node within an Elasticsearch boolean query.
-	 * It is the central point for composing boolean filters, allowing filter, must, should, must_not and should_not clauses to be created.
+	 * It is the central point for composing boolean filters, allowing filter, must, should and must_not clauses to be created.
 	 */
 
 
@@ -254,12 +254,6 @@ public class CcpQueryOptions extends CcpQueryComponent {
 	 * Represents the should node within an Elasticsearch boolean query.
 	 * The conditions added here are optional and increase the relevance score of the documents that satisfy them.
 	 * Supports the minimum_should_match parameter to require that at least N conditions are true.
-	 */
-
-
-	/*
-	 * Represents the should_not node within a boolean query.
-	 * The conditions here are optional and penalize the score of the documents that satisfy them (optional negative semantics).
 	 */
 
 

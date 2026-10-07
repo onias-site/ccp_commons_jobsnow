@@ -714,6 +714,10 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		 * @return {@code true} when the rule is broken
 		 */
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+			boolean hasNoRuleExplanation = false == this.hasRuleExplanation(field, type);
+			if(hasNoRuleExplanation) {
+				return false;
+			}
 		    CcpJsonFieldTypeNumber annotation = field.getAnnotation(CcpJsonFieldTypeNumber.class);
 		    double number = annotation.maxValue();
 		    String fieldName = field.getName();
@@ -795,6 +799,12 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		 * @return {@code true} when the rule is broken
 		 */
 		public boolean hasError(CcpJsonRepresentation json,  Field field, CcpJsonFieldType type) {
+			// without this check an unconfigured minimum compared the value with the old default (the smallest positive
+			// double) and refused zero and negatives
+			boolean hasNoRuleExplanation = false == this.hasRuleExplanation(field, type);
+			if(hasNoRuleExplanation) {
+				return false;
+			}
 		    Double number = this.getValidationParameter(field, type);
 		    String fieldName = field.getName();
 			   CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
@@ -859,7 +869,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		 */
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			Double boundValue = this.getValidationParameter(field, type);
-			boolean isBoundConfigured = boundValue > Double.MIN_VALUE;
+			boolean isBoundConfigured = boundValue > -Double.MAX_VALUE;
 			return isBoundConfigured;
 		}
 	},
@@ -945,7 +955,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		 */
 		public boolean hasRuleExplanation(Field field, CcpJsonFieldType type) {
 			Double boundValue = this.getValidationParameter(field, type);
-			boolean isBoundConfigured = boundValue > Double.MIN_VALUE;
+			boolean isBoundConfigured = false == boundValue.isNaN();
 			return isBoundConfigured;
 		}
 	},
@@ -2205,7 +2215,7 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 			return hasRuleExplanation;
 		}
 	},
-	/** The timestamp must be exactly {@code exactValue} after the current time ({@code @CcpJsonFieldTypeTimeAfter}). Unlike the "before" variant, it does not first check whether the rule is configured. */
+	/** The timestamp must be exactly {@code exactValue} after the current time ({@code @CcpJsonFieldTypeTimeAfter}), when configured (until 2026-10-06, unlike the "before" variant, it did not check that). */
 	timeExactValueAfterCurrentTime(CcpJsonFieldErrorHandleType.continueFieldValidation) {
 
 		/**
@@ -2216,9 +2226,13 @@ public enum CcpJsonFieldTypeError implements CcpJsonFieldName, CcpJsonFieldValid
 		 * @return {@code true} when the rule is broken
 		 */
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			
+			boolean hasRuleExplanation = this.hasRuleExplanation(field, type);
+			boolean hasNoRuleExplanation = false == hasRuleExplanation;
+			if(hasNoRuleExplanation) {
+				return false;
+			}
 			boolean hasError = TimeValueExtractorFromAnnotation.exact.hasError(json, field, TimeOptions._after);
-			
+
 			return hasError;
 		}
 

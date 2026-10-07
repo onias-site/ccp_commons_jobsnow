@@ -2,12 +2,12 @@ package com.ccp.hash;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 
 
 /**
  * Catalog of the hash algorithms supported by the framework (MD5, SHA1, SHA256, SHA512). Holds the technical name
- * of each algorithm and keeps a cache of {@code MessageDigest} instances to avoid creating them again.
+ * of each algorithm and keeps one {@code MessageDigest} per algorithm and per thread, so they are not created again and
+ * are never shared between threads.
  */
 public enum CcpHashAlgorithm {
 	/** MD5 (128 bits). */
@@ -28,28 +28,24 @@ public enum CcpHashAlgorithm {
 	 */
 	private CcpHashAlgorithm(String algorithm) {
 		this.algorithm = algorithm;
+		this.messageDigests = ThreadLocal.withInitial(() -> getMessageDigest(algorithm));
 	}
-	
-	/** Cache of digest instances per algorithm. Neither the map nor the cached {@code MessageDigest} is thread-safe. */
-	private static HashMap<CcpHashAlgorithm, MessageDigest> messageDigests = new HashMap<>();
 
 	/**
-	 * Returns the cached {@code MessageDigest} of this algorithm, creating and caching it on the first call.
-	 * @return the shared digest instance
+	 * One digest of this algorithm per thread: a {@code MessageDigest} keeps the state of the hash being computed, so two
+	 * threads must never share one. Until 2026-10-06 a single instance per algorithm, in a static {@code HashMap}, was
+	 * shared by every thread, and concurrent requests could mix their bytes and produce wrong entity ids.
+	 */
+	private final ThreadLocal<MessageDigest> messageDigests;
+
+	/**
+	 * Returns the {@code MessageDigest} of this algorithm owned by the current thread, reset and ready for a new hash.
+	 * @return the digest of the current thread
 	 */
 	public 	MessageDigest getMessageDigest() {
-		MessageDigest messageDigest = messageDigests.get(this);
-		
-		boolean alreadyLoaded = messageDigest != null;
-		
-		if(alreadyLoaded) {
-			return messageDigest;
-		}
-
-		String algorithm = this.algorithm;
-		MessageDigest instance = getMessageDigest(algorithm);
-		messageDigests.put(this, instance);
-		return instance;
+		MessageDigest messageDigest = this.messageDigests.get();
+		messageDigest.reset();
+		return messageDigest;
 	}
 
 	/**

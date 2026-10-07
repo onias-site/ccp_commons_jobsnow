@@ -21,7 +21,12 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 	create(1, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.CONFLICT.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceCreateToUpdate(x))),
 	/** Update operation ({@code createsVersionsToSameRecord = true}); when the record is not found, it is automatically converted into {@code create}. */
 	update(2, true, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x -> replaceUpdateToCreate(x))),
-	/** Delete operation; when the record is not found, throws {@link CcpErrorBulkEntityRecordNotFound}. */
+	/**
+	 * Delete operation; when the record is not found as an error, throws {@link CcpErrorBulkEntityRecordNotFound}. With
+	 * Elasticsearch this handler is not reached: a bulk delete of a missing document answers 404 with
+	 * {@code "result": "not_found"} and no {@code error} object, so it does not count as a failure and the delete of what
+	 * does not exist is silent (on purpose).
+	 */
 	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x ->
 	{
 		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);

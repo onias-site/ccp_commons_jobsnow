@@ -2,6 +2,8 @@ package com.ccp.decorators;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +12,6 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -26,6 +27,9 @@ import java.util.stream.Stream;
  * search, Base64 encode/decode and resolution of templates with variables.
  */
 public class CcpTextDecorator implements CcpDecorator<String> {
+	/** Source of the characters of {@link #generateToken(long)}; one instance, safe to share between threads. */
+	private static final SecureRandom TOKEN_RANDOM = new SecureRandom();
+
 	/** The wrapped text. */
 	public final String content;
 
@@ -161,13 +165,15 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 
 	/**
 	 * Generates a random token of {@code charactersSize} characters picked, with repetition, from the current content,
-	 * which works as the alphabet. Uses {@code java.util.Random}, which is not cryptographically secure.
+	 * which works as the alphabet. The characters come from a {@code SecureRandom}: the tokens guard the login and the
+	 * password creation, and until 2026-10-06 they came from {@code java.util.Random}, whose next values can be predicted
+	 * from a few observed ones.
 	 * @param charactersSize the size of the token
 	 * @return the token
 	 */
 	public CcpTextDecorator generateToken(long charactersSize) {
 
-		Random random = new Random();
+		SecureRandom random = TOKEN_RANDOM;
 		char[] charArray = this.content.toCharArray();
 		StringBuilder sb = new StringBuilder();
 
@@ -322,6 +328,17 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 		Encoder encoder = Base64.getEncoder();
 		String encodeToString = encoder.encodeToString(bytes);
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(encodeToString);
+		return ccpTextDecorator;
+	}
+
+	/**
+	 * Decodes the Base64 text (the inverse of {@link #asBase64()}), reading the bytes as UTF-8.
+	 * @return the decoded text
+	 */
+	public CcpTextDecorator fromBase64() {
+		byte[] decodedBytes = this.getByteArrayFromBase64String();
+		String decodedText = new String(decodedBytes, StandardCharsets.UTF_8);
+		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(decodedText);
 		return ccpTextDecorator;
 	}
 

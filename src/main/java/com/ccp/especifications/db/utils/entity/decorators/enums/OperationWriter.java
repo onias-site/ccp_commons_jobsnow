@@ -52,11 +52,17 @@ interface OperationWriter {
 	}
 
 	/**
-	 * Executes, in sequence, the handlers foreseen for the exception's type, or rethrows it when none is.
+	 * Executes, in sequence, the handlers foreseen for the exception's type, or rethrows it when none is. The handlers of
+	 * the nearest class of the exception's hierarchy are used: a subclass of a configured exception is handled too. Until
+	 * 2026-10-06 only the exact class was looked up, and a subclass escaped unhandled.
 	 */
 	private CcpJsonRepresentation handleException(CcpJsonRepresentation json, RuntimeException e, Map<Class<?>, List<CcpBusiness>> exceptionHandlers) {
-		Class<? extends RuntimeException> clazz = e.getClass();
-		List<CcpBusiness> list = exceptionHandlers.get(clazz);
+		List<CcpBusiness> list = null;
+		Class<?> clazz = e.getClass();
+		while(list == null && clazz != null) {
+			list = exceptionHandlers.get(clazz);
+			clazz = clazz.getSuperclass();
+		}
 
 		boolean notForeseen = list == null;
 

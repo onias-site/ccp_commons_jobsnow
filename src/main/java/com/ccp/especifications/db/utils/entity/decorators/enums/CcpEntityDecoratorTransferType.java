@@ -55,18 +55,23 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 
 	/**
 	 * Runs the {@code before} flow and then delegates the transfer to the rest of the decorator chain. The JSON produced by
-	 * the {@code before} flow is the one that goes to the inner decorators. Unlike the write operations, a handled
-	 * exception does not cancel the transfer.
+	 * the {@code before} flow is the one that goes to the inner decorators. As in the write operations, an exception
+	 * handled in the {@code before} flow cancels the transfer, which returns {@code false}; until 2026-10-06 the transfer
+	 * went on anyway (decided with the user).
 	 * @param json the input JSON
 	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
 	 * @param entity the source entity
 	 * @param entityToTransfer the target entity
-	 * @return the result of the transfer
+	 * @return the result of the transfer, {@code false} when it was canceled
 	 */
 	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
-		CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
-		boolean result = this.executeEntityTransfer(before, entity, entityToTransfer);
-		return result;
+		try {
+			CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
+			boolean result = this.executeEntityTransfer(before, entity, entityToTransfer);
+			return result;
+		} catch (CcpErrorEntityOperationCanceled e) {
+			return false;
+		}
 	}
 
 	/**
@@ -93,9 +98,10 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	}
 
 	/**
-	 * Runs the businesses of the first {@code @CcpEntityDataTransfer} whose transfer type is this one, whose target entity
-	 * is the given one, whose entity phase names the source entity and whose phase is {@code when}, chaining their outputs.
-	 * Only the first matching item runs. Local exception handlers take precedence over the global ones.
+	 * Runs the businesses of every {@code @CcpEntityDataTransfer} whose transfer type is this one, whose target entity is
+	 * the given one, whose entity phase names the source entity and whose phase is {@code when}, in the order they are
+	 * declared, chaining their outputs. Until 2026-10-06 only the first matching item ran. Local exception handlers take
+	 * precedence over the global ones.
 	 * @param json the input JSON
 	 * @param when the phase to run
 	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
@@ -164,11 +170,13 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 			var globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
 			globalExceptionHandlers.putAll(localExceptionHandlers);
 			Class<?>[] execute = transfer.execute();
+			boolean isBeforeFlow = CcpEntityOperationPhase._before.equals(when);
 			for (var businessClass : execute) {
 				CcpBusiness business = this.getBusiness(businessClass);
-				json = this.executeBusiness(json, business, globalExceptionHandlers);
+				json = isBeforeFlow
+						? this.executeBusinessCancelingTheOperationWhenHandled(json, business, globalExceptionHandlers)
+						: this.executeBusiness(json, business, globalExceptionHandlers);
 			}
-			return json;
 		}
 		return json;
 	}

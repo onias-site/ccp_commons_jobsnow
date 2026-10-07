@@ -5,6 +5,7 @@ import java.util.Map;
 import com.ccp.decorators.CcpErrorJsonInvalid;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.business.CcpBusiness;
+import com.ccp.json.defaultvalues.engine.CcpJsonFieldDefaultValuesEngine;
 import com.ccp.json.validations.global.engine.CcpJsonValidatorEngine;
 
 /**
@@ -26,10 +27,10 @@ public interface CcpService extends CcpBusiness {
 	String name();
 	
 	/**
-	 * Converts the map into {@code CcpJsonRepresentation}, validates it with {@code CcpJsonValidatorEngine}, runs
-	 * {@code apply()} and returns the output map.
-	 * <p>
-	 * Unlike {@link CcpBusiness#execute(CcpJsonRepresentation)}, it does not fill default values.
+	 * Converts the map into {@code CcpJsonRepresentation}, validates it with {@code CcpJsonValidatorEngine}, fills the
+	 * default values ({@code @CcpJsonFieldDefaultValue}), runs {@code apply()} and returns the output map: the same steps
+	 * of {@link CcpBusiness#execute(CcpJsonRepresentation)}. Until 2026-10-06 the default values were not filled here, so a
+	 * field with a default value (which, for that very reason, is not required) reached a service called by REST empty.
 	 * @param map the input map
 	 * @return the output map
 	 * @throws CcpServiceJsonValidationError when a JSON built during the processing is invalid
@@ -39,8 +40,9 @@ public interface CcpService extends CcpBusiness {
 		Class<?> jsonValidationClass = this.getJsonValidationClass();
 		String name = this.name();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, name);
+		CcpJsonRepresentation jsonWithDefaultValues = CcpJsonFieldDefaultValuesEngine.INSTANCE.putDefaultValues(jsonValidationClass, json);
 		try {
-			CcpJsonRepresentation apply = this.apply(json);
+			CcpJsonRepresentation apply = this.apply(jsonWithDefaultValues);
 			return apply.content;
 		} catch (CcpErrorJsonInvalid e) {
 			CcpServiceJsonValidationError ccpServiceJsonValidationError = new CcpServiceJsonValidationError(e);

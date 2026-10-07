@@ -56,14 +56,6 @@ public class CcpQueryRange extends CcpQueryComponent {
 	}
 
 	/**
-	 * Ends the range and adds it to the parent should_not clause.
-	 * @return a copy of the parent with the range
-	 */
-	public CcpQueryShouldNot endRangeAndBackToShouldNot() {
-		return this.parent.addChild(this);
-	}
-
-	/**
 	 * Ends the range and adds it to the parent must_not clause.
 	 * @return a copy of the parent with the range
 	 */

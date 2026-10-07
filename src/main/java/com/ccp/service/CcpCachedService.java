@@ -10,16 +10,18 @@ import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.hash.CcpHashAlgorithm;
 
 /**
- * Wraps a {@link CcpService} with a cache: the result is cached under the SHA-1 of the value of one input field, so
- * equal values of that field reuse the result within the cache period.
+ * Wraps a {@link CcpService} with a cache: the result is cached under the SHA-1 of the service (class and name), the
+ * field and the value of that input field, so equal values of the field reuse the result of the same service within the
+ * cache period.
  * <p>
- * The cache key is only the hash of the field value; it does not include the service name.
+ * Until 2026-10-06 the key was only the hash of the field value: two cached services receiving the same value (the same
+ * e-mail, say) answered with each other's result.
  */
 public class CcpCachedService{
 
 	/** Fields added by this class to the output. */
 	enum JsonFieldNames implements CcpJsonFieldName {
-		/** SHA-1 of the cached field value, i.e. the cache key used. */
+		/** The cache key used: SHA-1 of the service, the field and its value. */
 		cacheHash
 	}
 
@@ -50,7 +52,12 @@ public class CcpCachedService{
 	 */
 	public Map<String, Object> execute(Map<String, Object> map) {
 		CcpJsonRepresentation json = new CcpJsonRepresentation(map);
-		CcpStringDecorator cacheKey = json.getAsStringDecorator(this.fieldToCache);
+		String fieldValue = json.getAsString(this.fieldToCache);
+		String serviceClassName = this.service.getClass().getName();
+		String serviceName = this.service.name();
+		String fieldName = this.fieldToCache.getValue();
+		String cacheKeyText = serviceClassName + "." + serviceName + "/" + fieldName + "/" + fieldValue;
+		CcpStringDecorator cacheKey = new CcpStringDecorator(cacheKeyText);
 		CcpHashDecorator hash = cacheKey.hash();
 		String hashValue = hash.asString(CcpHashAlgorithm.SHA1);
 		CcpCacheDecorator ccd = new CcpCacheDecorator(hashValue);
