@@ -19,8 +19,16 @@ public interface CcpOtherConstants {
 	CcpJsonRepresentation EMPTY_JSON = CcpJsonRepresentation.getEmptyJson();
 	/** The most common textual delimiters (slash, backslash, dot, tab, line feed, punctuation, brackets, quotes), used to tokenize and sanitize text. */
 	String[] DELIMITERS_ARRAY = new String[] {"/", "\\", ".","\t", "\n", ":", "," , ";", "!", "?", "[", "]", "{", "}", "<", ">", "=", "(", ")", "'", "`",  "\""};
-	/** Regular expression of text delimiters, ready to be used with {@code String.split()} or {@code Pattern}. Note that it does not match exactly the same set as {@link #DELIMITERS_ARRAY}. */
-	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)\\ |\\'|\\\"|\\`|\\.";
+	/**
+	 * Regular expression of text delimiters, ready to be used with {@code String.split()} or {@code Pattern}. Until
+	 * 2026-10-07 the closing parenthesis was written {@code \)\ } (parenthesis followed by a space), so a {@code )} at the
+	 * end of a word ("Spring (Boot)") stayed glued to it.
+	 * <p>
+	 * It does not match the same set as {@link #DELIMITERS_ARRAY}: this one splits on {@code -}, {@code \r} and white
+	 * space, the array on {@code /} and {@code \}. Unifying them changes how skills are recognized in a free text (the
+	 * only user of this expression, in vis), so it waits for that decision.
+	 */
+	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)|\\'|\\\"|\\`|\\.";
 	/** {@code CcpJsonFieldName} whose value is the empty string; represents the absence of a field name. */
 	CcpFieldName EMPTY_STRING = new CcpFieldName("");
 

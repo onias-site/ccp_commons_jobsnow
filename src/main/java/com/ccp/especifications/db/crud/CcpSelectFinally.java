@@ -111,7 +111,12 @@ public class CcpSelectFinally {
 	 * </ul></li>
 	 * <li>runs {@code whenFlowSuccess} and returns the requested fields plus {@code origin}.</li>
 	 * </ol>
-	 * The check that at least one field was requested happens only after the actions ran.
+	 * The check that at least one field was requested happens first, before the search and the actions (until 2026-10-07
+	 * it happened after the actions, with their side effects already done).
+	 * <p>
+	 * Only the first search parameter flows through the statements, by design: it is the request itself; the other
+	 * parameters exist to compute the keys of other entities for the union-all, and their data reach the statements only
+	 * through the records found ({@code _entities}).
 	 * @param origin identifies who started the search
 	 * @param whenFlowError business run over the error context
 	 * @param whenFlowSuccess business run over the final JSON
@@ -126,6 +131,14 @@ public class CcpSelectFinally {
 			CcpBusiness whenFlowSuccess,
 			Consumer<String[]> functionToDeleteKeysInTheCache,
 			CcpJsonRepresentation... specifications) {
+		// before the search and the actions: until 2026-10-07 this check came at the end, after the actions had already
+		// written, sent or deleted, so a procedure without fields failed only after its side effects
+		boolean zeroFields = this.fields.length <= 0;
+
+		if (zeroFields) {
+			CcpErrorFlowFieldsToReturnNotMentioned fieldsNotMentionedError = new CcpErrorFlowFieldsToReturnNotMentioned(origin);
+			throw fieldsNotMentionedError;
+		}
 				Stream<CcpJsonRepresentation> specificationsStream = Arrays.asList(specifications).stream();
 				var entitySpecificationsStream = specificationsStream
 				.filter(x -> x.containsAllFields(JsonFieldNames.entity));
@@ -232,13 +245,6 @@ public class CcpSelectFinally {
 			json = action.execute(context);
 		}
 
-		boolean zeroFields = this.fields.length <= 0;
-		
-		if (zeroFields) {
-			CcpErrorFlowFieldsToReturnNotMentioned fieldsNotMentionedError = new CcpErrorFlowFieldsToReturnNotMentioned(origin);
-			throw fieldsNotMentionedError;
-		}
-		
 		CcpJsonRepresentation successResult = whenFlowSuccess.execute(json);
 		CcpJsonRepresentation jsonPiece = successResult.getJsonPiece(this.fields);
 		CcpJsonRepresentation resultingData = jsonPiece.put(JsonFieldNames.origin, origin);

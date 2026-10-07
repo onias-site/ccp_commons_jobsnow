@@ -2,10 +2,10 @@ package com.ccp.decorators;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,8 +26,8 @@ import com.ccp.especifications.json.CcpJsonHandler;
  * Decorator over a file path of the file system. Wraps reading, writing, appending, ZIP compression, removal and
  * conversion of the content into framework types (JSON, list of JSONs).
  * <p>
- * Most operations ({@code exists}, {@code getName}, {@code getPath}, {@code reset}, {@code remove}, {@code zip},
- * {@code getStringContent}) create the missing parent directories as a side effect before acting.
+ * Only the writing operations ({@code append}, {@code write}, {@code reset}) create the missing parent directories; the
+ * text is written and read as UTF-8.
  */
 public class CcpFileDecorator implements CcpDecorator<String> {
 	/** The file path. */
@@ -66,22 +66,34 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Compresses the file (or the directory, recursively) into a {@code <name>.zip} file created in the working directory
-	 * of the process. Hidden entries are skipped; entry names keep the path given to this decorator.
+	 * Compresses the file (or the directory, recursively) into {@code <name>.zip} next to it (see
+	 * {@link #zipNextToTheOriginal(File)}).
 	 * @return this decorator
 	 */
 	public CcpFileDecorator zip() {
-		
-		File fileToZip = tryToCreateParentFolder();
-		
-		String fileName = fileToZip.getName();
-		
-		try(FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fileOutputStream);) {
-			CcpFileDecorator zippedFile = this.zip(fileToZip, zipOut);
-			return zippedFile;
-		} 
-		
-		
+		File fileToZip = new File(this.content);
+		zipNextToTheOriginal(fileToZip);
+		return this;
+	}
+
+	/**
+	 * Compresses the file, or the directory recursively, into {@code <name>.zip} in the same directory as it, with the
+	 * entries named relative to that directory ({@code <name>/}, {@code <name>/child.txt}). Hidden entries are skipped.
+	 * Until 2026-10-07 the zip was created in the working directory of the process and its entries were named by the full
+	 * path ({@code C:/...}), so extracting it elsewhere rebuilt the whole tree of the original machine.
+	 * @param original the file or directory
+	 * @return the zip file
+	 */
+	static File zipNextToTheOriginal(File original) {
+		File absoluteOriginal = original.getAbsoluteFile();
+		File directory = absoluteOriginal.getParentFile();
+		String originalName = absoluteOriginal.getName();
+		File zipFile = new File(directory, originalName + ".zip");
+		Path base = directory.toPath();
+		try(FileOutputStream fileOutputStream = new FileOutputStream(zipFile); ZipOutputStream zipOut = new ZipOutputStream(fileOutputStream)) {
+			addToZip(absoluteOriginal, base, zipOut);
+		}
+		return zipFile;
 	}
 	
 	/**
@@ -89,7 +101,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * @return the file name
 	 */
 	public String getName() {
-		File file = tryToCreateParentFolder();
+		File file = new File(this.content);
 		String name = file.getName();
 		return name;
 	}
@@ -98,72 +110,59 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * @return the absolute path
 	 */
 	public String getPath() {
-		File file = tryToCreateParentFolder();
+		File file = new File(this.content);
 		String absolutePath = file.getAbsolutePath();
 		return absolutePath;
 	}
 
 	/**
-	 * Adds the file, or the directory and its children recursively, to the ZIP stream.
-	 * @param fileToZip the file or directory to add
+	 * Adds the file, or the directory and its children recursively, to the ZIP stream, named relative to the base.
+	 * @param entry the file or directory to add
+	 * @param base the directory the entry names are relative to
 	 * @param zipOut the ZIP stream
-	 * @return this decorator
 	 * @throws IOException when reading a file or writing the stream fails
 	 */
-	private CcpFileDecorator zip(File fileToZip, ZipOutputStream zipOut) throws IOException {
-		boolean hidden = fileToZip.isHidden();
-       if (hidden) {
-            return this;
-        }
-        boolean isDirectory = fileToZip.isDirectory();
-        if (isDirectory) {
-            String trailingSlash = "/";
-        	   boolean endsWith = this.content.endsWith("/");
-        	   if (endsWith) {
-        		trailingSlash = ""; 
-            } 
-            String directoryEntryName = this.content + trailingSlash;
-            ZipEntry directoryEntry = new ZipEntry(directoryEntryName);
-			zipOut.putNextEntry(directoryEntry);
-            zipOut.closeEntry();
-            File[] children = fileToZip.listFiles();
-            for (File childFile : children) {
-                String childPathPrefix = this.content + "/";
-                String childFileName = childFile.getName();
-                String childPath = childPathPrefix + childFileName;
-                CcpFileDecorator childFileDecorator = new CcpFileDecorator(childPath);
-                childFileDecorator.zip(childFile, zipOut);
-            }
-            return this;
-        }
-        try(FileInputStream fileInputStream = new FileInputStream(fileToZip)) {
-            ZipEntry zipEntry = new ZipEntry(this.content);
-            zipOut.putNextEntry(zipEntry);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = fileInputStream.read(bytes)) >= 0) {
-                zipOut.write(bytes, 0, length);
-            }
-			return this;
+	private static void addToZip(File entry, Path base, ZipOutputStream zipOut) throws IOException {
+		boolean hidden = entry.isHidden();
+		if (hidden) {
+			return;
 		}
-    }
+		Path entryPath = entry.toPath();
+		Path relativePath = base.relativize(entryPath);
+		String relativeName = relativePath.toString().replace('\\', '/');
+		boolean isDirectory = entry.isDirectory();
+		if (isDirectory) {
+			ZipEntry directoryEntry = new ZipEntry(relativeName + "/");
+			zipOut.putNextEntry(directoryEntry);
+			zipOut.closeEntry();
+			File[] children = entry.listFiles();
+			for (File child : children) {
+				addToZip(child, base, zipOut);
+			}
+			return;
+		}
+		ZipEntry fileEntry = new ZipEntry(relativeName);
+		zipOut.putNextEntry(fileEntry);
+		Files.copy(entryPath, zipOut);
+		zipOut.closeEntry();
+	}
 	/**
 	 * Reads the whole file content as UTF-8 text.
 	 * @return the file content
-	 * @throws CcpErrorFolderParentIsMissing when the file does not exist
+	 * @throws CcpErrorFileIsMissing when the file does not exist
 	 */
 	public  String getStringContent() {
-		File file = tryToCreateParentFolder();
+		File file = new File(this.content);
 		boolean exists = file.exists();
 		boolean fileIsMissing = false == exists;
 		if(fileIsMissing) {
-			CcpErrorFolderParentIsMissing fileMissingError = new CcpErrorFolderParentIsMissing(this);
+			CcpErrorFileIsMissing fileMissingError = new CcpErrorFileIsMissing(this);
 			throw fileMissingError;
 		}
 		Path path = file.toPath();
 		byte[] fileContent = Files.readAllBytes(path);
-		String fileText = new String(fileContent, "UTF-8");
-		return fileText;
+		String fileText = new String(fileContent, StandardCharsets.UTF_8);
+		return fileText;
 	}
 	/**
 	 * Replaces the file content with the given text followed by a line feed.
@@ -178,23 +177,25 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Appends the text followed by a line feed ({@code \n}) to the end of the file, creating the file when it does not
-	 * exist (its parent directory must exist). The bytes use the platform default charset.
+	 * Appends the text followed by a line feed ({@code \n}) to the end of the file, as UTF-8, creating the file and its
+	 * missing parent directories when needed. Until 2026-10-07 the bytes used the platform default charset (windows-1252
+	 * on Windows with JDK 17), while {@link #getStringContent()} reads UTF-8, so accented text came back corrupted; and a
+	 * missing parent directory raised an error instead of being created.
 	 * @param content the content to append
 	 * @return this decorator
 	 */
 	public CcpFileDecorator append(String content) {
-		File file = new File(this.content);
+		File file = this.tryToCreateParentFolder();
 		boolean exists = file.exists();
 		boolean fileIsMissing = false == exists;
 		if (fileIsMissing) {
 			file.createNewFile();
 		}
 		String contentWithLineBreak = content + "\n";
-		byte[] bytes = (contentWithLineBreak).getBytes();
+		byte[] bytes = contentWithLineBreak.getBytes(StandardCharsets.UTF_8);
 		Path path = Paths.get(this.content);
 		Files.write(path, bytes, StandardOpenOption.APPEND);
-		return this;
+		return this;
 	}
 	/**
 	 * Empties the file (deletes and recreates it), creating the parent directories when needed.
@@ -206,29 +207,32 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 		
 		file.delete();
 		file.createNewFile();
-		return this;
+		return this;
 	}
 
 	/**
-	 * Creates the missing parent directories of the file.
+	 * Creates the missing parent directories of the file. Only the writing methods ({@link #append}, {@link #write},
+	 * {@link #reset}) call it; until 2026-10-07 the reading ones ({@code exists}, {@code getName}, {@code getPath},
+	 * {@code getStringContent}, {@code remove}, {@code zip}) also did, so asking about a path created its directories.
 	 * @return the file
 	 */
 	private File tryToCreateParentFolder() {
 		File file = new File(this.content);
-		String parent = file.getParent();
+		File absoluteFile = file.getAbsoluteFile();
+		String parent = absoluteFile.getParent();
 		CcpFolderDecorator folder = new CcpFolderDecorator(parent);
 		folder.createFolderIfNotExists();
 		return file;
 	}
 	/**
-	 * Reads every line of the file (platform default charset).
+	 * Reads every line of the file as UTF-8 (until 2026-10-07, the platform default charset).
 	 * @return the lines, without terminators
 	 */
 	public List<String> getLines(){
 		String filePath = this.content;
 		ArrayList<String> linesFromFile = new ArrayList<>();
 		String line;
-		try (FileReader fileReader = new FileReader(filePath); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+		try (FileReader fileReader = new FileReader(filePath, StandardCharsets.UTF_8); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 			while ((line = bufferedReader.readLine()) != null) {
 				linesFromFile.add(line);
 			}
@@ -238,14 +242,14 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 
 
 	/**
-	 * Reads the file line by line (platform default charset), calling {@code reader.onRead(line, index)} for each line;
-	 * the index starts at zero.
+	 * Reads the file line by line as UTF-8 (until 2026-10-07, the platform default charset), calling
+	 * {@code reader.onRead(line, index)} for each line; the index starts at zero.
 	 * @param reader the callback called for each line
 	 * @return this decorator
 	 */
 	public  CcpFileDecorator readLines(FileLineReader reader){
 		String line;
-		try (FileReader fileReader = new FileReader(this.content); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+		try (FileReader fileReader = new FileReader(this.content, StandardCharsets.UTF_8); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 			int k = 0;
 			while ((line = bufferedReader.readLine()) != null) {
 				reader.onRead(line, k++);
@@ -270,7 +274,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 * @return {@code true} when the path exists
 	 */
 	public boolean exists() {
-		File file = tryToCreateParentFolder();
+		File file = new File(this.content);
 		boolean exists = file.exists();
 		return exists;
 	}
@@ -330,7 +334,7 @@ public class CcpFileDecorator implements CcpDecorator<String> {
 	 */
 	public CcpFileDecorator remove() {
 
-		File file = tryToCreateParentFolder();
+		File file = new File(this.content);
 		file.delete();
 		return this;
 	}

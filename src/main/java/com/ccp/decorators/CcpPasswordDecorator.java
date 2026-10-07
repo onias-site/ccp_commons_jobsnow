@@ -6,6 +6,13 @@ package com.ccp.decorators;
  */
 public class CcpPasswordDecorator implements CcpDecorator<String> {
 
+	/**
+	 * The rule of a strong password, the single source for {@link #isStrong()} and for the validation of the password
+	 * field of the API: at least 8 characters, with a lowercase letter, an uppercase letter, a digit and any character
+	 * that is neither a letter nor a digit.
+	 */
+	public static final String STRONG_PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
+
 	/** The raw password. */
 	public final String content;
 
@@ -26,17 +33,15 @@ public class CcpPasswordDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Tells whether the password meets the complexity criteria: 8 to 20 characters with at least one digit, one lowercase
-	 * letter, one uppercase letter and one special character among {@code !@#&()–[{}]:;',?/*~$^+=<>} (note that the
-	 * dash in that list is the en dash "–", not the hyphen "-").
+	 * Tells whether the password meets {@link #STRONG_PASSWORD_REGEX}. Until 2026-10-07 this method had a rule of its own,
+	 * different from the one the API applies: at most 20 characters, and a closed list of special characters written with
+	 * an en dash instead of the hyphen and a nested {@code [}, so that {@code -}, {@code .}, {@code _}, {@code [} and
+	 * {@code ]} did not count as special.
 	 * @return {@code true} when the password is strong
 	 */
 	public boolean isStrong() {
-		boolean matches = this.content.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$");
-		if (matches){
-		   return true;
-		} 
-		return false;
+		boolean matches = this.content.matches(STRONG_PASSWORD_REGEX);
+		return matches;
 	}
 
 	/**

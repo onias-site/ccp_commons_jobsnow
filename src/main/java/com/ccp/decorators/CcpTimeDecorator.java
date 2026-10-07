@@ -7,8 +7,8 @@ import java.util.TimeZone;
 
 /**
  * Decorator over a timestamp in milliseconds ({@code Long}) offering calendar operations, date/time formatting,
- * midnight computation and thread sleeping. Midnight is computed in the Brazilian time zone (America/Sao_Paulo); year
- * and formatting use the JVM default time zone.
+ * midnight computation and thread sleeping. Midnight, year and formatting are all in the Brazilian time zone
+ * (America/Sao_Paulo), whatever the time zone of the JVM (until 2026-10-07 year and formatting used the JVM one).
  */
 public class CcpTimeDecorator implements CcpDecorator<Long> {
 
@@ -41,12 +41,13 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Returns the year of the wrapped timestamp, in the JVM default time zone.
+	 * Returns the year of the wrapped timestamp in the America/Sao_Paulo time zone, as {@link #getMidnight()} does. Until
+	 * 2026-10-07 it used the time zone of the JVM, so on a server in UTC the last hours of December 31 already counted as
+	 * the next year.
 	 * @return the year
 	 */
 	public int getYear() {
-		Calendar instance = Calendar.getInstance();
-		instance.setTimeInMillis(this.content);
+		Calendar instance = this.getBrazilianCalendar();
 		int year = instance.get(Calendar.YEAR);
 		return year;
 	}
@@ -67,7 +68,9 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
-	 * Formats the wrapped timestamp with the given {@code SimpleDateFormat} pattern, in the JVM default time zone.
+	 * Formats the wrapped timestamp with the given {@code SimpleDateFormat} pattern, in the America/Sao_Paulo time zone,
+	 * as {@link #getMidnight()} does. Until 2026-10-07 it used the time zone of the JVM: on a server outside Brazil the
+	 * dates (and the keys of the expurgable and disposable records built from them) disagreed with the Brazilian midnight.
 	 * @param pattern the {@code SimpleDateFormat} pattern
 	 * @return the formatted date/time
 	 */
@@ -75,6 +78,8 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 		Date d = new Date();
 		d.setTime(this.content);
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		TimeZone brazilianTimeZone = TimeZone.getTimeZone("America/Sao_Paulo");
+		sdf.setTimeZone(brazilianTimeZone);
 		String format = sdf.format(d);
 		return format;
 	}

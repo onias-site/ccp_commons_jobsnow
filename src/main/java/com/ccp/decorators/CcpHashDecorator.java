@@ -40,6 +40,10 @@ public class CcpHashDecorator implements CcpDecorator<String> {
 	 * @param algorithm the hash algorithm
 	 * @return the hexadecimal text of the digest
 	 */
+	// CONTRACT (decided 2026-10-07): the text is the SIGNED hexadecimal of the digest, so it may start with '-' and it
+	// drops the leading zeros (SHA-1 of "a" is "-79081bc8...", of "i" has 39 characters). Every id, e-mail hash and token
+	// hash persisted in the database is this text; it is unique per digest, so it is kept as it is. Changing it changes
+	// every stored key and requires recreating all the indexes. Locked by HashFormatContractTest.
 	public String asString(CcpHashAlgorithm algorithm) {
 		BigInteger bi = this.asBigInteger(algorithm);
 		String toString = bi.toString(16);

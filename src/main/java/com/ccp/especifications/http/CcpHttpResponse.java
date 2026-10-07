@@ -1,7 +1,9 @@
 package com.ccp.especifications.http;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -84,14 +86,37 @@ public class CcpHttpResponse {
 	}
 	
 	/**
-	 * Parses the body as a JSON list. Note that the items are the maps produced by the JSON handler, not
-	 * {@code CcpJsonRepresentation} instances, despite the declared type.
-	 * @return the items of the list
+	 * Parses the body as a JSON list of objects, each one turned into a {@code CcpJsonRepresentation}; a blank body is an
+	 * empty list. Until 2026-10-07 the items were the maps produced by the JSON handler, despite the declared type, and
+	 * the first read of an item raised a {@code ClassCastException} far from here.
+	 * @return the records of the list
+	 * @throws CcpErrorHttpResponseIsNotListOfRecords when the body is not a JSON list or has an item that is not an object
 	 */
 	public List<CcpJsonRepresentation> asListRecord(){
+		String httpResponseTrim = this.httpResponse.trim();
+		boolean httpResponseTrimEmpty = httpResponseTrim.isEmpty();
+		if(httpResponseTrimEmpty) {
+			return new ArrayList<>();
+		}
 		CcpJsonHandler json = CcpDependencyInjection.getDependency(CcpJsonHandler.class);
-		List<CcpJsonRepresentation> fromJson = json.fromJson(this.httpResponse);
-		return fromJson; 
+		boolean validJsonList = json.isValidJsonList(this.httpResponse);
+		boolean isNotJsonList = false == validJsonList;
+		if(isNotJsonList) {
+			throw new CcpErrorHttpResponseIsNotListOfRecords(this.httpResponse);
+		}
+		List<Object> items = json.fromJson(this.httpResponse);
+		List<CcpJsonRepresentation> records = new ArrayList<>();
+		for (Object item : items) {
+			boolean isNotObject = false == item instanceof Map;
+			if(isNotObject) {
+				throw new CcpErrorHttpResponseIsNotListOfRecords(this.httpResponse);
+			}
+			@SuppressWarnings("unchecked")
+			Map<String, Object> itemAsMap = (Map<String, Object>) item;
+			CcpJsonRepresentation record = new CcpJsonRepresentation(itemAsMap);
+			records.add(record);
+		}
+		return records;
 	}
 
 	/**
@@ -177,5 +202,17 @@ public class CcpHttpResponse {
 	public boolean isSuccess() {
 		boolean inRange3 = this.isInRange(200);
 		return inRange3;
+	}
+
+	/** Raised by {@link CcpHttpResponse#asListRecord()} when the body is not a JSON list of objects. */
+	@SuppressWarnings("serial")
+	public static class CcpErrorHttpResponseIsNotListOfRecords extends RuntimeException {
+		/**
+		 * Builds the message with the body received.
+		 * @param httpResponse the body
+		 */
+		private CcpErrorHttpResponseIsNotListOfRecords(String httpResponse) {
+			super("The http response is not a json list of objects: " + httpResponse);
+		}
 	}
 }

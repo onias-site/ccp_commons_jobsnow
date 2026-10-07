@@ -2,7 +2,6 @@ package com.ccp.flow;
 
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpErrorJsonFieldNotFound;
 import com.ccp.process.CcpProcessStatus;
 
 /**
@@ -52,8 +51,8 @@ public final class CcpAndIfThisExecutionReturns {
 	 * <li>Removes that status from the flow map and starts over from step 1 with the JSON produced by the handlers, so the
 	 * main process is attempted again. Each status is therefore handled at most once.</li>
 	 * </ol>
-	 * If the thrown status has no registered handler (or was already handled), the result is a
-	 * {@code CcpErrorJsonFieldNotFound} naming the status, not the original {@code CcpErrorFlowDisturb}.
+	 * The retry of step 3 is the design of the flow: the handlers of a status fix the input so the main process can succeed.
+	 * A thrown status with no registered handler (or already handled) goes up as the original {@code CcpErrorFlowDisturb}.
 	 * @param whatToNext processes run after the main process succeeds
 	 * @return the result of the main process
 	 */
@@ -62,6 +61,12 @@ public final class CcpAndIfThisExecutionReturns {
 			CcpJsonRepresentation responseWhenTheFlowPerformsNormally = this.tryToPerformNormally(whatToNext);
 			return responseWhenTheFlowPerformsNormally;
 		} catch (CcpErrorFlowDisturb e) {
+			// a status with no handler (never configured, or already handled once in this statement) goes up as it came;
+			// until 2026-10-07 it became a CcpErrorJsonFieldNotFound about the flow, losing the status and the message
+			boolean hasNoHandler = false == this.flow.containsField(e.status);
+			if(hasNoHandler) {
+				throw e;
+			}
 			CcpJsonRepresentation json = this.tryToFixTheFlow(e);
 			CcpJsonRepresentation remainingFlow = this.flow.removeFields(e.status);
 			CcpAndIfThisExecutionReturns andIfThisExecutionReturns = new CcpAndIfThisExecutionReturns(this.givenFinalTargetProcess, json, remainingFlow);
@@ -87,22 +92,18 @@ public final class CcpAndIfThisExecutionReturns {
 	 * Runs, in order, the handlers registered for the status of the exception, chaining their outputs.
 	 * @param e the exception whose status selects the handlers
 	 * @return the JSON produced by the last handler
-	 * @throws com.ccp.decorators.CcpErrorJsonFieldNotFound when the status has no handler in the flow map
+	 * (the caller only calls it for a status that has handlers)
 	 */
 	private CcpJsonRepresentation tryToFixTheFlow(CcpErrorFlowDisturb e) {
-		try {
-			CcpBusiness[] nextFlows = this.flow.getAsObject(e.status);
-			CcpJsonRepresentation json = this.givenJson;
-			for (CcpBusiness nextFlow : nextFlows) {
-				try {
-					json = nextFlow.execute(json);
-				} catch (CcpErrorFlowDisturb flowDisturb) {
-					json = flowDisturb.json.mergeWithAnotherJson(json);
-				}
+		CcpBusiness[] nextFlows = this.flow.getAsObject(e.status);
+		CcpJsonRepresentation json = this.givenJson;
+		for (CcpBusiness nextFlow : nextFlows) {
+			try {
+				json = nextFlow.execute(json);
+			} catch (CcpErrorFlowDisturb flowDisturb) {
+				json = flowDisturb.json.mergeWithAnotherJson(json);
 			}
-			return json;
-		} catch (CcpErrorJsonFieldNotFound ex) {
-			throw ex;
 		}
+		return json;
 	}
 }

@@ -18,48 +18,99 @@ public class CcpDependencyInjection {
 	static Map<Class<?>, Object> instances = new HashMap<>();
 
 	/**
-	 * Temporarily replaces the dependencies, runs {@code business.execute(json)} and then restores the implementations
-	 * that were registered before.
+	 * Temporarily replaces the dependencies, runs {@code business.execute(json)} and then restores the registry exactly as
+	 * it was: the previous implementation of each replaced interface comes back, and an interface that had none is left
+	 * without one. The restoration happens whether the business finishes normally or throws.
 	 * <p>
-	 * The restoration only happens when the business finishes normally: if it throws, the replacement stays registered.
-	 * Each provider must have the target interface as the first interface of its own class.
+	 * Until 2026-10-07 the previous implementation was looked for under the interface of the provider's own class (always
+	 * {@code CcpInstanceProvider}), so the method raised {@code CcpErrorDependencyInjectionMissing} before running the
+	 * business (finding 57); and the restoration was not in a {@code finally}, so a business that threw left the
+	 * replacements registered for the rest of the JVM (finding 2).
 	 * @param json input of the business
 	 * @param business the business to run while the replacements are active
 	 * @param providers providers of the replacement implementations
 	 * @return the result of the business
 	 */
-	@SuppressWarnings("rawtypes")
 	public static CcpJsonRepresentation replaceDependenciesTemporally(CcpJsonRepresentation json, CcpBusiness business, CcpInstanceProvider<?>... providers) {
 
-		CcpInstanceProvider[] actuallyDependecies = new CcpInstanceProvider[providers.length];
-		int k = 0;
+		Map<Class<?>, Object> previousImplementations = new HashMap<>();
 		for (CcpInstanceProvider<?> provider : providers) {
-			var providerClass = provider.getClass();
-			var interfaces2 = providerClass.getInterfaces();
-			actuallyDependecies[k++] = (CcpInstanceProvider) getDependency(interfaces2[0]);
+			Object replacement = provider.getInstance();
+			Class<?> especification = getEspecification(replacement);
+			boolean alreadySaved = previousImplementations.containsKey(especification);
+			if(alreadySaved) {
+				continue;
+			}
+			Object previousImplementation = instances.get(especification);
+			previousImplementations.put(especification, previousImplementation);
 		}
-		loadAllDependencies(providers);
-
-		CcpJsonRepresentation apply = business.execute(json);
-		loadAllDependencies(actuallyDependecies);
-		return apply;
+		try {
+			loadAllDependencies(providers);
+			CcpJsonRepresentation result = business.execute(json);
+			return result;
+		} finally {
+			restore(previousImplementations);
+		}
 	}
- 
+
+	/**
+	 * Puts back the implementations saved before a temporary replacement; an interface saved without implementation is
+	 * removed from the registry.
+	 * @param previousImplementations the implementation of each interface before the replacement, {@code null} for none
+	 */
+	private static void restore(Map<Class<?>, Object> previousImplementations) {
+		var entries = previousImplementations.entrySet();
+		for (var entry : entries) {
+			Class<?> especification = entry.getKey();
+			Object previousImplementation = entry.getValue();
+			boolean hadNoImplementation = previousImplementation == null;
+			if(hadNoImplementation) {
+				instances.remove(especification);
+				continue;
+			}
+			instances.put(especification, previousImplementation);
+		}
+	}
+
 
 	/**
 	 * Registers every provider, mapping the first interface implemented by the instance returned by
-	 * {@code getInstance()} to that instance. A later registration for the same interface replaces the earlier one.
+	 * {@code getInstance()} to that instance (see {@link #getEspecification(Object)}). A later registration for the same
+	 * interface replaces the earlier one.
 	 * @param providers providers whose instances must be registered
 	 */
 	public static void loadAllDependencies(CcpInstanceProvider<?>... providers) {
 
 		for (CcpInstanceProvider<?> provider : providers) {
 			Object implementation = provider.getInstance();
-			Class<? extends Object> class1 = implementation.getClass();
-			Class<?>[] interfaces = class1.getInterfaces();
-			Class<?> especification = interfaces[0];
+			Class<?> especification = getEspecification(implementation);
 			instances.put(especification, implementation);
 		}
+	}
+
+	/**
+	 * The interface under which the implementation is registered: the first interface declared by its class or, when the
+	 * class declares none (an enum constant with a body, a subclass of an implementation), by the nearest superclass
+	 * that declares one. Until 2026-10-07 only the class itself was looked at, and such an implementation raised
+	 * {@code ArrayIndexOutOfBoundsException}.
+	 * @param implementation the implementation
+	 * @return the interface
+	 * @throws CcpErrorDependencyInjectionWithoutInterface when no class of the hierarchy declares an interface
+	 */
+	private static Class<?> getEspecification(Object implementation) {
+		Class<?> implementationClass = implementation.getClass();
+		Class<?> currentClass = implementationClass;
+		while(currentClass != null) {
+			Class<?>[] interfaces = currentClass.getInterfaces();
+			boolean declaresInterface = interfaces.length > 0;
+			if(declaresInterface) {
+				Class<?> especification = interfaces[0];
+				return especification;
+			}
+			currentClass = currentClass.getSuperclass();
+		}
+		CcpErrorDependencyInjectionWithoutInterface error = new CcpErrorDependencyInjectionWithoutInterface(implementationClass);
+		throw error;
 	}
 
 	/**
@@ -127,6 +178,18 @@ public class CcpDependencyInjection {
 		 */
 		private CcpErrorDependencyInjectionMissing(Class<?> interfaceClass) {
 			super("It is missing an implementation of the interface " + interfaceClass.getName());
+		}
+	}
+
+	/** Raised when an implementation is registered but no class of its hierarchy declares an interface to register it under. */
+	@SuppressWarnings("serial")
+	public static class CcpErrorDependencyInjectionWithoutInterface extends RuntimeException {
+		/**
+		 * Builds the error naming the implementation class.
+		 * @param implementationClass the class without interface
+		 */
+		private CcpErrorDependencyInjectionWithoutInterface(Class<?> implementationClass) {
+			super("The implementation " + implementationClass.getName() + " declares no interface to be registered under");
 		}
 	}
 

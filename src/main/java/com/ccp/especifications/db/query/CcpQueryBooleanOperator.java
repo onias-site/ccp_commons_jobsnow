@@ -14,7 +14,7 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityField;
 /**
  * Abstract base of the clauses of an Elasticsearch boolean query (must, should, filter, must_not): keeps
  * the list of conditions, in insertion order and without repetition, and offers the methods that add each kind of
- * condition. Every method returns a copy; a {@code null} value adds no condition.
+ * condition. Every method returns a copy; a {@code null} argument is refused by the null-parameter aspect.
  */
 public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	/** Fields inside the conditions. */
@@ -45,7 +45,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"term": {field: value}}} (exact value).
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the exact value; {@code null} adds nothing
+	 * @param value the exact value; never {@code null} (refused by the null-parameter aspect)
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T term(CcpJsonFieldName field, Object value) {
@@ -58,7 +58,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"terms": {field: value}}} (any of the values).
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the collection of accepted values; {@code null} adds nothing
+	 * @param value the collection of accepted values; never {@code null} (refused by the null-parameter aspect)
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T terms(CcpJsonFieldName field, Object value) {
@@ -71,7 +71,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"prefix": {field: value}}}.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the prefix; {@code null} adds nothing
+	 * @param value the prefix; never {@code null} (refused by the null-parameter aspect)
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T prefix(CcpEntityField field, Object value) {
@@ -84,7 +84,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"match": {field: value}}} (full-text).
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the text; {@code null} adds nothing
+	 * @param value the text; never {@code null} (refused by the null-parameter aspect)
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T match(CcpJsonFieldName field, Object value) {
@@ -97,7 +97,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"match_phrase": {field: value}}}.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the phrase; {@code null} adds nothing
+	 * @param value the phrase; never {@code null} (refused by the null-parameter aspect)
 	 * @return a copy of the clause with the condition
 	 */
 	public <T extends CcpQueryBooleanOperator> T matchPhrase(CcpEntityField field, Object value) {
@@ -110,7 +110,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"match": {field: {"query": value, "boost": boost, "operator": operator}}}}; a blank operator is omitted.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the text; {@code null} adds nothing
+	 * @param value the text; never {@code null} (refused by the null-parameter aspect)
 	 * @param boost the weight of the condition
 	 * @param operator {@code and}/{@code or}, or blank
 	 * @return a copy of the clause with the condition
@@ -125,7 +125,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {"match_phrase": {field: {"query": value, "boost": boost}}}}.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the phrase; {@code null} adds nothing
+	 * @param value the phrase; never {@code null} (refused by the null-parameter aspect)
 	 * @param boost the weight of the condition
 	 * @return a copy of the clause with the condition
 	 */
@@ -150,18 +150,15 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * Adds {@code {conditionType: {field: value}}} to a copy of the clause.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the value; {@code null} returns an unchanged copy
+	 * @param value the value; never {@code null} (refused by the null-parameter aspect)
 	 * @param conditionType the condition type
 	 * @return a copy of the clause with the condition
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, CcpQueryConditionType conditionType) {
+		// until 2026-10-07 a branch here returned the copy unchanged for a null value; it was unreachable, since the
+		// null-parameter aspect refuses the null before this line
 		CcpQueryBooleanOperator clone = this.copy();
-		boolean valueIsNull = value == null;
-		if (valueIsNull) {
-			T unchangedCopy = (T) clone;
-			return unchangedCopy;
-		}
 		CcpFieldName fieldKey = new CcpFieldName(field);
 		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, value);
 		Map<String, Object> map = conditionJson.getContent();
@@ -178,7 +175,7 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 * operator is omitted.
 	 * @param <T> the concrete clause type
 	 * @param field the field
-	 * @param value the text; {@code null} returns an unchanged copy
+	 * @param value the text; never {@code null} (refused by the null-parameter aspect)
 	 * @param conditionType the condition type
 	 * @param boost the weight of the condition
 	 * @param operator the boolean operator, or blank
@@ -186,16 +183,11 @@ public abstract class CcpQueryBooleanOperator extends CcpQueryComponent {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends CcpQueryBooleanOperator> T addCondition(String field, Object value, CcpQueryConditionType conditionType, double boost, String operator) {
+		// the null value and the null operator are refused by the null-parameter aspect before this line
 		CcpQueryBooleanOperator clone = this.copy();
-		boolean valueIsNull = value == null;
-		if (valueIsNull) {
-			T unchangedCopy = (T) clone;
-			return unchangedCopy;
-		}
 		CcpJsonRepresentation queryJson = CcpOtherConstants.EMPTY_JSON.put(JsonFieldNames.query, value);
 		CcpJsonRepresentation conditionParameters = queryJson.put(JsonFieldNames.boost, boost);
-		boolean hasOperator = operator != null;
-		boolean hasNonBlankOperator = hasOperator && false == operator.trim().isEmpty();
+		boolean hasNonBlankOperator = false == operator.trim().isEmpty();
 		if (hasNonBlankOperator) {
 			conditionParameters = conditionParameters.put(JsonFieldNames.operator, operator);
 		}

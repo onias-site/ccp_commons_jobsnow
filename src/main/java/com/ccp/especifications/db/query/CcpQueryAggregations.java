@@ -48,7 +48,9 @@ public final class CcpQueryAggregations extends CcpQueryComponent {
 	}
 
 	/**
-	 * Adds {@code {aggregationName: {key: {"field": fieldName}}}} to a copy of this node.
+	 * Adds {@code {aggregationName: {key: {"field": fieldName}}}} to a copy of this node, with the name of the field.
+	 * Until 2026-10-07 the {@code CcpEntityField} object itself went into {@code field} (serialized as
+	 * {@code {"name": ..., "primaryKey": ...}}), and Elasticsearch refused every aggregation built this way.
 	 * @param aggregationName the name of the aggregation in the response
 	 * @param fieldName the aggregated field
 	 * @param key the metric ({@code min}, {@code max}, {@code avg} or {@code sum})
@@ -56,7 +58,8 @@ public final class CcpQueryAggregations extends CcpQueryComponent {
 	 */
 	private CcpQueryAggregations createAggregation(String aggregationName, CcpEntityField fieldName, String key) {
 		CcpQueryAggregations copy = this.copy();
-		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldName);
+		String fieldNameText = fieldName.name();
+		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldNameText);
 		Map<String, Object> fieldContent = fieldJson.getContent();
 		CcpFieldName aggregationTypeKey = new CcpFieldName(key);
 		CcpJsonRepresentation aggregationJson = CcpOtherConstants.EMPTY_JSON.put(aggregationTypeKey, fieldContent);

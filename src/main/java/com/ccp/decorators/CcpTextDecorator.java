@@ -79,10 +79,12 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 
 	/**
 	 * Extracts, from left to right, the substrings that start at {@code beginDelimiter} and end at the next
-	 * {@code endDelimiter} (both included).
+	 * {@code endDelimiter} (both included). The end delimiter is searched after the begin delimiter, so both may be the
+	 * same text; a piece that is opened and never closed is ignored.
 	 * <p>
-	 * The end delimiter is searched from the start of the remaining text, not after the begin delimiter, and its absence is
-	 * not detected (see the findings of the coverage campaign).
+	 * Until 2026-10-07 the end delimiter was searched from the start of the remaining text and its absence was not
+	 * detected ({@code -1} plus its length is never negative): an end delimiter before the begin one, or a piece never
+	 * closed, raised {@code StringIndexOutOfBoundsException}, returned a wrong piece or looped forever adding empty pieces.
 	 * @param beginDelimiter text that opens a piece
 	 * @param endDelimiter text that closes a piece
 	 * @return the pieces found, delimiters included
@@ -98,12 +100,20 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 			if(beginDelimiterNotFound) {
 				return list;
 			}
-			int endDelimiterIndex = str.indexOf(endDelimiter );
-			int endDelimiterLength = endDelimiter.length();
-			endIndex = endDelimiterIndex+ endDelimiterLength;
-			boolean endDelimiterNotFound = endIndex < 0;
+			int beginDelimiterLength = beginDelimiter.length();
+			int searchEndFrom = beginIndex + beginDelimiterLength;
+			int endDelimiterIndex = str.indexOf(endDelimiter, searchEndFrom);
+			boolean endDelimiterNotFound = endDelimiterIndex < 0;
 
 			if(endDelimiterNotFound) {
+				return list;
+			}
+			int endDelimiterLength = endDelimiter.length();
+			endIndex = endDelimiterIndex + endDelimiterLength;
+			// only two empty delimiters make an empty piece at the start, which would never move the text forward
+			boolean textDoesNotMoveForward = endIndex == 0;
+
+			if(textDoesNotMoveForward) {
 				return list;
 			}
 			String substring = str.substring(beginIndex, endIndex);

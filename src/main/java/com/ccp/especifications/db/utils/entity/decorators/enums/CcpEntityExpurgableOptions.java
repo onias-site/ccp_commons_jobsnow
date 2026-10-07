@@ -1,11 +1,8 @@
 package com.ccp.especifications.db.utils.entity.decorators.enums;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.stream.Collectors;
 
 import com.ccp.decorators.CcpTimeDecorator;
 
@@ -93,15 +90,14 @@ public enum CcpEntityExpurgableOptions{
 	}
 
 	/**
-	 * Formats the timestamp with the pattern of this granularity (JVM default time zone).
+	 * Formats the timestamp with the pattern of this granularity, in America/Sao_Paulo (see
+	 * {@code CcpTimeDecorator.getFormattedDateTime}); until 2026-10-07 it used the time zone of the JVM.
 	 * @param date the timestamp in milliseconds
 	 * @return the formatted date
 	 */
 	public String getFormattedDate(Long date) {
-		Date d = new Date();
-		d.setTime(date);
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(this.format);
-		String format = simpleDateFormat.format(d);
+		CcpTimeDecorator timeDecorator = new CcpTimeDecorator(date);
+		String format = timeDecorator.getFormattedDateTime(this.format);
 		return format;
 	}
 	
@@ -177,21 +173,6 @@ public enum CcpEntityExpurgableOptions{
 		return total;
 	}
 
-	/** Raised when a date format matches no granularity. Not thrown anywhere today. */
-	@SuppressWarnings("serial")
-	public static class CcpExpurgableOptionNotFound extends RuntimeException {
-		/** The format that matched no granularity. */
-		public final String format;
-		/**
-		 * Builds the error listing the known formats.
-		 * @param format the format that matched no granularity
-		 */
-		private CcpExpurgableOptionNotFound(String format) {
-			super("The format '" + format + "' whas not found in the following list: " + Arrays.asList(CcpEntityExpurgableOptions.values())
-			.stream().map(x -> x.format).collect(Collectors.toList())
-			);
-			this.format = format;
-		}
-	}
-
+	// until 2026-10-07 a CcpExpurgableOptionNotFound lived here, for a format that matched no granularity; nothing looks
+	// an option up by its format, so it was never thrown and was removed
 }

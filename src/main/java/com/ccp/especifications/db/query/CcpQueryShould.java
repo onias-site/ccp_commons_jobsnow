@@ -81,7 +81,7 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	/**
 	 * Adds {@code {"match_phrase": {field: {"query": value, "boost": boost}}}} for a field given by name.
 	 * @param field the field name
-	 * @param value the phrase; {@code null} adds nothing
+	 * @param value the phrase; never {@code null} (refused by the null-parameter aspect)
 	 * @param boost the weight of the condition
 	 * @return a copy of the clause with the condition
 	 */
@@ -93,7 +93,7 @@ public final class CcpQueryShould extends CcpQueryBooleanOperator {
 	/**
 	 * Adds {@code {"match": {field: {"query": value, "boost": boost, "operator": operator}}}} for a field given by name.
 	 * @param field the field name
-	 * @param value the text; {@code null} adds nothing
+	 * @param value the text; never {@code null} (refused by the null-parameter aspect)
 	 * @param boost the weight of the condition
 	 * @param operator {@code and}/{@code or}, or blank
 	 * @return a copy of the clause with the condition

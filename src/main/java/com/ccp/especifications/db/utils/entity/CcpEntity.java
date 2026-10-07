@@ -52,7 +52,8 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	 * by field name and joined as {@code "v1, v2"}.
 	 * @param json the record, holding the primary key values
 	 * @return the record id
-	 * @throws CcpEntityNoDefinedPrimaryKey when the entity declares no primary key
+	 * @throws CcpEntityNoDefinedPrimaryKey when the entity declares no primary key (rule: every entity has one; since
+	 * 2026-10-07 {@code CcpEntityFactory} already refuses such an entity when it is built, so this is a last guard)
 	 */
 	default String calculateId(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
@@ -301,7 +302,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	/** Raised when the id of a record is computed for an entity that declares no primary key. */
 	@SuppressWarnings("serial")
 	public static class CcpEntityNoDefinedPrimaryKey extends RuntimeException {
-		/** The entity without primary key. */
+		/** The entity without primary key; {@code null} when raised while the entity is built (by name). */
 		public final CcpEntity entity;
 		/**
 		 * Builds the error naming the entity.
@@ -310,6 +311,15 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		private CcpEntityNoDefinedPrimaryKey(CcpEntity entity) {
 			super("The entity '" + entity.getEntityMetaData().entityName + "' has no defined primary key in his mapping");
 			this.entity = entity;
+		}
+		/**
+		 * Builds the error naming the entity, while it is built: the entity object does not exist yet (see
+		 * {@code CcpEntityFactory}).
+		 * @param entityName the name of the entity without primary key
+		 */
+		public CcpEntityNoDefinedPrimaryKey(String entityName) {
+			super("The entity '" + entityName + "' has no defined primary key in his mapping");
+			this.entity = null;
 		}
 	}
 }

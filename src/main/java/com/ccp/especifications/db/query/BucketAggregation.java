@@ -52,14 +52,17 @@ public final class BucketAggregation extends CcpQueryComponent {
 	}
 
 	/**
-	 * Writes the aggregation settings into a copy of the bucket and adds it to the parent aggregations node.
+	 * Writes the aggregation settings into a copy of the bucket and adds it to the parent aggregations node. The
+	 * {@code field} is the name of the field; until 2026-10-07 it was the {@code CcpEntityField} object, and Elasticsearch
+	 * refused the bucket.
 	 * @param sizeParameterName {@code size} or {@code interval}
 	 * @param aggregationType {@code terms} or {@code histogram}
 	 * @return the parent aggregations node with the bucket
 	 */
 	private CcpQueryAggregations getStatisRequest(String sizeParameterName, String aggregationType) {
 		CcpQueryComponent copy = this.copy();
-		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, this.fieldName);
+		String fieldNameText = this.fieldName.name();
+		CcpJsonRepresentation fieldJson = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.field, fieldNameText);
 		CcpFieldName sizeParameterKey = new CcpFieldName(sizeParameterName);
 		var aggregationSettings = fieldJson
 				.put(sizeParameterKey, this.size);

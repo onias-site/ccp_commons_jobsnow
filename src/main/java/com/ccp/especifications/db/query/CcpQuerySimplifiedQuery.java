@@ -89,6 +89,7 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	 */
 	@SuppressWarnings("unchecked")
 	CcpQuerySimplifiedQuery addChild(CcpQueryComponent child) {
+		this.refuseASecondClause();
 		CcpQuerySimplifiedQuery instanceCopy = this.copy();
 		Object value = child.getValue();
 		CcpFieldName childKey = new CcpFieldName(child.name);
@@ -139,8 +140,9 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	}
 
 	/**
-	 * Replaces the whole content of a copy with {@code {conditionType: {field: value}}}; unlike the other clauses, a {@code null}
-	 * value is stored as is.
+	 * Sets the single clause of a copy to {@code {conditionType: {field: value}}}; a second clause is refused (see
+	 * {@link #refuseASecondClause()}) and a {@code null} value is refused by the null-parameter aspect, as in the other
+	 * clauses.
 	 * @param field the field
 	 * @param value the value
 	 * @param conditionType the condition type
@@ -148,6 +150,7 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	 */
 	@SuppressWarnings("unchecked")
 	protected CcpQuerySimplifiedQuery addCondition(String field, Object value, CcpQueryConditionType conditionType) {
+		this.refuseASecondClause();
 		CcpFieldName fieldKey = new CcpFieldName(field);
 		CcpJsonRepresentation conditionJson = CcpOtherConstants.EMPTY_JSON.put(fieldKey, value);
 		Map<String, Object> map = conditionJson.getContent();
@@ -162,6 +165,32 @@ public final class CcpQuerySimplifiedQuery extends CcpQueryBooleanOperator {
 	 * Tells whether the query has a condition.
 	 * @return {@code true} when the content is not empty
 	 */
+	/**
+	 * Refuses a second clause: the short form {@code "query": {clause}} of Elasticsearch holds a single clause, and more
+	 * than one needs a bool query. Until 2026-10-07 each new clause silently replaced the previous one, so a query built
+	 * with two conditions searched by the last only.
+	 * @throws CcpErrorQuerySimplifiedQueryHoldsOneClause when a clause was already added
+	 */
+	private void refuseASecondClause() {
+		boolean alreadyHasAClause = this.hasChildreen();
+		if(alreadyHasAClause) {
+			CcpErrorQuerySimplifiedQueryHoldsOneClause error = new CcpErrorQuerySimplifiedQueryHoldsOneClause(this.json);
+			throw error;
+		}
+	}
+
+	/** Raised when a second clause is added to a simplified query. */
+	@SuppressWarnings("serial")
+	public static class CcpErrorQuerySimplifiedQueryHoldsOneClause extends RuntimeException {
+		/**
+		 * Builds the error with the clause already present.
+		 * @param currentClause the clause the query already has
+		 */
+		private CcpErrorQuerySimplifiedQueryHoldsOneClause(CcpJsonRepresentation currentClause) {
+			super("A simplified query holds a single clause; use a bool query for more. Clause already present: " + currentClause);
+		}
+	}
+
 	public boolean hasChildreen() {
 		boolean contentEmpty = this.json.content.isEmpty();
 		boolean hasContent = false == contentEmpty;

@@ -485,13 +485,13 @@ public final class CcpToStringBuilder {
 				sb.append("\\f");
 				break;
 			default:
-				if (c < 0x20) {
-					int codePoint = (int) c;
-					String stringFormat = String.format("\\u%04x", codePoint);
-					sb.append(stringFormat);
-				} else {
+				if (c >= 0x20) {
 					sb.append(c);
+					continue;
 				}
+				int codePoint = (int) c;
+				String stringFormat = String.format("\\u%04x", codePoint);
+				sb.append(stringFormat);
 			}
 		}
 		StringBuilder closedSb = sb.append('"');

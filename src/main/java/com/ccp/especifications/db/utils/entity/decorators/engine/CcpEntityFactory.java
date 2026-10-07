@@ -13,6 +13,7 @@ import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.CcpEntity.CcpEntityNoDefinedPrimaryKey;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorators;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
@@ -74,6 +75,33 @@ public class CcpEntityFactory {
 		this.entityInstance = getMainEntity(configurationClass);
 		this.entityFields = getFields(configurationClass);
 		this.configurationClass = configurationClass;
+		validatePrimaryKey(configurationClass, this.entityFields);
+	}
+
+	/**
+	 * Refuses an entity that declares no primary key. Every entity needs one: the id of a record is computed from it
+	 * ({@code CcpEntity.calculateId}), and that is how save overwrites instead of duplicating and how exists, getOneById
+	 * and delete find a record from its data. An entity that wants one record per event declares a generated field as its
+	 * key, as {@code jn_async_task} does with {@code messageId}. Since 2026-10-07 the refusal happens here, when the
+	 * entity is built (the {@code ENTITY} constant of the configurator, so at the first use of the class and in the tests
+	 * of the structure of the entities); before, only at the first read or write.
+	 * <p>
+	 * It reads the fields of the configurator, not the metadata of the entity: the metadata are completed only after the
+	 * construction (the association with the decorated entity), and reading them here breaks the construction of every
+	 * entity.
+	 * @param configurationClass the configurator class
+	 * @param fields the fields read from the configurator
+	 * @throws CcpEntityNoDefinedPrimaryKey when the entity declares no primary key
+	 */
+	private static void validatePrimaryKey(Class<?> configurationClass, CcpEntityField[] fields) {
+		for (CcpEntityField field : fields) {
+			if(field.primaryKey) {
+				return;
+			}
+		}
+		String entityName = mainEntityNameProducer.apply(configurationClass);
+		CcpEntityNoDefinedPrimaryKey noPrimaryKeyError = new CcpEntityNoDefinedPrimaryKey(entityName);
+		throw noPrimaryKeyError;
 	}
 	
 	/**

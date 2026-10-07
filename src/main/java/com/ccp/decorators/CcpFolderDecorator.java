@@ -1,12 +1,7 @@
 package com.ccp.decorators;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import com.ccp.aop.CcpAllowNullReturn;
 
@@ -56,20 +51,15 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Compresses the directory, recursively, into a {@code <name>.zip} file created in the working directory of the
-	 * process. Hidden entries are skipped; entry names keep the path given to this decorator.
+	 * Compresses the directory, recursively, into {@code <name>.zip} next to it, with the entries named relative to its
+	 * parent directory (see {@code CcpFileDecorator.zipNextToTheOriginal}). Until 2026-10-07 the zip was created in the
+	 * working directory of the process and its entries were named by the full path.
 	 * @return this decorator
 	 */
 	public CcpFolderDecorator zip() {
-		
-		File fileToZip = new File(this.content);
-		
-		String fileName = fileToZip.getName();
-		
-		try(FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".zip");ZipOutputStream zipOut = new ZipOutputStream(fileOutputStream);) {
-			CcpFolderDecorator zippedFolder = this.zip(fileToZip, zipOut);
-			return zippedFolder;
-		}
+		File folderToZip = new File(this.content);
+		CcpFileDecorator.zipNextToTheOriginal(folderToZip);
+		return this;
 	}
 
 	/**
@@ -81,51 +71,6 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 		String name = file.getName();
 		return name;
 	}
-
-	/**
-	 * Adds the file, or the directory and its children recursively, to the ZIP stream.
-	 * @param fileToZip the file or directory to add
-	 * @param zipOut the ZIP stream
-	 * @return this decorator
-	 * @throws IOException when reading a file or writing the stream fails
-	 */
-	private CcpFolderDecorator zip(File fileToZip, ZipOutputStream zipOut) throws IOException {
-		boolean hidden = fileToZip.isHidden();
-       if (hidden) {
-            return this;
-        }
-        boolean isDirectory = fileToZip.isDirectory();
-        if (isDirectory) {
-            String trailingSlash = "/";
-        	   boolean endsWith = this.content.endsWith("/");
-        	   if (endsWith) {
-        		trailingSlash = ""; 
-            } 
-            String directoryEntryName = this.content + trailingSlash;
-            ZipEntry directoryEntry = new ZipEntry(directoryEntryName);
-			zipOut.putNextEntry(directoryEntry);
-            zipOut.closeEntry();
-            File[] children = fileToZip.listFiles();
-            for (File childFile : children) {
-                String childPathPrefix = this.content + "/";
-                String childFileName = childFile.getName();
-                String childPath = childPathPrefix + childFileName;
-                CcpFolderDecorator childFolder = new CcpFolderDecorator(childPath);
-                childFolder.zip(childFile, zipOut);
-            }
-            return this;
-        }
-        try(FileInputStream fileInputStream = new FileInputStream(fileToZip)) {
-            ZipEntry zipEntry = new ZipEntry(this.content);
-            zipOut.putNextEntry(zipEntry);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = fileInputStream.read(bytes)) >= 0) {
-                zipOut.write(bytes, 0, length);
-            }
-            return this;
-		}
-    }
 	
 	/**
 	 * Calls the consumer with a {@code CcpFolderDecorator} (absolute path) for each entry of the directory, files included.
@@ -270,23 +215,31 @@ public class CcpFolderDecorator implements CcpDecorator<String> {
 	}
 	
 	/**
-	 * Deletes the direct entries of the directory and then the directory itself. It is not recursive: a non-empty
-	 * subdirectory is not deleted, and in that case neither is the directory.
+	 * Deletes the directory with everything inside it, recursively; a directory that does not exist is a no-op, as in
+	 * {@code CcpFileDecorator.remove()}. Until 2026-10-07 it deleted only the direct entries, so a non-empty subdirectory
+	 * kept the directory in place with no error, and a missing directory raised a NullPointerException.
 	 * @return this decorator
 	 */
 	public CcpFolderDecorator remove() {
 		File folder = new File(this.content);
-		String[]entries = folder.list();
-		
-		for(String fileName: entries){
-		    String path = folder.getPath();
-			File currentFile = new File(path, fileName);
-		    currentFile.delete();
-		}
-		
-		folder.delete();
-		
+		this.removeRecursively(folder);
 		return this;
+	}
+
+	/**
+	 * Deletes the entry and, when it is a directory, everything inside it first.
+	 * @param entry the file or directory
+	 */
+	private void removeRecursively(File entry) {
+		File[] children = entry.listFiles();
+		boolean isDirectoryWithChildren = children != null;
+
+		if(isDirectoryWithChildren) {
+			for (File child : children) {
+				this.removeRecursively(child);
+			}
+		}
+		entry.delete();
 	}
 
 	/**

@@ -84,7 +84,9 @@ public interface CcpProcessStatus extends CcpJsonFieldName{
 		 * @param actualStatus received code
 		 */
 		private UnexpectedProcessStatus(String message, String testName, int expectedStatus, int actualStatus) {
-			super(String.format("In the test '%s' it was expected the status '%s', but status '%s' was received. Message: " + message, testName, expectedStatus, actualStatus));
+			// the message goes as an argument: until 2026-10-07 it was concatenated into the format, so a '%' in it (a
+			// percentage, an e-mail encoded in the URL as %40) broke String.format and hid the mismatch being reported
+			super(String.format("In the test '%s' it was expected the status '%s', but status '%s' was received. Message: %s", testName, expectedStatus, actualStatus, message));
 		}
 		/**
 		 * Builds the error of a name mismatch.
