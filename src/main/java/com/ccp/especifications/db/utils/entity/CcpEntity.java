@@ -141,6 +141,14 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
+	 * Returns the JSON with only the transformers of the primary key fields applied: enough to compute the id, which is
+	 * all a read needs. By default returns the same JSON unchanged.
+	 */
+	default CcpJsonRepresentation getJsonWithHandledPrimaryKey(CcpJsonRepresentation json) {
+		return json;
+	}
+
+	/**
 	 * Finds a document by the computed ID; throws {@code CcpErrorFlowDisturb} with status {@code NOT_FOUND}
 	 * if it is not found.
 	 */
@@ -198,7 +206,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 
-		CcpJsonRepresentation handledJson = entityDetails.entity.getHandledJson(json);
+		CcpJsonRepresentation handledJson = entityDetails.entity.getJsonWithHandledPrimaryKey(json);
 
 		String id = this.calculateId(handledJson);
 

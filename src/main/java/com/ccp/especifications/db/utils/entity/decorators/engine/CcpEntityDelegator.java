@@ -163,6 +163,12 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	/** Delegates to the wrapped entity. {@inheritDoc} */
+	public CcpJsonRepresentation getJsonWithHandledPrimaryKey(CcpJsonRepresentation json) {
+		CcpJsonRepresentation handledJson = this.entity.getJsonWithHandledPrimaryKey(json);
+		return handledJson;
+	}
+
+	/** Delegates to the wrapped entity. {@inheritDoc} */
 	public List<CcpBulkItem> toBulkItems(CcpJsonRepresentation json, CcpBulkEntityOperationType operation) {
 		List<CcpBulkItem> bulkItems = this.entity.toBulkItems(json, operation);
 		return bulkItems;

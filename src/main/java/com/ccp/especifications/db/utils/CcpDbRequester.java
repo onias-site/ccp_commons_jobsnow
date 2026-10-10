@@ -58,9 +58,9 @@ public interface CcpDbRequester {
 	String getFieldNameToId();
 
 	/**
-	 * Creates the indexes/tables in the database based on the given scripts and classes, recording errors
-	 * in the given destinations.
+	 * Creates the indexes/tables in the database based on the given scripts and classes, recording the mapping
+	 * errors and the results of the seed records in the given destinations.
 	 */
 	CcpDbRequester createTables(String pathToCreateEntityScript, String pathToJavaClasses, String mappingJnEntitiesErrors,
-			String insertErrors);
+			String insertResults);
 }

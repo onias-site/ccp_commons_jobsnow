@@ -13,7 +13,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
  */
 public interface CcpCache {
 
-	 /**
+	 /** 
 	  * Returns the value stored under the key.
 	  * @param key the cache key
 	  * @return the stored value, or {@code null} when the key is not in the cache

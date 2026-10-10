@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -11,11 +12,13 @@ import com.ccp.especifications.db.utils.entity.fields.CcpEntityJsonTransformerEr
 
 /**
  * Decorator that applies field transformations (defined in {@code @CcpEntityFieldsTransformer})
- * to the JSON before any read or write operation. Uses the internal class
- * {@code AlreadyTransformedJson} to avoid re-transformations in recursive calls.
+ * to the JSON before any read or write operation. Writes get the transformers of every field; reads get only the
+ * transformers of the primary key fields, because a read only needs the id (a BCrypt transformer, such as the one of
+ * a password, costs about 250 ms each run). Uses the internal class {@code AlreadyTransformedJson} to avoid
+ * re-transformations in recursive calls.
  */
 class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
-	
+
 	/**
 	 * Wraps the entity.
 	 * @param entity the wrapped entity
@@ -24,7 +27,7 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	public DecoratorFieldsTransformerEntity(CcpEntity entity, Class<?> clazz) {
 		super(entity);
 	}
-	
+
 	/**
 	 * Transforms the fields and then deletes.
 	 * @param json the record
@@ -48,18 +51,16 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Transforms the fields and then checks the existence.
+	 * Transforms the primary key fields and then checks the existence.
 	 * @param json the record
 	 * @return the outcome of the wrapped exists
 	 */
 	public boolean exists(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.exists(transformedJsonByEachFieldInJson);
+		CcpJsonRepresentation jsonWithHandledPrimaryKey = this.getJsonWithHandledPrimaryKey(json);
+		var result = this.entity.exists(jsonWithHandledPrimaryKey);
 		return result;
 	}
-	
 
-	
 	/**
 	 * Applies, in field order, the transformer of every field that has one; a transformer that raises
 	 * {@code CcpEntityJsonTransformerError} is skipped. An already transformed JSON is returned as is, and the result is
@@ -68,27 +69,57 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	 * @return the transformed record
 	 */
 	public CcpJsonRepresentation getHandledJson(CcpJsonRepresentation json) {
-		
+		CcpJsonRepresentation transformedJson = this.transform(json, field -> true);
+		return transformedJson;
+	}
+
+	/**
+	 * Applies, in field order, only the transformers of the primary key fields: what a read needs to compute the id.
+	 * An already transformed JSON is returned as is, and the result is marked as transformed: the decorators below the
+	 * read only compute ids from it.
+	 * @param json the record
+	 * @return the record with the primary key transformed
+	 */
+	public CcpJsonRepresentation getJsonWithHandledPrimaryKey(CcpJsonRepresentation json) {
+		CcpJsonRepresentation transformedJson = this.transform(json, field -> field.primaryKey);
+		return transformedJson;
+	}
+
+	/**
+	 * Applies, in field order, the transformer of every chosen field that has one; a transformer that raises
+	 * {@code CcpEntityJsonTransformerError} is skipped.
+	 * @param json the record
+	 * @param fieldsToTransform chooses the fields whose transformers run
+	 * @return the transformed record, marked as transformed
+	 */
+	private CcpJsonRepresentation transform(CcpJsonRepresentation json, Predicate<CcpEntityField> fieldsToTransform) {
+
 		boolean alreadyTransformedJson = json instanceof AlreadyTransformedJson;
-		
+
 		if(alreadyTransformedJson) {
 			return json;
 		}
-		
+
 		CcpJsonRepresentation result = json;
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		for (CcpEntityField field : entityDetails.allFields) {
-			
+
 			boolean doNothing = field.transformer == CcpOtherConstants.DO_NOTHING;
-			
+
 			if(doNothing) {
 				continue;
 			}
-			
+
+			boolean notChosen = false == fieldsToTransform.test(field);
+
+			if(notChosen) {
+				continue;
+			}
+
 			try {
 				result = field.transformer.execute(result);
 			} catch (CcpEntityJsonTransformerError e) {
-			
+
 			}
 		}
 		AlreadyTransformedJson transformedJson = new AlreadyTransformedJson(result);
@@ -96,40 +127,40 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Transforms the fields and then reads the record.
+	 * Transforms the primary key fields and then reads the record.
 	 * @param json the record (at least its primary key)
 	 * @return the record
 	 */
 	public CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.getOneById(transformedJsonByEachFieldInJson);
+		CcpJsonRepresentation jsonWithHandledPrimaryKey = this.getJsonWithHandledPrimaryKey(json);
+		var result = this.entity.getOneById(jsonWithHandledPrimaryKey);
 		return result;
 	}
-	
+
 
 	/**
-	 * Transforms the fields and then builds the search parameters.
+	 * Transforms the primary key fields and then builds the search parameters.
 	 * @param json the record
 	 * @return the search parameters
 	 */
 	public List<CcpJsonRepresentation> getParametersToSearch(CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.getParametersToSearch(transformedJsonByEachFieldInJson);
+		CcpJsonRepresentation jsonWithHandledPrimaryKey = this.getJsonWithHandledPrimaryKey(json);
+		var result = this.entity.getParametersToSearch(jsonWithHandledPrimaryKey);
 		return result;
-	}	
+	}
 
 	/**
-	 * Transforms the fields and then checks the union-all result.
+	 * Transforms the primary key fields and then checks the union-all result.
 	 * @param unionAll the search result
 	 * @param json the record
 	 * @return {@code true} when the record was found
 	 */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
-		CcpJsonRepresentation transformedJsonByEachFieldInJson = this.getHandledJson(json);
-		var result = this.entity.isPresentInThisUnionAll(unionAll, transformedJsonByEachFieldInJson);
+		CcpJsonRepresentation jsonWithHandledPrimaryKey = this.getJsonWithHandledPrimaryKey(json);
+		var result = this.entity.isPresentInThisUnionAll(unionAll, jsonWithHandledPrimaryKey);
 		return result;
 	}
-	
+
 	/**
 	 * Transforms the fields and then saves.
 	 * @param json the record
