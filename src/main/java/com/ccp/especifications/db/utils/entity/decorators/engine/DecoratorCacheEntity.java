@@ -1,5 +1,8 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
+import java.util.function.Supplier;
+
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
@@ -116,38 +119,58 @@ class DecoratorCacheEntity extends CcpEntityDelegator {
 	}
 
 	/**
-	 * Returns the record from the union-all result <b>without going through the cache</b>. Note that this is an overload
-	 * taking the JSON itself, not an override of {@code CcpEntity.getRecordFromUnionAll(CcpSelectUnionAll, Supplier)}.
+	 * Returns the record from the union-all result, <b>reading the cache first</b>: a cached record is returned as it
+	 * is; otherwise the record comes from the union-all result.
 	 * <p>
-	 * {@code CcpSelectUnionAll} is an in-memory structure: the {@code _mget} has already brought every record before this
-	 * call. Checking the cache here cannot save any round trip to the database: at best it avoids a RAM read, and at worst
-	 * it pays for a read and a write on the cache server to get what was already at hand.
+	 * The id is calculated over the primary key after the field transformers, as the wrapped entity does, so the key
+	 * of the cache is the same one used by {@code getOneById}, {@code exists}, {@code save} and {@code delete}.
 	 * <p>
-	 * The cache is still used in {@code getOneById} and {@code exists}, where the alternative is actually going to the
-	 * database.
+	 * What comes from the union all is <b>not</b> cached. These two methods also run in the middle of writes (the twin
+	 * entity asks whether the record existed while transferring it on a delete), and caching there put back a record
+	 * the same operation was deleting (tried on 2026-10-11: 12 entity decorator tests broke). The cache keeps being
+	 * filled where it always was: {@code getOneById}, {@code exists} and {@code save}.
 	 * @param unionAll the search result
-	 * @param json the search parameters
+	 * @param jsonSupplier supplies the search parameters
 	 * @return the record, or an empty JSON
 	 */
-	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+	public CcpJsonRepresentation getRecordFromUnionAll(CcpSelectUnionAll unionAll, Supplier<CcpJsonRepresentation> jsonSupplier) {
+		CcpJsonRepresentation json = jsonSupplier.get();
+		CcpEntityMetaData entityDetails = this.entity.getEntityMetaData();
+		CcpJsonRepresentation handledJson = entityDetails.entity.getJsonWithHandledPrimaryKey(json);
+		String recordId = this.entity.calculateId(handledJson);
+		CcpCacheDecorator cache = this.getCache(recordId);
 
-		CcpJsonRepresentation result = this.entity.getRecordFromUnionAll(unionAll, json.getJsonSupplier());
+		CcpJsonRepresentation cachedRecord = cache.getOrDefault(CcpOtherConstants.EMPTY_JSON);
+		boolean foundInTheCache = false == cachedRecord.isEmpty();
 
-		return result;
+		if(foundInTheCache) {
+			return cachedRecord;
+		}
+
+		CcpJsonRepresentation recordFromUnionAll = this.entity.getRecordFromUnionAll(unionAll, jsonSupplier);
+		return recordFromUnionAll;
 	}
 
 	/**
-	 * Tells whether the record is in the union-all result, <b>without touching the cache</b>.
-	 *
-	 * <p>Besides the lookup being in memory (see {@code getRecordFromUnionAll}), the previous version
-	 * undid its own work: {@code CcpCrud.unionAll} deletes the key right before the {@code _mget},
-	 * and this method wrote it back right after with the freshly read data. That was three conversations with the cache
-	 * server — delete, read, write — to end up in the same state as doing nothing.</p>
+	 * Tells whether the record exists, <b>reading the cache first</b>: {@code true} when it is cached; otherwise asks
+	 * the union-all result. Nothing is cached here, for the reason given in {@code getRecordFromUnionAll}.
+	 * <p>
+	 * The json arrives here with its primary key already handled by the field transformers (they wrap this decorator).
+	 * @param unionAll the search result
+	 * @param json the search parameters
+	 * @return {@code true} when the record exists
 	 */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
+		String recordId = this.entity.calculateId(json);
+		CcpCacheDecorator cache = this.getCache(recordId);
+
+		boolean presentInTheCache = cache.isPresentInTheCache();
+
+		if(presentInTheCache) {
+			return true;
+		}
 
 		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
-
 		return presentInThisUnionAll;
 	}
 
