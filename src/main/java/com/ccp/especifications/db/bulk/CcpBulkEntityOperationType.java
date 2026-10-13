@@ -33,6 +33,14 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 	})),
 	/** Null/no-effect operation; used to mark records that exist but do not need to be changed. */
 	noop(0, false, CcpOtherConstants.EMPTY_JSON),
+	/**
+	 * Update done by the database itself, atomically, with a script: the json of the item carries the fields of
+	 * {@link CcpBulkScriptedUpdateFields} (the script, its parameters and the record to create when there is none). Two
+	 * items over the same record, sent at the same time by different processes, are applied one after the other, so
+	 * none overwrites the other; that is what a read, change and write in the application cannot guarantee. No
+	 * reprocessing handler: a failure goes to the default reprocessing.
+	 */
+	scriptedUpdate(2, false, CcpOtherConstants.EMPTY_JSON),
 	;
 	/**
 	 * Whether the operation merges the new data with the record already stored (only the updatable fields of the new

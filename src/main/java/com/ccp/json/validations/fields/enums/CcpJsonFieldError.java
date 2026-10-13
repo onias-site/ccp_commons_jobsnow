@@ -241,13 +241,16 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 	},
 	
 	/**
-	 * A field annotated with {@code @CcpJsonFieldValidatorArray} must hold a collection, and any other field must not;
-	 * breaks the other validations of the field when broken. Checked only in the single-value context.
+	 * A field not annotated with {@code @CcpJsonFieldValidatorArray} must not hold a collection; breaks the other
+	 * validations of the field when broken. Checked only in the single-value context. The opposite case, a field
+	 * annotated with {@code @CcpJsonFieldValidatorArray} holding a single value, is refused earlier by
+	 * {@code incompatibleType} ("must be a collection"), which breaks the other validations of the field: until
+	 * 2026-10-12 this rule kept a message for it ("that is not a collection") that no input could reach.
 	 */
 	validateCollectionOrSigleValue(CcpJsonFieldErrorHandleType.breakFieldValidation){
-		
+
 		/**
-		 * Tells whether the value should or should not be a collection.
+		 * Tells that a single-value field holds a collection, with its items.
 		 * @param json the JSON being validated
 		 * @param field the field
 		 * @param type the declared type of the field
@@ -256,22 +259,12 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		public String getErrorMessage(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
 			boolean hasError = this.hasError(json, field, type);
 			boolean hasNoError = false == hasError;
-			
+
 			if(hasNoError) {
 				return "";
 			}
-			
-			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
+
 			String fieldName = field.getName();
-		
-			if(mustBeCollection) {
-				Object providedValue = this.getProvidedValue(json, field, type);
-				String fieldLabel = "The field " + fieldName;
-				String fieldWithValueLabel = fieldLabel + " has a value ";
-				String messageWithProvidedValue = fieldWithValueLabel + providedValue;
-				String errorMessage = messageWithProvidedValue + " that is not a collection";
-				return errorMessage;
-			}
 			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
 
 			List<Object> providedValue = json.getAsObjectList(ccpFieldName);
@@ -283,23 +276,21 @@ public enum CcpJsonFieldError implements CcpJsonFieldName, CcpJsonFieldValidator
 		}
 
 		/**
-		 * Tells whether the value being a JSON list disagrees with the presence of {@code @CcpJsonFieldValidatorArray}.
+		 * Tells whether a field not annotated with {@code @CcpJsonFieldValidatorArray} holds a JSON list.
 		 * @param json the JSON being validated
 		 * @param field the field
 		 * @param type the declared type of the field
-		 * @return {@code true} on a mismatch
+		 * @return {@code true} when a single-value field holds a collection
 		 */
 		public boolean hasError(CcpJsonRepresentation json, Field field, CcpJsonFieldType type) {
-			
+
 			String fieldName = field.getName();
 			CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
 			CcpStringDecorator asStringDecorator = json.getAsStringDecorator(ccpFieldName);
 			boolean isCollection = asStringDecorator.isList();
 			boolean mustBeCollection = field.isAnnotationPresent(CcpJsonFieldValidatorArray.class);
-			boolean collectionMismatch = isCollection ^ mustBeCollection;
-
-			boolean hasError = (collectionMismatch);
-			return hasError;
+			boolean singleValueHoldingACollection = isCollection && false == mustBeCollection;
+			return singleValueHoldingACollection;
 		}
 
 		/**

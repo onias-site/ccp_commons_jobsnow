@@ -139,6 +139,19 @@ class DecoratorFieldsTransformerEntity extends CcpEntityDelegator {
 
 
 	/**
+	 * Transforms the primary key fields and then reads the record wherever it is. Up to 2026-10-12 this method was not
+	 * forwarded: the read wherever went down with the raw json (the e-mail in clear text instead of its hash), calculated
+	 * ids that no stored record had and answered every associated entity empty.
+	 * @param json the record (at least its primary key)
+	 * @return the record under each associated entity
+	 */
+	public CcpJsonRepresentation getOneByIdAnyWhere(CcpJsonRepresentation json) {
+		CcpJsonRepresentation jsonWithHandledPrimaryKey = this.getJsonWithHandledPrimaryKey(json);
+		var result = this.entity.getOneByIdAnyWhere(jsonWithHandledPrimaryKey);
+		return result;
+	}
+
+	/**
 	 * Transforms the primary key fields and then builds the search parameters.
 	 * @param json the record
 	 * @return the search parameters
