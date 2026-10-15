@@ -78,6 +78,23 @@ public class CcpSelectProcedure {
 	}
 
 	/**
+	 * Declares an action run once for each search parameter whose record exists in the entity, with that record: the
+	 * several keys passed to {@code CcpGetEntityId} are read in the same union all, and each one is decided on its own.
+	 * {@code ifThisIdIsPresentInEntity}, on the contrary, holds when any of the keys is present and hands over only the
+	 * first record found.
+	 * @param entity the entity checked
+	 * @return the step that declares the action
+	 */
+	public CcpSelectForEachFoundInEntity forEachIdPresentInEntity(CcpEntity entity) {
+		CcpJsonRepresentation foundStatement = CcpOtherConstants.EMPTY_JSON.put(CcpJsonCommonsFields.found, true);
+		CcpJsonRepresentation entityFoundStatement = foundStatement.put(JsonFieldNames.entity, entity);
+		CcpJsonRepresentation forEachStatement = entityFoundStatement.put(CcpSelectFinally.JsonFieldNames.forEach, true);
+		CcpJsonRepresentation updatedStatements = this.statements.addToList(CcpJsonCommonsFields.statements, forEachStatement);
+		CcpSelectForEachFoundInEntity forEachStep = new CcpSelectForEachFoundInEntity(this.parametersToSearch, updatedStatements);
+		return forEachStep;
+	}
+
+	/**
 	 * Declares an unconditional action, run over the JSON at this point of the flow.
 	 * @param action the action to run
 	 * @return the next step of the chain

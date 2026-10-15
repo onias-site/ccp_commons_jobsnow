@@ -40,7 +40,9 @@ public class CcpSelectFinally {
 		/** The description of the declared statements, added to the error context. */
 		flow,
 		/** Who started the search, added to the result. */
-		origin
+		origin,
+		/** Marks a statement of {@code forEachIdPresentInEntity}: its action runs once per search parameter found. */
+		forEach
 	}
 
 	/** The search parameters; the first one is the JSON that flows through the actions. */
@@ -101,6 +103,8 @@ public class CcpSelectFinally {
 	 * <li>starting from the first search parameter, evaluates each statement in order:
 	 * <ul>
 	 * <li>a statement without entity runs its action over the JSON;</li>
+	 * <li>a statement of {@code forEachIdPresentInEntity} runs its action once for each search parameter found in the
+	 * entity, over that parameter with its record under {@code _entities.<entity>}, and leaves the JSON as it was;</li>
 	 * <li>a statement whose presence expectation does not hold is skipped, but a record that exists is still added
 	 * under {@code _entities.<entity>} (this is how {@code loadThisIdFromEntity} loads data);</li>
 	 * <li>a statement whose expectation holds and has a status: the error context (JSON plus
@@ -169,6 +173,13 @@ public class CcpSelectFinally {
 			if (executeFreeAction) {
 				CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
 				json = action.execute(json);
+				continue;
+			}
+
+			boolean executeForEachIdFound = specification.containsField(JsonFieldNames.forEach);
+
+			if (executeForEachIdFound) {
+				this.executeForEachIdFound(unionAll, specification);
 				continue;
 			}
 
@@ -258,6 +269,35 @@ public class CcpSelectFinally {
 	 * @param entity the entity checked
 	 * @return {@code true} when the record was found
 	 */
+	/**
+	 * Runs the action of a {@code forEachIdPresentInEntity} statement once for each search parameter whose record is in
+	 * the union all, over that parameter with its record under {@code _entities.<entity>}.
+	 * @param unionAll the result of the search
+	 * @param specification the statement
+	 */
+	private void executeForEachIdFound(CcpSelectUnionAll unionAll, CcpJsonRepresentation specification) {
+		CcpEntity entity = specification.getAsObject(JsonFieldNames.entity);
+		CcpBusiness action = specification.getAsObject(JsonFieldNames.action);
+		CcpEntityMetaData metaData = entity.getEntityMetaData();
+
+		for (CcpJsonRepresentation parameterToSearch : this.parametersToSearch) {
+			boolean containsPrimaryKey = parameterToSearch.containsAllFields(metaData.primaryKeyNames);
+			boolean isNotParameterToSearch = false == containsPrimaryKey;
+			if(isNotParameterToSearch) {
+				continue;
+			}
+			boolean isPresent = entity.isPresentInThisUnionAll(unionAll, parameterToSearch);
+			boolean isNotPresent = false == isPresent;
+			if(isNotPresent) {
+				continue;
+			}
+			Supplier<CcpJsonRepresentation> jsonSupplier = parameterToSearch.getJsonSupplier();
+			CcpJsonRepresentation recordFromUnionAll = entity.getRecordFromUnionAll(unionAll, jsonSupplier);
+			CcpJsonRepresentation context = parameterToSearch.addToItem(CcpEntity.JsonFieldNames._entities, entity, recordFromUnionAll);
+			action.execute(context);
+		}
+	}
+
 	private boolean isPresentInUnionAll(CcpSelectUnionAll unionAll, CcpEntity entity) {
 		
 		for (CcpJsonRepresentation parameterToSearch : this.parametersToSearch) {

@@ -3,7 +3,7 @@ package com.ccp.process;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonFieldName;
 
-/** Default HTTP-like process statuses used throughout jobsnow. */
+/** Default HTTP-like process statuses. */
 public enum CcpProcessStatusDefault implements CcpProcessStatus{
 
 	/** The record exists but is inactive (302). */

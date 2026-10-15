@@ -151,7 +151,7 @@ public final class CcpCacheDecorator {
 	 * Removes all the given keys at once, in a single round trip to the cache server
 	 * when the implementation supports batches.
 	 *
-	 * <p>It is static because whoever invalidates the cache in bulk ({@code JnDeleteKeysFromCache}) starts from a
+	 * <p>It is static because whoever invalidates the cache in bulk starts from a
 	 * set of keys that are already built, not from an entity: building a decorator per key just to
 	 * delete it was exactly what turned one invalidation into N network round trips.</p>
 	 *

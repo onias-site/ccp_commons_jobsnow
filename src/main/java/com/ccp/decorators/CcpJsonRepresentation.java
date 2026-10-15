@@ -31,7 +31,7 @@ import com.ccp.especifications.json.CcpJsonHandler;
 import com.ccp.hash.CcpHashAlgorithm;
  
 /**
- * Central type of the jobsnow framework. Represents a JSON document as a {@code Map<String, Object>} and is the data
+ * Central type of the ccp framework. Represents a JSON document as a {@code Map<String, Object>} and is the data
  * type that flows between all business components. Offers a fluent API for reading, writing, transforming, comparing,
  * deep navigation and conditional execution.
  * <p>

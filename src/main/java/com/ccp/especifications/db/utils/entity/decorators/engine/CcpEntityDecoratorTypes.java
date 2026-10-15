@@ -30,7 +30,7 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDe
  * {@code DataReadOnly} at 9: a read-only entity refuses the write, so the refusal must
  * happen before any side effect, before transforming fields and before publishing a message to a
  * queue. Priority <b>8 is reserved for decorators that cut the chain and republish the operation</b>
- * — today {@code JnAsyncWriterEntity}, which serializes the JSON and sends it to the messaging system. Whoever cuts the
+ * — such as a custom decorator that serializes the JSON and sends it to the messaging system. Whoever cuts the
  * chain must receive the <b>raw</b> JSON: if it stays inside {@code FieldsTransformer}, what goes
  * to the queue is already transformed and {@code FieldsValidator} rejects the message when it comes back. That is
  * why no item of this enum uses priority 8.

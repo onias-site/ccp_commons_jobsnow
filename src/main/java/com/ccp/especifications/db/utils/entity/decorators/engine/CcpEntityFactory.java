@@ -40,7 +40,7 @@ public class CcpEntityFactory {
 	/**
 	 * Derives the entity name from the simple name of the configurator class, keeping the cost center
 	 * prefix and discarding only the {@code Entity} marker. Example:
-	 * {@code JnEntityJobsnowError} becomes {@code jn_jobsnow_error}.
+	 * {@code XyEntityOrderItem} becomes {@code xy_order_item}.
 	 */
 	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
 		String simpleName = clazz.getSimpleName();
@@ -82,7 +82,7 @@ public class CcpEntityFactory {
 	 * Refuses an entity that declares no primary key. Every entity needs one: the id of a record is computed from it
 	 * ({@code CcpEntity.calculateId}), and that is how save overwrites instead of duplicating and how exists, getOneById
 	 * and delete find a record from its data. An entity that wants one record per event declares a generated field as its
-	 * key, as {@code jn_async_task} does with {@code messageId}. Since 2026-10-07 the refusal happens here, when the
+	 * key, such as a message id. Since 2026-10-07 the refusal happens here, when the
 	 * entity is built (the {@code ENTITY} constant of the configurator, so at the first use of the class and in the tests
 	 * of the structure of the entities); before, only at the first read or write.
 	 * <p>
@@ -211,20 +211,7 @@ public class CcpEntityFactory {
 	 * @throws CcpErrorEntityConfigurationFieldsIsMissing when the {@code Fields} enum is not declared
 	 */
 	public static CcpEntityField[] getFields(Class<?> configurationClass) {
-		
-		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);
-		
-		if(didNotDeclareFieldsEnum) {
-			CcpErrorEntityConfigurationFieldsIsMissing fieldsEnumMissingError = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
-			throw fieldsEnumMissingError;
-		}
-		
-		// the fields come from the class of @CcpEntityFieldsValidator, or, without it, from the Fields enum itself (until
-		// 2026-10-06 an entity without the annotation broke here with NullPointerException)
-		boolean hasFieldsValidator = configurationClass.isAnnotationPresent(CcpEntityFieldsValidator.class);
-		Class<?> entitySchemeValidation = hasFieldsValidator
-				? configurationClass.getAnnotation(CcpEntityFieldsValidator.class).classReferenceWithTheFields()
-				: getFieldsEnum(configurationClass);
+		Class<?> entitySchemeValidation = getFieldsClass(configurationClass);
 		Field[] declaredFields = entitySchemeValidation.getDeclaredFields();
 		List<CcpEntityField> entityFieldsList = new ArrayList<>();
 		for (Field field : declaredFields) {
@@ -260,6 +247,32 @@ public class CcpEntityFactory {
 		return fields;
 	}
 	
+	/**
+	 * The class whose static {@code CcpJsonFieldName} fields are the fields of the entity: the class named by
+	 * {@code @CcpEntityFieldsValidator}, or, without it, the {@code Fields} enum itself. The annotations of each field
+	 * (primary key, transformer and any other a decorator reads) are on these fields.
+	 * @param configurationClass the configurator class
+	 * @return the class that declares the fields of the entity
+	 * @throws CcpErrorEntityConfigurationFieldsIsMissing when the {@code Fields} enum is not declared
+	 */
+	public static Class<?> getFieldsClass(Class<?> configurationClass) {
+
+		boolean didNotDeclareFieldsEnum = didNotDeclareFieldsEnum(configurationClass);
+
+		if(didNotDeclareFieldsEnum) {
+			CcpErrorEntityConfigurationFieldsIsMissing fieldsEnumMissingError = new CcpErrorEntityConfigurationFieldsIsMissing(configurationClass);
+			throw fieldsEnumMissingError;
+		}
+
+		// the fields come from the class of @CcpEntityFieldsValidator, or, without it, from the Fields enum itself (until
+		// 2026-10-06 an entity without the annotation broke here with NullPointerException)
+		boolean hasFieldsValidator = configurationClass.isAnnotationPresent(CcpEntityFieldsValidator.class);
+		Class<?> fieldsClass = hasFieldsValidator
+				? configurationClass.getAnnotation(CcpEntityFieldsValidator.class).classReferenceWithTheFields()
+				: getFieldsEnum(configurationClass);
+		return fieldsClass;
+	}
+
 	/**
 	 * Looks for the {@code Fields} enum among <b>all</b> the nested types of the configurator class, in
 	 * any position. The order returned by {@code getDeclaredClasses()} is unspecified, so

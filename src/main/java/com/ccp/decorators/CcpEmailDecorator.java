@@ -7,36 +7,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Decorator specialized in e-mail addresses. Offers robust validation (with business rules specific
- * to the jobsnow domain), accent normalization, extraction of e-mails from free text and hash calculation of the address.
+ * Decorator specialized in e-mail addresses. Offers robust validation, accent normalization, extraction of e-mails from
+ * free text and hash calculation of the address.
  */
 public class CcpEmailDecorator implements  CcpDecorator<String>{
 	/** Basic syntax of an e-mail address: local part, {@code @}, domain and a top-level domain of at least two letters. */
 	public static final String	EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
-//	private static Set<String> nonProfessionalDomains = new HashSet<>();
-//	
-//	static {
-//		nonProfessionalDomains.add("globalweb.com.br");
-//		nonProfessionalDomains.add("localweb.com.br");
-//		nonProfessionalDomains.add("protonmail.com");
-//		nonProfessionalDomains.add("locaweb.com.br");
-//		nonProfessionalDomains.add("outlook.com.br");
-//		nonProfessionalDomains.add("yahoo.com.br");
-//		nonProfessionalDomains.add("terra.com.br");
-//		nonProfessionalDomains.add("outlook.com");
-//		nonProfessionalDomains.add("hotmail.com");
-//		nonProfessionalDomains.add("uol.com.br");
-//		nonProfessionalDomains.add("bol.com.br");
-//		nonProfessionalDomains.add("uolinc.com");
-//		nonProfessionalDomains.add("yahoo.com");
-//		nonProfessionalDomains.add("gmail.com");
-//		nonProfessionalDomains.add("ig.com.br");
-//		nonProfessionalDomains.add("live.com");
-//		nonProfessionalDomains.add("msn.com");
-//	}
-
-	
 	/** The e-mail address. */
 	public final String content;
 

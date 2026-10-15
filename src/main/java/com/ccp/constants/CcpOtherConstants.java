@@ -25,8 +25,8 @@ public interface CcpOtherConstants {
 	 * end of a word ("Spring (Boot)") stayed glued to it.
 	 * <p>
 	 * It does not match the same set as {@link #DELIMITERS_ARRAY}: this one splits on {@code -}, {@code \r} and white
-	 * space, the array on {@code /} and {@code \}. Unifying them changes how skills are recognized in a free text (the
-	 * only user of this expression, in vis), so it waits for that decision.
+	 * space, the array on {@code /} and {@code \}. Unifying them changes how the callers split their free texts, so it
+	 * waits for that decision.
 	 */
 	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)|\\'|\\\"|\\`|\\.";
 	/** {@code CcpJsonFieldName} whose value is the empty string; represents the absence of a field name. */

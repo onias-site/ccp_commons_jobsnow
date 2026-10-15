@@ -6,10 +6,9 @@ import com.ccp.decorators.CcpJsonFieldName;
  * JSON field names shared across the {@code ccp} cost center, that is, the ones that used to be declared in more than one
  * enum spread through the framework modules.
  * <p>
- * It is the centralizer of the lowest layer of the dependency hierarchy ({@code ccp -> jn -> [vis, jb]}): since every
- * module depends on {@code ccp_commons_jobsnow}, any cost center can refer to these constants. Field names restricted to
- * {@code jn}/{@code jb} live in {@code JnJsonCommonsFields} and the ones restricted to {@code vis} in
- * {@code VisJsonCommonsFields}.
+ * It is the centralizer of the lowest layer of the dependency hierarchy: since every module depends on
+ * {@code ccp_commons_jobsnow}, any cost center can refer to these constants. Field names restricted to a cost center
+ * above it live in the centralizer of that cost center.
  * <p>
  * The constants are declared without validation annotations on purpose: they only unify the key written in the JSON,
  * keeping the behavior the local enums had. Validation rules can be added later, field by field, deliberately.

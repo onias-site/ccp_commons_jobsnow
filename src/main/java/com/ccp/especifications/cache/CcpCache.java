@@ -143,8 +143,7 @@ public interface CcpCache {
 	 * <p>
 	 * On purpose it does not return the removed value: returning it would force the implementation to read before
 	 * deleting (two round trips to the cache server instead of one), and no caller used the return value: every removal
-	 * point ({@code JnDeleteKeysFromCache} and the ones of {@code DecoratorCacheEntity}) calls this method as a standalone
-	 * command.
+	 * point (the bulk invalidation and the ones of {@code DecoratorCacheEntity}) calls this method as a standalone command.
 	 * @param key the cache key
 	 */
 	void delete(String key);

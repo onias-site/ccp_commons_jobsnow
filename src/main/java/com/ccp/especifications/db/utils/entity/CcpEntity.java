@@ -25,7 +25,7 @@ import com.ccp.hash.CcpHashAlgorithm;
 import com.ccp.process.CcpProcessStatusDefault;
 
 /**
- * Central contract of the jobsnow entity system. Represents an index/table in Elasticsearch and defines
+ * Central contract of the ccp entity system. Represents an index/table in Elasticsearch and defines
  * every CRUD operation, plus utilities for ID computation, union-all search, data transfer
  * and validation. Every entity enum of the system implements this interface.
  */
