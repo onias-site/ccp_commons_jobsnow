@@ -3,6 +3,7 @@
     <weaver options="-verbose -showWeaveInfo">
         <include within="com.ccp..*"/>
         <include within="com.jn..*"/>
+        <include within="com.js..*"/>
         <include within="com.jb..*"/>
         <include within="com.vis..*"/>
         <exclude within="com.ccp.aop..*"/>

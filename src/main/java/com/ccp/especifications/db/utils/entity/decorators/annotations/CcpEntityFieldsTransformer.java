@@ -15,9 +15,9 @@ public @interface CcpEntityFieldsTransformer {
 
 	/**
 	 * Class that holds the default transformers for the fields of this entity.
-	
+	 * @return the class
 	 */
 	@SuppressWarnings("rawtypes")
-	Class classReferenceWithTheFields();
+	Class value();
 
 }

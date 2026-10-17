@@ -15,9 +15,9 @@ public @interface CcpEntityFieldsValidator {
 
 	/**
 	 * Class that defines the valid fields and their validation rules for this entity.
-	
+	 * @return the class
 	 */
 	@SuppressWarnings("rawtypes")
-	Class classReferenceWithTheFields();
+	Class value();
 
 }

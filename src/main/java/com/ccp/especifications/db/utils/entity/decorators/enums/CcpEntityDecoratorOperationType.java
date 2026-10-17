@@ -1,28 +1,22 @@
 package com.ccp.especifications.db.utils.entity.decorators.enums;
 
-import java.util.List;
-import java.util.Map;
+import java.util.function.BiFunction;
 
-import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOperation;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOperations;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * The operations with side effects that can be configured for an entity through {@code @CcpEntityOperation}:
- * {@code save}, {@code insert}, {@code update}, {@code delete} and {@code deleteAnyWhere}. Each constant performs the
- * operation on the entity and exposes the {@code before} and {@code after} flows in separate methods
- * ({@code executeBefore} and {@code executeAfter}), because each flow is applied by its own decorator at its own
- * position of the chain.
+ * The write operations whose side effects can be configured for an entity, each one through its own annotation (such as
+ * {@code @CcpAfterSaveFromMainEntity}): {@code save}, {@code insert}, {@code update}, {@code delete} and
+ * {@code deleteAnyWhere}. Each constant performs the operation on the entity and exposes the {@code before} and
+ * {@code after} phases in separate methods ({@code executeBefore} and {@code executeAfter}), because each side effect
+ * is applied by its own decorator at the position of its phase in the chain.
  * <p>
  * {@code insert} and {@code update} are outcomes of {@code save}: {@code insert} when {@code save} returns {@code true}
  * (the document did not exist) and {@code update} when it returns {@code false} (the document already existed). A
  * configured {@code save} covers both outcomes, so it is the one to use when the outcome does not matter.
  */
-public enum CcpEntityDecoratorOperationType implements OperationWriter{
+public enum CcpEntityDecoratorOperationType {
 	/** Deletes the record from the entity and from its twin. */
 	deleteAnyWhere{
 
@@ -134,22 +128,22 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	abstract boolean executeEntityOperation(CcpJsonRepresentation json, CcpEntity entity);
 
 	/**
-	 * Runs the {@code before} flow and then delegates the operation to the rest of the decorator chain. The JSON produced
-	 * by the {@code before} flow is the one that goes to the inner decorators, so everything after it sees the result of
-	 * the previous side effects.
+	 * Runs the side effect of the {@code before} phase and then delegates the operation to the rest of the decorator
+	 * chain. The JSON produced by the side effect is the one that goes to the inner decorators, so everything after it sees
+	 * the result of the previous side effects.
 	 * <p>
-	 * A business of the {@code before} flow guards the operation: when it throws an exception that a configured
+	 * A business of the {@code before} phase guards the operation: when it throws an exception that a configured
 	 * {@code @CcpExceptionFlow} handles, the handlers run and the operation is canceled, returning {@code false} without
 	 * reaching the rest of the chain. Up to 2026-10-02 the operation went on after the handlers, so a {@code before}
 	 * validation could not refuse a write without making it fail.
 	 * @param json the input JSON
-	 * @param clazz the class with the {@code @CcpEntityOperations} annotation
 	 * @param entity the rest of the chain
+	 * @param sideEffect the side effect, given the JSON and this operation
 	 * @return the result of the operation, or {@code false} when it was canceled
 	 */
-	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
+	public boolean executeBefore(CcpJsonRepresentation json, CcpEntity entity, BiFunction<CcpJsonRepresentation, CcpEntityDecoratorOperationType, CcpJsonRepresentation> sideEffect) {
 		try {
-			CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity);
+			CcpJsonRepresentation before = sideEffect.apply(json, this);
 			boolean result = this.executeEntityOperation(before, entity);
 			return result;
 		} catch (CcpErrorEntityOperationCanceled e) {
@@ -158,16 +152,16 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	}
 
 	/**
-	 * Delegates the operation to the rest of the decorator chain and runs the {@code after} flow of the outcome. In
-	 * {@code delete} the {@code after} is skipped when no record was removed; in {@code save} it always runs, and the
-	 * outcome ({@code insert} or {@code update}) decides which configured items fire. Since the operation returns only a
-	 * boolean, the {@code after} flow receives the same JSON that reached this decorator.
+	 * Delegates the operation to the rest of the decorator chain and runs the side effect of the {@code after} phase with
+	 * the outcome. In {@code delete} the side effect is skipped when no record was removed; in {@code save} it always
+	 * runs, and the outcome ({@code insert} or {@code update}) decides which configured side effects fire. Since the
+	 * operation returns only a boolean, the side effect receives the same JSON that reached this decorator.
 	 * @param json the input JSON
-	 * @param clazz the class with the {@code @CcpEntityOperations} annotation
 	 * @param entity the rest of the chain
+	 * @param sideEffect the side effect, given the JSON and the outcome of the operation
 	 * @return the result of the operation
 	 */
-	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity) {
+	public boolean executeAfter(CcpJsonRepresentation json, CcpEntity entity, BiFunction<CcpJsonRepresentation, CcpEntityDecoratorOperationType, CcpJsonRepresentation> sideEffect) {
 		boolean result = this.executeEntityOperation(json, entity);
 
 		boolean afterFlowIsDispensed = this.isAfterFlowDispensed(result);
@@ -177,7 +171,7 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 		}
 
 		CcpEntityDecoratorOperationType outcome = this.getOutcome(result);
-		outcome.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity);
+		sideEffect.apply(json, outcome);
 		return result;
 	}
 
@@ -214,73 +208,4 @@ public enum CcpEntityDecoratorOperationType implements OperationWriter{
 	public CcpEntityDecoratorOperationType getOutcome(boolean result) {
 		return this;
 	}
-
-	/**
-	 * Runs the businesses of every {@code @CcpEntityOperation} whose operation covers this one, whose entity phase names
-	 * the entity and whose phase is {@code when}, in the order they are declared, chaining their outputs. Until 2026-10-06
-	 * only the first matching item ran and the others were ignored in silence. Local exception handlers take precedence
-	 * over the global ones; in the {@code before} phase a handled exception cancels the operation.
-	 * @param json the input JSON
-	 * @param when the phase to run
-	 * @param clazz the class with the {@code @CcpEntityOperations} annotation
-	 * @param entity the entity whose name selects the items
-	 * @return the JSON produced by the businesses, or the input JSON when no item matched
-	 * @throws CcpErrorEntityOperationCanceled when a handled exception cancels a before flow
-	 */
-	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity) {
-		
-		CcpEntityOperations annotation = clazz.getAnnotation(CcpEntityOperations.class);
-		
-		CcpExceptionFlow[] globalHandlers = annotation.globalHandlers();
-		
-		CcpEntityOperation[] operations = annotation.value();
-
-		for (CcpEntityOperation operation : operations) {
-
-			CcpEntityOperationType configuredOperationType = operation.operationType();
-
-			CcpEntityDecoratorOperationType operationType = configuredOperationType.operationType;
-			boolean operationTypeCovers = operationType.covers(this);
-			boolean operationTypeDoesNotCover = false == operationTypeCovers;
-
-			if(operationTypeDoesNotCover) {
-				continue;
-			}
-
-			CcpEntityPhase entityType = configuredOperationType.entityPhase;
-			String extractEntityName = entityType.extractEntityName(clazz);
-			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-			boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
-
-			boolean isNotTheEntity = false == extractEntityNameEquals;
-			
-			if(isNotTheEntity) {
-				continue;
-			}
-			var when2 = configuredOperationType.operationPhase;
-			var when2Equals = when2.equals(when);
-
-			boolean whenNotFound = false == when2Equals;
-			
-			if(whenNotFound) {
-				continue;
-			}
-			
-			CcpExceptionFlow[] localHandlers = operation.operationHandlers();
-			Map<Class<?>, List<CcpBusiness>> localExceptionHandlers = this.getExceptionHandlers(localHandlers);
-			Map<Class<?>, List<CcpBusiness>> globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
-			globalExceptionHandlers.putAll(localExceptionHandlers);
-			Class<?>[] execute = operation.execute();
-			boolean isBeforeFlow = CcpEntityOperationPhase._before.equals(when);
-			for (Class<?> businessClass : execute) {
-				CcpBusiness business = this.getBusiness(businessClass);
-				json = isBeforeFlow
-						? this.executeBusinessCancelingTheOperationWhenHandled(json, business, globalExceptionHandlers)
-						: this.executeBusiness(json, business, globalExceptionHandlers);
-			}
-		}
-
-		return json;
-	}
-	
 }

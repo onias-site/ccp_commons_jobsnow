@@ -17,10 +17,12 @@ public aspect CcpSoftExceptionAspect {
         (
             execution(* com.ccp..*(..))
             || execution(* com.jn..*(..))
+            || execution(* com.js..*(..))
             || execution(* com.jb..*(..))
             || execution(* com.vis..*(..))
             || execution(com.ccp..*.new(..))
             || execution(com.jn..*.new(..))
+            || execution(com.js..*.new(..))
             || execution(com.jb..*.new(..))
             || execution(com.vis..*.new(..))
         )

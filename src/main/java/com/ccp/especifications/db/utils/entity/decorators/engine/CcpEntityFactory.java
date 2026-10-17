@@ -14,8 +14,6 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity.CcpEntityNoDefinedPrimaryKey;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorator;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCustomDecorators;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
@@ -154,13 +152,7 @@ public class CcpEntityFactory {
 				
 				.collect(Collectors.toList());
 
-		List<CcpEntityDecoratorType> decoratorsToApply = new ArrayList<>(annotatedDecorators);		
-		
-		List<CcpEntityDecoratorType> customDecorators = getCustomDecorators(configurationClass);
-		
-		decoratorsToApply.addAll(customDecorators);
-		
-		List<CcpEntityDecoratorType> filtered = decoratorsToApply.stream()
+		List<CcpEntityDecoratorType> filtered = annotatedDecorators.stream()
 		.filter(x -> false == avoidedDecorators.contains(x)).collect(Collectors.toList());
 		
 		filtered.sort((a,b) -> a.getPriority(configurationClass) - b.getPriority(configurationClass));
@@ -172,34 +164,6 @@ public class CcpEntityFactory {
 		return result;
 	}
 	
-	/**
-	 * Instantiates, through reflection, the decorators listed in {@code @CcpEntityCustomDecorators}.
-	 * @param configurationClass the configurator class
-	 * @return the custom decorators, or an empty list when the annotation is absent
-	 */
-	private static List<CcpEntityDecoratorType> getCustomDecorators(Class<?> configurationClass) {
-		
-		boolean annotationPresent = configurationClass.isAnnotationPresent(CcpEntityCustomDecorators.class);
-
-		boolean isNotDecorated = false == annotationPresent;
-
-		if(isNotDecorated) {
-			return new ArrayList<>();
-		}
-		
-		CcpEntityCustomDecorators annotation = configurationClass.getAnnotation(CcpEntityCustomDecorators.class);
-		CcpEntityCustomDecorator[] customDecoratorAnnotations = annotation.value();
-		List<CcpEntityCustomDecorator> customDecoratorAnnotationsList = Arrays.asList(customDecoratorAnnotations);
-		
-		List<CcpEntityDecoratorType> customDecorators = 
-				customDecoratorAnnotationsList.stream()
-				.map(x -> x.value())
-				.map(x -> new CcpReflectionConstructorDecorator(x))
-				.map(x -> (CcpCustomDecoratorEntity) x.newInstance()).collect(Collectors.toList());
-		
-		return customDecorators;
-	}
-
 	/**
 	 * Reads the fields of the entity. The configurator class must declare a nested enum {@code Fields} implementing
 	 * {@code CcpJsonFieldName}, but the fields themselves are the static {@code CcpJsonFieldName} fields of the class named
@@ -268,7 +232,7 @@ public class CcpEntityFactory {
 		// 2026-10-06 an entity without the annotation broke here with NullPointerException)
 		boolean hasFieldsValidator = configurationClass.isAnnotationPresent(CcpEntityFieldsValidator.class);
 		Class<?> fieldsClass = hasFieldsValidator
-				? configurationClass.getAnnotation(CcpEntityFieldsValidator.class).classReferenceWithTheFields()
+				? configurationClass.getAnnotation(CcpEntityFieldsValidator.class).value()
 				: getFieldsEnum(configurationClass);
 		return fieldsClass;
 	}
@@ -352,7 +316,7 @@ public class CcpEntityFactory {
 		}
 		
 		CcpEntityFieldsTransformer annotation = configurationClass.getAnnotation(CcpEntityFieldsTransformer.class);
-		Class<?> classReferenceWithTheFields = annotation.classReferenceWithTheFields();
+		Class<?> classReferenceWithTheFields = annotation.value();
 		Field declaredField;
 		CcpJsonTransformersDefaultEntityField defaultEntityField;
 		try {

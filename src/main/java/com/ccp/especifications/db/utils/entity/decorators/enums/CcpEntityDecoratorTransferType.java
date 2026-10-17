@@ -1,20 +1,18 @@
 package com.ccp.especifications.db.utils.entity.decorators.enums;
 
-import com.ccp.business.CcpBusiness;
+import java.util.function.BiFunction;
+
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDataTransfer;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDataTransfers;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
-import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
 
 /**
- * The kinds of data transfer between entities configured through {@code @CcpEntityDataTransfer}:
- * {@code transferDataTo} (moves and removes the source) and {@code copyDataTo} (copies without removing the source).
- * Exposes the {@code before} and {@code after} flows in separate methods ({@code executeBefore} and
- * {@code executeAfter}), because each flow is applied by its own decorator at its own position of the chain.
+ * The kinds of data transfer between entities whose side effects can be configured, each one through its own annotation
+ * (such as {@code @CcpAfterTransferDataFromMainEntity}): {@code transferDataTo} (moves and removes the source) and
+ * {@code copyDataTo} (copies without removing the source). Exposes the {@code before} and {@code after} phases in
+ * separate methods ({@code executeBefore} and {@code executeAfter}), because each side effect is applied by its own
+ * decorator at the position of its phase in the chain.
  */
-public enum CcpEntityDecoratorTransferType implements OperationWriter{
+public enum CcpEntityDecoratorTransferType {
 	/** Moves the record to the target entity, removing it from the source. */
 	transferDataTo{
 		/**
@@ -54,19 +52,19 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	abstract boolean executeEntityTransfer(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer);
 
 	/**
-	 * Runs the {@code before} flow and then delegates the transfer to the rest of the decorator chain. The JSON produced by
-	 * the {@code before} flow is the one that goes to the inner decorators. As in the write operations, an exception
-	 * handled in the {@code before} flow cancels the transfer, which returns {@code false}; until 2026-10-06 the transfer
-	 * went on anyway (decided with the user).
+	 * Runs the side effect of the {@code before} phase and then delegates the transfer to the rest of the decorator chain.
+	 * The JSON produced by the side effect is the one that goes to the inner decorators. As in the write operations, an
+	 * exception handled in the {@code before} phase cancels the transfer, which returns {@code false}; until 2026-10-06
+	 * the transfer went on anyway (decided with the user).
 	 * @param json the input JSON
-	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
 	 * @param entity the source entity
 	 * @param entityToTransfer the target entity
+	 * @param sideEffect the side effect, given the JSON and the target entity
 	 * @return the result of the transfer, {@code false} when it was canceled
 	 */
-	public boolean executeBefore(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+	public boolean executeBefore(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer, BiFunction<CcpJsonRepresentation, CcpEntity, CcpJsonRepresentation> sideEffect) {
 		try {
-			CcpJsonRepresentation before = this.executeFlow(json, CcpEntityOperationPhase._before, clazz, entity, entityToTransfer);
+			CcpJsonRepresentation before = sideEffect.apply(json, entityToTransfer);
 			boolean result = this.executeEntityTransfer(before, entity, entityToTransfer);
 			return result;
 		} catch (CcpErrorEntityOperationCanceled e) {
@@ -75,16 +73,16 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 	}
 
 	/**
-	 * Delegates the transfer to the rest of the decorator chain and runs the {@code after} flow only when the transfer
-	 * actually happened (there was a source record). Since the transfer returns only a boolean, the {@code after} flow
-	 * receives the same JSON that reached this decorator.
+	 * Delegates the transfer to the rest of the decorator chain and runs the side effect of the {@code after} phase only
+	 * when the transfer actually happened (there was a source record). Since the transfer returns only a boolean, the side
+	 * effect receives the same JSON that reached this decorator.
 	 * @param json the input JSON
-	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
 	 * @param entity the source entity
 	 * @param entityToTransfer the target entity
+	 * @param sideEffect the side effect, given the JSON and the target entity
 	 * @return the result of the transfer
 	 */
-	public boolean executeAfter(CcpJsonRepresentation json, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
+	public boolean executeAfter(CcpJsonRepresentation json, CcpEntity entity, CcpEntity entityToTransfer, BiFunction<CcpJsonRepresentation, CcpEntity, CcpJsonRepresentation> sideEffect) {
 		boolean result = this.executeEntityTransfer(json, entity, entityToTransfer);
 
 		boolean transferDidNotHappen = false == result;
@@ -93,91 +91,7 @@ public enum CcpEntityDecoratorTransferType implements OperationWriter{
 			return false;
 		}
 
-		this.executeFlow(json, CcpEntityOperationPhase._after, clazz, entity, entityToTransfer);
+		sideEffect.apply(json, entityToTransfer);
 		return result;
-	}
-
-	/**
-	 * Runs the businesses of every {@code @CcpEntityDataTransfer} whose transfer type is this one, whose target entity is
-	 * the given one, whose entity phase names the source entity and whose phase is {@code when}, in the order they are
-	 * declared, chaining their outputs. Until 2026-10-06 only the first matching item ran. Local exception handlers take
-	 * precedence over the global ones.
-	 * @param json the input JSON
-	 * @param when the phase to run
-	 * @param clazz the class with the {@code @CcpEntityDataTransfers} annotation
-	 * @param entity the source entity
-	 * @param entityToTransfer the target entity
-	 * @return the JSON produced by the businesses, or the input JSON when no item matched
-	 */
-	protected CcpJsonRepresentation executeFlow(CcpJsonRepresentation json, CcpEntityOperationPhase when, Class<?> clazz, CcpEntity entity, CcpEntity entityToTransfer) {
-		
-		CcpEntityDataTransfers annotation = clazz.getAnnotation(CcpEntityDataTransfers.class);
-		
-		CcpExceptionFlow[] globalHandlers = annotation.globalHandlers();
-		
-		CcpEntityDataTransfer[] transfers = annotation.value();
-
-		for (CcpEntityDataTransfer transfer : transfers) {
-
-			CcpEntityDataTransferType configuredTransferType = transfer.operationType();
-			{
-				CcpEntityDecoratorTransferType operationType = configuredTransferType.transferType;
-				boolean operationTypeEquals = operationType.equals(this);
-				boolean isNotOperationTyype = false == operationTypeEquals;
-				
-				if(isNotOperationTyype) {
-					continue;
-				}
-				
-			}
-			{
-				CcpEntityMetaData entityToTransferEntityDetails = entityToTransfer.getEntityMetaData();
-				Class<?> targetEntity = transfer.targetEntity();
-				boolean configurationClassEquals = entityToTransferEntityDetails.configurationClass.equals(targetEntity);
-				boolean wrongTarget = false == configurationClassEquals;
-				
-				if(wrongTarget) {
-					continue;
-				}
-			}
-			
-			{
-				
-				CcpEntityPhase entityPhase = configuredTransferType.entityPhase;
-				String extractEntityName = entityPhase.extractEntityName(clazz);
-				CcpEntityMetaData entityDetails = entity.getEntityMetaData();
-				boolean extractEntityNameEquals = extractEntityName.equals(entityDetails.entityName);
-				
-				boolean wrongEntityPhase = false == extractEntityNameEquals;
-				
-				if(wrongEntityPhase) {
-					continue;
-				}
-			}
-			 
-			CcpEntityOperationPhase when2 = configuredTransferType.operationPhase;
-			
-			boolean when2Equals = when2.equals(when);
-
-			boolean whenNotFound = false == when2Equals;
-			
-			if(whenNotFound) {
-				continue;
-			}
-			
-			var localHandlers = transfer.transferHandlers();
-			var localExceptionHandlers = this.getExceptionHandlers(localHandlers);
-			var globalExceptionHandlers = this.getExceptionHandlers(globalHandlers);
-			globalExceptionHandlers.putAll(localExceptionHandlers);
-			Class<?>[] execute = transfer.execute();
-			boolean isBeforeFlow = CcpEntityOperationPhase._before.equals(when);
-			for (var businessClass : execute) {
-				CcpBusiness business = this.getBusiness(businessClass);
-				json = isBeforeFlow
-						? this.executeBusinessCancelingTheOperationWhenHandled(json, business, globalExceptionHandlers)
-						: this.executeBusiness(json, business, globalExceptionHandlers);
-			}
-		}
-		return json;
 	}
 }

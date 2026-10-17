@@ -12,8 +12,8 @@ import com.ccp.decorators.CcpReflectionConstructorDecorator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpExceptionFlow;
 
 /**
- * Helper shared by {@code CcpEntityDecoratorOperationType} and {@code CcpEntityDecoratorTransferType}: runs businesses
- * with the exception handling configured through {@code @CcpExceptionFlow}.
+ * Helper of {@code CcpEntitySideEffectBusinesses}: runs the businesses of a side effect with the exception handling
+ * configured through {@code @CcpExceptionFlow}.
  */
 interface OperationWriter {
 

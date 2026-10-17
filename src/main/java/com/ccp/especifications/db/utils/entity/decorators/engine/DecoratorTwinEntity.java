@@ -251,10 +251,10 @@ class DecoratorTwinEntity extends CcpDefaultEntityDelegator<CcpEntityTwin>{
 		CcpEntity wrapedEntity = twinEntity.getWrapedEntity();
 		while(false == wrapedEntity instanceof DecoratorTwinEntity) {
 			wrapedEntity = wrapedEntity.getWrapedEntity();
-			var wrapedEntityClass = wrapedEntity.getClass();
 			CcpEntity innerWrapedEntity = wrapedEntity.getWrapedEntity();
-			var innerWrapedEntityClass = innerWrapedEntity.getClass();
-			boolean twinIsMissing = wrapedEntityClass.equals(innerWrapedEntityClass);
+			// the innermost entity wraps itself; until 2026-10-16 the end was two layers of the same class, which became
+			// common once each side effect annotation got a decorator of its own
+			boolean twinIsMissing = innerWrapedEntity == wrapedEntity;
 			if(twinIsMissing) {
 				CcpErrorEntityIsNotTwin notTwinError = new CcpErrorEntityIsNotTwin(this.entity);
 				throw notTwinError;

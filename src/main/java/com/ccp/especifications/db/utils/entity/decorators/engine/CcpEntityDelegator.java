@@ -1,8 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.engine;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -97,26 +96,30 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	/**
-	 * Describes the entity name and the decorator chain, from this decorator inwards, as {@code name = A->B->C}.
+	 * Describes the entity name and the decorator chain, from this decorator inwards, as {@code name = A->B->C}. The walk
+	 * ends at the innermost entity, the one that wraps itself; a class repeated along the chain (one decorator per side
+	 * effect annotation) appears once per layer. Until 2026-10-16 the walk ended at the first repeated class name.
 	 * @return the description followed by a line feed
 	 */
 	public String toString() {
-		
-		CcpEntity wrapedEntity = this;
-		Set<String> decoratorNames = new LinkedHashSet<>();
-		var clazz = this.getClass();
-		var simpleName = clazz.getSimpleName();
-		decoratorNames.add(simpleName);
-		do {
-			
-		}while(decoratorNames.add((wrapedEntity = wrapedEntity.getWrapedEntity()).getClass().getSimpleName()));
-		String decoratorNamesAsText = decoratorNames.toString();
-		String withoutSpaces = decoratorNamesAsText.replace(" ", "");
-		String decoratorChain = withoutSpaces.replace(",", "->");
+		List<String> decoratorNames = new ArrayList<>();
+		CcpEntity layer = this;
+		CcpEntity innerLayer = this.entity;
+		while(innerLayer != layer) {
+			Class<?> layerClass = layer.getClass();
+			String layerName = layerClass.getSimpleName();
+			decoratorNames.add(layerName);
+			layer = innerLayer;
+			innerLayer = layer.getWrapedEntity();
+		}
+		Class<?> innermostClass = layer.getClass();
+		String innermostName = innermostClass.getSimpleName();
+		decoratorNames.add(innermostName);
+		String decoratorChain = String.join("->", decoratorNames);
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
 		String entityNameWithSeparator = entityDetails.entityName + " = ";
-		String description = entityNameWithSeparator + decoratorChain;
-		return description + "\n"; 
+		String description = entityNameWithSeparator + "[" + decoratorChain + "]";
+		return description + "\n";
 	}
 	
 	/**

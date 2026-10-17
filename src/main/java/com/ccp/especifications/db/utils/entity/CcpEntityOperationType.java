@@ -206,7 +206,7 @@ public enum CcpEntityOperationType {
 			return withoutValidation;
 		}
 
-		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
+		Class<?> jsonValidationClass = annotation.value();
 		return jsonValidationClass;
 	}
 

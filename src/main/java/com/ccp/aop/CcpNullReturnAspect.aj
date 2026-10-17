@@ -14,6 +14,7 @@ public aspect CcpNullReturnAspect {
         (
             execution(!void com.ccp..*(..))
             || execution(!void com.jn..*(..))
+            || execution(!void com.js..*(..))
             || execution(!void com.jb..*(..))
             || execution(!void com.vis..*(..))
         )

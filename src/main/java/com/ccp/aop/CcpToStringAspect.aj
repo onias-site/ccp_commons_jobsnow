@@ -49,7 +49,7 @@ public aspect CcpToStringAspect {
 
 	declare parents:
 		(
-			(com.ccp..* || com.jn..* || com.jb..* || com.vis..*)
+			(com.ccp..* || com.js..* || com.jn..* || com.jb..* || com.vis..*)
 			&& !com.ccp.aop..*
 			&& hasmethod(*.new(..))
 			&& !java.lang.Enum+

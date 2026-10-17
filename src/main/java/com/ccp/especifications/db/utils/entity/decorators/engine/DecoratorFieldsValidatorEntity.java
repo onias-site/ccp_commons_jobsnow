@@ -34,7 +34,7 @@ class DecoratorFieldsValidatorEntity extends CcpEntityDelegator{
 	public CcpJsonRepresentation validateJson(CcpJsonRepresentation json) {
 
 		CcpEntityFieldsValidator annotation = this.clazz.getAnnotation(CcpEntityFieldsValidator.class);
-		Class<?> jsonValidationClass = annotation.classReferenceWithTheFields();
+		Class<?> jsonValidationClass = annotation.value();
 		String featureName = this.clazz.getName();
 		CcpJsonValidatorEngine.INSTANCE.validateJson(jsonValidationClass, json, featureName);
 		return json;
