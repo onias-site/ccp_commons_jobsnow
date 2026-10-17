@@ -19,15 +19,12 @@ public enum CcpHashAlgorithm {
 	/** SHA-512 (512 bits). */
 	SHA512("SHA-512")
 	;
-	/** Algorithm name as understood by {@code MessageDigest.getInstance}. */
-	private final String algorithm;
 
 	/**
 	 * Associates the constant with its JVM algorithm name.
 	 * @param algorithm the JVM algorithm name
 	 */
 	private CcpHashAlgorithm(String algorithm) {
-		this.algorithm = algorithm;
 		this.messageDigests = ThreadLocal.withInitial(() -> getMessageDigest(algorithm));
 	}
 

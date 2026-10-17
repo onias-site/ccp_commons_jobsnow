@@ -92,6 +92,7 @@ public class CcpHttpResponse {
 	 * @return the records of the list
 	 * @throws CcpErrorHttpResponseIsNotListOfRecords when the body is not a JSON list or has an item that is not an object
 	 */
+	@SuppressWarnings("unchecked")
 	public List<CcpJsonRepresentation> asListRecord(){
 		String httpResponseTrim = this.httpResponse.trim();
 		boolean httpResponseTrimEmpty = httpResponseTrim.isEmpty();
@@ -111,7 +112,6 @@ public class CcpHttpResponse {
 			if(isNotObject) {
 				throw new CcpErrorHttpResponseIsNotListOfRecords(this.httpResponse);
 			}
-			@SuppressWarnings("unchecked")
 			Map<String, Object> itemAsMap = (Map<String, Object>) item;
 			CcpJsonRepresentation record = new CcpJsonRepresentation(itemAsMap);
 			records.add(record);

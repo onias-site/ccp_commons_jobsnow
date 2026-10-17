@@ -598,6 +598,7 @@ public class CcpJsonRepresentation  {
 	 * @param supplier supplier of the default value
 	 * @return the value or the default
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T getOrDefault(CcpJsonFieldName field, Supplier<T> supplier) {
 		// the supplier runs only when the field is missing: until 2026-10-06 it ran always, wasting the work (and the
 		// side effects, such as a token generated for nothing) of a default that was not used
@@ -605,7 +606,6 @@ public class CcpJsonRepresentation  {
 		boolean hasTheField = null != value;
 
 		if(hasTheField) {
-			@SuppressWarnings("unchecked")
 			T fieldValue = (T) value;
 			return fieldValue;
 		}
