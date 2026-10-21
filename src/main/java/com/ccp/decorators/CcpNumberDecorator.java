@@ -1,6 +1,8 @@
 package com.ccp.decorators;
 
+import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Decorator over a numeric value ({@code double}) offering comparisons. It receives the number as text and converts
@@ -17,6 +19,19 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	 */
 	public CcpNumberDecorator(String content) {
 		this.content = Double.valueOf(content);
+	}
+
+	/**
+	 * Formats the number as Brazilian money, e.g. {@code 9000} as {@code "R$ 9.000,00"}.
+	 * @return the number as Brazilian money
+	 */
+	public String toBrazilianCurrency() {
+		Locale brazil = Locale.forLanguageTag("pt-BR");
+		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(brazil);
+		String formattedValue = currencyFormat.format(this.content);
+		// the JDK separates the symbol with a non-breaking space
+		String withPlainSpace = formattedValue.replace(' ', ' ');
+		return withPlainSpace;
 	}
 
 	/**

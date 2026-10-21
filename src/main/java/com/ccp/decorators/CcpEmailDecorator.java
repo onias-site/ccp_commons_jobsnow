@@ -1,6 +1,7 @@
 package com.ccp.decorators;
 
 import java.text.Normalizer;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -169,8 +170,37 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 		return true;
 	}
 	/** {@link #EMAIL_REGEX} compiled case insensitive. */
-	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
+	private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
 		    Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
+
+	/** {@link #EMAIL_REGEX} without the anchors, to find addresses in the middle of a text already in lower case. */
+	private static final Pattern EMAIL_INSIDE_TEXT_REGEX =
+			Pattern.compile("[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}");
+
+	/**
+	 * Finds every e-mail address in a free text (an HTML page, for example): the accents of the whole text are stripped
+	 * (keeping the {@code @}), the text goes to lower case and each piece that looks like an address and is valid
+	 * ({@link #isValid()}) is collected.
+	 * @return the addresses found, without accents and in lower case, in the order they appear and with no repetition
+	 */
+	public Set<String> findAllInText() {
+		String normalizedContent = Normalizer.normalize(this.content, Normalizer.Form.NFD);
+		String contentWithoutAccents = normalizedContent.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		String lowerContent = contentWithoutAccents.toLowerCase();
+		Matcher matcher = EMAIL_INSIDE_TEXT_REGEX.matcher(lowerContent);
+		Set<String> emails = new LinkedHashSet<>();
+
+		while (matcher.find()) {
+			String candidate = matcher.group();
+			CcpEmailDecorator candidateEmail = new CcpEmailDecorator(candidate);
+			boolean invalid = false == candidateEmail.isValid();
+			if(invalid) {
+				continue;
+			}
+			emails.add(candidate);
+		}
+		return emails;
+	}
 
 	/**
 	 * Looks for the first valid e-mail address in a free text. The lowercase text is split by the delimiters and, for

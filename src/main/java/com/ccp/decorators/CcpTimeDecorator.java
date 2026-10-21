@@ -96,6 +96,28 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
+	 * Tells whether the wrapped timestamp falls on a Saturday or a Sunday, in the America/Sao_Paulo time zone.
+	 * @return {@code true} on the weekend
+	 */
+	public boolean isWeekend() {
+		Calendar calendar = this.getBrazilianCalendar();
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		boolean weekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY;
+		return weekend;
+	}
+
+	/**
+	 * Returns the timestamp of the given number of days before the wrapped one.
+	 * @param days how many days back
+	 * @return the earlier timestamp in milliseconds
+	 */
+	public long getDaysAgo(int days) {
+		long daysInMillis = days * 24L * 60L * 60L * 1000L;
+		long daysAgo = this.content - daysInMillis;
+		return daysAgo;
+	}
+
+	/**
 	 * Pauses the current thread.
 	 * @param i the pause in milliseconds
 	 * @return {@code true} when the pause completed; {@code false} when {@code i <= 0} or the thread was interrupted
