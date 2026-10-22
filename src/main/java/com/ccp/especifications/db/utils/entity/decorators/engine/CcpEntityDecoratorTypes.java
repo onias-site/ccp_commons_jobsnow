@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.function.BiFunction;
 
 import com.ccp.especifications.db.utils.entity.CcpEntity;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityArraysAppendedOnSave;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDisposable;
@@ -289,7 +290,7 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntitySi
  *
  * <p>Some decorators have their implementation named by the annotation itself, the way {@code @CcpEntityTwin} names its
  * bulk executor ({@code @CcpEntityVersionable}, {@code @CcpEntityVersionablePurge}, {@code @CcpEntityAsyncWriter},
- * {@code @CcpEntityDisposable} and {@code @CcpEntityGrouperChild}): the catalog decides where the decorator enters the
+ * {@code @CcpEntityDisposable}, {@code @CcpEntityGrouperChild} and {@code @CcpEntityArraysAppendedOnSave}): the catalog decides where the decorator enters the
  * chain, the class given to the annotation decides what it does.
  *
  * <p>Each side effect of a write or a transfer has an annotation of its own, whose name reads as a sentence
@@ -309,7 +310,8 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntitySi
  * reject the message when it came back); the {@code before} side effects and {@code GrouperChildBeforeWrite} (7);
  * {@code FieldsTransformer} (6); the {@code after} side effects, {@code VersionablePurge} and
  * {@code GrouperChildAfterWrite} (5); {@code Twin} (4); {@code Cacheable} (3); {@code Versionable} (2);
- * {@code Disposable} (1).
+ * {@code Disposable} (1); {@code ArraysAppendedOnSave} (0), which turns the write of the record into an atomic update
+ * that adds the items of its lists, and so stays inside every decorator that adjusts that write.
  *
  * <p>Ties are resolved by the order of the items in this enum: the sort is stable, so an item declared earlier stays
  * <b>inside</b> the ones declared after it with the same priority. That is why the side effects that run businesses
@@ -818,6 +820,11 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	GrouperChildAfterWrite(CcpEntityGrouperChild.class, 5, DecoratorFromTheAnnotation.afterDecoratorClass),
 	/** Publishes the writes to the messaging system ({@code @CcpEntityAsyncWriter}); priority 8. */
 	AsyncWriter(CcpEntityAsyncWriter.class, 8, DecoratorFromTheAnnotation.value),
+	/**
+	 * Adds the items of the lists to the stored ones atomically ({@code @CcpEntityArraysAppendedOnSave}); priority 0, the
+	 * innermost: the write it produces still gets the id of the period from {@code Disposable}.
+	 */
+	ArraysAppendedOnSave(CcpEntityArraysAppendedOnSave.class, 0, DecoratorFromTheAnnotation.value),
 	;
 
 	/**

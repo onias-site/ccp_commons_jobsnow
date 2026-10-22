@@ -9,7 +9,7 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityExpurga
 
 /**
  * Builds the decorators whose implementation is a collaborator named by the annotation itself (versionable, purge of
- * the history, asynchronous writer, disposable, grouper child), the way {@code @CcpEntityTwin} names its bulk executor:
+ * the history, asynchronous writer, disposable, grouper child, lists appended on save), the way {@code @CcpEntityTwin} names its bulk executor:
  * the engine decides when the decorator enters the chain, the class given to the annotation decides what it does.
  */
 enum DecoratorFromTheAnnotation {
