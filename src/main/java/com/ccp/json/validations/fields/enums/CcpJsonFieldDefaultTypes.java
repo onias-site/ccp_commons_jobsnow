@@ -20,7 +20,6 @@ import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeAfte
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeTimeBefore;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldType;
 import com.ccp.json.validations.fields.interfaces.CcpJsonFieldValidatorInterface;
-import com.ccp.decorators.CcpStringDecorator;
 
 /** Catalog of the default field types of the validation framework. Each constant knows how to tell whether a value is compatible with the type, whether the field declares the type, and which validators (rules) apply to it. */
 public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
@@ -208,21 +207,8 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 		 * @return the compatibility check over the JSON
 		 */
 		public Predicate<CcpJsonRepresentation> evaluateCompatibleType(String fieldName) {
-			return json -> {
-				CcpFieldName ccpFieldName = new CcpFieldName(fieldName);
-				CcpStringDecorator asStringDecorator = json.getAsStringDecorator(ccpFieldName);
-				var longNumber = asStringDecorator.isLongNumber();
-				boolean isNotLongNumber = false == longNumber;
-
-				if(isNotLongNumber) {
-					return false;
-				}
-				CcpFieldName ccpFieldName2 = new CcpFieldName(fieldName);
-
-				Long asLongNumber = json.getAsLongNumber(ccpFieldName2);
-				boolean isNotNegative = asLongNumber >= 0;
-				return isNotNegative;
-			} ;
+			CcpJsonFieldUnsignedNumberCompatibility compatibility = new CcpJsonFieldUnsignedNumberCompatibility(fieldName);
+			return compatibility;
 		}
 
 		/**

@@ -11,7 +11,6 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
-import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntity.CcpEntityNoDefinedPrimaryKey;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
@@ -24,7 +23,6 @@ import com.ccp.especifications.db.utils.entity.fields.CcpJsonTransformersDefault
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldNotUpdatable;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldTransformer;
-import com.ccp.decorators.CcpTextDecorator;
 import java.util.stream.Stream;
 
 /**
@@ -40,19 +38,7 @@ public class CcpEntityFactory {
 	 * prefix and discarding only the {@code Entity} marker. Example:
 	 * {@code XyEntityOrderItem} becomes {@code xy_order_item}.
 	 */
-	public static Function<Class<?>, String> mainEntityNameProducer = clazz -> {
-		String simpleName = clazz.getSimpleName();
-		CcpStringDecorator simpleNameDecorator = new CcpStringDecorator(simpleName);
-		CcpTextDecorator simpleNameText = simpleNameDecorator.text();
-		var snakeCaseDecorator = simpleNameText.toSnakeCase();
-		String snakeCase = snakeCaseDecorator.content;
-		int entityMarkerIndex = snakeCase.indexOf("_entity_");
-		String costCenterPrefix = snakeCase.substring(0, entityMarkerIndex);
-		int entityNameStartIndex = entityMarkerIndex + 8;
-		String nameAfterEntityMarker = snakeCase.substring(entityNameStartIndex);
-		String entityName = costCenterPrefix + "_" + nameAfterEntityMarker;
-		return entityName;
-	};
+	public static Function<Class<?>, String> mainEntityNameProducer = CcpEntityMainNameProducer.INSTANCE;
 
 	/** The fields of the entity. */
 	public final CcpEntityField[] entityFields;

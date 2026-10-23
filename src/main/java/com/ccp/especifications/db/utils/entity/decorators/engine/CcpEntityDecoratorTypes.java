@@ -23,13 +23,13 @@ import java.lang.annotation.Annotation;
 import java.util.function.BiFunction;
 
 import com.ccp.especifications.db.utils.entity.CcpEntity;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityArraysAppendedOnSave;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityDisposable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChild;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
@@ -290,7 +290,7 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntitySi
  *
  * <p>Some decorators have their implementation named by the annotation itself, the way {@code @CcpEntityTwin} names its
  * bulk executor ({@code @CcpEntityVersionable}, {@code @CcpEntityVersionablePurge}, {@code @CcpEntityAsyncWriter},
- * {@code @CcpEntityDisposable}, {@code @CcpEntityGrouperChild} and {@code @CcpEntityArraysAppendedOnSave}): the catalog decides where the decorator enters the
+ * {@code @CcpEntityDisposable}, {@code @CcpEntityGrouperChild} and {@code @CcpEntityGrouperChildCounter}): the catalog decides where the decorator enters the
  * chain, the class given to the annotation decides what it does.
  *
  * <p>Each side effect of a write or a transfer has an annotation of its own, whose name reads as a sentence
@@ -307,11 +307,11 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntitySi
  * anything else; {@code DataReadOnly} (9) refuses the write before any side effect and before publishing it;
  * {@code AsyncWriter} (8) cuts the chain and republishes the operation, so it must receive the <b>raw</b> JSON (inside
  * {@code FieldsTransformer}, what goes to the queue would already be transformed and {@code FieldsValidator} would
- * reject the message when it came back); the {@code before} side effects and {@code GrouperChildBeforeWrite} (7);
+ * reject the message when it came back); the {@code before} side effects, {@code GrouperChildCounterBeforeWrite} and
+ * {@code GrouperChildBeforeWrite} (7);
  * {@code FieldsTransformer} (6); the {@code after} side effects, {@code VersionablePurge} and
  * {@code GrouperChildAfterWrite} (5); {@code Twin} (4); {@code Cacheable} (3); {@code Versionable} (2);
- * {@code Disposable} (1); {@code ArraysAppendedOnSave} (0), which turns the write of the record into an atomic update
- * that adds the items of its lists, and so stays inside every decorator that adjusts that write.
+ * {@code Disposable} (1), the innermost.
  *
  * <p>Ties are resolved by the order of the items in this enum: the sort is stable, so an item declared earlier stays
  * <b>inside</b> the ones declared after it with the same priority. That is why the side effects that run businesses
@@ -814,17 +814,17 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	BeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsSaveAWarning(CcpBeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsSaveAWarning.class, _before, copyDataTo, twinEntity, new SideEffectMessageToUser(messageTemplate, LENIENT, email, instantMessenger)),
 	/** {@code @CcpBeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError}; priority 7. */
 	BeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError(CcpBeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError.class, _before, copyDataTo, twinEntity, new SideEffectMessageToUser(messageTemplate, LOG, email, instantMessenger)),
+	/**
+	 * Counts the record in the groups of its parents ({@code @CcpEntityGrouperChildCounter}); priority 7, declared before
+	 * {@code GrouperChildBeforeWrite} so it stays inside it and sees the record as that decorator hands it over.
+	 */
+	GrouperChildCounterBeforeWrite(CcpEntityGrouperChildCounter.class, 7, DecoratorFromTheAnnotation.beforeDecoratorClass),
 	/** Takes the record out of its groups before the writes ({@code @CcpEntityGrouperChild}); priority 7. */
 	GrouperChildBeforeWrite(CcpEntityGrouperChild.class, 7, DecoratorFromTheAnnotation.beforeDecoratorClass),
 	/** Puts the record in its groups after the writes ({@code @CcpEntityGrouperChild}); priority 5. */
 	GrouperChildAfterWrite(CcpEntityGrouperChild.class, 5, DecoratorFromTheAnnotation.afterDecoratorClass),
 	/** Publishes the writes to the messaging system ({@code @CcpEntityAsyncWriter}); priority 8. */
 	AsyncWriter(CcpEntityAsyncWriter.class, 8, DecoratorFromTheAnnotation.value),
-	/**
-	 * Adds the items of the lists to the stored ones atomically ({@code @CcpEntityArraysAppendedOnSave}); priority 0, the
-	 * innermost: the write it produces still gets the id of the period from {@code Disposable}.
-	 */
-	ArraysAppendedOnSave(CcpEntityArraysAppendedOnSave.class, 0, DecoratorFromTheAnnotation.value),
 	;
 
 	/**

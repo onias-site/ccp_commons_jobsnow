@@ -108,15 +108,17 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	
 
 	/**
-	 * Runs the message and records its outcome (success or failure) where the cost center of the receiver keeps its
-	 * asynchronous tasks; a failure is recorded, not rethrown. Meant for the consumers that know no entity of that cost
-	 * center, such as a local messaging that runs each message in a thread of its own: without it, a failure there is seen
-	 * only in the standard error of the process.
+	 * Runs the message: resolves its process ({@link #getProcess}) and executes it. A failure is rethrown to the
+	 * consumer, so the messaging can redeliver the message.
 	 * @param processName the fully qualified class name of the process (the topic)
 	 * @param json the message
-	 * @return this receiver
+	 * @return the response of the process
 	 */
-	public abstract CcpMensageriaReceiver executeProcessAndRecordOutcome(String processName, CcpJsonRepresentation json);
+	public CcpJsonRepresentation executeProcess(String processName, CcpJsonRepresentation json) {
+		CcpBusiness process = this.getProcess(processName, json);
+		CcpJsonRepresentation response = process.execute(json);
+		return response;
+	}
 
 	/**
 	 * Returns the bulk executor.

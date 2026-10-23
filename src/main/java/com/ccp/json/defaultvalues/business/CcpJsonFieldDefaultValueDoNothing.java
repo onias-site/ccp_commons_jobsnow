@@ -9,6 +9,10 @@ import com.ccp.decorators.CcpJsonRepresentation;
  * {@code CcpJsonFieldDefaultValue} (annotations only accept class literals).
  */
 public class CcpJsonFieldDefaultValueDoNothing implements CcpBusiness {
+	/** The single instance: the class keeps no state. */
+	public final static CcpJsonFieldDefaultValueDoNothing INSTANCE = new CcpJsonFieldDefaultValueDoNothing();
+
+	private CcpJsonFieldDefaultValueDoNothing() {}
 
 	/**
 	 * Returns the JSON unchanged.

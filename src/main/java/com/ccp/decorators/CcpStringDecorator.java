@@ -1,7 +1,6 @@
 package com.ccp.decorators;
 
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.ccp.dependency.injection.CcpDependencyInjection;
@@ -190,10 +189,7 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Checks whether the string represents a JSON list.
 	 */
 	public boolean isList() {
-		boolean valid = this.isValid(x ->  {
-			Collection<?> fromJson = CcpDependencyInjection.getDependency(CcpJsonHandler.class).fromJson(x);
-			fromJson.toString();
-		});
+		boolean valid = this.isValid(CcpStringJsonListCheck.INSTANCE);
 		return valid;
 
 	}
@@ -203,12 +199,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * (as {@code "3.0"}, the way a whole number comes back from a JSON parser).
 	 * @return {@code true} when the text represents an integer
 	 */
-	@SuppressWarnings("unused")
 	public boolean isLongNumber() {
-		boolean valid = this.isValid(x -> {
-			boolean endsWithDecimalZero = x.endsWith(".0");
-			Object parsedNumber = endsWithDecimalZero ? Double.valueOf(x) : Long.valueOf(x);
-		});
+		boolean valid = this.isValid(CcpStringLongNumberCheck.INSTANCE);
 		return valid;
 	}
 
@@ -224,24 +216,8 @@ public class CcpStringDecorator implements CcpDecorator<String> {
 	 * Checks whether the string is {@code "true"} or {@code "false"} (case insensitive).
 	 */
 	public boolean isBoolean() {
-		boolean valid = this.isValid(x -> {
-			boolean isTrue = "true".equalsIgnoreCase(x);
-			if (isTrue) {
-				return;
-			}
-			boolean isFalse = "false".equalsIgnoreCase(x);
-			if (isFalse) {
-				return;
-			}
-			CcpErrorStringIsNotBoolean notBooleanError = new CcpErrorStringIsNotBoolean();
-			throw notBooleanError;
-		});
+		boolean valid = this.isValid(CcpStringBooleanCheck.INSTANCE);
 		return valid;
-	}
-
-	/** Internal signal used by {@link #isBoolean()} for a text that is neither {@code true} nor {@code false}. */
-	@SuppressWarnings("serial")
-	private static class CcpErrorStringIsNotBoolean extends RuntimeException {
 	}
 
 	/**

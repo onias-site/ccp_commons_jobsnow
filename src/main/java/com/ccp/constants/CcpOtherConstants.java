@@ -1,5 +1,9 @@
 package com.ccp.constants;
 
+import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -17,18 +21,18 @@ public interface CcpOtherConstants {
 	CcpBusiness DO_NOTHING = json -> json;
 	/** Canonical empty {@code CcpJsonRepresentation}; avoids creating empty maps repeatedly. */
 	CcpJsonRepresentation EMPTY_JSON = CcpJsonRepresentation.getEmptyJson();
-	/** The most common textual delimiters (slash, backslash, dot, tab, line feed, punctuation, brackets, quotes), used to tokenize and sanitize text. */
-	String[] DELIMITERS_ARRAY = new String[] {"/", "\\", ".","\t", "\n", ":", "," , ";", "!", "?", "[", "]", "{", "}", "<", ">", "=", "(", ")", "'", "`",  "\""};
 	/**
-	 * Regular expression of text delimiters, ready to be used with {@code String.split()} or {@code Pattern}. Until
-	 * 2026-10-07 the closing parenthesis was written {@code \)\ } (parenthesis followed by a space), so a {@code )} at the
-	 * end of a word ("Spring (Boot)") stayed glued to it.
-	 * <p>
-	 * It does not match the same set as {@link #DELIMITERS_ARRAY}: this one splits on {@code -}, {@code \r} and white
-	 * space, the array on {@code /} and {@code \}. Unifying them changes how the callers split their free texts, so it
-	 * waits for that decision.
+	 * The textual delimiters (white space, dot, hyphen, punctuation, brackets, quotes), used to tokenize and sanitize
+	 * text. It is the single source of the set: {@link #DELIMITERS} is built from it. The slash and the backslash are not
+	 * delimiters, so short skills such as {@code CI/CD} and {@code UI/UX} stay whole words.
 	 */
-	String DELIMITERS = "\r|\t|\n|\\s|\\:|\\,|\\-|\\;|\\!|\\?|\\[|\\]|\\{|\\}|\\<|\\>|\\=|\\(|\\)|\\'|\\\"|\\`|\\.";
+	String[] DELIMITERS_ARRAY = new String[] {" ", "\t", "\n", "\u000B", "\f", "\r", ".", "-", ":", ",", ";", "!", "?", "[", "]", "{", "}", "<", ">", "=", "(", ")", "'", "`", "\""};
+	/**
+	 * Regular expression of text delimiters, ready to be used with {@code String.split()} or {@code Pattern}: each item
+	 * of {@link #DELIMITERS_ARRAY}, quoted, as an alternative. Until 2026-10-22 it was written by hand and did not match
+	 * the array (it split on {@code -} and white space, the array on {@code /} and {@code \}).
+	 */
+	String DELIMITERS = Arrays.stream(DELIMITERS_ARRAY).map(Pattern::quote).collect(Collectors.joining("|"));
 	/** {@code CcpJsonFieldName} whose value is the empty string; represents the absence of a field name. */
 	CcpFieldName EMPTY_STRING = new CcpFieldName("");
 

@@ -27,10 +27,7 @@ public enum CcpBulkEntityOperationType implements CcpJsonFieldName{
 	 * {@code "result": "not_found"} and no {@code error} object, so it does not count as a failure and the delete of what
 	 * does not exist is silent (on purpose).
 	 */
-	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), (Function<CcpBulkItem,CcpBulkItem>) x ->
-	{
-		throw new CcpErrorBulkEntityRecordNotFound(x.entity, x.json);
-	})),
+	delete(3, false, CcpOtherConstants.EMPTY_JSON.put(CcpProcessStatusDefault.NOT_FOUND.asJsonFieldName(), CcpBulkItemThrowNotFound.INSTANCE)),
 	/** Null/no-effect operation; used to mark records that exist but do not need to be changed. */
 	noop(0, false, CcpOtherConstants.EMPTY_JSON),
 	/**

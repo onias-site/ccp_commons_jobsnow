@@ -21,7 +21,7 @@ public final class CcpTreeFlow {
 	 * @return the first link of the chain
 	 */
 	public static CcpBeginThisStatement beginThisStatement() {
-		CcpBeginThisStatement ccpBeginThisStatement = new CcpBeginThisStatement();
+		CcpBeginThisStatement ccpBeginThisStatement = CcpBeginThisStatement.INSTANCE;
 		return ccpBeginThisStatement;
 	}
 

@@ -4,8 +4,11 @@ import com.ccp.business.CcpBusiness;
 
 /** First link of the fluent flow chain: receives the main process to be attempted. */
 public final class CcpBeginThisStatement {
+	/** The single instance: the class keeps no state. */
+	public final static CcpBeginThisStatement INSTANCE = new CcpBeginThisStatement();
+
 	/** Created only by {@link CcpTreeFlow#beginThisStatement()}. */
-	protected CcpBeginThisStatement() {
+	private CcpBeginThisStatement() {
 	}
 
 	/**

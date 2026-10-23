@@ -1317,16 +1317,7 @@ public class CcpJsonRepresentation  {
 		
 		Collection<Object> list = (Collection<Object>) object;
 		
-		List<CcpJsonRepresentation> jsonList = list.stream().map(obj -> {
-			
-			if(obj instanceof CcpJsonRepresentation jsonItem) {
-				return jsonItem;
-			}
-			
-			CcpJsonRepresentation json = new CcpJsonRepresentation((Map<String, Object>) obj);
-			return json;
-		})
-				.collect(Collectors.toList());
+		List<CcpJsonRepresentation> jsonList = list.stream().map(CcpJsonRepresentationFromListItem.INSTANCE).collect(Collectors.toList());
 		
 		return jsonList;
 	}

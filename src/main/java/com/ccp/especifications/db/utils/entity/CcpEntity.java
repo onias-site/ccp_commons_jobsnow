@@ -22,7 +22,6 @@ import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaDa
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityDecoratorType;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.hash.CcpHashAlgorithm;
-import com.ccp.process.CcpProcessStatusDefault;
 
 /**
  * Central contract of the ccp entity system. Represents an index/table in Elasticsearch and defines
@@ -154,11 +153,7 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	 */
 	default CcpJsonRepresentation getOneById(CcpJsonRepresentation json) {
 		CcpEntityMetaData entityDetails = this.getEntityMetaData();
-		CcpBusiness whenNotFound = notFoundContext -> {
-			CcpJsonRepresentation notFoundContextWithEntity = notFoundContext.put(JsonFieldNames.entity, this);
-			CcpErrorFlowDisturb notFoundError = new CcpErrorFlowDisturb(notFoundContextWithEntity, CcpProcessStatusDefault.NOT_FOUND);
-			throw notFoundError;
-		};
+		CcpBusiness whenNotFound = new CcpEntityThrowNotFound(this);
 		CcpJsonRepresentation recordFound = entityDetails.getOneByIdOrHandleItIfThisIdWasNotFound(json, whenNotFound);
 		return recordFound;
 	}

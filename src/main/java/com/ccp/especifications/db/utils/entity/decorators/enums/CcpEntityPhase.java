@@ -24,7 +24,16 @@ public enum CcpEntityPhase {
 			CcpEntity entity =  (CcpEntity)get;
 			CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 			return entityDetails.entityName;
-			
+
+		}
+
+		/**
+		 * Returns the given entity itself.
+		 * @param entity the main entity
+		 * @return the main entity
+		 */
+		public CcpEntity getEntity(CcpEntity entity) {
+			return entity;
 		}
 	},	
 	/** The twin entity named by {@code @CcpEntityTwin}. */
@@ -45,6 +54,16 @@ public enum CcpEntityPhase {
 			String twinEntityName = annotation.twinEntityName();
 			return twinEntityName;
 		}
+
+		/**
+		 * Returns the twin of the given entity.
+		 * @param entity the main entity
+		 * @return its twin entity
+		 */
+		public CcpEntity getEntity(CcpEntity entity) {
+			CcpEntity twinEntity = entity.getTwinEntity();
+			return twinEntity;
+		}
 	}
 	;
 	/**
@@ -53,5 +72,12 @@ public enum CcpEntityPhase {
 	 * @return the entity name
 	 */
 	public abstract String extractEntityName(Class<?> clazz);
+
+	/**
+	 * Returns the entity of this side: the main entity itself or its twin.
+	 * @param entity the main entity
+	 * @return the entity of this side
+	 */
+	public abstract CcpEntity getEntity(CcpEntity entity);
 
 }
