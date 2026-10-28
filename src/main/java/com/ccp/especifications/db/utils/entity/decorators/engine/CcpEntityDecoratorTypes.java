@@ -329,7 +329,7 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	/** Twin entity pattern ({@code @CcpEntityTwin}); priority 4. */
 	Twin(CcpEntityTwin.class, 4, DecoratorTwinEntity::new),
 	/** Expiration of the records ({@code @CcpEntityDisposable}); priority 1, the innermost. */
-	Disposable(CcpEntityDisposable.class, 1, DecoratorFromTheAnnotation.valueWithTimeOption),
+	Disposable(CcpEntityDisposable.class, 1, DecoratorFromTheAnnotation.valueWithTimeOptionAndRemoveCompletely),
 	/** History of the records ({@code @CcpEntityVersionable}); priority 2. */
 	Versionable(CcpEntityVersionable.class, 2, DecoratorFromTheAnnotation.value),
 	/** {@code @CcpAfterSaveFromMainEntity}; priority 5. */

@@ -63,4 +63,15 @@ public interface CcpDbRequester {
 	 */
 	CcpDbRequester createTables(String pathToCreateEntityScript, String pathToJavaClasses, String mappingJnEntitiesErrors,
 			String insertResults);
+
+	/**
+	 * Orders the database to back up the given entities into a bucket of files. The database writes the backup itself,
+	 * straight to the bucket, so no byte of it goes through this process (in Elasticsearch, a snapshot in a repository
+	 * that points to the bucket: a folder of {@code path.repo} on a local machine, a GCS bucket in the cloud).
+	 * @param bucketName the bucket that receives the backup
+	 * @param entityNamePatterns the names of the entities in the backup, {@code *} standing for any text (for example
+	 * {@code jn_*})
+	 * @return the details of the backup: its name, the entities in it and how it went
+	 */
+	CcpJsonRepresentation backup(String bucketName, List<String> entityNamePatterns);
 }

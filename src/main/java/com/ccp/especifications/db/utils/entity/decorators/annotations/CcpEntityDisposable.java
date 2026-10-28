@@ -9,7 +9,8 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityExpurga
 
 /**
  * Makes the records of the entity expire: each record is valid only within the current period of the granularity.
- * Built by {@code CcpEntityDecoratorTypes.Disposable} (priority 1, the innermost).
+ * Built by {@code CcpEntityDecoratorTypes.Disposable} (priority 1, the innermost). Since 2026-10-28 the expired records of
+ * an entity with {@link #removeCompletely()} are also removed from the database by a daily process.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
@@ -27,4 +28,11 @@ public @interface CcpEntityDisposable {
 	 * @return the granularity
 	 */
 	CcpEntityExpurgableOptions timeOption();
+
+	/**
+	 * Whether the expired records are removed from the database by the daily purge. {@code false} keeps every period,
+	 * for the entities whose past periods are read on purpose (charts, searches by date, the months before).
+	 * @return {@code true} (the default) for an entity whose expired records are purged
+	 */
+	boolean removeCompletely() default true;
 }

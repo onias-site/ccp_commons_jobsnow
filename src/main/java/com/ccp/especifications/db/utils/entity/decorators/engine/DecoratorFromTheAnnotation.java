@@ -29,12 +29,13 @@ enum DecoratorFromTheAnnotation {
 		}
 	},
 	/**
-	 * The implementation is the {@code value} of the annotation, with a constructor receiving the entity and the
-	 * {@code timeOption} of the annotation.
+	 * The implementation is the {@code value} of the annotation, with a constructor receiving the entity, the
+	 * {@code timeOption} and the {@code removeCompletely} of the annotation.
 	 */
-	valueWithTimeOption{
+	valueWithTimeOptionAndRemoveCompletely{
 		/**
-		 * Instantiates the {@code value} of the annotation with the entity and the expiration granularity.
+		 * Instantiates the {@code value} of the annotation with the entity, the expiration granularity and whether the
+		 * expired records are purged.
 		 * @param entity the entity decorated so far
 		 * @param annotation the annotation instance
 		 * @return the decorated entity
@@ -42,8 +43,9 @@ enum DecoratorFromTheAnnotation {
 		CcpEntity getEntity(CcpEntity entity, Annotation annotation) {
 			Class<?> decoratorClass = CcpEntityAnnotationAttribute.value.readFrom(annotation);
 			CcpEntityExpurgableOptions timeOption = CcpEntityAnnotationAttribute.timeOption.readFrom(annotation);
-			Constructor<?> constructor = decoratorClass.getConstructor(CcpEntity.class, CcpEntityExpurgableOptions.class);
-			Object decoratedEntity = constructor.newInstance(entity, timeOption);
+			Boolean removeCompletely = CcpEntityAnnotationAttribute.removeCompletely.readFrom(annotation);
+			Constructor<?> constructor = decoratorClass.getConstructor(CcpEntity.class, CcpEntityExpurgableOptions.class, boolean.class);
+			Object decoratedEntity = constructor.newInstance(entity, timeOption, removeCompletely);
 			return (CcpEntity) decoratedEntity;
 		}
 	},

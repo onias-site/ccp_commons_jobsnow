@@ -231,7 +231,26 @@ public final class CcpEntityMetaData {
 		CcpJsonRepresentation entityRowsGroupedById = unionAll.getEntityRowsGroupedById(this.entity);
 		return entityRowsGroupedById;
 	}
-	
+
+	/**
+	 * Finds several documents by the ids they already have (as the children of a group keep them) and returns them by id.
+	 * @param ids the ids of the records
+	 * @return the records found, by id; empty when no id is given
+	 */
+	public CcpJsonRepresentation getMultipleByRecordIds(Collection<String> ids) {
+		boolean hasNoIdsToSearch = ids.isEmpty();
+
+		if (hasNoIdsToSearch) {
+			return CcpOtherConstants.EMPTY_JSON;
+		}
+
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
+		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
+		CcpSelectUnionAll unionAll = unionAllExecutor.unionAllByIds(ids, this.entity);
+		CcpJsonRepresentation entityRowsGroupedById = unionAll.getEntityRowsGroupedById(this.entity);
+		return entityRowsGroupedById;
+	}
+
 	/**
 	 * Returns the primary key fields of the supplied JSON.
 	 * @param jsonSupplier supplies the record

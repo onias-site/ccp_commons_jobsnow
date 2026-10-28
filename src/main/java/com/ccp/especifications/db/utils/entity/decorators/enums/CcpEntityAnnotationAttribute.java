@@ -24,6 +24,8 @@ public enum CcpEntityAnnotationAttribute implements CcpJsonFieldName {
 	targetEntity,
 	/** The expiration granularity of a disposable entity. */
 	timeOption,
+	/** Whether the expired records of a disposable entity are purged. */
+	removeCompletely,
 	/** The decorator class that runs the {@code before} side of the writes. */
 	beforeDecoratorClass,
 	/** The decorator class that runs the {@code after} side of the writes. */

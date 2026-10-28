@@ -29,6 +29,31 @@ public class CcpTimeDecorator implements CcpDecorator<Long> {
 	}
 
 	/**
+	 * Wraps the instant named by a text in the given {@code SimpleDateFormat} pattern, read in the America/Sao_Paulo time
+	 * zone, as {@link #getFormattedDateTime(String)} writes it.
+	 * @param formattedDateTime the date/time text
+	 * @param pattern the {@code SimpleDateFormat} pattern
+	 */
+	public CcpTimeDecorator(String formattedDateTime, String pattern) {
+		this(parse(formattedDateTime, pattern));
+	}
+
+	/**
+	 * Reads a date/time text in the America/Sao_Paulo time zone.
+	 * @param formattedDateTime the date/time text
+	 * @param pattern the {@code SimpleDateFormat} pattern
+	 * @return the timestamp in milliseconds
+	 */
+	private static Long parse(String formattedDateTime, String pattern) {
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		TimeZone brazilianTimeZone = TimeZone.getTimeZone("America/Sao_Paulo");
+		sdf.setTimeZone(brazilianTimeZone);
+		Date date = sdf.parse(formattedDateTime);
+		long time = date.getTime();
+		return time;
+	}
+
+	/**
 	 * Computes how many whole seconds separate the wrapped timestamp from the midnight of its own day in the
 	 * America/Sao_Paulo time zone (see {@link #getMidnight()}).
 	 * @return the elapsed seconds

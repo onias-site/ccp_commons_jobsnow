@@ -101,6 +101,18 @@ public enum CcpEntityExpurgableOptions{
 	}
 	
 	/**
+	 * The end of a period written in the format of this granularity: its first instant, in America/Sao_Paulo, plus one
+	 * period. A record of the period has expired from that instant on.
+	 * @param formattedPeriod the period, as {@link #getFormattedDate(Long)} writes it
+	 * @return the timestamp of the end of the period
+	 */
+	public Long getEndOfThePeriod(String formattedPeriod) {
+		CcpTimeDecorator startOfThePeriod = new CcpTimeDecorator(formattedPeriod, this.format);
+		Long endOfThePeriod = this.getNextTimeStamp(startOfThePeriod.content);
+		return endOfThePeriod;
+	}
+
+	/**
 	 * Formats the current instant with the pattern of this granularity.
 	 * @return the formatted date
 	 */

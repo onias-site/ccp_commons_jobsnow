@@ -20,4 +20,13 @@ public interface CcpUnionAllExecutor {
 	 * @return the condensed result
 	 */
 	CcpSelectUnionAll unionAll(Collection<CcpJsonRepresentation> values, CcpEntity... entities);
+
+	/**
+	 * Searches, in a single call, the records of every entity whose ids are already known (the children of a group of
+	 * {@code JnEntityGrouper} are kept by id, and the id cannot be turned back into the primary key it came from).
+	 * @param ids the ids of the records
+	 * @param entities the entities searched
+	 * @return the condensed result, with no {@code explainedSearch}, since no primary key took part in the search
+	 */
+	CcpSelectUnionAll unionAllByIds(Collection<String> ids, CcpEntity... entities);
 }
