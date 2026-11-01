@@ -57,4 +57,11 @@ public @interface CcpEntityGrouperChild {
 	 * @return the decorator class
 	 */
 	Class<?> afterDecoratorClass();
+
+	/**
+	 * The field of the record kept as the child, for the decorators that keep a value of the record instead of its id
+	 * (several records may share the value, as the recruiters of a domain). Empty, the default, for the other decorators.
+	 * @return the name of the field
+	 */
+	String childField() default "";
 }

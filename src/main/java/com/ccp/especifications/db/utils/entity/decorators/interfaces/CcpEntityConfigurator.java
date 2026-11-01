@@ -22,6 +22,16 @@ public interface CcpEntityConfigurator {
 	default List<CcpBulkItem> getFirstRecordsToInsert(){
 		return new ArrayList<>();
 	}
+
+	/**
+	 * Tells whether the database setup must leave the records of the entity alone: its index is only created when it does
+	 * not exist. For records that cannot be produced again.
+	 * @return {@code false} by default: the setup deletes and recreates the index
+	 */
+	default boolean keepsItsRecordsOnTheSetup() {
+		return false;
+	}
+
 	/**
 	 * Parses each JSON text and builds its {@code create} bulk items in the entity.
 	 * @param entity the target entity
@@ -62,7 +72,7 @@ public interface CcpEntityConfigurator {
 		declaredField.setAccessible(true);
 		Object object = declaredField.get(null);
 		CcpEntity ccpEntity = (CcpEntity) object;
-		return ccpEntity;
+		return ccpEntity;
 		
 	}
 }
