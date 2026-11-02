@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ccp.aop.CcpAllowNullParameter;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
@@ -115,6 +116,7 @@ public class CcpJsonValidatorEngine {
 	 * @param value the value, possibly {@code null}
 	 * @return {@code true} for a non-null array
 	 */
+	@CcpAllowNullParameter
 	private boolean isArray(Object value) {
 		boolean valueIsAbsent = value == null;
 

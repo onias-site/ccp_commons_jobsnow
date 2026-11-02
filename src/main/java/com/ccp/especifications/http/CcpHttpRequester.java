@@ -97,7 +97,8 @@ public interface CcpHttpRequester {
 
 	/**
 	 * Builds the error of an unexpected status: {@link CcpErrorHttpClient} for 4xx, {@link CcpErrorHttpServer} for 5xx
-	 * and a plain {@link CcpErrorHttp} for any other status.
+	 * and a plain {@link CcpErrorHttp} for any other status. The credentials are hidden (see {@link CcpHttpSecretMask}): the
+	 * error goes to logs and to the database.
 	 * @param trace identifier of the request
 	 * @param url the target URL
 	 * @param method the HTTP method
@@ -110,14 +111,17 @@ public interface CcpHttpRequester {
 	 */
 	default CcpErrorHttp getHttpError(String trace, String url, CcpHttpMethods method, CcpJsonRepresentation headers,
 			String request, Integer status, String response, Set<String> expectedStatusList) {
+				String maskedUrl = CcpHttpSecretMask.INSTANCE.maskUrl(url);
+				CcpJsonRepresentation maskedHeaders = CcpHttpSecretMask.INSTANCE.maskHeaders(headers);
+				String maskedRequest = CcpHttpSecretMask.INSTANCE.maskBody(request);
 				CcpJsonRepresentation put2 = CcpOtherConstants.EMPTY_JSON
-				.put(JsonFieldNames.url, url);
+				.put(JsonFieldNames.url, maskedUrl);
 				CcpJsonRepresentation put3 = put2
 				.put(JsonFieldNames.method, method);
 				CcpJsonRepresentation put4 = put3
-				.put(JsonFieldNames.headers, headers);
+				.put(JsonFieldNames.headers, maskedHeaders);
 				CcpJsonRepresentation put5 = put4
-				.put(JsonFieldNames.request, request);
+				.put(JsonFieldNames.request, maskedRequest);
 				CcpJsonRepresentation put6 = put5
 				.put(JsonFieldNames.status, status);
 

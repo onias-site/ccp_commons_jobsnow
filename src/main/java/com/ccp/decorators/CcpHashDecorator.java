@@ -68,6 +68,19 @@ public class CcpHashDecorator implements CcpDecorator<String> {
 	}
 
 	/**
+	 * Tells whether the given secret is this text, taking the same time wherever they differ, so that the answer of a
+	 * request authenticated by a shared secret does not tell how much of a guess was right.
+	 * @param secret the text to compare
+	 * @return {@code true} when both texts are the same
+	 */
+	public boolean isTheSameSecret(String secret) {
+		byte[] contentBytes = this.content.getBytes(StandardCharsets.UTF_8);
+		byte[] secretBytes = secret.getBytes(StandardCharsets.UTF_8);
+		boolean sameSecret = MessageDigest.isEqual(contentBytes, secretBytes);
+		return sameSecret;
+	}
+
+	/**
 	 * Returns the original text.
 	 * @return the original text
 	 */

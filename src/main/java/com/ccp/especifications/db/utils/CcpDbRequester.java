@@ -74,4 +74,11 @@ public interface CcpDbRequester {
 	 * @return the details of the backup: its name, the entities in it and how it went
 	 */
 	CcpJsonRepresentation backup(String bucketName, List<String> entityNamePatterns);
+
+	/**
+	 * Makes what was written to the entity visible to the searches right away, for a search that must see a record
+	 * written moments ago. Reads by id do not need it.
+	 * @param entityName the name of the entity
+	 */
+	void refresh(String entityName);
 }

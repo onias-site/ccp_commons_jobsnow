@@ -8,7 +8,7 @@ import com.ccp.business.CcpBusiness;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 /**
- * Contract of the cache system (e.g. GCP Memcache). Defines reading, writing and removal of values identified by a text
+ * Contract of the cache system (e.g. GCP Memorystore). Defines reading, writing and removal of values identified by a text
  * key, with expiration time and automatic fallback when the key is not present.
  */
 public interface CcpCache {
