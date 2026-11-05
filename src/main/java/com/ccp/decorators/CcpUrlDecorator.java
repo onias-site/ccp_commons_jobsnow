@@ -10,6 +10,14 @@ import java.nio.charset.StandardCharsets;
  * {@code URLDecoder}). Useful to build and read query string parameters.
  */
 public class CcpUrlDecorator implements CcpDecorator<String> {
+
+	/** Texts of the path decoding. */
+	enum Constants implements CcpJsonFieldName {
+		PLUS_SIGN { public String getValue() { return "+"; } },
+		ENCODED_PLUS_SIGN { public String getValue() { return "%2B"; } },
+		;
+	}
+
 	/** The URL or URL fragment. */
 	public final String content;
 
@@ -42,6 +50,22 @@ public class CcpUrlDecorator implements CcpDecorator<String> {
 			return this.content;
 		}
 
+	}
+
+	/**
+	 * Decodes a URL path: percent-encoded characters are decoded and a literal {@code +} stays a {@code +}, as RFC 3986
+	 * says for paths ({@link #asDecoded()} follows the form encoding, where {@code +} is a space). Until 2026-11-04 an
+	 * e-mail with {@code +} in the path ({@code name+alias@gmail.com}) was refused with 400, and its encoded form
+	 * ({@code %2B}) was saved without the {@code %}.
+	 * @return the decoded path
+	 */
+	public String asPathDecoded() {
+		String plusSign = Constants.PLUS_SIGN.getValue();
+		String encodedPlusSign = Constants.ENCODED_PLUS_SIGN.getValue();
+		String plusKept = this.content.replace(plusSign, encodedPlusSign);
+		CcpUrlDecorator plusKeptUrl = new CcpUrlDecorator(plusKept);
+		String decoded = plusKeptUrl.asDecoded();
+		return decoded;
 	}
 
 	/**

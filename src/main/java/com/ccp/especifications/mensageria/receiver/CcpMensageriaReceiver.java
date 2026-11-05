@@ -36,15 +36,18 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	/**
 	 * Instantiates the process by reflection and returns its handler: the process itself when it is a
 	 * {@code CcpBusiness}; for an entity configurator, the handler of the operation named in the message, over the custom
-	 * entity (or its twin, when {@code entityName} names the twin).
-	 * @param processName the fully qualified class name of the process (the topic)
+	 * entity (or its twin, when {@code entityName} names the twin). A topic may carry a qualifier after the class, as in
+	 * {@code com.jb.business.bots.engine.JbBusinessRunBotCommand~pendingTickets}: the same process with a queue of its own
+	 * for each qualifier (one per bot command, since 2026-11-04); only the class is instantiated.
+	 * @param processName the fully qualified class name of the process (the topic), possibly with a qualifier
 	 * @param json the message
 	 * @return the business that handles the message
 	 * @throws CcpErrorMensageriaInvalidName when the class is neither a business nor an entity configurator
 	 */
 	public CcpBusiness getProcess(String processName, CcpJsonRepresentation json){
-		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(processName);
-	
+		String processClassName = getProcessClassName(processName);
+		CcpStringDecorator ccpStringDecorator = new CcpStringDecorator(processClassName);
+
 		CcpReflectionConstructorDecorator reflection = ccpStringDecorator.reflection();
 
 		Object newInstance = reflection.newInstance();
@@ -147,6 +150,44 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 		return newInstance;
 	}
 	
+	/** The texts of the names of the topics. */
+	public static enum Constants implements CcpJsonFieldName{
+		/**
+		 * Separates the class of the process from the qualifier of its queue. A tilde is accepted in the name of a Pub/Sub
+		 * topic and never appears in a class name.
+		 */
+		QUEUE_QUALIFIER_SEPARATOR { public String getValue() { return "~"; } }
+	}
+
+	/**
+	 * The topic of a process with a queue of its own for the qualifier: {@code <class of the process>~<qualifier>}.
+	 * @param processClass the class of the process
+	 * @param qualifier the qualifier of the queue
+	 * @return the topic
+	 */
+	public static String getQualifiedTopic(Class<?> processClass, String qualifier) {
+		String processClassName = processClass.getName();
+		String separator = Constants.QUEUE_QUALIFIER_SEPARATOR.getValue();
+		String qualifiedTopic = processClassName + separator + qualifier;
+		return qualifiedTopic;
+	}
+
+	/**
+	 * The class of the process of a topic: the topic itself, or the part before the qualifier.
+	 * @param topic the topic
+	 * @return the fully qualified class name of the process
+	 */
+	public static String getProcessClassName(String topic) {
+		String separator = Constants.QUEUE_QUALIFIER_SEPARATOR.getValue();
+		int separatorIndex = topic.indexOf(separator);
+		boolean hasNoQualifier = separatorIndex < 0;
+		if(hasNoQualifier) {
+			return topic;
+		}
+		String processClassName = topic.substring(0, separatorIndex);
+		return processClassName;
+	}
+
 	/** Fields read by the receiver. */
 	public static enum JsonFieldNames implements CcpJsonFieldName{
 		/** The fully qualified class name of the concrete receiver. */

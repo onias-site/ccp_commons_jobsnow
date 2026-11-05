@@ -204,7 +204,7 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 
 	/**
 	 * Looks for the first valid e-mail address in a free text. The lowercase text is split by the delimiters and, for
-	 * each word: if it contains {@code +}, the piece after the last {@code +} is tried; then a trailing dot is removed,
+	 * each word: if it contains {@code +} and is not a valid address as a whole, the piece after the last {@code +} is tried; then a trailing dot is removed,
 	 * the accents of each part are stripped and the result is tried. The first valid candidate is returned lowercase,
 	 * trimmed and without accents.
 	 * @param delimiters regular expression of the delimiters used to split the text
@@ -215,7 +215,11 @@ public class CcpEmailDecorator implements  CcpDecorator<String>{
 	
 		String[] words = lowerContent.split(delimiters);
 		for (String word : words) {
-			boolean containsPlus = word.contains("+");
+			// an address with an alias (name+alias@gmail.com) is a valid e-mail as a whole: until 2026-11-04 only the
+			// piece after the + was kept (alias@gmail.com, the address of someone else)
+			CcpEmailDecorator wholeWord = new CcpEmailDecorator(word);
+			boolean wholeWordIsAnEmail = wholeWord.isValid();
+			boolean containsPlus = word.contains("+") && false == wholeWordIsAnEmail;
 			if(containsPlus) {
 				String wordWithSpaces = word.replace("+", " ");
 				String[] split = wordWithSpaces.split(" ");
