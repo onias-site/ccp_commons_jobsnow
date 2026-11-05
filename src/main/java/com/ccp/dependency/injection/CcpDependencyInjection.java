@@ -18,6 +18,51 @@ public class CcpDependencyInjection {
 	static Map<Class<?>, Object> instances = new HashMap<>();
 
 	/**
+	 * Implementations that only the current thread sees, ahead of the registry (since 2026-11-05). A consumer of a queue
+	 * that names its own implementation (the column {@code senderClass} of {@code topicos.tsv}) runs each message with it
+	 * here, so its choice does not leak to the consumers of the other queues, which share the registry in the same JVM.
+	 */
+	private static final ThreadLocal<Map<Class<?>, Object>> instancesOfTheThread = ThreadLocal.withInitial(HashMap::new);
+
+	/**
+	 * Runs {@code business.execute(json)} with the implementation seen only by the current thread, under the interface of
+	 * the implementation (see {@link #getEspecification(Object)}), and then puts back what the thread saw before, whether
+	 * the business finishes normally or throws. The registry of the other threads is not touched.
+	 * @param json input of the business
+	 * @param business the business to run
+	 * @param implementation the implementation the business sees while it runs
+	 * @return the result of the business
+	 */
+	public static CcpJsonRepresentation executeWithDependencyOfThisThread(CcpJsonRepresentation json, CcpBusiness business, Object implementation) {
+		Class<?> especification = getEspecification(implementation);
+		Map<Class<?>, Object> ofThisThread = instancesOfTheThread.get();
+		boolean thisThreadAlreadyHadOne = ofThisThread.containsKey(especification);
+		Object previousImplementation = ofThisThread.getOrDefault(especification, implementation);
+		ofThisThread.put(especification, implementation);
+		try {
+			CcpJsonRepresentation result = business.execute(json);
+			return result;
+		} finally {
+			restoreOfThisThread(especification, thisThreadAlreadyHadOne, previousImplementation);
+		}
+	}
+
+	/**
+	 * Puts back the implementation the current thread saw before {@link #executeWithDependencyOfThisThread}.
+	 * @param especification the interface
+	 * @param thisThreadAlreadyHadOne whether the thread had its own implementation before
+	 * @param previousImplementation that implementation, when it had one
+	 */
+	private static void restoreOfThisThread(Class<?> especification, boolean thisThreadAlreadyHadOne, Object previousImplementation) {
+		Map<Class<?>, Object> ofThisThread = instancesOfTheThread.get();
+		if(thisThreadAlreadyHadOne) {
+			ofThisThread.put(especification, previousImplementation);
+			return;
+		}
+		ofThisThread.remove(especification);
+	}
+
+	/**
 	 * Temporarily replaces the dependencies, runs {@code business.execute(json)} and then restores the registry exactly as
 	 * it was: the previous implementation of each replaced interface comes back, and an interface that had none is left
 	 * without one. The restoration happens whether the business finishes normally or throws.
@@ -119,19 +164,31 @@ public class CcpDependencyInjection {
 	 * @return {@code true} when an implementation is registered
 	 */
 	public static <T> boolean hasDependency(Class<T> interfaceClass) {
+		Map<Class<?>, Object> ofThisThread = instancesOfTheThread.get();
+		boolean thisThreadHasItsOwn = ofThisThread.containsKey(interfaceClass);
+		if(thisThreadHasItsOwn) {
+			return true;
+		}
 		Object implementation = instances.get(interfaceClass);
 		boolean implementationFound = implementation != null;
 		return implementationFound;
 	}
 
 	/**
-	 * Retrieves the implementation registered for the interface.
+	 * Retrieves the implementation of the interface: the one of the current thread, when
+	 * {@link #executeWithDependencyOfThisThread} gave it one, otherwise the one registered.
 	 * @param interfaceClass the interface
 	 * @return the registered implementation
 	 * @throws CcpErrorDependencyInjectionMissing when no implementation was registered
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getDependency(Class<T> interfaceClass) {
+		Map<Class<?>, Object> ofThisThread = instancesOfTheThread.get();
+		boolean thisThreadHasItsOwn = ofThisThread.containsKey(interfaceClass);
+		if(thisThreadHasItsOwn) {
+			T implementationOfTheThread = (T) ofThisThread.get(interfaceClass);
+			return implementationOfTheThread;
+		}
 		Object implementation = instances.get(interfaceClass);
 		boolean implementationMissing = implementation == null;
 		if(implementationMissing) {

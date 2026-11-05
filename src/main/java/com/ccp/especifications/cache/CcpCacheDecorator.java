@@ -8,6 +8,7 @@ import java.util.function.Function;
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpFieldName;
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -49,9 +50,44 @@ public final class CcpCacheDecorator {
 	public CcpCacheDecorator(CcpEntity entity, String id) {
 		CcpEntityMetaData entityDetails = entity.getEntityMetaData();
 		this.cacheParameters = CcpOtherConstants.EMPTY_JSON;
-		String entityKeyPrefix = "records.entity." + entityDetails.entityName;
-		String recordKeyPrefix = entityKeyPrefix + ".id.";
+		String recordsPrefix = KeyParts.RECORDS_PREFIX.getValue();
+		String idSeparator = KeyParts.ID_SEPARATOR.getValue();
+		String entityKeyPrefix = recordsPrefix + entityDetails.entityName;
+		String recordKeyPrefix = entityKeyPrefix + idSeparator;
 		this.key = recordKeyPrefix + id ;
+	}
+
+	/**
+	 * The entity whose record a key holds, for the measurement of the cache per entity.
+	 * @param key a cache key
+	 * @return the entity name of a key {@code records.entity.<name>.id.<id>}; an empty text for any other key (the
+	 * results of the cached services, keyed by a hash)
+	 */
+	public static String getEntityNameOfTheKey(String key) {
+		String recordsPrefix = KeyParts.RECORDS_PREFIX.getValue();
+		String idSeparator = KeyParts.ID_SEPARATOR.getValue();
+		boolean notARecord = false == key.startsWith(recordsPrefix);
+		if(notARecord) {
+			return KeyParts.NO_ENTITY.getValue();
+		}
+		int nameStart = recordsPrefix.length();
+		int nameEnd = key.indexOf(idSeparator, nameStart);
+		boolean withoutId = nameEnd < 0;
+		if(withoutId) {
+			return KeyParts.NO_ENTITY.getValue();
+		}
+		String entityName = key.substring(nameStart, nameEnd);
+		return entityName;
+	}
+
+	/** The fixed parts of the key of a record. */
+	enum KeyParts implements CcpJsonFieldName {
+		/** What starts the key of a record, followed by the entity name. */
+		RECORDS_PREFIX { public String getValue() { return "records.entity."; } },
+		/** What separates the entity name from the record id. */
+		ID_SEPARATOR { public String getValue() { return ".id."; } },
+		/** The entity of a key that is not of a record. */
+		NO_ENTITY { public String getValue() { return ""; } }
 	}
 	
 	/**

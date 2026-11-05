@@ -160,15 +160,17 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	}
 
 	/**
-	 * The topic of a process with a queue of its own for the qualifier: {@code <class of the process>~<qualifier>}.
+	 * The topic of a process with a queue of its own for the qualifiers: {@code <class of the process>~<qualifier>~...},
+	 * e.g. {@code JbBusinessRunBotCommand~support~pendingTickets}.
 	 * @param processClass the class of the process
-	 * @param qualifier the qualifier of the queue
+	 * @param qualifiers the qualifiers of the queue, in order
 	 * @return the topic
 	 */
-	public static String getQualifiedTopic(Class<?> processClass, String qualifier) {
+	public static String getQualifiedTopic(Class<?> processClass, String... qualifiers) {
 		String processClassName = processClass.getName();
 		String separator = Constants.QUEUE_QUALIFIER_SEPARATOR.getValue();
-		String qualifiedTopic = processClassName + separator + qualifier;
+		String joinedQualifiers = String.join(separator, qualifiers);
+		String qualifiedTopic = processClassName + separator + joinedQualifiers;
 		return qualifiedTopic;
 	}
 
