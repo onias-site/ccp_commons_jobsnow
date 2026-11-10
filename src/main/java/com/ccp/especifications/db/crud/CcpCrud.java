@@ -71,6 +71,17 @@ public interface CcpCrud {
 	CcpJsonRepresentation save(String entityName, CcpJsonRepresentation json, String id);
 
 	/**
+	 * Creates the document or replaces it entirely: unlike {@link #save(String, CcpJsonRepresentation, String)}, which
+	 * merges the fields sent into the stored document, the fields of the stored document that are not in {@code json}
+	 * are removed. Used by the entities marked with {@code @CcpEntityReplacedOnSave}.
+	 * @param entityName the entity (index) name
+	 * @param json the whole document
+	 * @param id the document id
+	 * @return the raw response of the database, to be read by {@link #isInsertedDocument(CcpJsonRepresentation)}
+	 */
+	CcpJsonRepresentation replace(String entityName, CcpJsonRepresentation json, String id);
+
+	/**
 	 * Tells whether the response returned by {@code save} corresponds to the insertion of a new document,
 	 * rather than to the update of a document that already existed. The implementer of this contract is the only one
 	 * that knows the format of the database response and the HTTP status that comes with it, which is why the

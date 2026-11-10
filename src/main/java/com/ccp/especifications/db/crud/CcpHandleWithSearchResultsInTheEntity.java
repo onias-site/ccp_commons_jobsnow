@@ -33,4 +33,18 @@ public interface CcpHandleWithSearchResultsInTheEntity<T> {
 	 * @return the entity searched
 	 */
 	CcpEntity getEntityToSearch();
+
+	/**
+	 * Joins the record found with the search parameters before {@link #whenRecordWasFoundInTheEntitySearch}: by default the
+	 * new values are merged into the stored record, so a transfer carries the whole record. The save handlers override it to
+	 * let the entity decide ({@code CcpEntity.getRecordToSave}): an entity marked with {@code @CcpEntityReplacedOnSave}
+	 * keeps only the new values.
+	 * @param recordFound the stored record
+	 * @param searchParameter the search parameters, already handled by the entity
+	 * @return the json given to {@code whenRecordWasFoundInTheEntitySearch}
+	 */
+	default CcpJsonRepresentation joinRecordFound(CcpJsonRepresentation recordFound, CcpJsonRepresentation searchParameter) {
+		CcpJsonRepresentation recordMergedWithSearch = recordFound.mergeWithAnotherJson(searchParameter);
+		return recordMergedWithSearch;
+	}
 }

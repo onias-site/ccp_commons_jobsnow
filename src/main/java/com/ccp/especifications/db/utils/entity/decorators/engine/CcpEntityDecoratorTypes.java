@@ -31,6 +31,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityF
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChild;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityReplacedOnSave;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
@@ -311,7 +312,7 @@ import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntitySi
  * {@code GrouperChildBeforeWrite} (7);
  * {@code FieldsTransformer} (6); the {@code after} side effects, {@code VersionablePurge} and
  * {@code GrouperChildAfterWrite} (5); {@code Twin} (4); {@code Cacheable} (3); {@code Versionable} (2);
- * {@code Disposable} (1), the innermost.
+ * {@code Disposable} (1); {@code ReplacedOnSave} (0), the innermost, which only changes the final write.
  *
  * <p>Ties are resolved by the order of the items in this enum: the sort is stable, so an item declared earlier stays
  * <b>inside</b> the ones declared after it with the same priority. That is why the side effects that run businesses
@@ -324,6 +325,8 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	FieldsValidator(CcpEntityFieldsValidator.class, 10, DecoratorFieldsValidatorEntity::new),
 	/** Blocks the writes ({@code @CcpEntityOlyReadable}); priority 9. */
 	DataReadOnly(CcpEntityOlyReadable.class, 9, DecoratorReadOnlyEntity::new),
+	/** Replaces the stored document on save instead of merging ({@code @CcpEntityReplacedOnSave}); priority 0, the innermost. */
+	ReplacedOnSave(CcpEntityReplacedOnSave.class, 0, DecoratorReplacedOnSaveEntity::new),
 	/** Caches the records ({@code @CcpEntityCache}); priority 3. */
 	Cacheable(CcpEntityCache.class, 3, DecoratorCacheEntity::new),
 	/** Twin entity pattern ({@code @CcpEntityTwin}); priority 4. */

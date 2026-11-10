@@ -85,6 +85,18 @@ public class CcpBulkHandlerSave implements CcpHandleWithSearchResultsInTheEntity
 	}
 
 	/**
+	 * Lets the entity decide what a save over an existing record writes ({@code CcpEntity.getRecordToSave}).
+	 * @param recordFound the stored record
+	 * @param searchParameter the new record
+	 * @return the record to save
+	 */
+	public CcpJsonRepresentation joinRecordFound(CcpJsonRepresentation recordFound, CcpJsonRepresentation searchParameter) {
+		CcpEntity entityToSearch = this.getEntityToSearch();
+		CcpJsonRepresentation recordToSave = entityToSearch.getRecordToSave(recordFound, searchParameter);
+		return recordToSave;
+	}
+
+	/**
 	 * Produces {@code create} items with the data of {@code searchParameter}.
 	 *
 	 * @param searchParameter search parameters used to create the record

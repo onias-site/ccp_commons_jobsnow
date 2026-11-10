@@ -125,7 +125,7 @@ public class CcpSelectUnionAll {
 		}
 		Supplier<CcpJsonRepresentation> jsonSupplier = searchParameter.getJsonSupplier();
 		CcpJsonRepresentation recordFound = entity.getRecordFromUnionAll(this, jsonSupplier);
-		CcpJsonRepresentation recordMergedWithSearch = recordFound.mergeWithAnotherJson(handledJson);
+		CcpJsonRepresentation recordMergedWithSearch = handler.joinRecordFound(recordFound, handledJson);
 		T foundResult = handler.whenRecordWasFoundInTheEntitySearch(recordMergedWithSearch, recordFound);
 		return foundResult;
 	}

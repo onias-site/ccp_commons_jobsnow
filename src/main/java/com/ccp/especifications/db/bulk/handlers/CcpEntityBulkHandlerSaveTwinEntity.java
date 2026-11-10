@@ -33,6 +33,18 @@ public class CcpEntityBulkHandlerSaveTwinEntity extends CcpEntityBulkHandlerTran
 	 * @param recordFound data of the record found
 	 * @return list of update bulk items in the wrapper entity
 	 */
+	/**
+	 * Lets the entity decide what a save over an existing record writes ({@code CcpEntity.getRecordToSave}).
+	 * @param recordFound the stored record
+	 * @param searchParameter the new record
+	 * @return the record to save
+	 */
+	public CcpJsonRepresentation joinRecordFound(CcpJsonRepresentation recordFound, CcpJsonRepresentation searchParameter) {
+		CcpEntity entityToSearch = this.getEntityToSearch();
+		CcpJsonRepresentation recordToSave = entityToSearch.getRecordToSave(recordFound, searchParameter);
+		return recordToSave;
+	}
+
 	public List<CcpBulkItem> whenRecordWasFoundInTheEntitySearch(CcpJsonRepresentation json, CcpJsonRepresentation recordFound) {
 		
 		var saveItems = this.getBulkItemsToSave(json, CcpBulkEntityOperationType.update);

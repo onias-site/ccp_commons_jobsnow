@@ -231,6 +231,18 @@ public interface CcpEntity  extends CcpJsonFieldName{
 	}
 
 	/**
+	 * The record a save writes when this entity already has it: by default the new values merged into the stored record
+	 * (a field left out keeps its stored value). {@code @CcpEntityReplacedOnSave} makes it the new record alone.
+	 * @param recordFound the stored record
+	 * @param newRecord the record being saved
+	 * @return the record to write
+	 */
+	default CcpJsonRepresentation getRecordToSave(CcpJsonRepresentation recordFound, CcpJsonRepresentation newRecord) {
+		CcpJsonRepresentation recordToSave = recordFound.mergeWithAnotherJson(newRecord);
+		return recordToSave;
+	}
+
+	/**
 	 * Returns the "wrapped" entity (the base entity inside a decorator). By default returns {@code this}.
 	 */
 	default CcpEntity getWrapedEntity() {

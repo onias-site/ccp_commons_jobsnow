@@ -84,6 +84,12 @@ public class CcpEntityDelegator implements CcpEntity{
 	}
 
 	/** Delegates to the wrapped entity. {@inheritDoc} */
+	public CcpJsonRepresentation getRecordToSave(CcpJsonRepresentation recordFound, CcpJsonRepresentation newRecord) {
+		CcpJsonRepresentation recordToSave = this.entity.getRecordToSave(recordFound, newRecord);
+		return recordToSave;
+	}
+
+	/** Delegates to the wrapped entity. {@inheritDoc} */
 	public boolean isPresentInThisUnionAll(CcpSelectUnionAll unionAll, CcpJsonRepresentation json) {
 		boolean presentInThisUnionAll = this.entity.isPresentInThisUnionAll(unionAll, json);
 		return presentInThisUnionAll;
