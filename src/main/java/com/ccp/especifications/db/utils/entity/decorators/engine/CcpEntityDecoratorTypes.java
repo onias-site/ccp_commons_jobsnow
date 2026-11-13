@@ -32,6 +32,8 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityG
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityReplacedOnSave;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityInsertionDate;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityRecordsCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
@@ -818,6 +820,11 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	/** {@code @CcpBeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError}; priority 7. */
 	BeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError(CcpBeforeCopyDataFromTwinEntitySendAnEmailMessageAndInstantMessageAndIfFailsLogTheError.class, _before, copyDataTo, twinEntity, new SideEffectMessageToUser(messageTemplate, LOG, email, instantMessenger)),
 	/**
+	 * Keeps the moment of the insertion in a field of the record ({@code @CcpEntityInsertionDate}); priority 7, declared
+	 * before {@code GrouperChildCounterBeforeWrite} so it stays inside it: the counters read the record with the field.
+	 */
+	InsertionDate(CcpEntityInsertionDate.class, 7, DecoratorFromTheAnnotation.value),
+	/**
 	 * Counts the record in the groups of its parents ({@code @CcpEntityGrouperChildCounter}); priority 7, declared before
 	 * {@code GrouperChildBeforeWrite} so it stays inside it and sees the record as that decorator hands it over.
 	 */
@@ -826,6 +833,11 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	GrouperChildBeforeWrite(CcpEntityGrouperChild.class, 7, DecoratorFromTheAnnotation.beforeDecoratorClass),
 	/** Puts the record in its groups after the writes ({@code @CcpEntityGrouperChild}); priority 5. */
 	GrouperChildAfterWrite(CcpEntityGrouperChild.class, 5, DecoratorFromTheAnnotation.afterDecoratorClass),
+	/**
+	 * Counts again the records of the main and of the twin side after the writes ({@code @CcpEntityRecordsCounter});
+	 * priority 5, outside {@code Twin}.
+	 */
+	RecordsCounter(CcpEntityRecordsCounter.class, 5, DecoratorFromTheAnnotation.value),
 	/** Publishes the writes to the messaging system ({@code @CcpEntityAsyncWriter}); priority 8. */
 	AsyncWriter(CcpEntityAsyncWriter.class, 8, DecoratorFromTheAnnotation.value),
 	;
@@ -849,7 +861,7 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	 * @param implementation how the implementation is read from the annotation and instantiated
 	 */
 	private CcpEntityDecoratorTypes(Class<? extends Annotation> annotation, int priority, DecoratorFromTheAnnotation implementation) {
-		this(annotation, priority, (entity, configurationClass) -> implementation.getEntity(entity, configurationClass.getAnnotation(annotation)));
+		this(annotation, priority, (entity, configurationClass) -> implementation.getEntityOfEachDeclaration(entity, configurationClass, annotation));
 	}
 
 	/**

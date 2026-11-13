@@ -88,6 +88,24 @@ enum DecoratorFromTheAnnotation {
 	abstract CcpEntity getEntity(CcpEntity entity, Annotation annotation);
 
 	/**
+	 * Wraps the entity with the implementation named by each declaration of the annotation on the configurator class,
+	 * in the order they are declared (the first one stays inside): a repeatable annotation becomes one decorator per
+	 * declaration, any other one a single decorator.
+	 * @param entity the entity decorated so far
+	 * @param configurationClass the configurator class that carries the annotation
+	 * @param annotationType the annotation
+	 * @return the decorated entity
+	 */
+	CcpEntity getEntityOfEachDeclaration(CcpEntity entity, Class<?> configurationClass, Class<? extends Annotation> annotationType) {
+		Annotation[] declarations = configurationClass.getAnnotationsByType(annotationType);
+		CcpEntity decoratedEntity = entity;
+		for (Annotation declaration : declarations) {
+			decoratedEntity = this.getEntity(decoratedEntity, declaration);
+		}
+		return decoratedEntity;
+	}
+
+	/**
 	 * Instantiates a decorator class whose constructor receives the entity and the annotation.
 	 * @param decoratorClass the decorator class
 	 * @param entity the entity decorated so far

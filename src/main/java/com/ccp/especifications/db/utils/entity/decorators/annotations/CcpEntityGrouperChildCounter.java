@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -20,9 +21,18 @@ import java.util.function.Function;
  * {@code CcpEntityDecoratorTypes.GrouperChildCounterBeforeWrite} (priority 7, inside {@code GrouperChildBeforeWrite}:
  * it reads the stored record before it changes, and the record already carries what the decorator of
  * {@code @CcpEntityGrouperChild} puts in it).
+ * <p>
+ * The class given to {@link #beforeDecoratorClass} decides how the record is counted: the history above
+ * ({@code JnGrouperChildCounterEntityBeforeWrite}, one key per record), or the current state
+ * ({@code JnGrouperChildCurrentCounterEntityBeforeWrite}, several keys per record, every write subtracting the keys the
+ * record had on the main side and adding the ones it has there now, a key at 0 leaving the group).
+ * <p>
+ * The annotation is repeatable: each declaration is a counting decorator of its own, with its own parents, keys and
+ * way of counting.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
+@Repeatable(CcpEntityGrouperChildCounterList.class)
 public @interface CcpEntityGrouperChildCounter {
 
 	/**
@@ -34,8 +44,9 @@ public @interface CcpEntityGrouperChildCounter {
 	Class<?>[] value();
 
 	/**
-	 * Produces, from the record as it came, the key of its counter (a {@code Function} from the record to a text);
-	 * created by reflection, with a constructor without parameters (private when the class exposes {@code INSTANCE}).
+	 * Produces, from the record, the key of its counter (a {@code Function} from the record to a text), or its keys (to a
+	 * {@code List<String>}) when the {@link #beforeDecoratorClass} counts several keys per record; created by reflection,
+	 * with a constructor without parameters (private when the class exposes {@code INSTANCE}).
 	 * @return the class that produces the key
 	 */
 	@SuppressWarnings("rawtypes")

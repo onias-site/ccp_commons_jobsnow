@@ -1,6 +1,7 @@
 package com.ccp.especifications.db.utils.entity.decorators.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -26,12 +27,16 @@ import java.lang.annotation.Target;
  * class): the record keeps in that field the ids of the parents it was written with, which tells the groups it must
  * leave.</li>
  * </ul>
+ * The annotation is repeatable: each declaration is a pair of decorators of its own, so a record may be a child kept by
+ * its id in some kinds of group and a child kept as a JSON of some of its fields ({@link #childFields}) in others.
+ * <p>
  * Built by {@code CcpEntityDecoratorTypes.GrouperChildBeforeWrite} (priority 7: it reads the stored record
  * before it changes) and {@code CcpEntityDecoratorTypes.GrouperChildAfterWrite} (priority 5: inside the field
  * transformers, after the write).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
+@Repeatable(CcpEntityGrouperChildList.class)
 public @interface CcpEntityGrouperChild {
 
 	/**
@@ -64,4 +69,21 @@ public @interface CcpEntityGrouperChild {
 	 * @return the name of the field
 	 */
 	String childField() default "";
+
+	/**
+	 * The fields of the record kept in the child, for the decorators that keep the id of the record: when not empty, the
+	 * child is a JSON text with these fields of the record (as stored, after the field transformers) and the id of the
+	 * record in {@code id}, which tells the versions of the same record apart. Empty, the default, the child is the id.
+	 * @return the names of the fields
+	 */
+	String[] childFields() default {};
+
+	/**
+	 * Produce more fields of the child, with {@link #childFields}: each one a {@code Function} from the record (as
+	 * {@link #childFields} reads it) to a JSON whose fields are merged into the child, before its {@code id}; created by
+	 * reflection, with a constructor without parameters (private when the class exposes {@code INSTANCE}). Used when the
+	 * child keeps a value calculated from the record (the names of some items of a list) instead of a field as stored.
+	 * @return the producer classes
+	 */
+	Class<?>[] childFieldsProducers() default {};
 }
