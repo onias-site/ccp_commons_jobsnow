@@ -33,7 +33,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityG
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityOlyReadable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityReplacedOnSave;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityInsertionDate;
-import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityRecordsCounter;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildTotal;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
@@ -834,10 +834,10 @@ public enum CcpEntityDecoratorTypes implements CcpEntityDecoratorType{
 	/** Puts the record in its groups after the writes ({@code @CcpEntityGrouperChild}); priority 5. */
 	GrouperChildAfterWrite(CcpEntityGrouperChild.class, 5, DecoratorFromTheAnnotation.afterDecoratorClass),
 	/**
-	 * Counts again the records of the main and of the twin side after the writes ({@code @CcpEntityRecordsCounter});
-	 * priority 5, outside {@code Twin}.
+	 * Keeps the total of records of each side of the entity as the child of a group of the grouper
+	 * ({@code @CcpEntityGrouperChildTotal}); priority 7, outside {@code Twin} and the field transformers.
 	 */
-	RecordsCounter(CcpEntityRecordsCounter.class, 5, DecoratorFromTheAnnotation.value),
+	GrouperChildTotal(CcpEntityGrouperChildTotal.class, 7, DecoratorFromTheAnnotation.value),
 	/** Publishes the writes to the messaging system ({@code @CcpEntityAsyncWriter}); priority 8. */
 	AsyncWriter(CcpEntityAsyncWriter.class, 8, DecoratorFromTheAnnotation.value),
 	;
