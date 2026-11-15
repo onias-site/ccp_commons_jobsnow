@@ -65,7 +65,12 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		}
 
 		ArrayList<Object> sortedPrimaryKeyValues = entityDetails.getSortedPrimaryKeyValues(json);
-		String primaryKeyValuesAsText = sortedPrimaryKeyValues.toString();
+		ArrayList<Object> primaryKeyValuesForTheHash = new ArrayList<>();
+		for (Object primaryKeyValue : sortedPrimaryKeyValues) {
+			Object valueForTheHash = this.getPrimaryKeyValueForTheHash(primaryKeyValue);
+			primaryKeyValuesForTheHash.add(valueForTheHash);
+		}
+		String primaryKeyValuesAsText = primaryKeyValuesForTheHash.toString();
 		String withoutOpeningBracket = primaryKeyValuesAsText.replace("[", "");
 
 		String hashInput = withoutOpeningBracket.replace("]", "");
@@ -73,6 +78,40 @@ public interface CcpEntity  extends CcpJsonFieldName{
 		CcpHashDecorator hashDecorator = hashInputDecorator.hash();
 		String hash = hashDecorator.asString(CcpHashAlgorithm.SHA1);
 		return hash;
+	}
+
+	/**
+	 * The value of a primary key field as the id hashes it: an integral {@code Double} becomes a {@code Long}. A JSON
+	 * that went through the messaging (or any parse of JSON text) brings its whole numbers as {@code Double}
+	 * ({@code 751717896} becomes {@code 7.51717896E8}), and without this the same record would get a different id
+	 * after an asynchronous write (since 2026-11-15).
+	 * @param primaryKeyValue the value of the field
+	 * @return the value to hash
+	 */
+	private Object getPrimaryKeyValueForTheHash(Object primaryKeyValue) {
+		boolean notADouble = false == (primaryKeyValue instanceof Double);
+
+		if(notADouble) {
+			return primaryKeyValue;
+		}
+
+		Double doubleValue = (Double) primaryKeyValue;
+		double fractionalPart = doubleValue % 1;
+		boolean notIntegral = fractionalPart != 0;
+
+		if(notIntegral) {
+			return primaryKeyValue;
+		}
+
+		double absoluteValue = Math.abs(doubleValue);
+		boolean outOfTheLongRange = absoluteValue >= Long.MAX_VALUE;
+
+		if(outOfTheLongRange) {
+			return primaryKeyValue;
+		}
+
+		long longValue = doubleValue.longValue();
+		return longValue;
 	}
 
 	/**

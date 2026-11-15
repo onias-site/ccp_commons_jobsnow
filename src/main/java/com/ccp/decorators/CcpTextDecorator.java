@@ -331,10 +331,11 @@ public class CcpTextDecorator implements CcpDecorator<String> {
 	}
 
 	/**
-	 * Encodes the text in Base64.
+	 * Encodes the text in Base64, writing the bytes as UTF-8 (the inverse of {@link #fromBase64()}; until 2026-11-15 the
+	 * bytes came in the charset of the platform, which on Windows broke the accents of a message decoded as UTF-8).
 	 */
 	public CcpTextDecorator asBase64() {
-		byte[] bytes = this.content.getBytes();
+		byte[] bytes = this.content.getBytes(StandardCharsets.UTF_8);
 		Encoder encoder = Base64.getEncoder();
 		String encodeToString = encoder.encodeToString(bytes);
 		CcpTextDecorator ccpTextDecorator = new CcpTextDecorator(encodeToString);
