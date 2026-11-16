@@ -3,6 +3,7 @@ package com.ccp.especifications.mensageria.receiver;
 import java.util.function.Consumer;
 
 import com.ccp.business.CcpBusiness;
+import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpReflectionConstructorDecorator;
@@ -119,8 +120,49 @@ public abstract class CcpMensageriaReceiver implements CcpJsonFieldName{
 	 */
 	public CcpJsonRepresentation executeProcess(String processName, CcpJsonRepresentation json) {
 		CcpBusiness process = this.getProcess(processName, json);
-		CcpJsonRepresentation response = process.execute(json);
+		String recordKey = this.getRecordKey(processName, json);
+		boolean notARecordWrite = recordKey.isEmpty();
+
+		if(notARecordWrite) {
+			CcpJsonRepresentation response = process.execute(json);
+			return response;
+		}
+
+		CcpJsonRepresentation response = CcpMensageriaRecordLocks.INSTANCE.executeLocked(recordKey, process, json);
 		return response;
+	}
+
+	/**
+	 * The record written by the message, the key of its lock in {@link CcpMensageriaRecordLocks}: the class of the
+	 * entity configurator and the id of the record on the main side (a write of the twin shares the lock of the main
+	 * side).
+	 * @param processName the topic
+	 * @param json the message
+	 * @return the key of the record, empty when the topic is a business or the message has no primary key
+	 */
+	private String getRecordKey(String processName, CcpJsonRepresentation json) {
+		String processClassName = getProcessClassName(processName);
+		CcpStringDecorator processClassNameDecorator = new CcpStringDecorator(processClassName);
+		CcpReflectionConstructorDecorator reflection = processClassNameDecorator.reflection();
+		Object newInstance = reflection.newInstance();
+		boolean isCcpEntityConfigurator = newInstance instanceof CcpEntityConfigurator;
+		String noRecord = CcpOtherConstants.EMPTY_STRING.getValue();
+
+		if(false == isCcpEntityConfigurator) {
+			return noRecord;
+		}
+
+		CcpEntity entity = this.getCustomEntity(newInstance);
+		CcpEntityMetaData entityMetaData = entity.getEntityMetaData();
+		boolean hasThePrimaryKey = json.containsAllFields(entityMetaData.primaryKeyNames);
+
+		if(false == hasThePrimaryKey) {
+			return noRecord;
+		}
+
+		String recordId = entity.calculateId(json);
+		String recordKey = processClassName + recordId;
+		return recordKey;
 	}
 
 	/**
