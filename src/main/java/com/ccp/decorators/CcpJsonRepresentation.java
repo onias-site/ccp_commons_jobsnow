@@ -1150,9 +1150,12 @@ public class CcpJsonRepresentation  {
 				return defaultValue;
 			}
 			
-			CcpTextDecorator asTextDecorator = currentJson.getAsTextDecorator(path);
-			boolean validSingleJson = asTextDecorator.isValidSingleJson();
-			lastFieldIsJson = validSingleJson;
+			// a map or a JSON already is a JSON: until 2026-11-25 every step turned its whole value into pretty text and
+			// parsed it back only to ask that, which made a union all of 1168 keys spend 15 s here for 229 ms in the database
+			Object value = currentJson.content.get(path);
+			boolean alreadyJson = value instanceof Map || value instanceof CcpJsonRepresentation;
+			lastFieldIsJson = alreadyJson || this.isJsonText(currentJson, path);
+			boolean validSingleJson = lastFieldIsJson;
 			
 			if(validSingleJson) {
 				currentJson = currentJson.getInnerJson(path);
@@ -1167,6 +1170,18 @@ public class CcpJsonRepresentation  {
 		String path = paths[lastIndex];
 		T asObject = currentJson.getAsObject(path);
 		return asObject;
+	}
+
+	/**
+	 * Whether the value of the field, read as text, is a single JSON (a value that is neither a map nor a JSON).
+	 * @param json the JSON holding the field
+	 * @param path the field
+	 * @return whether the text of the value is a JSON
+	 */
+	private boolean isJsonText(CcpJsonRepresentation json, String path) {
+		CcpTextDecorator asTextDecorator = json.getAsTextDecorator(path);
+		boolean validSingleJson = asTextDecorator.isValidSingleJson();
+		return validSingleJson;
 	}
 
 
