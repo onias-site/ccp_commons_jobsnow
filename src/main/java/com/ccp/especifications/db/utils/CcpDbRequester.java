@@ -3,6 +3,7 @@ package com.ccp.especifications.db.utils;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkOperationResult;
 import com.ccp.especifications.http.CcpHttpMethods;
@@ -15,6 +16,14 @@ import com.ccp.especifications.db.utils.entity.fields.CcpErrorDbUtilsIncorrectEn
  * signatures, plus configuration utilities.
  */
 public interface CcpDbRequester {
+
+	/** The fields of the answer of {@link #deleteTheBackupsBeforeTheLatest(String)}. */
+	public static enum BackupFields implements CcpJsonFieldName {
+		/** The name of the most recent backup that went well, the only one kept; absent when there is none. */
+		latestBackup,
+		/** The names of the backups deleted. */
+		deletedBackups,
+	}
 
 	/**
 	 * Executes an HTTP request with a JSON body, resources (indexes) and expected status, and transforms the response.
@@ -74,6 +83,16 @@ public interface CcpDbRequester {
 	 * @return the details of the backup: its name, the entities in it and how it went
 	 */
 	CcpJsonRepresentation backup(String bucketName, List<String> entityNamePatterns);
+
+	/**
+	 * Deletes from the bucket every backup but the most recent one that went well (since 2026-11-27, so that the bucket
+	 * keeps a single backup). Without any backup that went well nothing is deleted, and a backup still running is never
+	 * deleted.
+	 * @param bucketName the bucket of the backups
+	 * @return {@code latestBackup}, the backup kept (absent when there is none), and {@code deletedBackups}, the names of
+	 * the backups deleted
+	 */
+	CcpJsonRepresentation deleteTheBackupsBeforeTheLatest(String bucketName);
 
 	/**
 	 * Makes what was written to the entity visible to the searches right away, for a search that must see a record
