@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
+import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldWrittenBeforeTheSave;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorArray;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeBoolean;
@@ -67,13 +68,10 @@ public enum CcpJsonFieldDefaultTypes implements CcpJsonFieldType {
 				return true;
 			}
 			boolean hasAnnotationPrimaryKey = field.isAnnotationPresent(CcpEntityFieldPrimaryKey.class);
-			
-			if(hasAnnotationPrimaryKey) {
-				return true;
-			}
-
-			
-			return false;
+			// a field of the primary key written before the save is not in the input of the save
+			boolean writtenBeforeTheSave = field.isAnnotationPresent(CcpEntityFieldWrittenBeforeTheSave.class);
+			boolean requiredPrimaryKey = hasAnnotationPrimaryKey && false == writtenBeforeTheSave;
+			return requiredPrimaryKey;
 		}
 		
 		/**
