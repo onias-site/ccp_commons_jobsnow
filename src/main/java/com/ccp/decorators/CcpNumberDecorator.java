@@ -35,6 +35,20 @@ public class CcpNumberDecorator implements CcpDecorator<Double> {
 	}
 
 	/**
+	 * Formats the number in the Brazilian way, with up to the given decimals, e.g. {@code 4.25} with 1 decimal as
+	 * {@code "4,3"} and {@code 4.0} as {@code "4"}.
+	 * @param maximumFractionDigits the most decimals
+	 * @return the number in the Brazilian way
+	 */
+	public String toBrazilianNumber(int maximumFractionDigits) {
+		Locale brazil = Locale.forLanguageTag("pt-BR");
+		NumberFormat numberFormat = NumberFormat.getNumberInstance(brazil);
+		numberFormat.setMaximumFractionDigits(maximumFractionDigits);
+		String formattedValue = numberFormat.format(this.content);
+		return formattedValue;
+	}
+
+	/**
 	 * Returns the number as text, in {@code double} format (e.g. {@code "3.0"}).
 	 * @return the number as text
 	 */
